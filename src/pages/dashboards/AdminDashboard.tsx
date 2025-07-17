@@ -178,6 +178,114 @@ const pageComponents = {
           </CardContent>
         </Card>
       </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <TrendingUp className="w-5 h-5" />
+              <span>Atividade Recente</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {/* Lista de atividades */}
+              <div className="flex items-center space-x-3 p-3 rounded-lg bg-muted/50">
+                <Users className="w-4 h-4 text-blue-500" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium">João Silva</p>
+                  <p className="text-xs text-muted-foreground">2 min atrás</p>
+                </div>
+                <Badge className="bg-zinc-800">client</Badge>
+              </div>
+              <div className="flex items-center space-x-3 p-3 rounded-lg bg-muted/50">
+                <DollarSign className="w-4 h-4 text-green-500" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium">Maria Santos</p>
+                  <p className="text-xs text-muted-foreground">5 min atrás</p>
+                </div>
+                <Badge className="bg-zinc-800">reseller</Badge>
+              </div>
+              <div className="flex items-center space-x-3 p-3 rounded-lg bg-muted/50">
+                <Tv className="w-4 h-4 text-purple-500" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium">Pedro Oliveira</p>
+                  <p className="text-xs text-muted-foreground">8 min atrás</p>
+                </div>
+                <Badge className="bg-zinc-800">client</Badge>
+              </div>
+              <div className="flex items-center space-x-3 p-3 rounded-lg bg-muted/50">
+                <Brain className="w-4 h-4 text-orange-500" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium">Ana Costa</p>
+                  <p className="text-xs text-muted-foreground">12 min atrás</p>
+                </div>
+                <Badge className="bg-zinc-800">client</Badge>
+              </div>
+              <div className="flex items-center space-x-3 p-3 rounded-lg bg-muted/50">
+                <TrendingUp className="w-4 h-4 text-indigo-500" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium">Carlos Lima</p>
+                  <p className="text-xs text-muted-foreground">15 min atrás</p>
+                </div>
+                <Badge className="bg-zinc-800">reseller</Badge>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Users className="w-5 h-5" />
+              <span>Usuários Online</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {/* Lista de usuários online */}
+              <div className="flex items-center space-x-3 p-3 rounded-lg bg-muted/50">
+                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white text-xs font-bold">J</div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">João Silva</p>
+                  <p className="text-xs text-muted-foreground">Cliente • Agora</p>
+                </div>
+                <Badge className="bg-green-500">Online</Badge>
+              </div>
+              <div className="flex items-center space-x-3 p-3 rounded-lg bg-muted/50">
+                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white text-xs font-bold">M</div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">Maria Santos</p>
+                  <p className="text-xs text-muted-foreground">Revendedor • Agora</p>
+                </div>
+                <Badge className="bg-green-500">Online</Badge>
+              </div>
+              <div className="flex items-center space-x-3 p-3 rounded-lg bg-muted/50">
+                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white text-xs font-bold">P</div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">Pedro Oliveira</p>
+                  <p className="text-xs text-muted-foreground">Cliente • 5 min atrás</p>
+                </div>
+                <Badge variant="secondary">Ausente</Badge>
+              </div>
+              <div className="flex items-center space-x-3 p-3 rounded-lg bg-muted/50">
+                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white text-xs font-bold">A</div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">Ana Costa</p>
+                  <p className="text-xs text-muted-foreground">Cliente • Agora</p>
+                </div>
+                <Badge className="bg-green-500">Online</Badge>
+              </div>
+              <div className="flex items-center space-x-3 p-3 rounded-lg bg-muted/50">
+                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white text-xs font-bold">C</div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">Carlos Lima</p>
+                  <p className="text-xs text-muted-foreground">Revendedor • Agora</p>
+                </div>
+                <Badge className="bg-green-500">Online</Badge>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   ),
   users: <AdminUsers />, 
