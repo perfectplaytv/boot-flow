@@ -344,7 +344,7 @@ export default function AdminDashboard() {
             <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
-                  <Radio className="w-5 h-5" /> Gerenciamento de Rádio Web
+                  <Radio className="w-5 h-5" /> Gerenciamento Rádio Web
                 </DialogTitle>
                 <DialogDescription>
                   Configure rádios e integrações multicanal
@@ -360,16 +360,28 @@ export default function AdminDashboard() {
                   <Input id="radioUrl" value="http://radio.saaspro.com.br/stream" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="integration">Integração Multicanal</Label>
-                  <Select>
-                    <SelectTrigger id="integration">
-                      <SelectValue placeholder="Selecione...">WhatsApp, Facebook, Instagram</SelectValue>
-                    </SelectTrigger>
-                  </Select>
+                  <Label>Integrações Ativas</Label>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="flex items-center p-2 border rounded-md">
+                      <Badge className="bg-green-500 mr-2">Ativo</Badge>
+                      <span>WhatsApp</span>
+                    </div>
+                    <div className="flex items-center p-2 border rounded-md">
+                      <Badge className="bg-green-500 mr-2">Ativo</Badge>
+                      <span>Instagram</span>
+                    </div>
+                    <div className="flex items-center p-2 border rounded-md">
+                      <Badge className="mr-2">Inativo</Badge>
+                      <span>Facebook</span>
+                    </div>
+                  </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="autoMessage">Mensagem Automática</Label>
-                  <Textarea id="autoMessage" defaultValue="Bem-vindo à nossa rádio!" />
+                  <Label>Automações</Label>
+                  <div className="grid grid-cols-1 gap-2">
+                    <Button variant="outline" className="justify-start">Programar Mensagens Automáticas</Button>
+                    <Button variant="outline" className="justify-start">Configurar Posts em Redes Sociais</Button>
+                  </div>
                 </div>
               </div>
               <DialogFooter>
