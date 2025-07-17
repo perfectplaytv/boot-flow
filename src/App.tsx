@@ -28,6 +28,13 @@ import Channels from "./pages/Channels";
 import VoiceCampaigns from "./pages/VoiceCampaigns";
 import Export from "./pages/Export";
 import AIConfiguration from "./pages/AIConfiguration";
+import AdminUsers from "./pages/AdminUsers";
+import AdminIPTV from "./pages/AdminIPTV";
+import AdminRadio from "./pages/AdminRadio";
+import AdminAI from "./pages/AdminAI";
+import AdminEcommerce from "./pages/AdminEcommerce";
+import AdminGames from "./pages/AdminGames";
+import AdminAnalytics from "./pages/AdminAnalytics";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +49,13 @@ const App = () => (
           
           {/* Dashboards */}
           <Route path="/dashboard/admin" element={<AdminDashboard />} />
+          <Route path="/dashboard/admin/users" element={<AdminUsers />} />
+          <Route path="/dashboard/admin/iptv" element={<AdminIPTV />} />
+          <Route path="/dashboard/admin/radio" element={<AdminRadio />} />
+          <Route path="/dashboard/admin/ai" element={<AdminAI />} />
+          <Route path="/dashboard/admin/ecommerce" element={<AdminEcommerce />} />
+          <Route path="/dashboard/admin/games" element={<AdminGames />} />
+          <Route path="/dashboard/admin/analytics" element={<AdminAnalytics />} />
           <Route path="/dashboard/reseller" element={<ResellerDashboard />} />
           <Route path="/dashboard/client" element={<ClientDashboard />} />
           
