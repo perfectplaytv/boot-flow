@@ -329,13 +329,51 @@ const menuKeys = [
 
 export default function AdminDashboard() {
   const [selectedPage, setSelectedPage] = useState("dashboard");
-  const [openModal, setOpenModal] = useState(null); // 'ia' | 'iptv' | 'revendedor' | null
+  const [openModal, setOpenModal] = useState(null); // 'ia' | 'iptv' | 'radio' | 'revendedor' | null
 
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
         <AdminSidebar selectedPage={selectedPage} onSelectPage={setSelectedPage} />
         <main className="flex-1 p-6">
+          {/* Modal Rádio Web */}
+          <Dialog open={openModal === "radio"} onOpenChange={v => setOpenModal(v ? "radio" : null)}>
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Radio className="w-5 h-5" /> Gerenciamento de Rádio Web
+                </DialogTitle>
+                <DialogDescription>
+                  Configure rádios e integrações multicanal
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="radioName">Nome da Rádio</Label>
+                  <Input id="radioName" value="SaaS Pro Rádio" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="radioUrl">URL do Stream</Label>
+                  <Input id="radioUrl" value="http://radio.saaspro.com.br/stream" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="integration">Integração Multicanal</Label>
+                  <Select>
+                    <SelectTrigger id="integration">
+                      <SelectValue placeholder="Selecione...">WhatsApp, Facebook, Instagram</SelectValue>
+                    </SelectTrigger>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="autoMessage">Mensagem Automática</Label>
+                  <Textarea id="autoMessage" defaultValue="Bem-vindo à nossa rádio!" />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button type="submit">Salvar Configurações</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
           {/* Modal IPTV */}
           <Dialog open={openModal === "iptv"} onOpenChange={v => setOpenModal(v ? "iptv" : null)}>
             <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -451,6 +489,7 @@ export default function AdminDashboard() {
             pageComponents.dashboard({
               openIAModal: () => setOpenModal("ia"),
               openIPTVModal: () => setOpenModal("iptv"),
+              openRadioModal: () => setOpenModal("radio"),
               openRevendedorModal: () => setOpenModal("revendedor")
             })
           ) : (
