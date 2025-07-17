@@ -37,6 +37,8 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const pageComponents = {
   dashboard: ((props) => (
@@ -339,55 +341,49 @@ export default function AdminDashboard() {
             <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
-                  <Tv className="w-5 h-5" /> Gerenciamento IPTV
+                  <Brain className="w-5 h-5" /> Configuração da IA
                 </DialogTitle>
                 <DialogDescription>
-                  Configure servidores e canais do sistema IPTV
+                  Configure seu assistente de IA com vozes e personalidade
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="serverName">Nome do Servidor</Label>
-                  <Input id="serverName" value="SaaS Pro IPTV" />
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="voiceEnabled">Habilitar Voz</Label>
+                  <Switch id="voiceEnabled" checked />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="serverUrl">URL do Servidor</Label>
-                  <Input id="serverUrl" value="http://iptv.saaspro.com.br" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="maxConnections">Máximo de Conexões por Usuário</Label>
-                  <Input id="maxConnections" type="number" value={5} />
-                </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="enableMovies">Filmes</Label>
-                    <Switch id="enableMovies" checked />
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="maleVoice">Voz Masculina</Label>
+                    <Select>
+                      <SelectTrigger id="maleVoice">
+                        <SelectValue placeholder="Selecione...">Roger</SelectValue>
+                      </SelectTrigger>
+                    </Select>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="enableSeries">Séries</Label>
-                    <Switch id="enableSeries" checked />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="enableLive">Canais Ao Vivo</Label>
-                    <Switch id="enableLive" checked />
+                  <div className="space-y-2">
+                    <Label htmlFor="femaleVoice">Voz Feminina</Label>
+                    <Select>
+                      <SelectTrigger id="femaleVoice">
+                        <SelectValue placeholder="Selecione...">Sarah</SelectValue>
+                      </SelectTrigger>
+                    </Select>
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label>Status dos Servidores</Label>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="flex items-center p-2 border rounded-md">
-                      <Badge className="bg-green-500 mr-2">Online</Badge>
-                      <span>Servidor Principal</span>
-                    </div>
-                    <div className="flex items-center p-2 border rounded-md">
-                      <Badge className="bg-green-500 mr-2">Online</Badge>
-                      <span>Servidor Backup 1</span>
-                    </div>
-                  </div>
+                  <Label htmlFor="personality">Personalidade</Label>
+                  <Select>
+                    <SelectTrigger id="personality">
+                      <SelectValue placeholder="Selecione...">Suporte Técnico</SelectValue>
+                    </SelectTrigger>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="autoGreeting">Saudação Automática</Label>
+                  <Textarea id="autoGreeting" defaultValue="Olá, como posso ajudar você hoje?" />
                 </div>
               </div>
-              <DialogFooter className="flex justify-between">
-                <Button variant="outline">Exportar M3U</Button>
+              <DialogFooter>
                 <Button type="submit">Salvar Configurações</Button>
               </DialogFooter>
             </DialogContent>
