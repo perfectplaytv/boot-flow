@@ -98,3 +98,5 @@ export function AdminSidebar() {
     </Sidebar>
   );
 }
+
+export default AdminSidebar;
