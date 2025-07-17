@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
@@ -10,6 +10,7 @@ import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/dashboards/AdminDashboard";
 import ResellerDashboard from "./pages/dashboards/ResellerDashboard";
 import ClientDashboard from "./pages/dashboards/ClientDashboard";
+import AdminLayout from "./pages/dashboards/AdminLayout";
 
 // Internal Pages
 import Profile from "./pages/Profile";
@@ -46,17 +47,24 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          
-          {/* Dashboards */}
-          <Route path="/dashboard/admin" element={<AdminDashboard />} />
-          <Route path="/dashboard/admin/users" element={<AdminUsers />} />
-          <Route path="/dashboard/admin/iptv" element={<AdminIPTV />} />
-          <Route path="/dashboard/admin/radio" element={<AdminRadio />} />
-          <Route path="/dashboard/admin/ai" element={<AdminAI />} />
-          <Route path="/dashboard/admin/ecommerce" element={<AdminEcommerce />} />
-          <Route path="/dashboard/admin/games" element={<AdminGames />} />
-          <Route path="/dashboard/admin/analytics" element={<AdminAnalytics />} />
+
+          {/* Admin Layout */}
+          <Route path="/dashboard/admin" element={<AdminLayout />}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="users" element={<AdminUsers />} />
+            <Route path="iptv" element={<AdminIPTV />} />
+            <Route path="radio" element={<AdminRadio />} />
+            <Route path="ai" element={<AdminAI />} />
+            <Route path="ecommerce" element={<AdminEcommerce />} />
+            <Route path="games" element={<AdminGames />} />
+            <Route path="analytics" element={<AdminAnalytics />} />
+            <Route path="settings" element={<Settings />} />
+          </Route>
+
+          {/* Reseller Dashboard */}
           <Route path="/dashboard/reseller" element={<ResellerDashboard />} />
+
+          {/* Client Dashboard */}
           <Route path="/dashboard/client" element={<ClientDashboard />} />
           
           {/* Internal Pages */}
