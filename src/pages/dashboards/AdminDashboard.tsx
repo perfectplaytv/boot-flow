@@ -25,8 +25,7 @@ import {
   Activity,
   Clock,
   Home,
-  Paintbrush,
-  Drawer, DrawerContent, DrawerTrigger, DrawerClose, Menu, LogOut
+  Paintbrush
 } from "lucide-react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/sidebars/AdminSidebar";
@@ -85,7 +84,6 @@ const AdminDashboard = () => {
   ]);
 
   const [brandingModal, setBrandingModal] = useState(false);
-  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const handleModalOpen = (modalType: string) => {
     setActiveModal(modalType);
@@ -471,71 +469,11 @@ const AdminDashboard = () => {
     }
   };
 
-  const menuItems = [
-    { page: "dashboard", title: "Dashboard", icon: Home },
-    { page: "users", title: "Usuários", icon: Users },
-    { page: "resellers", title: "Revendedores", icon: TrendingUp },
-    { page: "iptv", title: "IPTV", icon: Tv },
-    { page: "radio", title: "Rádio", icon: Radio },
-    { page: "ai", title: "IA + Voz", icon: Brain },
-    { page: "ecommerce", title: "E-commerce", icon: ShoppingCart },
-    { page: "games", title: "Jogos", icon: Gamepad2 },
-    { page: "analytics", title: "Analytics", icon: BarChart3 },
-    { page: "settings", title: "Configurações", icon: Settings },
-    { page: "whatsapp", title: "WhatsApp", icon: MessageSquare },
-    { page: "branding", title: "Marca", icon: Paintbrush },
-    { page: "gateways", title: "Gateways", icon: Zap },
-    { page: "cobrancas", title: "Cobranças", icon: DollarSign },
-    { page: "notificacoes", title: "Notificações", icon: Bell },
-  ];
-
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-[#09090b]">
-        {/* Menu lateral desktop */}
-        <div className="hidden lg:block">
-          <AdminSidebar onPageChange={handlePageChange} currentPage={currentPage} />
-        </div>
-        {/* Menu mobile com Drawer */}
-        <div className="lg:hidden fixed top-4 left-4 z-50">
-          <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
-            <DrawerTrigger asChild>
-              <Button variant="ghost" size="icon" className="bg-[#1f2937] text-white border border-gray-700">
-                <Menu className="w-6 h-6" />
-              </Button>
-            </DrawerTrigger>
-            <DrawerContent className="bg-[#232a36] text-white p-0">
-              <div className="p-4 flex items-center space-x-2 mb-4">
-                <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-                  <Zap className="w-5 h-5 text-white" />
-                </div>
-                <span className="text-xl font-bold">Admin</span>
-              </div>
-              <div className="space-y-2">
-                {menuItems.map((item) => (
-                  <DrawerClose asChild key={item.page}>
-                    <Button
-                      variant={currentPage === item.page ? "default" : "ghost"}
-                      className={`w-full justify-start ${currentPage === item.page ? 'bg-[#7e22ce] text-white' : 'text-gray-300'}`}
-                      onClick={() => { handlePageChange(item.page); setDrawerOpen(false); }}
-                    >
-                      <item.icon className="mr-2 h-5 w-5" />
-                      {item.title}
-                    </Button>
-                  </DrawerClose>
-                ))}
-              </div>
-              <div className="mt-6 border-t border-gray-700 pt-4">
-                <DrawerClose asChild>
-                  <Button variant="ghost" className="w-full justify-start text-gray-300">
-                    <LogOut className="mr-2 h-5 w-5" /> Sair
-                  </Button>
-                </DrawerClose>
-              </div>
-            </DrawerContent>
-          </Drawer>
-        </div>
-        {/* Conteúdo principal */}
+        <AdminSidebar onPageChange={handlePageChange} currentPage={currentPage} />
+        
         <main className="flex-1 p-6">
           <div className="max-w-7xl mx-auto space-y-6">
             {currentPage === "dashboard" && (
