@@ -1,319 +1,145 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Server, Plus, Settings, Pause, Edit, Trash2, Zap } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Server, Settings, Zap, Edit, Trash2, BarChart3, CheckCircle2, XCircle, CreditCard, TrendingUp, Cog, Play, Activity, Plus } from 'lucide-react';
 
 interface Gateway {
   id: number;
-  name: string;
-  type: string;
-  url: string;
-  status: string;
-  active: boolean;
+  nome: string;
+  tipo: string;
+  status: 'Ativo' | 'Inativo';
+  configurado: boolean;
+  taxa: string;
+  volume: string;
+  ultimaTransacao: string;
 }
 
+const gatewaysMock: Gateway[] = [
+  { id: 1, nome: 'PIX', tipo: 'Pix', status: 'Ativo', configurado: true, taxa: '0.99%', volume: 'R$ 45.678,90', ultimaTransacao: '15/01/2025' },
+  { id: 2, nome: 'Stripe', tipo: 'Cartao', status: 'Ativo', configurado: true, taxa: '2.99% + R$ 0,30', volume: 'R$ 23.456,78', ultimaTransacao: '15/01/2025' },
+  { id: 3, nome: 'Mercado Pago', tipo: 'Cartao', status: 'Ativo', configurado: true, taxa: '1.99% + R$ 0,60', volume: 'R$ 67.890,12', ultimaTransacao: '15/01/2025' },
+  { id: 4, nome: 'Infinitepay', tipo: 'Cartao', status: 'Ativo', configurado: true, taxa: '2.49% + R$ 0,40', volume: 'R$ 34.567,89', ultimaTransacao: '15/01/2025' },
+  { id: 5, nome: 'OpenPix', tipo: 'Pix', status: 'Inativo', configurado: false, taxa: '0.89%', volume: 'R$ 0,00', ultimaTransacao: '-' },
+  { id: 6, nome: 'PicPay', tipo: 'Picpay', status: 'Ativo', configurado: true, taxa: '1.49% + R$ 0,50', volume: 'R$ 28.901,45', ultimaTransacao: '15/01/2025' },
+  { id: 7, nome: 'Asaas', tipo: 'Boleto', status: 'Ativo', configurado: true, taxa: '1.99% + R$ 2,00', volume: 'R$ 12.345,67', ultimaTransacao: '14/01/2025' },
+];
+
 export default function AdminGateways() {
-  const [gateways, setGateways] = useState<Gateway[]>([
-    { id: 1, name: "PagSeguro", type: "Pagamento", url: "https://pagseguro.com", status: "Ativo", active: true },
-    { id: 2, name: "Twilio SMS", type: "SMS", url: "https://twilio.com", status: "Ativo", active: true },
-    { id: 3, name: "SendGrid", type: "E-mail", url: "https://sendgrid.com", status: "Inativo", active: false },
-    { id: 4, name: "Stripe", type: "Pagamento", url: "https://stripe.com", status: "Ativo", active: true },
-  ]);
+  const [gateways, setGateways] = useState<Gateway[]>(gatewaysMock);
+  const [modal, setModal] = useState<{ type: null | 'testar' | 'editar' | 'configurar' | 'desativar', gateway?: Gateway }>({ type: null });
 
-  const [gatewayConfig, setGatewayConfig] = useState({
-    defaultPayment: "PagSeguro",
-    defaultSMS: "Twilio SMS",
-    defaultEmail: "SendGrid",
-    enableLogs: true,
-    enableSandbox: false
-  });
-
-  const [newGateway, setNewGateway] = useState({
-    name: "",
-    type: "Pagamento",
-    url: "",
-  });
-
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [isConfigDialogOpen, setIsConfigDialogOpen] = useState(false);
-
-  const handleAddGateway = () => {
-    if (newGateway.name && newGateway.url) {
-      const gateway: Gateway = {
-        id: gateways.length + 1,
-        name: newGateway.name,
-        type: newGateway.type,
-        url: newGateway.url,
-        status: "Ativo",
-        active: true
-      };
-      setGateways([...gateways, gateway]);
-      setNewGateway({ name: "", type: "Pagamento", url: "" });
-      setIsAddDialogOpen(false);
-    }
-  };
-
-  const handleDeleteGateway = (id: number) => {
-    setGateways(gateways.filter(gateway => gateway.id !== id));
-  };
-
-  const toggleGatewayStatus = (id: number) => {
-    setGateways(gateways.map(gateway =>
-      gateway.id === id
-        ? { ...gateway, status: gateway.status === "Ativo" ? "Inativo" : "Ativo", active: !gateway.active }
-        : gateway
-    ));
-  };
-
-  const getStatusColor = (status: string) => {
-    return status === "Ativo" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800";
-  };
-
-  const totalActive = gateways.filter(g => g.active).length;
+  // Cards resumo
+  const total = gateways.length;
+  const ativos = gateways.filter(g => g.status === 'Ativo').length;
+  const configurados = gateways.filter(g => g.configurado).length;
+  const volumeMensal = 'R$ 212.840,81';
+  const transacoes = 5777;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Gateways</h1>
-          <p className="text-muted-foreground">Gerencie integrações de pagamento, SMS, e-mail e outros serviços</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Dialog open={isConfigDialogOpen} onOpenChange={setIsConfigDialogOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" className="flex items-center gap-2">
-                <Settings className="w-4 h-4" />
-                Configurações
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>Configurações Gerais de Gateways</DialogTitle>
-                <DialogDescription>
-                  Configure opções padrão e segurança dos gateways
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="defaultPayment">Gateway de Pagamento Padrão</Label>
-                    <Input
-                      id="defaultPayment"
-                      value={gatewayConfig.defaultPayment}
-                      onChange={(e) => setGatewayConfig({...gatewayConfig, defaultPayment: e.target.value})}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="defaultSMS">Gateway de SMS Padrão</Label>
-                    <Input
-                      id="defaultSMS"
-                      value={gatewayConfig.defaultSMS}
-                      onChange={(e) => setGatewayConfig({...gatewayConfig, defaultSMS: e.target.value})}
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="defaultEmail">Gateway de E-mail Padrão</Label>
-                    <Input
-                      id="defaultEmail"
-                      value={gatewayConfig.defaultEmail}
-                      onChange={(e) => setGatewayConfig({...gatewayConfig, defaultEmail: e.target.value})}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="enableLogs">Habilitar Logs</Label>
-                    <Switch
-                      id="enableLogs"
-                      checked={gatewayConfig.enableLogs}
-                      onCheckedChange={(checked) => setGatewayConfig({...gatewayConfig, enableLogs: checked})}
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center justify-between mt-2">
-                  <Label htmlFor="enableSandbox">Modo Sandbox (teste)</Label>
-                  <Switch
-                    id="enableSandbox"
-                    checked={gatewayConfig.enableSandbox}
-                    onCheckedChange={(checked) => setGatewayConfig({...gatewayConfig, enableSandbox: checked})}
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setIsConfigDialogOpen(false)}>
-                  Cancelar
-                </Button>
-                <Button onClick={() => setIsConfigDialogOpen(false)}>
-                  Salvar Configurações
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="flex items-center gap-2">
-                <Plus className="w-4 h-4" />
-                Novo Gateway
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Adicionar Novo Gateway</DialogTitle>
-                <DialogDescription>
-                  Adicione uma nova integração de gateway ao sistema
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="gatewayName">Nome do Gateway</Label>
-                  <Input
-                    id="gatewayName"
-                    value={newGateway.name}
-                    onChange={(e) => setNewGateway({...newGateway, name: e.target.value})}
-                    placeholder="Ex: PagSeguro, Twilio, SendGrid"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="gatewayType">Tipo</Label>
-                  <Input
-                    id="gatewayType"
-                    value={newGateway.type}
-                    onChange={(e) => setNewGateway({...newGateway, type: e.target.value})}
-                    placeholder="Pagamento, SMS, E-mail, etc."
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="gatewayUrl">URL</Label>
-                  <Input
-                    id="gatewayUrl"
-                    value={newGateway.url}
-                    onChange={(e) => setNewGateway({...newGateway, url: e.target.value})}
-                    placeholder="https://exemplo.com"
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                  Cancelar
-                </Button>
-                <Button onClick={handleAddGateway}>
-                  Adicionar Gateway
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div>
+    <div className="p-6 min-h-screen bg-gradient-to-br from-[#181e29] via-[#232a36] to-[#181e29]">
+      <div className="flex items-center gap-3 mb-2">
+        <Server className="w-7 h-7 text-purple-400" />
+        <h1 className="text-3xl font-bold text-green-400">Gateways de Pagamento</h1>
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total de Gateways</CardTitle>
-            <Server className="h-4 w-4 text-muted-foreground" />
+      <p className="text-gray-400 mb-6">Configure e gerencie seus gateways de pagamento</p>
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+        <Card className="bg-[#232a36] border border-purple-700/40">
+          <CardHeader>
+            <CardTitle className="text-sm text-gray-300">Total</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{gateways.length}</div>
-            <p className="text-xs text-muted-foreground">
-              {totalActive} ativos
-            </p>
+            <div className="text-2xl font-bold text-white">{total}</div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Gateways Ativos</CardTitle>
-            <Zap className="h-4 w-4 text-green-500" />
+        <Card className="bg-[#232a36] border border-green-700/40">
+          <CardHeader>
+            <CardTitle className="text-sm text-gray-300">Ativos</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalActive}</div>
-            <p className="text-xs text-muted-foreground">
-              {((totalActive / gateways.length) * 100).toFixed(0)}% ativos
-            </p>
+            <div className="text-2xl font-bold text-green-400">{ativos}</div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Status do Sistema</CardTitle>
-            <Badge className="bg-green-100 text-green-800">Online</Badge>
+        <Card className="bg-[#232a36] border border-blue-700/40">
+          <CardHeader>
+            <CardTitle className="text-sm text-gray-300">Configurados</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">Ativo</div>
-            <p className="text-xs text-muted-foreground">
-              Integrações funcionando normalmente
-            </p>
+            <div className="text-2xl font-bold text-blue-400">{configurados}</div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Modo Sandbox</CardTitle>
-            <Badge className={gatewayConfig.enableSandbox ? "bg-yellow-100 text-yellow-800" : "bg-gray-200 text-gray-700"}>
-              {gatewayConfig.enableSandbox ? "Ativo" : "Inativo"}
-            </Badge>
+        <Card className="bg-[#232a36] border border-yellow-700/40">
+          <CardHeader>
+            <CardTitle className="text-sm text-gray-300">Volume Mensal</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {gatewayConfig.enableSandbox ? "Ativo" : "Inativo"}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Testes e simulações habilitados
-            </p>
+            <div className="text-2xl font-bold text-yellow-400">{volumeMensal}</div>
+          </CardContent>
+        </Card>
+        <Card className="bg-[#232a36] border border-pink-700/40">
+          <CardHeader>
+            <CardTitle className="text-sm text-gray-300">Transações</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-pink-400">{transacoes}</div>
           </CardContent>
         </Card>
       </div>
-
-      <Card>
+      {/* Tabela de gateways */}
+      <Card className="bg-[#181e29] border border-purple-700/40">
         <CardHeader>
-          <CardTitle>Lista de Gateways</CardTitle>
-          <CardDescription>
-            Gerencie todas as integrações de gateways do sistema
-          </CardDescription>
+          <CardTitle className="text-white text-lg">Gateways Configurados</CardTitle>
+          <p className="text-gray-400 text-sm">Gerencie seus métodos de pagamento</p>
         </CardHeader>
-        <CardContent>
+        <CardContent className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Nome</TableHead>
+                <TableHead>Gateway</TableHead>
                 <TableHead>Tipo</TableHead>
-                <TableHead>URL</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Taxa</TableHead>
+                <TableHead>Volume Mensal</TableHead>
+                <TableHead>Última Transação</TableHead>
                 <TableHead>Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {gateways.map((gateway) => (
-                <TableRow key={gateway.id}>
-                  <TableCell className="font-medium">{gateway.name}</TableCell>
-                  <TableCell>{gateway.type}</TableCell>
-                  <TableCell className="max-w-xs truncate">{gateway.url}</TableCell>
-                  <TableCell>
-                    <Badge className={getStatusColor(gateway.status)}>
-                      {gateway.status}
-                    </Badge>
-                  </TableCell>
+              {gateways.map(g => (
+                <TableRow key={g.id}>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => toggleGatewayStatus(gateway.id)}
-                      >
-                        {gateway.status === "Ativo" ? <Pause className="w-4 h-4" /> : <Zap className="w-4 h-4 text-green-500" />}
-                      </Button>
-                      <Button variant="ghost" size="sm">
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => handleDeleteGateway(gateway.id)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-r from-green-500 to-blue-500 flex items-center justify-center text-white font-bold">
+                        <CheckCircle2 className={g.configurado ? 'text-green-400' : 'text-gray-400'} />
+                      </div>
+                      <div>
+                        <div className="font-semibold text-white">{g.nome}</div>
+                        <div className="text-xs text-gray-400">{g.configurado ? 'Configurado' : 'Não configurado'}</div>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-gray-300">{g.tipo}</TableCell>
+                  <TableCell>
+                    {g.status === 'Ativo' && <Badge className="bg-green-700 text-green-200">Ativo</Badge>}
+                    {g.status === 'Inativo' && <Badge className="bg-gray-700 text-gray-300">Inativo</Badge>}
+                  </TableCell>
+                  <TableCell className="text-gray-300">{g.taxa}</TableCell>
+                  <TableCell className="font-bold text-white">{g.volume}</TableCell>
+                  <TableCell className="text-gray-300">{g.ultimaTransacao}</TableCell>
+                  <TableCell>
+                    <div className="flex gap-2">
+                      {g.configurado ? (
+                        <>
+                          <Button size="icon" variant="ghost" onClick={() => setModal({ type: 'testar', gateway: g })}><Play className="w-4 h-4 text-blue-400" /></Button>
+                          <Button size="icon" variant="ghost" onClick={() => setModal({ type: 'editar', gateway: g })}><Cog className="w-4 h-4 text-yellow-400" /></Button>
+                          <Button size="icon" variant="ghost" onClick={() => setModal({ type: 'desativar', gateway: g })}><XCircle className="w-4 h-4 text-red-400" /></Button>
+                        </>
+                      ) : (
+                        <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white" onClick={() => setModal({ type: 'configurar', gateway: g })}>Configurar</Button>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>
@@ -322,6 +148,71 @@ export default function AdminGateways() {
           </Table>
         </CardContent>
       </Card>
+      {/* Modal Testar Gateway */}
+      <Dialog open={modal.type === 'testar'} onOpenChange={() => setModal({ type: null })}>
+        <DialogContent className="bg-[#232a36] border border-purple-700 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle>Testar Gateway: {modal.gateway?.nome}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <p>Simule uma transação de teste para validar a integração do gateway.</p>
+            <Input placeholder="Valor da transação" className="bg-gray-900 border border-gray-700 text-white" type="number" />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setModal({ type: null })} className="bg-gray-700 text-white">Cancelar</Button>
+            <Button className="bg-green-600 hover:bg-green-700 text-white">Testar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {/* Modal Editar Gateway */}
+      <Dialog open={modal.type === 'editar'} onOpenChange={() => setModal({ type: null })}>
+        <DialogContent className="bg-[#232a36] border border-purple-700 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle>Editar Gateway: {modal.gateway?.nome}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <Input placeholder="Nome" className="bg-gray-900 border border-gray-700 text-white" defaultValue={modal.gateway?.nome} />
+            <Input placeholder="Tipo" className="bg-gray-900 border border-gray-700 text-white" defaultValue={modal.gateway?.tipo} />
+            <Input placeholder="Taxa" className="bg-gray-900 border border-gray-700 text-white" defaultValue={modal.gateway?.taxa} />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setModal({ type: null })} className="bg-gray-700 text-white">Cancelar</Button>
+            <Button className="bg-purple-600 hover:bg-purple-700 text-white">Salvar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {/* Modal Configurar Gateway */}
+      <Dialog open={modal.type === 'configurar'} onOpenChange={() => setModal({ type: null })}>
+        <DialogContent className="bg-[#232a36] border border-purple-700 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle>Configurar Gateway: {modal.gateway?.nome}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <Input placeholder="Chave/API Key" className="bg-gray-900 border border-gray-700 text-white" />
+            <Input placeholder="Secret/Token" className="bg-gray-900 border border-gray-700 text-white" />
+            <Input placeholder="Webhook URL" className="bg-gray-900 border border-gray-700 text-white" />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setModal({ type: null })} className="bg-gray-700 text-white">Cancelar</Button>
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white">Salvar Configuração</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {/* Modal Desativar Gateway */}
+      <Dialog open={modal.type === 'desativar'} onOpenChange={() => setModal({ type: null })}>
+        <DialogContent className="bg-[#232a36] border border-purple-700 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle>Desativar Gateway: {modal.gateway?.nome}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <p>Tem certeza que deseja desativar este gateway? As transações por ele serão bloqueadas.</p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setModal({ type: null })} className="bg-gray-700 text-white">Cancelar</Button>
+            <Button className="bg-red-600 hover:bg-red-700 text-white">Desativar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 } 
