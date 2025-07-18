@@ -86,6 +86,11 @@ const AdminDashboard = () => {
     setCurrentPage(page);
   };
 
+  const handleAddReseller = (reseller: any) => {
+    setResellers([...resellers, reseller]);
+    toast.success("Revendedor adicionado com sucesso!");
+  };
+
   const getActivityIcon = (type: string) => {
     switch (type) {
       case "user_registered": return <Users className="w-4 h-4 text-blue-500" />;
