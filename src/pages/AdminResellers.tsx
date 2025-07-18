@@ -97,9 +97,9 @@ export default function AdminResellers({ resellers: externalResellers, onAddRese
     }
   };
 
-  const totalRevenue = resellers.reduce((sum, reseller) => sum + reseller.revenue, 0);
-  const activeResellers = resellers.filter(reseller => reseller.status === "Ativo").length;
-  const totalClients = resellers.reduce((sum, reseller) => sum + reseller.clients, 0);
+  const totalRevenue = allResellers.reduce((sum, reseller) => sum + reseller.revenue, 0);
+  const activeResellers = allResellers.filter(reseller => reseller.status === "Ativo").length;
+  const totalClients = allResellers.reduce((sum, reseller) => sum + reseller.clients, 0);
 
   return (
     <div className="space-y-6">
