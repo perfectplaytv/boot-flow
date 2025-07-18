@@ -65,14 +65,14 @@ export default function AdminGateways() {
   };
 
   return (
-    <div className="p-6 min-h-screen bg-gradient-to-br from-[#181e29] via-[#232a36] to-[#181e29]">
+    <div className="p-6 min-h-screen bg-[#09090b]">
       <div className="flex items-center gap-3 mb-2">
         <Server className="w-7 h-7 text-purple-400" />
         <h1 className="text-3xl font-bold text-green-400">Gateways de Pagamento</h1>
       </div>
       <p className="text-gray-400 mb-6">Configure e gerencie seus gateways de pagamento</p>
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-        <Card className="bg-[#232a36] border border-purple-700/40">
+        <Card className="bg-[#1f2937] border border-purple-700/40">
           <CardHeader>
             <CardTitle className="text-sm text-gray-300">Total</CardTitle>
           </CardHeader>
@@ -80,7 +80,7 @@ export default function AdminGateways() {
             <div className="text-2xl font-bold text-white">{total}</div>
           </CardContent>
         </Card>
-        <Card className="bg-[#232a36] border border-green-700/40">
+        <Card className="bg-[#1f2937] border border-green-700/40">
           <CardHeader>
             <CardTitle className="text-sm text-gray-300">Ativos</CardTitle>
           </CardHeader>
@@ -88,7 +88,7 @@ export default function AdminGateways() {
             <div className="text-2xl font-bold text-green-400">{ativos}</div>
           </CardContent>
         </Card>
-        <Card className="bg-[#232a36] border border-blue-700/40">
+        <Card className="bg-[#1f2937] border border-blue-700/40">
           <CardHeader>
             <CardTitle className="text-sm text-gray-300">Configurados</CardTitle>
           </CardHeader>
@@ -96,7 +96,7 @@ export default function AdminGateways() {
             <div className="text-2xl font-bold text-blue-400">{configurados}</div>
           </CardContent>
         </Card>
-        <Card className="bg-[#232a36] border border-yellow-700/40">
+        <Card className="bg-[#1f2937] border border-yellow-700/40">
           <CardHeader>
             <CardTitle className="text-sm text-gray-300">Volume Mensal</CardTitle>
           </CardHeader>
@@ -104,7 +104,7 @@ export default function AdminGateways() {
             <div className="text-2xl font-bold text-yellow-400">{volumeMensal}</div>
           </CardContent>
         </Card>
-        <Card className="bg-[#232a36] border border-pink-700/40">
+        <Card className="bg-[#1f2937] border border-pink-700/40">
           <CardHeader>
             <CardTitle className="text-sm text-gray-300">Transações</CardTitle>
           </CardHeader>
@@ -169,7 +169,7 @@ export default function AdminGateways() {
                           </Button>
                         </>
                       ) : (
-                        <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white" onClick={() => { setModal({ type: 'configurar', gateway: g }); setConfig({ apiKey: '', secret: '', webhook: '' }); }}>
+                        <Button size="sm" className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white" onClick={() => { setModal({ type: 'configurar', gateway: g }); setConfig({ apiKey: '', secret: '', webhook: '' }); }}>
                           Configurar
                         </Button>
                       )}

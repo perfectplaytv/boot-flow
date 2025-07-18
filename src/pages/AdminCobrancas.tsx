@@ -98,14 +98,14 @@ export default function AdminCobrancas() {
   };
 
   return (
-    <div className="p-6 min-h-screen bg-gradient-to-br from-[#181e29] via-[#232a36] to-[#181e29]">
+    <div className="p-6 min-h-screen bg-[#09090b]">
       <div className="flex items-center gap-3 mb-2">
         <BarChart3 className="w-7 h-7 text-purple-400" />
         <h1 className="text-3xl font-bold text-white">Cobranças</h1>
       </div>
       <p className="text-gray-400 mb-6">Gerencie todas as suas cobranças e faturamento</p>
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-        <Card className="bg-[#232a36] border border-purple-700/40">
+        <Card className="bg-[#1f2937] border border-purple-700/40">
           <CardHeader>
             <CardTitle className="text-sm text-gray-300">Total</CardTitle>
           </CardHeader>
@@ -113,7 +113,7 @@ export default function AdminCobrancas() {
             <div className="text-2xl font-bold text-white">{total}</div>
           </CardContent>
         </Card>
-        <Card className="bg-[#232a36] border border-green-700/40">
+        <Card className="bg-[#1f2937] border border-green-700/40">
           <CardHeader>
             <CardTitle className="text-sm text-gray-300">Pagas</CardTitle>
           </CardHeader>
@@ -121,7 +121,7 @@ export default function AdminCobrancas() {
             <div className="text-2xl font-bold text-green-400">{pagas}</div>
           </CardContent>
         </Card>
-        <Card className="bg-[#232a36] border border-yellow-700/40">
+        <Card className="bg-[#1f2937] border border-yellow-700/40">
           <CardHeader>
             <CardTitle className="text-sm text-gray-300">Pendentes</CardTitle>
           </CardHeader>
@@ -129,7 +129,7 @@ export default function AdminCobrancas() {
             <div className="text-2xl font-bold text-yellow-400">{pendentes}</div>
           </CardContent>
         </Card>
-        <Card className="bg-[#232a36] border border-red-700/40">
+        <Card className="bg-[#1f2937] border border-red-700/40">
           <CardHeader>
             <CardTitle className="text-sm text-gray-300">Vencidas</CardTitle>
           </CardHeader>
@@ -137,7 +137,7 @@ export default function AdminCobrancas() {
             <div className="text-2xl font-bold text-red-400">{vencidas}</div>
           </CardContent>
         </Card>
-        <Card className="bg-[#232a36] border border-blue-700/40">
+        <Card className="bg-[#1f2937] border border-blue-700/40">
           <CardHeader>
             <CardTitle className="text-sm text-gray-300">Receita Mês</CardTitle>
           </CardHeader>
@@ -161,7 +161,7 @@ export default function AdminCobrancas() {
       </div>
       {/* Filtros e busca */}
       <div className="flex flex-col md:flex-row md:items-center gap-3 mb-4">
-        <div className="flex-1 flex items-center bg-[#232a36] rounded-lg px-3">
+        <div className="flex-1 flex items-center bg-[#1f2937] rounded-lg px-3">
           <Search className="w-5 h-5 text-gray-400 mr-2" />
           <Input
             placeholder="Buscar por cliente, descrição ou email..."
@@ -171,7 +171,7 @@ export default function AdminCobrancas() {
           />
         </div>
         <select
-          className="bg-[#232a36] border border-gray-700 text-gray-300 rounded px-3 py-2"
+          className="bg-[#1f2937] border border-gray-700 text-gray-300 rounded px-3 py-2"
           value={filtroStatus || ''}
           onChange={e => setFiltroStatus(e.target.value || null)}
         >
@@ -180,12 +180,12 @@ export default function AdminCobrancas() {
           <option value="Vencida">Vencidas</option>
           <option value="Paga">Pagas</option>
         </select>
-        <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={() => setModalNova(true)}>
+        <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white" onClick={() => setModalNova(true)}>
           <Plus className="w-4 h-4 mr-2" /> Nova Cobrança
         </Button>
       </div>
       {/* Tabela de cobranças */}
-      <Card className="bg-[#232a36] border border-purple-700/40">
+      <Card className="bg-[#1f2937] border border-purple-700/40">
         <CardHeader>
           <CardTitle className="text-white text-lg">Lista de Cobranças ({filtradas.length})</CardTitle>
         </CardHeader>
