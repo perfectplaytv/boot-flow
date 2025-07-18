@@ -30,13 +30,16 @@ export default function AdminAI() {
   const [texto, setTexto] = useState('');
   const [velocidade, setVelocidade] = useState(1);
   const [tom, setTom] = useState(1);
-  const [modal, setModal] = useState<{ type: null | 'upload' | 'novaVoz' | 'testarVoz' | 'detalhes' | 'editarVoz' | 'excluirVoz', data?: any }>({ type: null });
+  const [modal, setModal] = useState<{ type: null | 'upload' | 'novaVoz' | 'testarVoz' | 'detalhes' | 'editarVoz' | 'excluirVoz' | 'gravarVoz' | 'clonarVoz', data?: any }>({ type: null });
   const [perfis, setPerfis] = useState(perfisMock);
   const [transcricoes, setTranscricoes] = useState(transcricoesMock);
   const [novoPerfil, setNovoPerfil] = useState({ nome: '', genero: '', tom: '', status: 'ativa' });
   const [editPerfil, setEditPerfil] = useState({ nome: '', genero: '', tom: '', status: 'ativa' });
   const [loadingAudio, setLoadingAudio] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [gravando, setGravando] = useState(false);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const [clonando, setClonando] = useState(false);
 
   // CRUD Perfis de Voz
   const handleAddPerfil = () => {
@@ -74,6 +77,35 @@ export default function AdminAI() {
     }
   };
 
+  // Simulação de gravação de voz
+  const handleIniciarGravacao = () => {
+    setGravando(true);
+    setTimeout(() => {
+      setAudioBlob(new Blob());
+      setGravando(false);
+    }, 2000);
+  };
+  const handleSalvarGravacao = () => {
+    setPerfis([
+      ...perfis,
+      { id: Date.now(), nome: 'Nova Voz Gravada', genero: 'Personalizada', tom: 'Gravada', uso: 0, desc: 'Voz gravada pelo usuário', status: 'ativa' }
+    ]);
+    setAudioBlob(null);
+    setModal({ type: null });
+  };
+  // Simulação de clonagem de voz
+  const handleClonarVoz = () => {
+    setClonando(true);
+    setTimeout(() => {
+      setPerfis([
+        ...perfis,
+        { id: Date.now(), nome: 'Voz Clonada', genero: 'Personalizada', tom: 'Clonada', uso: 0, desc: 'Voz clonada via upload', status: 'ativa' }
+      ]);
+      setClonando(false);
+      setModal({ type: null });
+    }, 2000);
+  };
+
   return (
     <div className="p-6 min-h-screen bg-gradient-to-br from-[#f8fafc] via-[#f1f5f9] to-[#f8fafc] dark:from-[#181e29] dark:via-[#232a36] dark:to-[#181e29]">
       <div className="flex items-center justify-between mb-4">
@@ -96,8 +128,8 @@ export default function AdminAI() {
           <CardContent>
             <div className="flex gap-2 mb-4">
               <Button variant={tab === 'tts' ? 'default' : 'outline'} className="flex-1" onClick={() => setTab('tts')}>Text-to-Speech</Button>
-              <Button variant={tab === 'gravar' ? 'default' : 'outline'} className="flex-1" onClick={() => setTab('gravar')}>Gravar Voz</Button>
-              <Button variant={tab === 'clonar' ? 'default' : 'outline'} className="flex-1" onClick={() => setTab('clonar')}>Clonar Voz</Button>
+              <Button variant={tab === 'gravar' ? 'default' : 'outline'} className="flex-1" onClick={() => setModal({ type: 'gravarVoz' })}>Gravar Voz</Button>
+              <Button variant={tab === 'clonar' ? 'default' : 'outline'} className="flex-1" onClick={() => setModal({ type: 'clonarVoz' })}>Clonar Voz</Button>
             </div>
             <div className="mb-4">
               <label className="block text-gray-700 dark:text-gray-300 mb-1 font-medium">Selecionar Voz</label>
@@ -279,6 +311,37 @@ export default function AdminAI() {
           </div>
           <DialogFooter>
             <Button className="bg-purple-600 hover:bg-purple-700 text-white" onClick={() => setModal({ type: null })}>Fechar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {/* Modal Gravar Voz */}
+      <Dialog open={modal.type === 'gravarVoz'} onOpenChange={() => { setModal({ type: null }); setAudioBlob(null); setGravando(false); }}>
+        <DialogContent className="bg-[#232a36] border border-purple-700 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle>Gravar Nova Voz</DialogTitle>
+          </DialogHeader>
+          <div className="py-4 flex flex-col items-center gap-4">
+            <Button className="bg-purple-600 hover:bg-purple-700 text-white" onClick={handleIniciarGravacao} disabled={gravando}>{gravando ? 'Gravando...' : 'Iniciar Gravação'}</Button>
+            {audioBlob && <span className="text-green-400">Gravação pronta!</span>}
+          </div>
+          <DialogFooter>
+            <Button className="bg-gray-700 text-white" onClick={() => setModal({ type: null })}>Cancelar</Button>
+            <Button className="bg-purple-600 hover:bg-purple-700 text-white" onClick={handleSalvarGravacao} disabled={!audioBlob}>Salvar Voz</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {/* Modal Clonar Voz */}
+      <Dialog open={modal.type === 'clonarVoz'} onOpenChange={() => setModal({ type: null })}>
+        <DialogContent className="bg-[#232a36] border border-purple-700 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle>Clonar Voz</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <Input type="file" accept="audio/*" className="bg-gray-900 border border-gray-700 text-white" />
+          </div>
+          <DialogFooter>
+            <Button className="bg-gray-700 text-white" onClick={() => setModal({ type: null })}>Cancelar</Button>
+            <Button className="bg-purple-600 hover:bg-purple-700 text-white" onClick={handleClonarVoz} disabled={clonando}>{clonando ? 'Clonando...' : 'Clonar Voz'}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
