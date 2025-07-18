@@ -169,7 +169,15 @@ export default function AdminUsers() {
                   <div className="col-span-2">
                     <label className="block text-gray-300 mb-1 font-medium">Bouquets</label>
                     <select className="w-full bg-[#23272f] border border-gray-700 text-gray-400 rounded px-3 py-2">
-                      <option>Padrão do Plano</option>
+                      <option value="">Selecione um bouquet</option>
+                      <option value="completo-sem-adultos">COMPLETO SEM ADULTOS</option>
+                      <option value="completo-com-adultos">COMPLETO COM ADULTOS</option>
+                      <option value="canais-mais-18">CANAIS +18</option>
+                      <option value="vods">Vods</option>
+                      <option value="canais-menos-18">CANAIS -18</option>
+                      <option value="restream">Restream</option>
+                      <option value="24hrs">24hrs</option>
+                      <option value="ppv">PPV</option>
                     </select>
                     <div className="bg-green-900/40 border border-green-700 text-green-400 text-xs rounded mt-2 p-2">
                       Apenas você pode visualizar os dados pessoais deste cliente.
