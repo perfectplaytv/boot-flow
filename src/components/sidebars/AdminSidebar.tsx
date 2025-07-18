@@ -130,10 +130,9 @@ export function AdminSidebar({ onPageChange, currentPage, isMobile = false, onCl
               </Button>
             </DrawerClose>
           </div>
-          {/* TESTE: Conteúdo visível para isolar problema */}
-          <div className="flex-1 flex flex-col items-center justify-center">
-            <span className="text-2xl font-bold text-white">MENU TESTE</span>
-            <span className="text-white mt-4">Se você está vendo este texto, o Drawer está funcionando.</span>
+          {/* Menu lateral real */}
+          <div className="flex-1 overflow-y-auto">
+            {sidebarContent}
           </div>
         </DrawerContent>
       </Drawer>
