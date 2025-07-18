@@ -744,11 +744,39 @@ const AdminDashboard = () => {
             <div className="p-6 w-full flex flex-col items-center">
               <h2 className="text-2xl font-bold mb-2 text-center">Customizar Marca</h2>
               <p className="text-gray-400 mb-4 text-center">Personalize a aparência, identidade visual e configurações white label da sua plataforma.</p>
-              <ul className="list-disc pl-5 text-gray-300 w-full max-w-md mx-auto">
-                <li>Logo, cores, domínio, rodapé, etc.</li>
-                <li>Configurações WhiteLabel exclusivas</li>
-              </ul>
-              <Button className="mt-6 bg-blue-600 hover:bg-blue-700 text-white w-40" onClick={() => setActiveModal(null)}>Fechar</Button>
+              <div className="w-full max-w-lg space-y-2 mb-4">
+                <div className="flex justify-between"><span className="text-gray-300">Empresa:</span><span className="font-semibold">Sua Empresa Ltda</span></div>
+                <div className="flex justify-between"><span className="text-gray-300">Slogan:</span><span className="font-semibold">Seu slogan aqui</span></div>
+                <div className="flex justify-between"><span className="text-gray-300">Website:</span><span className="font-semibold">https://suaempresa.com</span></div>
+                <div className="flex justify-between"><span className="text-gray-300">E-mail:</span><span className="font-semibold">contato@suaempresa.com</span></div>
+                <div className="flex justify-between"><span className="text-gray-300">Telefone:</span><span className="font-semibold">99999-9999</span></div>
+              </div>
+              <div className="w-full max-w-lg mb-4 flex gap-4 justify-center">
+                <div className="flex flex-col items-center">
+                  <span className="text-xs text-gray-400 mb-1">Logo</span>
+                  <div className="w-16 h-16 bg-gray-800 rounded flex items-center justify-center">
+                    <span className="text-gray-500">Logo</span>
+                  </div>
+                </div>
+                <div className="flex flex-col items-center">
+                  <span className="text-xs text-gray-400 mb-1">Favicon</span>
+                  <div className="w-10 h-10 bg-gray-800 rounded flex items-center justify-center">
+                    <span className="text-gray-500">Favicon</span>
+                  </div>
+                </div>
+              </div>
+              <div className="w-full max-w-lg mb-4">
+                <h3 className="text-lg font-semibold mb-2">Preview</h3>
+                <div className="bg-[#181e29] rounded-lg p-4 flex flex-col items-center">
+                  <div className="flex gap-2 mb-2">
+                    <div className="w-4 h-4 rounded-full bg-gray-400" />
+                    <div className="w-4 h-4 rounded-full bg-gray-600" />
+                  </div>
+                  <span className="text-white font-bold">Sua Empresa Ltda</span>
+                  <span className="text-gray-400 text-xs">Seu slogan aqui</span>
+                </div>
+              </div>
+              <Button className="mt-2 bg-blue-600 hover:bg-blue-700 text-white w-40" onClick={() => setActiveModal(null)}>Fechar</Button>
             </div>
           </DialogContent>
         </Dialog>
