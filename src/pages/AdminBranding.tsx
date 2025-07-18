@@ -125,7 +125,6 @@ const AdminBranding: React.FC = () => {
           <TabsTrigger value="visual" className="flex-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white">Visual</TabsTrigger>
           <TabsTrigger value="avancado" className="flex-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white">Avançado</TabsTrigger>
           <TabsTrigger value="funcionalidades" className="flex-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white">Funcionalidades</TabsTrigger>
-          <TabsTrigger value="dashboard" className="flex-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white">Dashboard</TabsTrigger>
           <TabsTrigger value="whitelabel" className="flex-1 data-[state=active]:bg-green-700 data-[state=active]:text-white">WhiteLabel settings</TabsTrigger>
         </TabsList>
         <TabsContent value="marca">
@@ -329,115 +328,6 @@ const AdminBranding: React.FC = () => {
               </div>
             </div>
           </div>
-        </TabsContent>
-
-        {/* Dashboard */}
-        <TabsContent value="dashboard">
-          <div className="max-w-2xl space-y-6">
-            <div className="flex items-center justify-between mb-4">
-              <span className="block text-purple-300 font-semibold text-lg">Customização do Dashboard</span>
-              <Button className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2" onClick={openNewDashboard}>
-                <Plus className="w-4 h-4" /> Nova Dashboard
-              </Button>
-            </div>
-            {/* Lista de dashboards */}
-            <div className="space-y-4">
-              {dashboards.map(db => (
-                <Card key={db.id} className="bg-[#232a36] border border-purple-700/40">
-                  <CardHeader className="flex flex-row items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full mr-2" style={{ background: db.color }} />
-                      <CardTitle className="text-white text-lg">{db.name}</CardTitle>
-                      <span className="text-xs text-gray-400 ml-2">{db.layout}</span>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button size="icon" variant="ghost" onClick={() => openEditDashboard(db)}><Edit className="w-4 h-4 text-blue-400" /></Button>
-                      {db.id !== 1 && (
-                        <Button size="icon" variant="ghost" onClick={() => removeDashboard(db.id)}><Trash2 className="w-4 h-4 text-red-400" /></Button>
-                      )}
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex flex-wrap gap-2 mb-2">
-                      {db.widgets.map((w: string) => (
-                        <span key={w} className="bg-gray-900 text-purple-300 rounded-full px-3 py-1 text-xs">{w}</span>
-                      ))}
-                    </div>
-                    <div className="text-xs text-gray-400">Ordem: {db.order.join(', ')}</div>
-                    <div className="text-xs text-gray-400">Métricas em tempo real: {db.realtime ? 'Sim' : 'Não'}</div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-          {/* Modal de criar/editar dashboard */}
-          <Dialog open={dashboardModal} onOpenChange={setDashboardModal}>
-            <DialogContent className="bg-[#232a36] border border-purple-700 text-white max-w-lg">
-              <DialogHeader>
-                <DialogTitle>{editingDashboard ? 'Editar Dashboard' : 'Nova Dashboard'}</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4 py-2">
-                <div>
-                  <label className="block text-gray-300 mb-1 font-medium">Nome *</label>
-                  <Input value={dashboardForm.name} onChange={e => setDashboardForm({ ...dashboardForm, name: e.target.value })} className="bg-gray-900 border border-gray-700 text-white" />
-                </div>
-                <div>
-                  <label className="block text-gray-300 mb-1 font-medium">Layout</label>
-                  <select value={dashboardForm.layout} onChange={e => setDashboardForm({ ...dashboardForm, layout: e.target.value })} className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2">
-                    <option>Padrão</option>
-                    <option>Compacto</option>
-                    <option>Cards Grandes</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-gray-300 mb-1 font-medium">Widgets</label>
-                  <div className="flex flex-wrap gap-2 mt-1">
-                    {['Métricas', 'Gráficos', 'Atividades Recentes', 'Notificações'].map(w => (
-                      <label key={w} className="flex items-center gap-1 bg-gray-800 px-3 py-1 rounded-full cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={dashboardForm.widgets.includes(w)}
-                          onChange={e => {
-                            const widgets = dashboardForm.widgets.includes(w)
-                              ? dashboardForm.widgets.filter(x => x !== w)
-                              : [...dashboardForm.widgets, w];
-                            setDashboardForm({ ...dashboardForm, widgets, order: widgets });
-                          }}
-                          className="accent-purple-500"
-                        />
-                        <span className="text-purple-200 text-xs">{w}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-gray-300 mb-1 font-medium">Ordem dos Cards</label>
-                  <ul className="space-y-1">
-                    {dashboardForm.order.map((w, idx) => (
-                      <li key={w} className="flex items-center gap-2">
-                        <button type="button" onClick={() => idx > 0 && moveWidget(idx, idx - 1)} className="text-gray-400 hover:text-purple-400">▲</button>
-                        <button type="button" onClick={() => idx < dashboardForm.order.length - 1 && moveWidget(idx, idx + 1)} className="text-gray-400 hover:text-purple-400">▼</button>
-                        <GripVertical className="w-4 h-4 text-gray-500" />
-                        <span className="text-gray-200 text-xs">{w}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="flex items-center gap-3 mt-2">
-                  <input type="checkbox" className="accent-purple-500" checked={dashboardForm.realtime} onChange={e => setDashboardForm({ ...dashboardForm, realtime: e.target.checked })} />
-                  <span className="text-gray-300">Exibir métricas em tempo real</span>
-                </div>
-                <div>
-                  <label className="block text-gray-300 mb-1 font-medium">Cor de destaque</label>
-                  <input type="color" value={dashboardForm.color} onChange={e => setDashboardForm({ ...dashboardForm, color: e.target.value })} className="w-12 h-12 p-0 border-none bg-transparent" />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setDashboardModal(false)} className="bg-gray-700 text-white">Cancelar</Button>
-                <Button onClick={saveDashboard} className="bg-purple-600 hover:bg-purple-700 text-white">Salvar</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
         </TabsContent>
 
         {/* WhiteLabel settings */}
