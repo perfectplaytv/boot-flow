@@ -294,18 +294,34 @@ const AdminDashboard = () => {
       transform: CSS.Transform.toString(transform),
       transition,
       zIndex: isDragging ? 50 : 1,
-      opacity: isDragging ? 0.7 : 1,
-      cursor: 'grab',
+      opacity: isDragging ? 0.8 : 1,
+      cursor: isDragging ? 'grabbing' : 'grab',
     };
     return (
       <div ref={setNodeRef} style={style} {...attributes} className="select-none">
-        <Card className="cursor-pointer hover:shadow-glow hover:scale-105 transition-all duration-300 transform" onClick={onClick} tabIndex={0} role="button" aria-pressed="false">
+        <Card 
+          className={`cursor-pointer hover:shadow-glow hover:scale-105 transition-all duration-300 transform relative ${
+            isDragging ? 'shadow-2xl scale-110 rotate-2' : ''
+          }`} 
+          onClick={onClick} 
+          tabIndex={0} 
+          role="button" 
+          aria-pressed="false"
+        >
           {content}
           {body}
           {/* Drag indicator */}
           <div className="absolute top-2 right-2 opacity-0 hover:opacity-100 transition-opacity">
-            <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+            <div className="w-3 h-3 bg-gray-400 rounded-full flex items-center justify-center">
+              <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 6h8v2H8V6zm0 5h8v2H8v-2zm0 5h8v2H8v-2z"/>
+              </svg>
+            </div>
           </div>
+          {/* Drag overlay */}
+          {isDragging && (
+            <div className="absolute inset-0 bg-blue-500/20 rounded-lg border-2 border-blue-500 border-dashed"></div>
+          )}
         </Card>
       </div>
     );
