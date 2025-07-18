@@ -163,9 +163,6 @@ export default function AdminUsers() {
                   {/* Vencimento */}
                   <div className="col-span-2">
                     <label className="block text-gray-300 mb-1 font-medium">Vencimento (Opcional)</label>
-                    <div className="bg-red-900/40 border border-red-700 text-red-400 text-xs rounded mt-2 p-2 mb-2">
-                      Você será cobrado 0,033 créditos por dia (1 crédito dividido por 30), arredondado para 0,033 mais próximo a partir da data de vencimento atual, multiplicado pelo número de conexões.
-                    </div>
                     <VencimentoDatePicker />
                   </div>
                   {/* Bouquets */}
@@ -218,59 +215,51 @@ export default function AdminUsers() {
               <div className="bg-[#1f2937] border border-gray-700 rounded-lg p-4 mb-4">
                 <span className="block text-purple-400 font-semibold mb-2">Configuração de Serviço</span>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+                  {/* Classe de Serviço */}
                   <div>
                     <label className="block text-gray-300 mb-1 font-medium">Classe de Serviço</label>
-                    <Select>
-                      <SelectTrigger className="bg-[#1f2937] border border-gray-700 text-white">
-                        <SelectValue placeholder="Selecione" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Básico">Básico</SelectItem>
-                        <SelectItem value="Premium">Premium</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <select className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2">
+                      <option value="">Selecione</option>
+                      <option value="basico">Básico</option>
+                      <option value="premium">Premium</option>
+                    </select>
                   </div>
+                  {/* Plano */}
                   <div>
                     <label className="block text-gray-300 mb-1 font-medium">Plano</label>
-                    <Select>
-                      <SelectTrigger className="bg-[#1f2937] border border-gray-700 text-white">
-                        <SelectValue placeholder="Mensal" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Mensal">Mensal</SelectItem>
-                        <SelectItem value="Anual">Anual</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <select className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2">
+                      <option value="mensal">Mensal</option>
+                      <option value="anual">Anual</option>
+                    </select>
                   </div>
+                  {/* Status */}
                   <div>
                     <label className="block text-gray-300 mb-1 font-medium">Status</label>
-                    <Select>
-                      <SelectTrigger className="bg-[#1f2937] border border-gray-700 text-white">
-                        <SelectValue placeholder="Ativo" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Ativo">Ativo</SelectItem>
-                        <SelectItem value="Inativo">Inativo</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <select className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2">
+                      <option value="ativo">Ativo</option>
+                      <option value="inativo">Inativo</option>
+                    </select>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+                  {/* Data de Renovação */}
                   <div>
                     <label className="block text-gray-300 mb-1 font-medium">Data de Renovação</label>
-                    <Input type="date" className="bg-[#1f2937] border border-gray-700 text-white" />
+                    <RenovacaoDatePicker />
                   </div>
+                  {/* Número de Dispositivos */}
                   <div>
                     <label className="block text-gray-300 mb-1 font-medium">Número de Dispositivos</label>
-                    <Input type="number" min={1} className="bg-[#1f2937] border border-gray-700 text-white" />
+                    <input type="number" min={1} className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2" />
                   </div>
+                  {/* Créditos */}
                   <div>
                     <label className="block text-gray-300 mb-1 font-medium">Créditos</label>
                     <div className="flex items-center gap-2">
-                      <Button variant="outline" className="bg-[#1f2937] text-white px-2 py-1">-</Button>
-                      <Input type="number" min={0} className="w-16 bg-[#1f2937] border border-gray-700 text-white" />
-                      <Button variant="outline" className="bg-[#1f2937] text-white px-2 py-1">+</Button>
-                      <span className="text-xs text-gray-400">valor entre 0 e 500€</span>
+                      <button type="button" className="bg-[#23272f] text-white px-2 py-1 rounded border border-gray-700">-</button>
+                      <input type="number" min={0} className="w-16 bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2" />
+                      <button type="button" className="bg-[#23272f] text-white px-2 py-1 rounded border border-gray-700">+</button>
+                      <span className="text-xs text-gray-400 ml-2">valor<br/>entre 0<br/>e 500€</span>
                     </div>
                   </div>
                 </div>
@@ -382,6 +371,43 @@ function VencimentoDatePicker() {
             className="w-1/2 bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
           />
         </div>
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-auto p-0 bg-[#1f2937] border border-gray-700">
+        <Calendar
+          mode="single"
+          selected={date}
+          onSelect={setDate}
+          className="rounded-md bg-[#1f2937] text-white"
+        />
+        <div className="flex justify-end p-2">
+          <Button size="sm" onClick={() => setOpen(false)}>
+            OK
+          </Button>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+function RenovacaoDatePicker() {
+  const [open, setOpen] = React.useState(false);
+  const [date, setDate] = React.useState<Date | undefined>(undefined);
+
+  function formatDate(d?: Date) {
+    if (!d) return "";
+    return d.toLocaleDateString("pt-BR");
+  }
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <input
+          readOnly
+          value={date ? formatDate(date) : ""}
+          placeholder="dd/mm/aaaa"
+          className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 cursor-pointer"
+          onClick={() => setOpen(true)}
+        />
       </PopoverTrigger>
       <PopoverContent align="start" className="w-auto p-0 bg-[#1f2937] border border-gray-700">
         <Calendar
