@@ -896,12 +896,65 @@ const AdminDashboard = () => {
           <DialogContent className="bg-[#1f2937] text-white max-w-2xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col items-center justify-center max-h-[80vh] overflow-y-auto scrollbar-hide">
             <div className="p-6 w-full flex flex-col items-center">
               <h2 className="text-2xl font-bold mb-2 text-center">Gamificação</h2>
-              <p className="text-gray-400 mb-4 text-center">Sistema de pontos, conquistas e rankings.</p>
-              <div className="flex flex-col gap-2 w-full max-w-md mx-auto">
-                <span className="text-center">Usuários Ativos: <span className="font-semibold">8.234</span></span>
-                <span className="text-center">Conquistas: <span className="font-semibold text-green-400">15</span></span>
+              <p className="text-gray-400 mb-4 text-center">Gerencie sistema de pontos, conquistas e rankings.</p>
+              <div className="w-full max-w-lg space-y-2 mb-4">
+                <div className="flex justify-between"><span className="text-gray-300">Gamificação:</span><span className="font-semibold text-green-400">Ativada</span></div>
+                <div className="flex justify-between"><span className="text-gray-300">Pontos por Login:</span><span className="font-semibold">10</span></div>
+                <div className="flex justify-between"><span className="text-gray-300">Pontos por Compra:</span><span className="font-semibold">50</span></div>
+                <div className="flex justify-between"><span className="text-gray-300">Pontos por Suporte:</span><span className="font-semibold">30</span></div>
+                <div className="flex justify-between"><span className="text-gray-300">Ranking:</span><span className="font-semibold text-green-400">Ativado</span></div>
+                <div className="flex justify-between"><span className="text-gray-300">Conquistas:</span><span className="font-semibold text-green-400">Ativado</span></div>
+                <div className="flex justify-between"><span className="text-gray-300">Níveis:</span><span className="font-semibold text-green-400">Ativado</span></div>
+                <div className="flex justify-between"><span className="text-gray-300">Nível Máximo:</span><span className="font-semibold">100</span></div>
               </div>
-              <Button className="mt-6 bg-yellow-500 hover:bg-yellow-600 text-white w-40" onClick={() => setActiveModal(null)}>Fechar</Button>
+              <div className="w-full max-w-lg mb-4">
+                <h3 className="text-lg font-semibold mb-2">Conquistas Recentes</h3>
+                <div className="overflow-x-auto rounded border border-gray-700">
+                  <table className="min-w-full text-sm text-left">
+                    <thead className="bg-[#23272f]">
+                      <tr>
+                        <th className="px-2 py-1 text-gray-400 font-medium">Nome</th>
+                        <th className="px-2 py-1 text-gray-400 font-medium">Descrição</th>
+                        <th className="px-2 py-1 text-gray-400 font-medium">Pontos</th>
+                        <th className="px-2 py-1 text-gray-400 font-medium">Desbloqueios</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="border-t border-gray-700">
+                        <td className="px-2 py-1">Primeiro Login</td>
+                        <td className="px-2 py-1">Faça seu primeiro login no sistema</td>
+                        <td className="px-2 py-1">10</td>
+                        <td className="px-2 py-1">156</td>
+                      </tr>
+                      <tr className="border-t border-gray-700">
+                        <td className="px-2 py-1">Comprador Frequente</td>
+                        <td className="px-2 py-1">Realize 10 compras</td>
+                        <td className="px-2 py-1">50</td>
+                        <td className="px-2 py-1">45</td>
+                      </tr>
+                      <tr className="border-t border-gray-700">
+                        <td className="px-2 py-1">Suporte Ativo</td>
+                        <td className="px-2 py-1">Use o suporte 5 vezes</td>
+                        <td className="px-2 py-1">30</td>
+                        <td className="px-2 py-1">78</td>
+                      </tr>
+                      <tr className="border-t border-gray-700">
+                        <td className="px-2 py-1">Streamer</td>
+                        <td className="px-2 py-1">Assista 100 horas de conteúdo</td>
+                        <td className="px-2 py-1">100</td>
+                        <td className="px-2 py-1">23</td>
+                      </tr>
+                      <tr className="border-t border-gray-700">
+                        <td className="px-2 py-1">Mestre da IA</td>
+                        <td className="px-2 py-1">Interaja 50 vezes com a IA</td>
+                        <td className="px-2 py-1">75</td>
+                        <td className="px-2 py-1">12</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <Button className="mt-2 bg-yellow-500 hover:bg-yellow-600 text-white w-40" onClick={() => setActiveModal(null)}>Fechar</Button>
             </div>
           </DialogContent>
         </Dialog>
