@@ -73,7 +73,9 @@ const AdminWhatsApp: React.FC = () => {
     provider: 'Meta Cloud API',
     number: '',
     webhook: '',
-    autoReply: false
+    autoReply: false,
+    apiToken: '',
+    apiEndpoint: ''
   });
 
   // Abrir modal para novo template
@@ -182,13 +184,72 @@ const AdminWhatsApp: React.FC = () => {
               </div>
             </TabsContent>
             <TabsContent value="api">
-              <div className="text-gray-400">Configurações de API (em breve)</div>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-gray-300 mb-1">Token da API</label>
+                  <Input value={config.apiToken || ''} onChange={e => setConfig({ ...config, apiToken: e.target.value })} placeholder="Insira o token da API" className="bg-gray-800 border-gray-700 text-white" />
+                </div>
+                <div>
+                  <label className="block text-gray-300 mb-1">Endpoint</label>
+                  <Input value={config.apiEndpoint || ''} onChange={e => setConfig({ ...config, apiEndpoint: e.target.value })} placeholder="https://api.whatsapp.com/endpoint" className="bg-gray-800 border-gray-700 text-white" />
+                </div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="text-gray-400">Status:</span>
+                  <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Conectado</Badge>
+                  <Button className="ml-auto bg-green-600 hover:bg-green-700">Testar Conexão</Button>
+                </div>
+              </div>
             </TabsContent>
             <TabsContent value="templates">
-              <div className="text-gray-400">Gerenciamento de templates (em breve)</div>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-gray-300 font-semibold">Templates Cadastrados</span>
+                  <div className="flex gap-2">
+                    <Button variant="outline" className="border-gray-700 bg-gray-900 text-white hover:bg-gray-800"><Upload className="w-4 h-4 mr-2 text-green-400" />Importar</Button>
+                    <Button variant="outline" className="border-gray-700 bg-gray-900 text-white hover:bg-gray-800"><Download className="w-4 h-4 mr-2 text-purple-400" />Exportar</Button>
+                    <Button className="bg-green-600 hover:bg-green-700"><Plus className="w-4 h-4 mr-2" />Novo Template</Button>
+                  </div>
+                </div>
+                <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
+                  {templates.length === 0 && <div className="text-gray-400">Nenhum template cadastrado.</div>}
+                  {templates.map((tpl) => (
+                    <div key={tpl.id} className="flex items-center justify-between bg-[#232a36] rounded px-3 py-2 border border-gray-700">
+                      <div className="flex items-center gap-2">
+                        <span className={`font-medium ${tpl.status === 'Ativo' ? 'text-green-400' : 'text-gray-400'}`}>{tpl.title}</span>
+                        <Badge className={tpl.status === 'Ativo' ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-gray-500/20 text-gray-400 border-gray-500/30'}>{tpl.status}</Badge>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button variant="ghost" size="icon" className="text-gray-400 hover:text-green-400" onClick={() => handleEditTemplate(tpl)}><Edit className="w-4 h-4" /></Button>
+                        <Button variant="ghost" size="icon" className="text-red-400 hover:text-red-300" onClick={() => handleDeleteTemplate(tpl)}><Trash2 className="w-4 h-4" /></Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </TabsContent>
             <TabsContent value="horarios">
-              <div className="text-gray-400">Configuração de horários (em breve)</div>
+              <div className="space-y-4">
+                <div className="flex flex-col md:flex-row gap-4">
+                  <div className="flex-1">
+                    <label className="block text-gray-300 mb-1">Dias de Atendimento</label>
+                    <div className="flex flex-wrap gap-2">
+                      {['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'].map((dia) => (
+                        <Button key={dia} variant="outline" className="border-gray-700 bg-gray-900 text-white hover:bg-green-700 px-4 py-1 rounded-full text-xs">{dia}</Button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <label className="block text-gray-300 mb-1">Horário de Início</label>
+                    <Input type="time" className="bg-gray-800 border-gray-700 text-white" />
+                    <label className="block text-gray-300 mb-1 mt-2">Horário de Término</label>
+                    <Input type="time" className="bg-gray-800 border-gray-700 text-white" />
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 mt-2">
+                  <Switch />
+                  <span className="text-white">Ativar atendimento automático fora do horário</span>
+                </div>
+              </div>
             </TabsContent>
           </Tabs>
         </DialogContent>
