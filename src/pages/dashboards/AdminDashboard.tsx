@@ -458,6 +458,17 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleDragEnd = (event: any) => {
+    const { active, over } = event;
+    if (active.id !== over?.id) {
+      setKanbanCards((items) => {
+        const oldIndex = items.findIndex(i => i.id === active.id);
+        const newIndex = items.findIndex(i => i.id === over.id);
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  };
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-[#09090b]">
@@ -483,16 +494,16 @@ const AdminDashboard = () => {
                     </Button>
                   </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {kanbanCards.map(card => (
-                    <div key={card.id}>
-                      <Card className="bg-[#1f2937] hover:shadow-glow transition-all duration-300 cursor-pointer">
-                        {card.content}
-                        {card.body}
-                      </Card>
+                {/* Kanban funcional com drag-and-drop */}
+                <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                  <SortableContext items={kanbanCards} strategy={rectSortingStrategy}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 my-6">
+                      {kanbanCards.map(card => (
+                        <SortableCard key={card.id} id={card.id} content={card.content} body={card.body} onClick={card.onClick} />
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  </SortableContext>
+                </DndContext>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <Card className="bg-[#1f2937]">
                     <CardHeader>
