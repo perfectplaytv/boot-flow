@@ -290,7 +290,7 @@ const AdminDashboard = () => {
 
   // Componente SortableCard
   function SortableCard({ id, content, body, onClick }: any) {
-    const { attributes, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
     const style = {
       transform: CSS.Transform.toString(transform),
       transition,
@@ -298,31 +298,53 @@ const AdminDashboard = () => {
       opacity: isDragging ? 0.8 : 1,
       cursor: isDragging ? 'grabbing' : 'grab',
     };
+    
+    const handleClick = (e: React.MouseEvent) => {
+      // Prevenir clique durante o drag
+      if (isDragging) {
+        e.preventDefault();
+        return;
+      }
+      onClick && onClick();
+    };
+    
     return (
-      <div ref={setNodeRef} style={style} {...attributes} className="select-none">
+      <div 
+        ref={setNodeRef} 
+        style={style} 
+        {...attributes} 
+        {...listeners}
+        className="select-none touch-manipulation"
+        data-card-id={id}
+      >
         <Card 
-          className={`cursor-pointer hover:shadow-glow hover:scale-105 transition-all duration-300 transform relative ${
-            isDragging ? 'shadow-2xl scale-110 rotate-2' : ''
+          className={`cursor-grab active:cursor-grabbing hover:shadow-glow hover:scale-105 transition-all duration-300 transform relative group ${
+            isDragging ? 'shadow-2xl scale-110 rotate-2 z-50' : ''
           }`} 
-          onClick={onClick} 
+          onClick={handleClick} 
           tabIndex={0} 
           role="button" 
           aria-pressed="false"
+          style={{
+            cursor: isDragging ? 'grabbing' : 'grab'
+          }}
         >
           {content}
           {body}
           {/* Drag indicator */}
-          <div className="absolute top-2 right-2 opacity-0 hover:opacity-100 transition-opacity">
-            <div className="w-3 h-3 bg-gray-400 rounded-full flex items-center justify-center">
-              <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 24 24">
+          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+            <div className="w-6 h-6 bg-gray-600/80 rounded-full flex items-center justify-center backdrop-blur-sm">
+              <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M8 6h8v2H8V6zm0 5h8v2H8v-2zm0 5h8v2H8v-2z"/>
               </svg>
             </div>
           </div>
           {/* Drag overlay */}
           {isDragging && (
-            <div className="absolute inset-0 bg-blue-500/20 rounded-lg border-2 border-blue-500 border-dashed"></div>
+            <div className="absolute inset-0 bg-blue-500/20 rounded-lg border-2 border-blue-500 border-dashed pointer-events-none"></div>
           )}
+          {/* Hover effect */}
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 to-purple-500/0 hover:from-blue-500/5 hover:to-purple-500/5 rounded-lg transition-all duration-300 pointer-events-none"></div>
         </Card>
       </div>
     );
@@ -444,7 +466,7 @@ const AdminDashboard = () => {
                   </Button>
                   {viewMode === 'kanban' && (
                     <>
-                      <Badge className="bg-blue-600 text-white flex items-center gap-1">
+                      <Badge className="bg-blue-600 text-white flex items-center gap-1 animate-pulse">
                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                         </svg>
@@ -456,6 +478,12 @@ const AdminDashboard = () => {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
                         Clique para abrir
+                      </Badge>
+                      <Badge className="bg-purple-600 text-white flex items-center gap-1">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        Drag & Drop Ativo
                       </Badge>
                     </>
                   )}
@@ -483,6 +511,7 @@ const AdminDashboard = () => {
                           <div 
                             className="space-y-4 min-h-[200px] bg-[#1f2937]/50 rounded-lg p-4 border border-gray-700 transition-all duration-200 hover:border-gray-600"
                             data-column-id={column.id}
+                            data-droppable="true"
                           >
                             {column.cards.map(card => (
                               <SortableCard 
@@ -494,12 +523,16 @@ const AdminDashboard = () => {
                               />
                             ))}
                             {column.cards.length === 0 && (
-                              <div className="flex items-center justify-center h-32 text-gray-500 border-2 border-dashed border-gray-600 rounded-lg transition-all duration-200 hover:border-blue-500 hover:text-blue-400">
+                              <div 
+                                className="flex items-center justify-center h-32 text-gray-500 border-2 border-dashed border-gray-600 rounded-lg transition-all duration-200 hover:border-blue-500 hover:text-blue-400 group"
+                                data-droppable="true"
+                                data-column-id={column.id}
+                              >
                                 <div className="text-center">
-                                  <svg className="w-8 h-8 mx-auto mb-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <svg className="w-8 h-8 mx-auto mb-2 text-gray-600 group-hover:text-blue-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                                   </svg>
-                                  <p className="text-sm">Solte um card aqui</p>
+                                  <p className="text-sm group-hover:text-blue-400 transition-colors">Solte um card aqui</p>
                                 </div>
                               </div>
                             )}
@@ -623,6 +656,8 @@ const AdminDashboard = () => {
     const activeId = active.id;
     const overId = over.id;
     
+    console.log('Drag ended:', { activeId, overId }); // Debug log
+    
     // Se o card foi solto sobre outro card ou área vazia
     if (activeId !== overId) {
       setKanbanColumns(prevColumns => {
@@ -640,9 +675,13 @@ const AdminDashboard = () => {
           }
         });
         
-        if (!sourceColumnId) return newColumns;
+        if (!sourceColumnId) {
+          console.log('Source column not found for card:', activeId);
+          return newColumns;
+        }
         
         const cardToMove = newColumns[sourceColumnId].cards[sourceCardIndex];
+        console.log('Moving card:', cardToMove.id, 'from column:', sourceColumnId);
         
         // Remover da coluna de origem
         newColumns[sourceColumnId].cards.splice(sourceCardIndex, 1);
@@ -661,6 +700,7 @@ const AdminDashboard = () => {
         
         if (targetColumnId) {
           // Solto sobre outro card
+          console.log('Dropped on card in column:', targetColumnId, 'at position:', targetCardIndex);
           if (sourceColumnId === targetColumnId) {
             // Mesma coluna, reordenar
             newColumns[targetColumnId].cards.splice(targetCardIndex, 0, cardToMove);
@@ -669,16 +709,28 @@ const AdminDashboard = () => {
             newColumns[targetColumnId].cards.splice(targetCardIndex, 0, cardToMove);
           }
         } else {
-          // Solto em área vazia - verificar se foi solto sobre uma coluna
-          const columnElement = over.data?.current?.columnId;
+          // Solto em área vazia - tentar encontrar a coluna pelo data-column-id
+          const columnElement = over.data?.current?.columnId || over.id;
+          console.log('Dropped in empty area, trying column:', columnElement);
+          
           if (columnElement && newColumns[columnElement]) {
             // Adicionar no final da coluna
             newColumns[columnElement].cards.push(cardToMove);
+            console.log('Added to column:', columnElement);
           } else {
             // Se não encontrou coluna válida, voltar para a origem
+            console.log('No valid column found, returning to source');
             newColumns[sourceColumnId].cards.splice(sourceCardIndex, 0, cardToMove);
           }
         }
+        
+        console.log('New columns state:', newColumns);
+        
+        // Mostrar toast de sucesso
+        toast.success(`Card movido com sucesso!`, {
+          description: `Card reorganizado no sistema Kanban`,
+          duration: 2000,
+        });
         
         return newColumns;
       });
