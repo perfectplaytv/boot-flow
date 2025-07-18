@@ -407,9 +407,30 @@ const AdminDashboard = () => {
                 }
               }}>
                 <SortableContext items={kanbanCards} strategy={rectSortingStrategy}>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {kanbanCards.map(card => (
-                      <SortableCard key={card.id} id={card.id} content={card.content} body={card.body} onClick={card.onClick} />
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {Object.values(kanbanColumns).map(column => (
+                      <div key={column.id} className="space-y-4">
+                        {/* Column Header */}
+                        <div className={`${column.color} rounded-lg p-4 text-white`}>
+                          <div className="flex items-center justify-between">
+                            <h3 className="font-semibold text-lg">{column.title}</h3>
+                            <Badge className="bg-white/20 text-white">{column.cards.length}</Badge>
+                          </div>
+                        </div>
+                        
+                        {/* Column Cards */}
+                        <div className="space-y-4">
+                          {column.cards.map(card => (
+                            <SortableCard 
+                              key={card.id} 
+                              id={card.id} 
+                              content={card.content} 
+                              body={card.body} 
+                              onClick={card.onClick} 
+                            />
+                          ))}
+                        </div>
+                      </div>
                     ))}
                   </div>
                 </SortableContext>
