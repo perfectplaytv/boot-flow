@@ -45,6 +45,15 @@ export function AIModalManager({ activeModal, onClose, onAddReseller }: AIModalM
     newMessage: ""
   });
 
+  const [newReseller, setNewReseller] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    plan: "professional",
+    commission: "15",
+    status: "Ativo"
+  });
+
   const [usersList] = useState([
     { id: 1, name: "João Silva", email: "joao@email.com", plan: "Cliente", status: "Ativo" },
     { id: 2, name: "Maria Santos", email: "maria@email.com", plan: "Revendedor", status: "Ativo" },
