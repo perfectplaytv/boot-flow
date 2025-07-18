@@ -96,6 +96,7 @@ const AdminDashboard = () => {
 
   const handlePageChange = (page: string) => {
     setCurrentPage(page);
+    setDrawerOpen(false); // Fecha o Drawer no mobile
   };
 
   const handleAddReseller = (reseller: any) => {
@@ -482,7 +483,7 @@ const AdminDashboard = () => {
           <AdminSidebar onPageChange={handlePageChange} currentPage={currentPage} isMobile onClose={() => setDrawerOpen(false)} />
         </div>
         
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-6 max-w-full w-full overflow-x-auto">
           <div className="max-w-7xl mx-auto space-y-6">
             {currentPage === "dashboard" && (
               <>
