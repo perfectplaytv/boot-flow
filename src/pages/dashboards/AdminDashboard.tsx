@@ -414,17 +414,8 @@ const AdminDashboard = () => {
                 </div>
               </div>
               
-              <DndContext collisionDetection={closestCenter} onDragEnd={event => {
-                const { active, over } = event;
-                if (active.id !== over?.id) {
-                  setKanbanCards((items) => {
-                    const oldIndex = items.findIndex(i => i.id === active.id);
-                    const newIndex = items.findIndex(i => i.id === over.id);
-                    return arrayMove(items, oldIndex, newIndex);
-                  });
-                }
-              }}>
-                <SortableContext items={kanbanCards} strategy={rectSortingStrategy}>
+              <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                <SortableContext items={Object.values(kanbanColumns).flatMap(column => column.cards).map(card => card.id)} strategy={rectSortingStrategy}>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {Object.values(kanbanColumns).map(column => (
                       <div key={column.id} className="space-y-4">
@@ -451,8 +442,8 @@ const AdminDashboard = () => {
                             />
                           ))}
                           {column.cards.length === 0 && (
-                            <div className="flex items-center justify-center h-32 text-gray-500">
-                              <p className="text-sm">Nenhum card nesta coluna</p>
+                            <div className="flex items-center justify-center h-32 text-gray-500 border-2 border-dashed border-gray-600 rounded-lg">
+                              <p className="text-sm">Solte um card aqui</p>
                             </div>
                           )}
                         </div>
@@ -557,18 +548,15 @@ const AdminDashboard = () => {
     const activeId = active.id;
     const overId = over.id;
     
-    // Se o card foi solto sobre outro card
+    // Se o card foi solto sobre outro card ou área vazia
     if (activeId !== overId) {
       setKanbanColumns(prevColumns => {
         const newColumns = { ...prevColumns };
         
-        // Encontrar a coluna de origem e destino
+        // Encontrar a coluna de origem
         let sourceColumnId = null;
-        let targetColumnId = null;
         let sourceCardIndex = -1;
-        let targetCardIndex = -1;
         
-        // Procurar o card ativo nas colunas
         Object.keys(newColumns).forEach(columnId => {
           const cardIndex = newColumns[columnId].cards.findIndex(card => card.id === activeId);
           if (cardIndex !== -1) {
@@ -577,7 +565,17 @@ const AdminDashboard = () => {
           }
         });
         
-        // Procurar o card de destino nas colunas
+        if (!sourceColumnId) return newColumns;
+        
+        const cardToMove = newColumns[sourceColumnId].cards[sourceCardIndex];
+        
+        // Remover da coluna de origem
+        newColumns[sourceColumnId].cards.splice(sourceCardIndex, 1);
+        
+        // Verificar se foi solto sobre outro card
+        let targetColumnId = null;
+        let targetCardIndex = -1;
+        
         Object.keys(newColumns).forEach(columnId => {
           const cardIndex = newColumns[columnId].cards.findIndex(card => card.id === overId);
           if (cardIndex !== -1) {
@@ -586,20 +584,24 @@ const AdminDashboard = () => {
           }
         });
         
-        // Se encontrou ambos, mover o card
-        if (sourceColumnId && targetColumnId) {
-          const cardToMove = newColumns[sourceColumnId].cards[sourceCardIndex];
-          
-          // Remover da coluna de origem
-          newColumns[sourceColumnId].cards.splice(sourceCardIndex, 1);
-          
-          // Adicionar na coluna de destino
+        if (targetColumnId) {
+          // Solto sobre outro card
           if (sourceColumnId === targetColumnId) {
-            // Mesma coluna, apenas reordenar
+            // Mesma coluna, reordenar
             newColumns[targetColumnId].cards.splice(targetCardIndex, 0, cardToMove);
           } else {
-            // Colunas diferentes, adicionar no final da coluna de destino
-            newColumns[targetColumnId].cards.push(cardToMove);
+            // Colunas diferentes, adicionar na posição do card de destino
+            newColumns[targetColumnId].cards.splice(targetCardIndex, 0, cardToMove);
+          }
+        } else {
+          // Solto em área vazia - verificar se foi solto sobre uma coluna
+          const columnElement = over.data?.current?.columnId;
+          if (columnElement && newColumns[columnElement]) {
+            // Adicionar no final da coluna
+            newColumns[columnElement].cards.push(cardToMove);
+          } else {
+            // Se não encontrou coluna válida, voltar para a origem
+            newColumns[sourceColumnId].cards.splice(sourceCardIndex, 0, cardToMove);
           }
         }
         
@@ -1285,6 +1287,6 @@ const AdminDashboard = () => {
       </div>
     </SidebarProvider>
   );
-};
-
-export default AdminDashboard;
+  };
+  
+  export default AdminDashboard;
