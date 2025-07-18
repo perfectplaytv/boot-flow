@@ -962,12 +962,95 @@ const AdminDashboard = () => {
           <DialogContent className="bg-[#1f2937] text-white max-w-2xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col items-center justify-center max-h-[80vh] overflow-y-auto scrollbar-hide">
             <div className="p-6 w-full flex flex-col items-center">
               <h2 className="text-2xl font-bold mb-2 text-center">Analytics</h2>
-              <p className="text-gray-400 mb-4 text-center">Métricas, relatórios e insights.</p>
-              <div className="flex flex-col gap-2 w-full max-w-md mx-auto">
-                <span className="text-center">Visualizações: <span className="font-semibold">45.678</span></span>
-                <span className="text-center">Conversão: <span className="font-semibold text-green-400">3.2%</span></span>
+              <p className="text-gray-400 mb-4 text-center">Acompanhe métricas e performance do sistema.</p>
+              <div className="w-full max-w-lg space-y-2 mb-4">
+                <div className="flex justify-between"><span className="text-gray-300">Total de Usuários:</span><span className="font-semibold">1.256</span></div>
+                <div className="flex justify-between"><span className="text-gray-300">Usuários Ativos:</span><span className="font-semibold">892</span></div>
+                <div className="flex justify-between"><span className="text-gray-300">Receita:</span><span className="font-semibold">R$ 45.678,90</span></div>
+                <div className="flex justify-between"><span className="text-gray-300">Visualizações:</span><span className="font-semibold">45.678</span></div>
+                <div className="flex justify-between"><span className="text-gray-300">Taxa de Conversão:</span><span className="font-semibold text-green-400">3,2%</span></div>
               </div>
-              <Button className="mt-6 bg-red-600 hover:bg-red-700 text-white w-40" onClick={() => setActiveModal(null)}>Fechar</Button>
+              <div className="w-full max-w-lg mb-4">
+                <h3 className="text-lg font-semibold mb-2">Páginas Mais Visitadas</h3>
+                <div className="overflow-x-auto rounded border border-gray-700">
+                  <table className="min-w-full text-sm text-left">
+                    <thead className="bg-[#23272f]">
+                      <tr>
+                        <th className="px-2 py-1 text-gray-400 font-medium">Página</th>
+                        <th className="px-2 py-1 text-gray-400 font-medium">Visualizações</th>
+                        <th className="px-2 py-1 text-gray-400 font-medium">Crescimento</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="border-t border-gray-700">
+                        <td className="px-2 py-1">Dashboard</td>
+                        <td className="px-2 py-1">1.234</td>
+                        <td className="px-2 py-1 text-green-400">+15,2%</td>
+                      </tr>
+                      <tr className="border-t border-gray-700">
+                        <td className="px-2 py-1">Produtos</td>
+                        <td className="px-2 py-1">987</td>
+                        <td className="px-2 py-1 text-green-400">+8,7%</td>
+                      </tr>
+                      <tr className="border-t border-gray-700">
+                        <td className="px-2 py-1">Suporte</td>
+                        <td className="px-2 py-1">756</td>
+                        <td className="px-2 py-1 text-red-400">-2,1%</td>
+                      </tr>
+                      <tr className="border-t border-gray-700">
+                        <td className="px-2 py-1">Perfil</td>
+                        <td className="px-2 py-1">654</td>
+                        <td className="px-2 py-1 text-green-400">+12,3%</td>
+                      </tr>
+                      <tr className="border-t border-gray-700">
+                        <td className="px-2 py-1">Configurações</td>
+                        <td className="px-2 py-1">432</td>
+                        <td className="px-2 py-1 text-green-400">+5,6%</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div className="w-full max-w-lg mb-4">
+                <h3 className="text-lg font-semibold mb-2">Atividade por Hora</h3>
+                <div className="overflow-x-auto rounded border border-gray-700">
+                  <table className="min-w-full text-sm text-left">
+                    <thead className="bg-[#23272f]">
+                      <tr>
+                        <th className="px-2 py-1 text-gray-400 font-medium">Hora</th>
+                        <th className="px-2 py-1 text-gray-400 font-medium">Usuários Ativos</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="border-t border-gray-700">
+                        <td className="px-2 py-1">00:00</td>
+                        <td className="px-2 py-1">45</td>
+                      </tr>
+                      <tr className="border-t border-gray-700">
+                        <td className="px-2 py-1">04:00</td>
+                        <td className="px-2 py-1">23</td>
+                      </tr>
+                      <tr className="border-t border-gray-700">
+                        <td className="px-2 py-1">08:00</td>
+                        <td className="px-2 py-1">156</td>
+                      </tr>
+                      <tr className="border-t border-gray-700">
+                        <td className="px-2 py-1">12:00</td>
+                        <td className="px-2 py-1">234</td>
+                      </tr>
+                      <tr className="border-t border-gray-700">
+                        <td className="px-2 py-1">16:00</td>
+                        <td className="px-2 py-1">198</td>
+                      </tr>
+                      <tr className="border-t border-gray-700">
+                        <td className="px-2 py-1">20:00</td>
+                        <td className="px-2 py-1">167</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <Button className="mt-2 bg-red-600 hover:bg-red-700 text-white w-40" onClick={() => setActiveModal(null)}>Fechar</Button>
             </div>
           </DialogContent>
         </Dialog>
