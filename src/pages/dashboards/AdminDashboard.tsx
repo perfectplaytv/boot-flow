@@ -282,19 +282,13 @@ const AdminDashboard = () => {
             {/* Header */}
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-3xl font-bold">Dashboard Administrador</h1>
-                <p className="text-muted-foreground">Gerencie toda a plataforma SaaS Pro</p>
+                <h1 className="text-3xl font-bold text-white">Dashboard Admin</h1>
+                <p className="text-gray-400">Visão geral do sistema</p>
               </div>
-              <div className="flex items-center space-x-2">
-                <Button onClick={() => handleModalOpen("ai_config")}>
-                  <Brain className="w-4 h-4 mr-2" />
-                  Configurar IA
-                </Button>
-                <Button onClick={() => handleModalOpen("add_reseller")}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Novo Revendedor
-                </Button>
-              </div>
+              <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white">
+                <Plus className="w-4 h-4 mr-2" />
+                Nova Ação
+              </Button>
             </div>
 
             {/* Stats Cards */}
@@ -376,7 +370,7 @@ const AdminDashboard = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Atividade Recente</CardTitle>
+                  <CardTitle className="text-white">Atividade Recente</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -384,8 +378,8 @@ const AdminDashboard = () => {
                       <div key={activity.id} className="flex items-center space-x-3">
                         {getActivityIcon(activity.type)}
                         <div className="flex-1">
-                          <p className="text-sm font-medium">{activity.user}</p>
-                          <p className="text-xs text-muted-foreground">{activity.time}</p>
+                          <p className="text-sm font-medium text-white">{activity.user}</p>
+                          <p className="text-xs text-gray-400">{activity.time}</p>
                         </div>
                         <Badge variant="outline">{activity.status}</Badge>
                       </div>
@@ -396,7 +390,7 @@ const AdminDashboard = () => {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Usuários Online</CardTitle>
+                  <CardTitle className="text-white">Usuários Online</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -409,13 +403,13 @@ const AdminDashboard = () => {
                             </span>
                           </div>
                           <div>
-                            <p className="text-sm font-medium">{user.name}</p>
-                            <p className="text-xs text-muted-foreground">{user.type}</p>
+                            <p className="text-sm font-medium text-white">{user.name}</p>
+                            <p className="text-xs text-gray-400">{user.type}</p>
                           </div>
                         </div>
                         <div className="text-right">
                           {getStatusBadge(user.status)}
-                          <p className="text-xs text-muted-foreground">{user.lastSeen}</p>
+                          <p className="text-xs text-gray-400">{user.lastSeen}</p>
                         </div>
                       </div>
                     ))}
@@ -460,12 +454,99 @@ const AdminDashboard = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background">
+      <div className="min-h-screen flex w-full bg-[#09090b]">
         <AdminSidebar onPageChange={handlePageChange} currentPage={currentPage} />
         
         <main className="flex-1 p-6">
-          <div className="max-w-7xl mx-auto">
-            {renderCurrentPage()}
+          <div className="max-w-7xl mx-auto space-y-6">
+            {currentPage === "dashboard" && (
+              <>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h1 className="text-3xl font-bold text-white">Dashboard Admin</h1>
+                    <p className="text-gray-400">Visão geral do sistema</p>
+                  </div>
+                  <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Nova Ação
+                  </Button>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {kanbanCards.map(card => (
+                    <div key={card.id}>
+                      <Card className="bg-[#1f2937] hover:shadow-glow transition-all duration-300 cursor-pointer">
+                        {card.content}
+                        {card.body}
+                      </Card>
+                    </div>
+                  ))}
+                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <Card className="bg-[#1f2937]">
+                    <CardHeader>
+                      <CardTitle className="text-white">Atividade Recente</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {recentActivity.map((activity) => (
+                          <div key={activity.id} className="flex items-center space-x-3">
+                            {getActivityIcon(activity.type)}
+                            <div className="flex-1">
+                              <p className="text-sm font-medium text-white">{activity.user}</p>
+                              <p className="text-xs text-gray-400">{activity.time}</p>
+                            </div>
+                            <Badge variant="outline">{activity.status}</Badge>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card className="bg-[#1f2937]">
+                    <CardHeader>
+                      <CardTitle className="text-white">Usuários Online</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {onlineUsers.map((user) => (
+                          <div key={user.id} className="flex items-center justify-between">
+                            <div className="flex items-center space-x-3">
+                              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                                <span className="text-white text-xs font-medium">
+                                  {user.name.split(' ').map(n => n[0]).join('')}
+                                </span>
+                              </div>
+                              <div>
+                                <p className="text-sm font-medium text-white">{user.name}</p>
+                                <p className="text-xs text-gray-400">{user.type}</p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              {getStatusBadge(user.status)}
+                              <p className="text-xs text-gray-400">{user.lastSeen}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </>
+            )}
+            {/* Renderização das outras páginas continua igual */}
+            {currentPage === "users" && <AdminUsers />}
+            {currentPage === "resellers" && <AdminResellers resellers={resellers} onAddReseller={handleAddReseller} />}
+            {currentPage === "iptv" && <AdminIPTV />}
+            {currentPage === "radio" && <AdminRadio />}
+            {currentPage === "ai" && <AdminAI />}
+            {currentPage === "ecommerce" && <AdminEcommerce />}
+            {currentPage === "games" && <AdminGames />}
+            {currentPage === "analytics" && <AdminAnalytics />}
+            {currentPage === "settings" && <SettingsPage />}
+            {currentPage === "whatsapp" && <AdminWhatsApp />}
+            {currentPage === "branding" && <AdminBranding />}
+            {currentPage === "gateways" && <AdminGateways />}
+            {currentPage === "cobrancas" && <AdminCobrancas />}
+            {currentPage === "notificacoes" && <Notifications />}
           </div>
         </main>
 
