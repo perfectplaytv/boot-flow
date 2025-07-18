@@ -87,7 +87,7 @@ const AIConfiguration: React.FC = () => {
 
       {/* Cards de Métricas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="bg-gray-800 border-gray-700">
+        <Card className="border-gray-700" style={{ backgroundColor: '#1F2937' }}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-400">
               Status da IA
@@ -106,7 +106,7 @@ const AIConfiguration: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card className="bg-gray-800 border-gray-700">
+        <Card className="border-gray-700" style={{ backgroundColor: '#1F2937' }}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-400">
               Requisições Hoje
@@ -119,7 +119,7 @@ const AIConfiguration: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card className="bg-gray-800 border-gray-700">
+        <Card className="border-gray-700" style={{ backgroundColor: '#1F2937' }}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-400">
               Taxa de Sucesso
@@ -132,7 +132,7 @@ const AIConfiguration: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card className="bg-gray-800 border-gray-700">
+        <Card className="border-gray-700" style={{ backgroundColor: '#1F2937' }}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-400">
               Tempo Médio
@@ -149,7 +149,7 @@ const AIConfiguration: React.FC = () => {
       {/* Configurações Principais */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Configurações do Modelo */}
-        <Card className="bg-gray-800 border-gray-700">
+        <Card className="border-gray-700" style={{ backgroundColor: '#1F2937' }}>
           <CardHeader>
             <CardTitle className="text-white">Configurações do Modelo</CardTitle>
             <p className="text-sm text-gray-400">Ajuste os parâmetros do modelo de IA</p>
@@ -211,7 +211,7 @@ const AIConfiguration: React.FC = () => {
         </Card>
 
         {/* Funcionalidades */}
-        <Card className="bg-gray-800 border-gray-700">
+        <Card className="border-gray-700" style={{ backgroundColor: '#1F2937' }}>
           <CardHeader>
             <CardTitle className="text-white">Funcionalidades</CardTitle>
             <p className="text-sm text-gray-400">Ative ou desative recursos da IA</p>
@@ -292,7 +292,7 @@ const AIConfiguration: React.FC = () => {
       </div>
 
       {/* Configurações Avançadas */}
-      <Card className="bg-gray-800 border-gray-700">
+      <Card className="border-gray-700" style={{ backgroundColor: '#1F2937' }}>
         <CardHeader>
           <CardTitle className="text-white">Configurações Avançadas</CardTitle>
           <p className="text-sm text-gray-400">Configurações técnicas e de performance</p>
