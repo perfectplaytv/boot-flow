@@ -42,6 +42,14 @@ export default function AdminCobrancas() {
   const [busca, setBusca] = useState("");
   const [filtroStatus, setFiltroStatus] = useState<string | null>(null);
   const [modalNova, setModalNova] = useState(false);
+  const [modalVisualizar, setModalVisualizar] = useState<Cobranca | null>(null);
+  const [modalEditar, setModalEditar] = useState<Cobranca | null>(null);
+  const [modalExcluir, setModalExcluir] = useState<Cobranca | null>(null);
+  const [modalCopia, setModalCopia] = useState<Cobranca | null>(null);
+  const [modalEmail, setModalEmail] = useState<Cobranca | null>(null);
+  const [modalWhats, setModalWhats] = useState<Cobranca | null>(null);
+  const [nova, setNova] = useState({ cliente: '', email: '', descricao: '', valor: '', vencimento: '' });
+  const [edit, setEdit] = useState({ cliente: '', email: '', descricao: '', valor: '', vencimento: '', status: 'Pendente' });
 
   const total = cobrancas.length;
   const pagas = cobrancas.filter(c => c.status === 'Paga').length;
@@ -57,6 +65,37 @@ export default function AdminCobrancas() {
     const matchStatus = !filtroStatus || c.status === filtroStatus;
     return matchBusca && matchStatus;
   });
+
+  // Funções auxiliares
+  const handleSalvarNova = () => {
+    if (!nova.cliente || !nova.email || !nova.descricao || !nova.valor || !nova.vencimento) return;
+    setCobrancas([
+      ...cobrancas,
+      {
+        id: cobrancas.length + 1,
+        cliente: nova.cliente,
+        email: nova.email,
+        descricao: nova.descricao,
+        valor: Number(nova.valor),
+        vencimento: nova.vencimento,
+        status: 'Pendente',
+      },
+    ]);
+    setNova({ cliente: '', email: '', descricao: '', valor: '', vencimento: '' });
+    setModalNova(false);
+  };
+  const handleSalvarEdit = () => {
+    setCobrancas(cobrancas.map(c => c.id === modalEditar?.id ? { ...c, ...edit, valor: Number(edit.valor) } : c));
+    setModalEditar(null);
+  };
+  const handleExcluir = () => {
+    setCobrancas(cobrancas.filter(c => c.id !== modalExcluir?.id));
+    setModalExcluir(null);
+  };
+  const handleCopiar = (c: Cobranca) => {
+    navigator.clipboard.writeText(`Cliente: ${c.cliente}\nEmail: ${c.email}\nDescrição: ${c.descricao}\nValor: R$ ${c.valor.toFixed(2)}\nVencimento: ${c.vencimento}`);
+    setModalCopia(null);
+  };
 
   return (
     <div className="p-6 min-h-screen bg-gradient-to-br from-[#181e29] via-[#232a36] to-[#181e29]">
@@ -186,12 +225,12 @@ export default function AdminCobrancas() {
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
-                      <Button size="icon" variant="ghost"><Eye className="w-4 h-4 text-blue-400" /></Button>
-                      <Button size="icon" variant="ghost"><Copy className="w-4 h-4 text-purple-400" /></Button>
-                      <Button size="icon" variant="ghost"><Mail className="w-4 h-4 text-green-400" /></Button>
-                      <Button size="icon" variant="ghost"><MessageSquare className="w-4 h-4 text-blue-400" /></Button>
-                      <Button size="icon" variant="ghost"><Edit className="w-4 h-4 text-yellow-400" /></Button>
-                      <Button size="icon" variant="ghost"><Trash2 className="w-4 h-4 text-red-400" /></Button>
+                      <Button size="icon" variant="ghost" onClick={() => setModalVisualizar(c)}><Eye className="w-4 h-4 text-blue-400" /></Button>
+                      <Button size="icon" variant="ghost" onClick={() => { setModalCopia(c); handleCopiar(c); }}><Copy className="w-4 h-4 text-purple-400" /></Button>
+                      <Button size="icon" variant="ghost" onClick={() => setModalEmail(c)}><Mail className="w-4 h-4 text-green-400" /></Button>
+                      <Button size="icon" variant="ghost" onClick={() => setModalWhats(c)}><MessageSquare className="w-4 h-4 text-blue-400" /></Button>
+                      <Button size="icon" variant="ghost" onClick={() => { setEdit({ ...c, valor: c.valor.toString() }); setModalEditar(c); }}><Edit className="w-4 h-4 text-yellow-400" /></Button>
+                      <Button size="icon" variant="ghost" onClick={() => setModalExcluir(c)}><Trash2 className="w-4 h-4 text-red-400" /></Button>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -207,15 +246,95 @@ export default function AdminCobrancas() {
             <DialogTitle>Nova Cobrança</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
-            <Input placeholder="Cliente" className="bg-gray-900 border border-gray-700 text-white" />
-            <Input placeholder="E-mail" className="bg-gray-900 border border-gray-700 text-white" />
-            <Input placeholder="Descrição" className="bg-gray-900 border border-gray-700 text-white" />
-            <Input placeholder="Valor" className="bg-gray-900 border border-gray-700 text-white" type="number" />
-            <Input placeholder="Vencimento" className="bg-gray-900 border border-gray-700 text-white" type="date" />
+            <Input placeholder="Cliente" className="bg-gray-900 border border-gray-700 text-white" value={nova.cliente} onChange={e => setNova({ ...nova, cliente: e.target.value })} />
+            <Input placeholder="E-mail" className="bg-gray-900 border border-gray-700 text-white" value={nova.email} onChange={e => setNova({ ...nova, email: e.target.value })} />
+            <Input placeholder="Descrição" className="bg-gray-900 border border-gray-700 text-white" value={nova.descricao} onChange={e => setNova({ ...nova, descricao: e.target.value })} />
+            <Input placeholder="Valor" className="bg-gray-900 border border-gray-700 text-white" type="number" value={nova.valor} onChange={e => setNova({ ...nova, valor: e.target.value })} />
+            <Input placeholder="Vencimento" className="bg-gray-900 border border-gray-700 text-white" type="date" value={nova.vencimento} onChange={e => setNova({ ...nova, vencimento: e.target.value })} />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setModalNova(false)} className="bg-gray-700 text-white">Cancelar</Button>
-            <Button className="bg-purple-600 hover:bg-purple-700 text-white">Salvar</Button>
+            <Button className="bg-purple-600 hover:bg-purple-700 text-white" onClick={handleSalvarNova}>Salvar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {/* Modal Visualizar */}
+      <Dialog open={!!modalVisualizar} onOpenChange={() => setModalVisualizar(null)}>
+        <DialogContent className="bg-[#232a36] border border-purple-700 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle>Detalhes da Cobrança</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2 py-2">
+            <div><b>Cliente:</b> {modalVisualizar?.cliente}</div>
+            <div><b>E-mail:</b> {modalVisualizar?.email}</div>
+            <div><b>Descrição:</b> {modalVisualizar?.descricao}</div>
+            <div><b>Valor:</b> R$ {modalVisualizar?.valor.toFixed(2)}</div>
+            <div><b>Vencimento:</b> {modalVisualizar?.vencimento}</div>
+            <div><b>Status:</b> {modalVisualizar?.status}</div>
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setModalVisualizar(null)} className="bg-purple-600 hover:bg-purple-700 text-white">Fechar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {/* Modal Editar */}
+      <Dialog open={!!modalEditar} onOpenChange={() => setModalEditar(null)}>
+        <DialogContent className="bg-[#232a36] border border-purple-700 text-white max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Editar Cobrança</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <Input placeholder="Cliente" className="bg-gray-900 border border-gray-700 text-white" value={edit.cliente} onChange={e => setEdit({ ...edit, cliente: e.target.value })} />
+            <Input placeholder="E-mail" className="bg-gray-900 border border-gray-700 text-white" value={edit.email} onChange={e => setEdit({ ...edit, email: e.target.value })} />
+            <Input placeholder="Descrição" className="bg-gray-900 border border-gray-700 text-white" value={edit.descricao} onChange={e => setEdit({ ...edit, descricao: e.target.value })} />
+            <Input placeholder="Valor" className="bg-gray-900 border border-gray-700 text-white" type="number" value={edit.valor} onChange={e => setEdit({ ...edit, valor: e.target.value })} />
+            <Input placeholder="Vencimento" className="bg-gray-900 border border-gray-700 text-white" type="date" value={edit.vencimento} onChange={e => setEdit({ ...edit, vencimento: e.target.value })} />
+            <select className="bg-gray-900 border border-gray-700 text-white rounded px-3 py-2" value={edit.status} onChange={e => setEdit({ ...edit, status: e.target.value })}>
+              <option value="Pendente">Pendente</option>
+              <option value="Vencida">Vencida</option>
+              <option value="Paga">Paga</option>
+            </select>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setModalEditar(null)} className="bg-gray-700 text-white">Cancelar</Button>
+            <Button className="bg-purple-600 hover:bg-purple-700 text-white" onClick={handleSalvarEdit}>Salvar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {/* Modal Excluir */}
+      <Dialog open={!!modalExcluir} onOpenChange={() => setModalExcluir(null)}>
+        <DialogContent className="bg-[#232a36] border border-purple-700 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle>Excluir Cobrança</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">Tem certeza que deseja excluir esta cobrança?</div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setModalExcluir(null)} className="bg-gray-700 text-white">Cancelar</Button>
+            <Button className="bg-red-600 hover:bg-red-700 text-white" onClick={handleExcluir}>Excluir</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {/* Modal E-mail */}
+      <Dialog open={!!modalEmail} onOpenChange={() => setModalEmail(null)}>
+        <DialogContent className="bg-[#232a36] border border-purple-700 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle>Enviar Cobrança por E-mail</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">Cobrança enviada para <b>{modalEmail?.email}</b>!</div>
+          <DialogFooter>
+            <Button className="bg-purple-600 hover:bg-purple-700 text-white" onClick={() => setModalEmail(null)}>OK</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {/* Modal WhatsApp */}
+      <Dialog open={!!modalWhats} onOpenChange={() => setModalWhats(null)}>
+        <DialogContent className="bg-[#232a36] border border-purple-700 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle>Enviar Cobrança por WhatsApp</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">Cobrança enviada para <b>{modalWhats?.cliente}</b> via WhatsApp!</div>
+          <DialogFooter>
+            <Button className="bg-purple-600 hover:bg-purple-700 text-white" onClick={() => setModalWhats(null)}>OK</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
