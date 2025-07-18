@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Drawer, DrawerContent, DrawerTrigger, DrawerClose } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
 interface AdminSidebarProps {
   onPageChange: (page: string) => void;
@@ -56,10 +57,14 @@ const menuItems = [
 export function AdminSidebar({ onPageChange, currentPage, isMobile = false, onClose }: AdminSidebarProps & { isMobile?: boolean, onClose?: () => void }) {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const handleDrawerToggle = () => setDrawerOpen((open) => !open);
 
   const handlePageChange = (page: string) => {
     onPageChange(page);
     if (isMobile && onClose) onClose();
+    setDrawerOpen(false); // Fecha o Drawer ao navegar
   };
 
   const sidebarContent = (
@@ -107,9 +112,9 @@ export function AdminSidebar({ onPageChange, currentPage, isMobile = false, onCl
 
   if (isMobile) {
     return (
-      <Drawer onOpenChange={onClose}>
+      <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
         <DrawerTrigger asChild>
-          <Button variant="ghost" size="icon" className="bg-[#1f2937] text-white border border-gray-700">
+          <Button variant="ghost" size="icon" className="bg-[#1f2937] text-white border border-gray-700" onClick={handleDrawerToggle}>
             <Menu className="w-6 h-6" />
           </Button>
         </DrawerTrigger>
