@@ -216,65 +216,43 @@ export default function AdminUsers() {
         </Dialog>
       </div>
 
-      <Card>
+      {/* Tabela de usuários */}
+      <Card className="bg-[#1f2937] text-white">
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Lista de Usuários</CardTitle>
-              <CardDescription>
-                {filteredUsers.length} usuários encontrados
-              </CardDescription>
-            </div>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input
-                placeholder="Buscar usuários..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 w-64"
-              />
-            </div>
-          </div>
+          <CardTitle className="text-lg text-white">Lista de Usuários</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow>
+              <TableRow className="text-gray-400">
                 <TableHead>Nome</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Plano</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Data de Criação</TableHead>
+                <TableHead>Criado em</TableHead>
                 <TableHead>Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredUsers.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell className="font-medium">{user.name}</TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>{user.plan}</TableCell>
+              {filteredUsers.map(user => (
+                <TableRow key={user.id} className="hover:bg-[#232a36] transition-colors">
+                  <TableCell className="text-white font-medium">{user.name}</TableCell>
+                  <TableCell className="text-gray-300">{user.email}</TableCell>
+                  <TableCell className="text-gray-300">{user.plan}</TableCell>
                   <TableCell>
-                    <Badge className={getStatusColor(user.status)}>
-                      {user.status}
-                    </Badge>
+                    <Badge className={
+                      user.status === 'Ativo' ? 'bg-green-700 text-green-200' :
+                      user.status === 'Inativo' ? 'bg-red-700 text-red-200' :
+                      user.status === 'Pendente' ? 'bg-yellow-700 text-yellow-200' :
+                      'bg-gray-700 text-gray-300'
+                    }>{user.status}</Badge>
                   </TableCell>
-                  <TableCell>{user.createdAt}</TableCell>
+                  <TableCell className="text-gray-400">{user.createdAt}</TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Button variant="ghost" size="sm">
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm">
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => handleDeleteUser(user.id)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline" className="border-blue-600 text-blue-400"> <Eye className="w-4 h-4 mr-1" /> </Button>
+                      <Button size="sm" variant="outline" className="border-yellow-600 text-yellow-400"> <Edit className="w-4 h-4 mr-1" /> </Button>
+                      <Button size="sm" variant="outline" className="border-red-600 text-red-400" onClick={() => handleDeleteUser(user.id)}> <Trash2 className="w-4 h-4 mr-1" /> </Button>
                     </div>
                   </TableCell>
                 </TableRow>
