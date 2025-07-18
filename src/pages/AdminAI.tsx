@@ -107,40 +107,40 @@ export default function AdminAI() {
   };
 
   return (
-    <div className="p-6 min-h-screen bg-gradient-to-br from-[#f8fafc] via-[#f1f5f9] to-[#f8fafc] dark:from-[#181e29] dark:via-[#232a36] dark:to-[#181e29]">
+    <div className="p-6 min-h-screen bg-[#09090b]">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Voice Center</h1>
-          <p className="text-gray-500 dark:text-gray-400">Crie vozes personalizadas e processe áudios com IA</p>
+          <h1 className="text-3xl font-bold text-white">Voice Center</h1>
+          <p className="text-gray-400">Crie vozes personalizadas e processe áudios com IA</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" className="flex items-center gap-2" onClick={() => setModal({ type: 'upload' })}><UploadCloud className="w-4 h-4" /> Upload Áudio</Button>
-          <Button className="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2" onClick={() => setModal({ type: 'novaVoz' })}><Plus className="w-4 h-4" /> Nova Voz IA</Button>
+          <Button variant="outline" className="flex items-center gap-2 bg-[#1f2937] text-white border-none" onClick={() => setModal({ type: 'upload' })}><UploadCloud className="w-4 h-4" /> Upload Áudio</Button>
+          <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white flex items-center gap-2" onClick={() => setModal({ type: 'novaVoz' })}><Plus className="w-4 h-4" /> Nova Voz IA</Button>
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         {/* Estúdio de Voz */}
-        <Card className="md:col-span-2 bg-white dark:bg-[#232a36] border border-purple-700/40">
+        <Card className="md:col-span-2 bg-[#1f2937] border border-purple-700/40">
           <CardHeader>
-            <CardTitle className="text-lg text-gray-900 dark:text-white">🎙️ Estúdio de Voz</CardTitle>
-            <p className="text-gray-500 dark:text-gray-400">Crie e personalize vozes para seus bots</p>
+            <CardTitle className="text-lg text-white">3a7 Estúdio de Voz</CardTitle>
+            <p className="text-gray-400">Crie e personalize vozes para seus bots</p>
           </CardHeader>
           <CardContent>
             <div className="flex gap-2 mb-4">
-              <Button variant={tab === 'tts' ? 'default' : 'outline'} className="flex-1" onClick={() => setTab('tts')}>Text-to-Speech</Button>
-              <Button variant={tab === 'gravar' ? 'default' : 'outline'} className="flex-1" onClick={() => setModal({ type: 'gravarVoz' })}>Gravar Voz</Button>
-              <Button variant={tab === 'clonar' ? 'default' : 'outline'} className="flex-1" onClick={() => setModal({ type: 'clonarVoz' })}>Clonar Voz</Button>
+              <Button variant={tab === 'tts' ? 'default' : 'outline'} className={tab === 'tts' ? 'bg-[#7e22ce] text-white flex-1' : 'bg-[#1f2937] text-white flex-1'} onClick={() => setTab('tts')}>Text-to-Speech</Button>
+              <Button variant={tab === 'gravar' ? 'default' : 'outline'} className={tab === 'gravar' ? 'bg-[#7e22ce] text-white flex-1' : 'bg-[#1f2937] text-white flex-1'} onClick={() => setModal({ type: 'gravarVoz' })}>Gravar Voz</Button>
+              <Button variant={tab === 'clonar' ? 'default' : 'outline'} className={tab === 'clonar' ? 'bg-[#7e22ce] text-white flex-1' : 'bg-[#1f2937] text-white flex-1'} onClick={() => setModal({ type: 'clonarVoz' })}>Clonar Voz</Button>
             </div>
             <div className="mb-4">
-              <label className="block text-gray-700 dark:text-gray-300 mb-1 font-medium">Selecionar Voz</label>
-              <select className="w-full bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white rounded px-3 py-2" value={voz} onChange={e => setVoz(e.target.value)}>
+              <label className="block text-gray-300 mb-1 font-medium">Selecionar Voz</label>
+              <select className="w-full bg-[#1f2937] border border-gray-700 text-white rounded px-3 py-2" value={voz} onChange={e => setVoz(e.target.value)}>
                 <option value="">Escolha uma voz</option>
                 {perfis.map(p => <option key={p.id} value={p.nome}>{p.nome}</option>)}
               </select>
             </div>
             <div className="mb-4">
-              <label className="block text-gray-700 dark:text-gray-300 mb-1 font-medium">Texto para Falar</label>
-              <Textarea className="w-full bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white rounded" value={texto} onChange={e => setTexto(e.target.value)} placeholder="Digite o texto que você quer converter em áudio..." />
+              <label className="block text-gray-300 mb-1 font-medium">Texto para Falar</label>
+              <Textarea className="w-full bg-[#1f2937] border border-gray-700 text-white rounded" value={texto} onChange={e => setTexto(e.target.value)} placeholder="Digite o texto que você quer converter em áudio..." />
               <div className="flex justify-between text-xs text-gray-400 mt-1">
                 <span>{texto.length} caracteres • {texto.split(' ').filter(Boolean).length} palavras</span>
                 <span>Duração estimada: 0:00</span>
@@ -148,42 +148,42 @@ export default function AdminAI() {
             </div>
             <div className="flex gap-6 mb-4">
               <div className="flex-1">
-                <label className="block text-gray-700 dark:text-gray-300 mb-1 font-medium">Velocidade: {velocidade}x</label>
+                <label className="block text-gray-300 mb-1 font-medium">Velocidade: {velocidade}x</label>
                 <Slider min={0.5} max={2} step={0.1} value={[velocidade]} onValueChange={v => setVelocidade(v[0])} />
               </div>
               <div className="flex-1">
-                <label className="block text-gray-700 dark:text-gray-300 mb-1 font-medium">Tom: {tom}</label>
+                <label className="block text-gray-300 mb-1 font-medium">Tom: {tom}</label>
                 <Slider min={-2} max={2} step={1} value={[tom]} onValueChange={v => setTom(v[0])} />
               </div>
             </div>
             <div className="flex gap-2">
-              <Button className="bg-purple-600 hover:bg-purple-700 text-white" onClick={handleGerarAudio} disabled={loadingAudio}>{loadingAudio ? 'Gerando...' : 'Gerar Áudio'}</Button>
-              <Button variant="outline" className="bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white" onClick={handlePreviewAudio} disabled={!audioUrl}>Preview</Button>
-              <Button variant="outline" className="bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white" disabled={!audioUrl}>Download</Button>
-              <Button variant="outline" className="bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white" onClick={() => setModal({ type: 'testarVoz' })}>Testar Vozes</Button>
+              <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white" onClick={handleGerarAudio} disabled={loadingAudio}>{loadingAudio ? 'Gerando...' : 'Gerar Áudio'}</Button>
+              <Button variant="outline" className="bg-[#1f2937] text-white" onClick={handlePreviewAudio} disabled={!audioUrl}>Preview</Button>
+              <Button variant="outline" className="bg-[#1f2937] text-white" disabled={!audioUrl}>Download</Button>
+              <Button variant="outline" className="bg-[#1f2937] text-white" onClick={() => setModal({ type: 'testarVoz' })}>Testar Vozes</Button>
             </div>
           </CardContent>
         </Card>
         {/* Perfis de Voz */}
-        <Card className="bg-white dark:bg-[#232a36] border border-green-700/40">
+        <Card className="bg-[#1f2937] border border-green-700/40">
           <CardHeader>
-            <CardTitle className="text-lg text-gray-900 dark:text-white">Perfis de Voz</CardTitle>
-            <p className="text-gray-500 dark:text-gray-400">Suas vozes personalizadas</p>
+            <CardTitle className="text-lg text-white">Perfis de Voz</CardTitle>
+            <p className="text-gray-400">Suas vozes personalizadas</p>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Button className="bg-purple-600 hover:bg-purple-700 text-white w-full mb-2" onClick={() => setModal({ type: 'novaVoz' })}>Adicionar Nova Voz</Button>
+            <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white w-full mb-2" onClick={() => setModal({ type: 'novaVoz' })}>Adicionar Nova Voz</Button>
             {perfis.map(p => (
-              <div key={p.id} className="bg-[#f1f5f9] dark:bg-[#181e29] rounded-xl p-3 border border-green-700/20 flex flex-col gap-1">
+              <div key={p.id} className="bg-[#232a36] rounded-xl p-3 border border-green-700/20 flex flex-col gap-1">
                 <div className="flex items-center justify-between">
-                  <div className="font-semibold text-gray-900 dark:text-white">{p.nome}</div>
+                  <div className="font-semibold text-white">{p.nome}</div>
                   <div className="flex gap-2 items-center">
-                    <Badge className={p.status === 'ativa' ? 'bg-green-100 text-green-800 dark:bg-green-700 dark:text-green-200' : 'bg-gray-700 text-gray-300'}>{p.status}</Badge>
+                    <Badge className={p.status === 'ativa' ? 'bg-green-700 text-green-200' : 'bg-gray-700 text-gray-300'}>{p.status}</Badge>
                     <Button size="icon" variant="ghost" onClick={() => handleToggleAtivo(p.id)} title={p.status === 'ativa' ? 'Desativar' : 'Ativar'}>
                       <CheckCircle2 className={p.status === 'ativa' ? 'text-green-400' : 'text-gray-400'} />
                     </Button>
                   </div>
                 </div>
-                <div className="text-xs text-gray-500 dark:text-gray-300">{p.desc}</div>
+                <div className="text-xs text-gray-400">{p.desc}</div>
                 <div className="flex flex-wrap gap-2 text-xs text-gray-400 mt-1">
                   <span>Idioma: pt-BR</span>
                   <span>Gênero: {p.genero}</span>

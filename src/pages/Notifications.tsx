@@ -50,14 +50,14 @@ export default function Notifications() {
   };
 
   return (
-    <div className="p-6 min-h-screen bg-gradient-to-br from-[#181e29] via-[#232a36] to-[#181e29]">
+    <div className="p-6 min-h-screen bg-[#09090b]">
       <div className="flex items-center gap-3 mb-2">
         <MessageSquare className="w-7 h-7 text-purple-400" />
         <h1 className="text-3xl font-bold text-purple-300">Notificações WhatsApp</h1>
       </div>
       <p className="text-gray-400 mb-6">Gerencie templates e envie notificações para seus clientes</p>
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-        <Card className="bg-[#232a36] border border-purple-700/40">
+        <Card className="bg-[#1f2937] border border-purple-700/40">
           <CardHeader>
             <CardTitle className="text-sm text-gray-300">Total Enviados</CardTitle>
           </CardHeader>
@@ -65,7 +65,7 @@ export default function Notifications() {
             <div className="text-2xl font-bold text-white">{enviados}</div>
           </CardContent>
         </Card>
-        <Card className="bg-[#232a36] border border-green-700/40">
+        <Card className="bg-[#1f2937] border border-green-700/40">
           <CardHeader>
             <CardTitle className="text-sm text-gray-300">Entregues</CardTitle>
           </CardHeader>
@@ -73,7 +73,7 @@ export default function Notifications() {
             <div className="text-2xl font-bold text-green-400">{entregues}</div>
           </CardContent>
         </Card>
-        <Card className="bg-[#232a36] border border-blue-700/40">
+        <Card className="bg-[#1f2937] border border-blue-700/40">
           <CardHeader>
             <CardTitle className="text-sm text-gray-300">Lidos</CardTitle>
           </CardHeader>
@@ -81,7 +81,7 @@ export default function Notifications() {
             <div className="text-2xl font-bold text-blue-400">{lidos}</div>
           </CardContent>
         </Card>
-        <Card className="bg-[#232a36] border border-red-700/40">
+        <Card className="bg-[#1f2937] border border-red-700/40">
           <CardHeader>
             <CardTitle className="text-sm text-gray-300">Falhas</CardTitle>
           </CardHeader>
@@ -89,7 +89,7 @@ export default function Notifications() {
             <div className="text-2xl font-bold text-red-400">{falhas}</div>
           </CardContent>
         </Card>
-        <Card className="bg-[#232a36] border border-yellow-700/40">
+        <Card className="bg-[#1f2937] border border-yellow-700/40">
           <CardHeader>
             <CardTitle className="text-sm text-gray-300">Taxa Entrega</CardTitle>
           </CardHeader>
@@ -99,12 +99,12 @@ export default function Notifications() {
         </Card>
       </div>
       <div className="flex justify-end gap-2 mb-4">
-        <Button className="bg-purple-600 hover:bg-purple-700 text-white" onClick={() => setModal({ type: 'novo' })}><Plus className="w-4 h-4 mr-2" /> Novo Template</Button>
+        <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white" onClick={() => setModal({ type: 'novo' })}><Plus className="w-4 h-4 mr-2" /> Novo Template</Button>
         <Button className="bg-green-600 hover:bg-green-700 text-white" onClick={() => setModal({ type: 'enviar', template: templates[0] })}><Send className="w-4 h-4 mr-2" /> Enviar Notificação</Button>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Templates */}
-        <Card className="bg-[#181e29] border border-purple-700/40">
+        <Card className="bg-[#1f2937] border border-purple-700/40">
           <CardHeader>
             <CardTitle className="text-white text-lg">Templates de Mensagem</CardTitle>
           </CardHeader>
@@ -133,7 +133,7 @@ export default function Notifications() {
           </CardContent>
         </Card>
         {/* Histórico */}
-        <Card className="bg-[#181e29] border border-purple-700/40">
+        <Card className="bg-[#1f2937] border border-purple-700/40">
           <CardHeader>
             <CardTitle className="text-white text-lg">Histórico de Envios</CardTitle>
           </CardHeader>
