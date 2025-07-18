@@ -13,7 +13,8 @@ import {
   Building2,
   MessageSquare,
   Paintbrush,
-  Server
+  Server,
+  Menu
 } from "lucide-react";
 import {
   Sidebar,
@@ -27,6 +28,8 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { Drawer, DrawerContent, DrawerTrigger, DrawerClose } from "@/components/ui/drawer";
+import { Button } from "@/components/ui/button";
 
 interface AdminSidebarProps {
   onPageChange: (page: string) => void;
@@ -50,60 +53,77 @@ const menuItems = [
   { title: "Configurações", page: "settings", icon: Settings },
 ];
 
-export function AdminSidebar({ onPageChange, currentPage }: AdminSidebarProps) {
+export function AdminSidebar({ onPageChange, currentPage, isMobile = false, onClose }: AdminSidebarProps & { isMobile?: boolean, onClose?: () => void }) {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
 
   const handlePageChange = (page: string) => {
     onPageChange(page);
+    if (isMobile && onClose) onClose();
   };
+
+  const sidebarContent = (
+    <>
+      <div className="p-4">
+        <div className="flex items-center space-x-2 mb-6">
+          <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+            <Zap className="w-5 h-5 text-white" />
+          </div>
+          {!collapsed && <span className="text-xl font-bold">Admin</span>}
+        </div>
+      </div>
+      <SidebarGroup>
+        <SidebarGroupLabel>Administração</SidebarGroupLabel>
+        <SidebarGroupContent>
+          <SidebarMenu>
+            {menuItems.map((item) => (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton 
+                  onClick={() => handlePageChange(item.page)}
+                  className={currentPage === item.page ? "bg-primary text-primary-foreground" : "hover:bg-accent"}
+                >
+                  <item.icon className="mr-2 h-4 w-4" />
+                  {!collapsed && <span>{item.title}</span>}
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+      <SidebarGroup>
+        <SidebarGroupContent>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton className="hover:bg-accent">
+                <LogOut className="mr-2 h-4 w-4" />
+                {!collapsed && <span>Sair</span>}
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+    </>
+  );
+
+  if (isMobile) {
+    return (
+      <Drawer onOpenChange={onClose}>
+        <DrawerTrigger asChild>
+          <Button variant="ghost" size="icon" className="bg-[#1f2937] text-white border border-gray-700">
+            <Menu className="w-6 h-6" />
+          </Button>
+        </DrawerTrigger>
+        <DrawerContent className="bg-[#232a36] text-white p-0">
+          {sidebarContent}
+        </DrawerContent>
+      </Drawer>
+    );
+  }
 
   return (
     <Sidebar collapsible="icon">
       <SidebarTrigger className="m-2 self-end" />
-
-      <SidebarContent>
-        <div className="p-4">
-          <div className="flex items-center space-x-2 mb-6">
-            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <Zap className="w-5 h-5 text-white" />
-            </div>
-            {!collapsed && <span className="text-xl font-bold">Admin</span>}
-          </div>
-        </div>
-
-        <SidebarGroup>
-          <SidebarGroupLabel>Administração</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
-                    onClick={() => handlePageChange(item.page)}
-                    className={currentPage === item.page ? "bg-primary text-primary-foreground" : "hover:bg-accent"}
-                  >
-                    <item.icon className="mr-2 h-4 w-4" />
-                    {!collapsed && <span>{item.title}</span>}
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton className="hover:bg-accent">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  {!collapsed && <span>Sair</span>}
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
+      <SidebarContent>{sidebarContent}</SidebarContent>
     </Sidebar>
   );
 }
