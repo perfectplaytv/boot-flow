@@ -1526,12 +1526,11 @@ const AdminDashboard = () => {
                     <label className="text-sm font-medium text-white">
                       Senha <span className="text-red-500">*</span>
                     </label>
-                    <div className="flex gap-2">
-                      <Input 
-                        value="eopBCDTdOp9149~"
-                        className="bg-[#23272f] border-gray-600 text-white flex-1"
-                        readOnly
-                      />
+                                         <div className="flex gap-2">
+                       <Input 
+                         placeholder="Digite a senha"
+                         className="bg-[#23272f] border-gray-600 text-white flex-1 placeholder-gray-400 focus:border-blue-500"
+                       />
                       <Button type="button" variant="outline" size="sm" className="border-gray-600 text-gray-400 hover:text-white">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -1589,11 +1588,10 @@ const AdminDashboard = () => {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
                         </svg>
                       </Button>
-                      <Input 
-                        value="10"
-                        className="bg-[#23272f] border-gray-600 text-white text-center"
-                        readOnly
-                      />
+                                             <Input 
+                         placeholder="0"
+                         className="bg-[#23272f] border-gray-600 text-white text-center placeholder-gray-400 focus:border-blue-500"
+                       />
                       <Button type="button" variant="outline" size="sm" className="border-gray-600 text-gray-400 hover:text-white">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -1623,11 +1621,10 @@ const AdminDashboard = () => {
                   {/* Revenda Master */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-white">Revenda Master</label>
-                    <Input 
-                      value="Perfectplay"
-                      className="bg-[#23272f] border-gray-600 text-white"
-                      readOnly
-                    />
+                                         <Input 
+                       placeholder="Nome da revenda master"
+                       className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
+                     />
                   </div>
 
                   {/* Desativar login se não recarregar */}
@@ -1641,11 +1638,10 @@ const AdminDashboard = () => {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
                         </svg>
                       </Button>
-                      <Input 
-                        value="0"
-                        className="bg-[#23272f] border-gray-600 text-white text-center"
-                        readOnly
-                      />
+                                             <Input 
+                         placeholder="0"
+                         className="bg-[#23272f] border-gray-600 text-white text-center placeholder-gray-400 focus:border-blue-500"
+                       />
                       <Button type="button" variant="outline" size="sm" className="border-gray-600 text-gray-400 hover:text-white">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
