@@ -205,7 +205,7 @@ const Channels: React.FC = () => {
 
       {/* Cards de Métricas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="bg-gray-800 border-gray-700">
+        <Card className="border-gray-700" style={{ backgroundColor: '#1F2937' }}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-400">
               Total de Canais
@@ -218,7 +218,7 @@ const Channels: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card className="bg-gray-800 border-gray-700">
+        <Card className="border-gray-700" style={{ backgroundColor: '#1F2937' }}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-400">
               Espectadores Ativos
@@ -231,7 +231,7 @@ const Channels: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card className="bg-gray-800 border-gray-700">
+        <Card className="border-gray-700" style={{ backgroundColor: '#1F2937' }}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-400">
               Média por Canal
@@ -244,7 +244,7 @@ const Channels: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card className="bg-gray-800 border-gray-700">
+        <Card className="border-gray-700" style={{ backgroundColor: '#1F2937' }}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-400">
               Qualidade Média
@@ -259,7 +259,7 @@ const Channels: React.FC = () => {
       </div>
 
       {/* Lista de Canais */}
-      <Card className="bg-gray-800 border-gray-700">
+      <Card className="border-gray-700" style={{ backgroundColor: '#1F2937' }}>
         <CardHeader>
           <div className="flex justify-between items-center">
             <div>
