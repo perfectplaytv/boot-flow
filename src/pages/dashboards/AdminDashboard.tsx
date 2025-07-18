@@ -425,7 +425,11 @@ const AdminDashboard = () => {
         </main>
 
         {/* Modals */}
-        <AIModalManager activeModal={activeModal} onClose={handleModalClose} />
+        <AIModalManager 
+          activeModal={activeModal} 
+          onClose={handleModalClose} 
+          onAddReseller={handleAddReseller}
+        />
       </div>
     </SidebarProvider>
   );
