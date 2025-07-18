@@ -462,52 +462,71 @@ const AdminDashboard = () => {
                 </div>
               </div>
               
-              <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                <SortableContext items={Object.values(kanbanColumns).flatMap(column => column.cards).map(card => card.id)} strategy={rectSortingStrategy}>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {Object.values(kanbanColumns).map(column => (
-                      <div key={column.id} className="space-y-4">
-                        {/* Column Header */}
-                        <div className={`${column.color} rounded-lg p-4 text-white shadow-lg`}>
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <h3 className="font-semibold text-lg">{column.title}</h3>
-                              <div className="w-2 h-2 bg-white rounded-full"></div>
+              {viewMode === 'kanban' ? (
+                <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                  <SortableContext items={Object.values(kanbanColumns).flatMap(column => column.cards).map(card => card.id)} strategy={rectSortingStrategy}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                      {Object.values(kanbanColumns).map(column => (
+                        <div key={column.id} className="space-y-4">
+                          {/* Column Header */}
+                          <div className={`${column.color} rounded-lg p-4 text-white shadow-lg`}>
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <h3 className="font-semibold text-lg">{column.title}</h3>
+                                <div className="w-2 h-2 bg-white rounded-full"></div>
+                              </div>
+                              <Badge className="bg-white/20 text-white font-medium">{column.cards.length}</Badge>
                             </div>
-                            <Badge className="bg-white/20 text-white font-medium">{column.cards.length}</Badge>
+                          </div>
+                          
+                          {/* Column Cards */}
+                          <div 
+                            className="space-y-4 min-h-[200px] bg-[#1f2937]/50 rounded-lg p-4 border border-gray-700 transition-all duration-200 hover:border-gray-600"
+                            data-column-id={column.id}
+                          >
+                            {column.cards.map(card => (
+                              <SortableCard 
+                                key={card.id} 
+                                id={card.id} 
+                                content={card.content} 
+                                body={card.body} 
+                                onClick={card.onClick} 
+                              />
+                            ))}
+                            {column.cards.length === 0 && (
+                              <div className="flex items-center justify-center h-32 text-gray-500 border-2 border-dashed border-gray-600 rounded-lg transition-all duration-200 hover:border-blue-500 hover:text-blue-400">
+                                <div className="text-center">
+                                  <svg className="w-8 h-8 mx-auto mb-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                                  </svg>
+                                  <p className="text-sm">Solte um card aqui</p>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
-                        
-                        {/* Column Cards */}
-                        <div 
-                          className="space-y-4 min-h-[200px] bg-[#1f2937]/50 rounded-lg p-4 border border-gray-700 transition-all duration-200 hover:border-gray-600"
-                          data-column-id={column.id}
-                        >
-                          {column.cards.map(card => (
-                            <SortableCard 
-                              key={card.id} 
-                              id={card.id} 
-                              content={card.content} 
-                              body={card.body} 
-                              onClick={card.onClick} 
-                            />
-                          ))}
-                          {column.cards.length === 0 && (
-                            <div className="flex items-center justify-center h-32 text-gray-500 border-2 border-dashed border-gray-600 rounded-lg transition-all duration-200 hover:border-blue-500 hover:text-blue-400">
-                              <div className="text-center">
-                                <svg className="w-8 h-8 mx-auto mb-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                                </svg>
-                                <p className="text-sm">Solte um card aqui</p>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </SortableContext>
-              </DndContext>
+                      ))}
+                    </div>
+                  </SortableContext>
+                </DndContext>
+              ) : (
+                /* Layout Grid Original */
+                <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                  <SortableContext items={Object.values(kanbanColumns).flatMap(column => column.cards).map(card => card.id)} strategy={rectSortingStrategy}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {Object.values(kanbanColumns).flatMap(column => column.cards).map(card => (
+                        <SortableCard 
+                          key={card.id} 
+                          id={card.id} 
+                          content={card.content} 
+                          body={card.body} 
+                          onClick={card.onClick} 
+                        />
+                      ))}
+                    </div>
+                  </SortableContext>
+                </DndContext>
+              )}
             </div>
 
             {/* Recent Activity & Online Users */}
