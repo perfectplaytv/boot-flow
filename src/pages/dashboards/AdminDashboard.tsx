@@ -663,6 +663,12 @@ const AdminDashboard = () => {
             <AdminAI />
           </DialogContent>
         </Dialog>
+        <Dialog open={activeModal === 'branding_management'} onOpenChange={handleModalClose}>
+          <DialogContent className="max-w-2xl bg-[#232a36] text-white">
+            <div className="font-bold text-xl mb-2">Customizar Marca</div>
+            <AdminBranding />
+          </DialogContent>
+        </Dialog>
       </div>
     </SidebarProvider>
   );
