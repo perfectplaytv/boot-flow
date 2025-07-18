@@ -116,3 +116,12 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+/* Esconde a barra de rolagem no Chrome, Edge e Safari */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+/* Esconde a barra de rolagem no Firefox */
+.scrollbar-hide {
+  scrollbar-width: none;
+}
