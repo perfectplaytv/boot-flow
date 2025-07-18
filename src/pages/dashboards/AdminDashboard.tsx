@@ -386,6 +386,8 @@ const AdminDashboard = () => {
         );
       case "users":
         return <AdminUsers />;
+      case "resellers":
+        return <AdminResellers />;
       case "iptv":
         return <AdminIPTV />;
       case "radio":
