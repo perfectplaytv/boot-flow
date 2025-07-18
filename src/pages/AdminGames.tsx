@@ -272,7 +272,7 @@ export default function AdminGames() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
+        <Card className="bg-[#1f2937] text-white">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-300">Total de Pontos</CardTitle>
             <Star className="h-4 w-4 text-muted-foreground" />
@@ -284,7 +284,7 @@ export default function AdminGames() {
             </p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-[#1f2937] text-white">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-300">Conquistas</CardTitle>
             <Trophy className="h-4 w-4 text-muted-foreground" />
@@ -296,7 +296,7 @@ export default function AdminGames() {
             </p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-[#1f2937] text-white">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-300">Usuários Ativos</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
@@ -308,7 +308,7 @@ export default function AdminGames() {
             </p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-[#1f2937] text-white">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-300">Nível Médio</CardTitle>
             <Target className="h-4 w-4 text-muted-foreground" />
@@ -323,17 +323,17 @@ export default function AdminGames() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
+        <Card className="bg-[#1f2937] text-white">
           <CardHeader>
-            <CardTitle>Conquistas</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-white">Conquistas</CardTitle>
+            <CardDescription className="text-gray-400">
               Gerencie todas as conquistas do sistema
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
-                <TableRow>
+                <TableRow className="text-gray-400">
                   <TableHead>Conquista</TableHead>
                   <TableHead>Descrição</TableHead>
                   <TableHead>Pontos</TableHead>
@@ -343,24 +343,18 @@ export default function AdminGames() {
               </TableHeader>
               <TableBody>
                 {achievements.map((achievement) => (
-                  <TableRow key={achievement.id}>
-                    <TableCell className="font-medium">
+                  <TableRow key={achievement.id} className="hover:bg-[#232a36] transition-colors">
+                    <TableCell className="font-medium text-white">
                       <div className="flex items-center gap-2">
                         <span className="text-lg">{achievement.icon}</span>
                         {achievement.name}
                       </div>
                     </TableCell>
-                    <TableCell>{achievement.description}</TableCell>
-                    <TableCell>{achievement.points}</TableCell>
+                    <TableCell className="text-gray-300">{achievement.description}</TableCell>
+                    <TableCell className="text-gray-300">{achievement.points}</TableCell>
+                    <TableCell className="text-gray-300">{achievement.unlocked}/{achievement.total}</TableCell>
                     <TableCell>
-                      {achievement.unlocked}/{achievement.total}
-                    </TableCell>
-                    <TableCell>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => handleDeleteAchievement(achievement.id)}
-                      >
+                      <Button size="sm" variant="outline" className="border-red-600 text-red-400" onClick={() => handleDeleteAchievement(achievement.id)}>
                         Excluir
                       </Button>
                     </TableCell>
@@ -371,17 +365,17 @@ export default function AdminGames() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-[#1f2937] text-white">
           <CardHeader>
-            <CardTitle>Ranking</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-white">Ranking</CardTitle>
+            <CardDescription className="text-gray-400">
               Top 5 usuários com mais pontos
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
-                <TableRow>
+                <TableRow className="text-gray-400">
                   <TableHead>Rank</TableHead>
                   <TableHead>Usuário</TableHead>
                   <TableHead>Pontos</TableHead>
@@ -391,16 +385,16 @@ export default function AdminGames() {
               </TableHeader>
               <TableBody>
                 {leaderboard.map((user) => (
-                  <TableRow key={user.id}>
+                  <TableRow key={user.id} className="hover:bg-[#232a36] transition-colors">
                     <TableCell>
                       <Badge variant={user.rank === 1 ? "default" : "secondary"}>
                         #{user.rank}
                       </Badge>
                     </TableCell>
-                    <TableCell className="font-medium">{user.name}</TableCell>
-                    <TableCell>{user.points}</TableCell>
-                    <TableCell>{user.level}</TableCell>
-                    <TableCell>{user.achievements}</TableCell>
+                    <TableCell className="font-medium text-white">{user.name}</TableCell>
+                    <TableCell className="text-gray-300">{user.points}</TableCell>
+                    <TableCell className="text-gray-300">{user.level}</TableCell>
+                    <TableCell className="text-gray-300">{user.achievements}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
