@@ -3,6 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { 
   Search, 
   Users, 
@@ -11,7 +14,11 @@ import {
   Eye, 
   Edit, 
   Trash2,
-  UserPlus
+  UserPlus,
+  Mail,
+  Phone,
+  Calendar,
+  User
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -25,6 +32,7 @@ interface Reseller {
   clients: number;
   revenue: number;
   status: 'Ativo' | 'Pendente' | 'Inativo';
+  joinedDate?: string;
 }
 
 const AdminResellers: React.FC = () => {
@@ -38,7 +46,8 @@ const AdminResellers: React.FC = () => {
       commission: 15,
       clients: 45,
       revenue: 12500,
-      status: 'Ativo'
+      status: 'Ativo',
+      joinedDate: '2024-01-15'
     },
     {
       id: '2',
@@ -49,7 +58,8 @@ const AdminResellers: React.FC = () => {
       commission: 12,
       clients: 32,
       revenue: 8900,
-      status: 'Ativo'
+      status: 'Ativo',
+      joinedDate: '2024-01-10'
     },
     {
       id: '3',
@@ -60,7 +70,8 @@ const AdminResellers: React.FC = () => {
       commission: 18,
       clients: 0,
       revenue: 0,
-      status: 'Pendente'
+      status: 'Pendente',
+      joinedDate: '2024-01-20'
     },
     {
       id: '4',
@@ -71,7 +82,8 @@ const AdminResellers: React.FC = () => {
       commission: 10,
       clients: 15,
       revenue: 3200,
-      status: 'Inativo'
+      status: 'Inativo',
+      joinedDate: '2024-01-05'
     },
     {
       id: '5',
@@ -82,7 +94,8 @@ const AdminResellers: React.FC = () => {
       commission: 20,
       clients: 67,
       revenue: 18900,
-      status: 'Ativo'
+      status: 'Ativo',
+      joinedDate: '2024-01-12'
     },
     {
       id: '6',
@@ -93,12 +106,29 @@ const AdminResellers: React.FC = () => {
       commission: 15,
       clients: 0,
       revenue: 0,
-      status: 'Ativo'
+      status: 'Ativo',
+      joinedDate: '2024-01-18'
     }
   ]);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredResellers, setFilteredResellers] = useState<Reseller[]>(resellers);
+  
+  // Estados dos modais
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [selectedReseller, setSelectedReseller] = useState<Reseller | null>(null);
+  
+  // Estado do formulário de edição/adição
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    plan: 'Premium' as 'Premium' | 'Standard' | 'Basic',
+    commission: '',
+    status: 'Ativo' as 'Ativo' | 'Pendente' | 'Inativo'
+  });
 
   // Calcular métricas
   const totalResellers = resellers.length;
@@ -121,11 +151,79 @@ const AdminResellers: React.FC = () => {
 
   // Funções de ação
   const handleViewReseller = (reseller: Reseller) => {
-    toast.info(`Visualizando dados de ${reseller.name}`);
+    setSelectedReseller(reseller);
+    setViewModalOpen(true);
   };
 
   const handleEditReseller = (reseller: Reseller) => {
-    toast.info(`Editando ${reseller.name}`);
+    setSelectedReseller(reseller);
+    setFormData({
+      name: reseller.name,
+      email: reseller.email,
+      phone: reseller.phone,
+      plan: reseller.plan,
+      commission: reseller.commission.toString(),
+      status: reseller.status
+    });
+    setEditModalOpen(true);
+  };
+
+  const handleAddReseller = () => {
+    setFormData({
+      name: '',
+      email: '',
+      phone: '',
+      plan: 'Premium',
+      commission: '',
+      status: 'Ativo'
+    });
+    setAddModalOpen(true);
+  };
+
+  const handleSaveEdit = () => {
+    if (!selectedReseller || !formData.name || !formData.email || !formData.commission) {
+      toast.error('Preencha todos os campos obrigatórios');
+      return;
+    }
+
+    setResellers(prev => prev.map(r => 
+      r.id === selectedReseller.id ? {
+        ...r,
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        plan: formData.plan,
+        commission: parseFloat(formData.commission),
+        status: formData.status
+      } : r
+    ));
+    
+    setEditModalOpen(false);
+    toast.success(`${formData.name} atualizado com sucesso!`);
+  };
+
+  const handleSaveAdd = () => {
+    if (!formData.name || !formData.email || !formData.commission) {
+      toast.error('Preencha todos os campos obrigatórios');
+      return;
+    }
+
+    const newReseller: Reseller = {
+      id: Date.now().toString(),
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      plan: formData.plan,
+      commission: parseFloat(formData.commission),
+      clients: 0,
+      revenue: 0,
+      status: formData.status,
+      joinedDate: new Date().toISOString().split('T')[0]
+    };
+
+    setResellers(prev => [...prev, newReseller]);
+    setAddModalOpen(false);
+    toast.success(`${formData.name} adicionado com sucesso!`);
   };
 
   const handleToggleStatus = (reseller: Reseller) => {
@@ -169,7 +267,7 @@ const AdminResellers: React.FC = () => {
           <h1 className="text-3xl font-bold text-white">Gerenciamento de Revendas</h1>
           <p className="text-gray-400 mt-1">Gerencie todos os revendedores do sistema</p>
         </div>
-        <Button className="bg-purple-600 hover:bg-purple-700">
+        <Button className="bg-purple-600 hover:bg-purple-700" onClick={handleAddReseller}>
           <UserPlus className="w-4 h-4 mr-2" />
           + Novo Revendedor
         </Button>
@@ -340,6 +438,275 @@ const AdminResellers: React.FC = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Modal de Visualização */}
+      <Dialog open={viewModalOpen} onOpenChange={setViewModalOpen}>
+        <DialogContent className="bg-gray-800 border-gray-700 text-white max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold">Detalhes do Revendedor</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Informações completas do revendedor
+            </DialogDescription>
+          </DialogHeader>
+          {selectedReseller && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-3">
+                    <User className="w-5 h-5 text-gray-400" />
+                    <div>
+                      <p className="text-sm text-gray-400">Nome</p>
+                      <p className="font-medium">{selectedReseller.name}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Mail className="w-5 h-5 text-gray-400" />
+                    <div>
+                      <p className="text-sm text-gray-400">Email</p>
+                      <p className="font-medium">{selectedReseller.email}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Phone className="w-5 h-5 text-gray-400" />
+                    <div>
+                      <p className="text-sm text-gray-400">Telefone</p>
+                      <p className="font-medium">{selectedReseller.phone}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Calendar className="w-5 h-5 text-gray-400" />
+                    <div>
+                      <p className="text-sm text-gray-400">Data de Cadastro</p>
+                      <p className="font-medium">{selectedReseller.joinedDate}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-sm text-gray-400">Plano</p>
+                    <Badge className={getPlanColor(selectedReseller.plan)}>
+                      {selectedReseller.plan}
+                    </Badge>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400">Comissão</p>
+                    <p className="font-medium text-lg">{selectedReseller.commission}%</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400">Status</p>
+                    <Badge className={getStatusColor(selectedReseller.status)}>
+                      {selectedReseller.status}
+                    </Badge>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400">Clientes Atendidos</p>
+                    <p className="font-medium text-lg">{selectedReseller.clients}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400">Receita Gerada</p>
+                    <p className="font-medium text-lg text-green-400">
+                      R$ {selectedReseller.revenue.toLocaleString('pt-BR')}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setViewModalOpen(false)}>
+              Fechar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal de Edição */}
+      <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
+        <DialogContent className="bg-gray-800 border-gray-700 text-white max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold">Editar Revendedor</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Atualize as informações do revendedor
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-name" className="text-gray-300">Nome Completo</Label>
+                <Input
+                  id="edit-name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  className="bg-gray-700 border-gray-600 text-white"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-email" className="text-gray-300">Email</Label>
+                <Input
+                  id="edit-email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  className="bg-gray-700 border-gray-600 text-white"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-phone" className="text-gray-300">Telefone</Label>
+                <Input
+                  id="edit-phone"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                  className="bg-gray-700 border-gray-600 text-white"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-commission" className="text-gray-300">Comissão (%)</Label>
+                <Input
+                  id="edit-commission"
+                  type="number"
+                  value={formData.commission}
+                  onChange={(e) => setFormData({...formData, commission: e.target.value})}
+                  className="bg-gray-700 border-gray-600 text-white"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-plan" className="text-gray-300">Plano</Label>
+                <Select value={formData.plan} onValueChange={(value: any) => setFormData({...formData, plan: value})}>
+                  <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-700 border-gray-600">
+                    <SelectItem value="Basic">Basic</SelectItem>
+                    <SelectItem value="Standard">Standard</SelectItem>
+                    <SelectItem value="Premium">Premium</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-status" className="text-gray-300">Status</Label>
+                <Select value={formData.status} onValueChange={(value: any) => setFormData({...formData, status: value})}>
+                  <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-700 border-gray-600">
+                    <SelectItem value="Ativo">Ativo</SelectItem>
+                    <SelectItem value="Pendente">Pendente</SelectItem>
+                    <SelectItem value="Inativo">Inativo</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditModalOpen(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleSaveEdit} className="bg-purple-600 hover:bg-purple-700">
+              Salvar Alterações
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal de Adicionar */}
+      <Dialog open={addModalOpen} onOpenChange={setAddModalOpen}>
+        <DialogContent className="bg-gray-800 border-gray-700 text-white max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold">Novo Revendedor</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Adicione um novo revendedor ao sistema
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="add-name" className="text-gray-300">Nome Completo *</Label>
+                <Input
+                  id="add-name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  className="bg-gray-700 border-gray-600 text-white"
+                  placeholder="Nome completo"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="add-email" className="text-gray-300">Email *</Label>
+                <Input
+                  id="add-email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  className="bg-gray-700 border-gray-600 text-white"
+                  placeholder="email@exemplo.com"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="add-phone" className="text-gray-300">Telefone</Label>
+                <Input
+                  id="add-phone"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                  className="bg-gray-700 border-gray-600 text-white"
+                  placeholder="(11) 99999-9999"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="add-commission" className="text-gray-300">Comissão (%) *</Label>
+                <Input
+                  id="add-commission"
+                  type="number"
+                  value={formData.commission}
+                  onChange={(e) => setFormData({...formData, commission: e.target.value})}
+                  className="bg-gray-700 border-gray-600 text-white"
+                  placeholder="15"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="add-plan" className="text-gray-300">Plano</Label>
+                <Select value={formData.plan} onValueChange={(value: any) => setFormData({...formData, plan: value})}>
+                  <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-700 border-gray-600">
+                    <SelectItem value="Basic">Basic</SelectItem>
+                    <SelectItem value="Standard">Standard</SelectItem>
+                    <SelectItem value="Premium">Premium</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="add-status" className="text-gray-300">Status</Label>
+                <Select value={formData.status} onValueChange={(value: any) => setFormData({...formData, status: value})}>
+                  <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-700 border-gray-600">
+                    <SelectItem value="Ativo">Ativo</SelectItem>
+                    <SelectItem value="Pendente">Pendente</SelectItem>
+                    <SelectItem value="Inativo">Inativo</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddModalOpen(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleSaveAdd} className="bg-purple-600 hover:bg-purple-700">
+              Adicionar Revendedor
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
