@@ -286,7 +286,7 @@ export default function AdminEcommerce() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
+        <Card className="bg-[#1f2937] text-white">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-300">Receita Total</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
@@ -298,7 +298,7 @@ export default function AdminEcommerce() {
             </p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-[#1f2937] text-white">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-300">Produtos</CardTitle>
             <Package className="h-4 w-4 text-muted-foreground" />
@@ -310,7 +310,7 @@ export default function AdminEcommerce() {
             </p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-[#1f2937] text-white">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-300">Vendas</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
@@ -322,7 +322,7 @@ export default function AdminEcommerce() {
             </p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-[#1f2937] text-white">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-300">Clientes</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
@@ -337,17 +337,17 @@ export default function AdminEcommerce() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
+        <Card className="bg-[#1f2937] text-white">
           <CardHeader>
-            <CardTitle>Produtos</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-white">Produtos</CardTitle>
+            <CardDescription className="text-gray-400">
               Gerencie todos os produtos da loja
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
-                <TableRow>
+                <TableRow className="text-gray-400">
                   <TableHead>Produto</TableHead>
                   <TableHead>Categoria</TableHead>
                   <TableHead>Preço</TableHead>
@@ -359,31 +359,25 @@ export default function AdminEcommerce() {
               </TableHeader>
               <TableBody>
                 {products.map((product) => (
-                  <TableRow key={product.id}>
+                  <TableRow key={product.id} className="hover:bg-[#232a36] transition-colors">
                     <TableCell className="font-medium text-white">{product.name}</TableCell>
-                    <TableCell>{product.category}</TableCell>
-                    <TableCell>R$ {product.price.toFixed(2)}</TableCell>
-                    <TableCell>{product.stock}</TableCell>
-                    <TableCell>{product.sales}</TableCell>
+                    <TableCell className="text-gray-300">{product.category}</TableCell>
+                    <TableCell className="text-gray-300">R$ {product.price.toFixed(2)}</TableCell>
+                    <TableCell className="text-gray-300">{product.stock}</TableCell>
+                    <TableCell className="text-gray-300">{product.sales}</TableCell>
                     <TableCell>
-                      <Badge className={getStatusColor(product.status)}>
-                        {product.status}
-                      </Badge>
+                      <Badge className={
+                        product.status === 'Ativo' ? 'bg-green-700 text-green-200' :
+                        product.status === 'Inativo' ? 'bg-red-700 text-red-200' :
+                        'bg-gray-700 text-gray-300'
+                      }>{product.status}</Badge>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => toggleProductStatus(product.id)}
-                        >
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline" className="border-blue-600 text-blue-400" onClick={() => toggleProductStatus(product.id)}>
                           {product.status === "Ativo" ? "Desativar" : "Ativar"}
                         </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => handleDeleteProduct(product.id)}
-                        >
+                        <Button size="sm" variant="outline" className="border-red-600 text-red-400" onClick={() => handleDeleteProduct(product.id)}>
                           Excluir
                         </Button>
                       </div>
@@ -395,17 +389,17 @@ export default function AdminEcommerce() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-[#1f2937] text-white">
           <CardHeader>
-            <CardTitle>Vendas Recentes</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-white">Vendas Recentes</CardTitle>
+            <CardDescription className="text-gray-400">
               Últimas transações da loja
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
-                <TableRow>
+                <TableRow className="text-gray-400">
                   <TableHead>Cliente</TableHead>
                   <TableHead>Produto</TableHead>
                   <TableHead>Valor</TableHead>
@@ -415,15 +409,18 @@ export default function AdminEcommerce() {
               </TableHeader>
               <TableBody>
                 {recentSales.map((sale) => (
-                  <TableRow key={sale.id}>
+                  <TableRow key={sale.id} className="hover:bg-[#232a36] transition-colors">
                     <TableCell className="font-medium text-white">{sale.customer}</TableCell>
-                    <TableCell>{sale.product}</TableCell>
-                    <TableCell>R$ {sale.amount.toFixed(2)}</TableCell>
-                    <TableCell>{sale.date}</TableCell>
+                    <TableCell className="text-gray-300">{sale.product}</TableCell>
+                    <TableCell className="text-gray-300">R$ {sale.amount.toFixed(2)}</TableCell>
+                    <TableCell className="text-gray-300">{sale.date}</TableCell>
                     <TableCell>
-                      <Badge className={getStatusColor(sale.status)}>
-                        {sale.status}
-                      </Badge>
+                      <Badge className={
+                        sale.status === 'Pago' ? 'bg-green-700 text-green-200' :
+                        sale.status === 'Cancelado' ? 'bg-red-700 text-red-200' :
+                        sale.status === 'Pendente' ? 'bg-yellow-700 text-yellow-200' :
+                        'bg-gray-700 text-gray-300'
+                      }>{sale.status}</Badge>
                     </TableCell>
                   </TableRow>
                 ))}
