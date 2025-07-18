@@ -23,15 +23,27 @@ import {
   DollarSign,
   TrendingUp,
   Activity,
-  Clock
+  Clock,
+  Home
 } from "lucide-react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/sidebars/AdminSidebar";
 import { AIModalManager } from "@/components/modals/AIModalManager";
 import { toast } from "sonner";
 
+// Importando as páginas como componentes
+import AdminUsers from "../AdminUsers";
+import AdminIPTV from "../AdminIPTV";
+import AdminRadio from "../AdminRadio";
+import AdminAI from "../AdminAI";
+import AdminEcommerce from "../AdminEcommerce";
+import AdminGames from "../AdminGames";
+import AdminAnalytics from "../AdminAnalytics";
+import Settings from "../Settings";
+
 const AdminDashboard = () => {
   const [activeModal, setActiveModal] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState<string>("dashboard");
   const [stats] = useState({
     totalUsers: 15847,
     totalRevenue: 487230,
@@ -68,6 +80,10 @@ const AdminDashboard = () => {
     setActiveModal(null);
   };
 
+  const handlePageChange = (page: string) => {
+    setCurrentPage(page);
+  };
+
   const getActivityIcon = (type: string) => {
     switch (type) {
       case "user_registered": return <Users className="w-4 h-4 text-blue-500" />;
@@ -88,13 +104,12 @@ const AdminDashboard = () => {
     }
   };
 
-  return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background">
-        <AdminSidebar />
-        
-        <main className="flex-1 p-6">
-          <div className="max-w-7xl mx-auto space-y-6">
+  // Função para renderizar o conteúdo da página atual
+  const renderCurrentPage = () => {
+    switch (currentPage) {
+      case "dashboard":
+        return (
+          <div className="space-y-6">
             {/* Header */}
             <div className="flex items-center justify-between">
               <div>
@@ -203,7 +218,7 @@ const AdminDashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground mb-4">
-                    Configure rádios e integrações multicanal
+                    Configure estações de rádio e streaming
                   </p>
                   <div className="space-y-2">
                     <div className="flex justify-between">
@@ -211,7 +226,7 @@ const AdminDashboard = () => {
                       <span className="text-sm font-semibold">{stats.radioListeners.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-sm">Rádios Online:</span>
+                      <span className="text-sm">Estações Ativas:</span>
                       <span className="text-sm font-semibold text-green-600">8/8</span>
                     </div>
                   </div>
@@ -227,16 +242,16 @@ const AdminDashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground mb-4">
-                    Gerencie produtos e vendas da plataforma
+                    Gerencie produtos, vendas e configurações
                   </p>
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-sm">Produtos Ativos:</span>
-                      <span className="text-sm font-semibold">156</span>
+                      <span className="text-sm">Vendas Hoje:</span>
+                      <span className="text-sm font-semibold">R$ 12.450</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-sm">Vendas Hoje:</span>
-                      <span className="text-sm font-semibold text-green-600">R$ 12.845</span>
+                      <span className="text-sm">Produtos Ativos:</span>
+                      <span className="text-sm font-semibold text-green-600">24</span>
                     </div>
                   </div>
                 </CardContent>
@@ -251,16 +266,40 @@ const AdminDashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground mb-4">
-                    Configure regras de jogos e recompensas
+                    Sistema de pontos, conquistas e rankings
                   </p>
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-sm">Jogadores Ativos:</span>
-                      <span className="text-sm font-semibold">3.245</span>
+                      <span className="text-sm">Usuários Ativos:</span>
+                      <span className="text-sm font-semibold">8.234</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-sm">Recompensas Ativas:</span>
-                      <span className="text-sm font-semibold text-green-600">24</span>
+                      <span className="text-sm">Conquistas:</span>
+                      <span className="text-sm font-semibold text-green-600">15</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="cursor-pointer hover:shadow-glow transition-all duration-300" onClick={() => handleModalOpen("analytics_management")}>
+                <CardHeader>
+                  <div className="flex items-center space-x-2">
+                    <BarChart3 className="w-6 h-6 text-indigo-500" />
+                    <CardTitle>Analytics</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground mb-4">
+                    Métricas, relatórios e insights
+                  </p>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-sm">Visualizações:</span>
+                      <span className="text-sm font-semibold">45.678</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm">Conversão:</span>
+                      <span className="text-sm font-semibold text-green-600">3.2%</span>
                     </div>
                   </div>
                 </CardContent>
@@ -269,46 +308,22 @@ const AdminDashboard = () => {
               <Card className="cursor-pointer hover:shadow-glow transition-all duration-300" onClick={() => handleModalOpen("ai_voice_config")}>
                 <CardHeader>
                   <div className="flex items-center space-x-2">
-                    <Brain className="w-6 h-6 text-indigo-500" />
+                    <Brain className="w-6 h-6 text-pink-500" />
                     <CardTitle>IA + Voz</CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground mb-4">
-                    Configure assistentes e vozes da IA
+                    Configurações de inteligência artificial
                   </p>
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-sm">Conversas Ativas:</span>
-                      <span className="text-sm font-semibold">1.876</span>
+                      <span className="text-sm">Interações:</span>
+                      <span className="text-sm font-semibold">{stats.aiInteractions.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-sm">Taxa de Resposta:</span>
-                      <span className="text-sm font-semibold text-green-600">98.5%</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="cursor-pointer hover:shadow-glow transition-all duration-300" onClick={() => handleModalOpen("analytics_view")}>
-                <CardHeader>
-                  <div className="flex items-center space-x-2">
-                    <BarChart3 className="w-6 h-6 text-red-500" />
-                    <CardTitle>Analytics</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground mb-4">
-                    Relatórios detalhados e métricas em tempo real
-                  </p>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-sm">Eventos Hoje:</span>
-                      <span className="text-sm font-semibold">45.678</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm">Conversão:</span>
-                      <span className="text-sm font-semibold text-green-600">8.9%</span>
+                      <span className="text-sm">Status:</span>
+                      <span className="text-sm font-semibold text-green-600">Ativo</span>
                     </div>
                   </div>
                 </CardContent>
@@ -319,21 +334,18 @@ const AdminDashboard = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Activity className="w-5 h-5" />
-                    <span>Atividade Recente</span>
-                  </CardTitle>
+                  <CardTitle>Atividade Recente</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     {recentActivity.map((activity) => (
-                      <div key={activity.id} className="flex items-center space-x-3 p-3 rounded-lg bg-muted/50">
+                      <div key={activity.id} className="flex items-center space-x-3">
                         {getActivityIcon(activity.type)}
                         <div className="flex-1">
                           <p className="text-sm font-medium">{activity.user}</p>
                           <p className="text-xs text-muted-foreground">{activity.time}</p>
                         </div>
-                        {getStatusBadge(activity.status)}
+                        <Badge variant="outline">{activity.status}</Badge>
                       </div>
                     ))}
                   </div>
@@ -342,23 +354,27 @@ const AdminDashboard = () => {
 
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Users className="w-5 h-5" />
-                    <span>Usuários Online</span>
-                  </CardTitle>
+                  <CardTitle>Usuários Online</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     {onlineUsers.map((user) => (
-                      <div key={user.id} className="flex items-center space-x-3 p-3 rounded-lg bg-muted/50">
-                        <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white text-xs font-bold">
-                          {user.name.charAt(0)}
+                      <div key={user.id} className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                            <span className="text-white text-xs font-medium">
+                              {user.name.split(' ').map(n => n[0]).join('')}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium">{user.name}</p>
+                            <p className="text-xs text-muted-foreground">{user.type}</p>
+                          </div>
                         </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium">{user.name}</p>
-                          <p className="text-xs text-muted-foreground">{user.type} • {user.lastSeen}</p>
+                        <div className="text-right">
+                          {getStatusBadge(user.status)}
+                          <p className="text-xs text-muted-foreground">{user.lastSeen}</p>
                         </div>
-                        {getStatusBadge(user.status)}
                       </div>
                     ))}
                   </div>
@@ -366,13 +382,41 @@ const AdminDashboard = () => {
               </Card>
             </div>
           </div>
+        );
+      case "users":
+        return <AdminUsers />;
+      case "iptv":
+        return <AdminIPTV />;
+      case "radio":
+        return <AdminRadio />;
+      case "ai":
+        return <AdminAI />;
+      case "ecommerce":
+        return <AdminEcommerce />;
+      case "games":
+        return <AdminGames />;
+      case "analytics":
+        return <AdminAnalytics />;
+      case "settings":
+        return <Settings />;
+      default:
+        return <div>Página não encontrada</div>;
+    }
+  };
+
+  return (
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-background">
+        <AdminSidebar onPageChange={handlePageChange} currentPage={currentPage} />
+        
+        <main className="flex-1 p-6">
+          <div className="max-w-7xl mx-auto">
+            {renderCurrentPage()}
+          </div>
         </main>
 
-        {/* Modal Manager */}
-        <AIModalManager 
-          activeModal={activeModal} 
-          onClose={handleModalClose}
-        />
+        {/* Modals */}
+        <AIModalManager activeModal={activeModal} onClose={handleModalClose} />
       </div>
     </SidebarProvider>
   );
