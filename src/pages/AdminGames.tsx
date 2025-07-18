@@ -92,21 +92,21 @@ export default function AdminGames() {
   const totalAchievements = achievements.length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 min-h-screen bg-[#09090b] p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Gamificação</h1>
-          <p className="text-muted-foreground">Gerencie sistema de pontos, conquistas e rankings</p>
+          <h1 className="text-3xl font-bold text-white">Gamificação</h1>
+          <p className="text-gray-400">Gerencie sistema de pontos, conquistas e rankings</p>
         </div>
         <div className="flex items-center gap-2">
           <Dialog open={isConfigDialogOpen} onOpenChange={setIsConfigDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" className="flex items-center gap-2">
+              <Button variant="outline" className="flex items-center gap-2 bg-[#1f2937] text-white border-none">
                 <Settings className="w-4 h-4" />
                 Configurações
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="bg-[#1f2937] text-white max-w-2xl">
               <DialogHeader>
                 <DialogTitle>Configurações de Gamificação</DialogTitle>
                 <DialogDescription>
@@ -115,48 +115,48 @@ export default function AdminGames() {
               </DialogHeader>
               <div className="grid gap-4 py-4">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="enabled">Habilitar Gamificação</Label>
+                  <Label htmlFor="enabled" className="text-gray-300">Habilitar Gamificação</Label>
                   <Switch 
                     id="enabled" 
                     checked={gamificationConfig.enabled} 
                     onCheckedChange={(checked) => setGamificationConfig({...gamificationConfig, enabled: checked})}
                   />
                 </div>
-                
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="pointsPerLogin">Pontos por Login</Label>
+                    <Label htmlFor="pointsPerLogin" className="text-gray-300">Pontos por Login</Label>
                     <Input
                       id="pointsPerLogin"
                       type="number"
                       value={gamificationConfig.pointsPerLogin}
                       onChange={(e) => setGamificationConfig({...gamificationConfig, pointsPerLogin: e.target.value})}
+                      className="bg-[#1f2937] border border-gray-700 text-white"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="pointsPerPurchase">Pontos por Compra</Label>
+                    <Label htmlFor="pointsPerPurchase" className="text-gray-300">Pontos por Compra</Label>
                     <Input
                       id="pointsPerPurchase"
                       type="number"
                       value={gamificationConfig.pointsPerPurchase}
                       onChange={(e) => setGamificationConfig({...gamificationConfig, pointsPerPurchase: e.target.value})}
+                      className="bg-[#1f2937] border border-gray-700 text-white"
                     />
                   </div>
                 </div>
-                
                 <div className="space-y-2">
-                  <Label htmlFor="pointsPerSupport">Pontos por Suporte</Label>
+                  <Label htmlFor="pointsPerSupport" className="text-gray-300">Pontos por Suporte</Label>
                   <Input
                     id="pointsPerSupport"
                     type="number"
                     value={gamificationConfig.pointsPerSupport}
                     onChange={(e) => setGamificationConfig({...gamificationConfig, pointsPerSupport: e.target.value})}
+                    className="bg-[#1f2937] border border-gray-700 text-white"
                   />
                 </div>
-                
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="enableLeaderboard">Habilitar Ranking</Label>
+                    <Label htmlFor="enableLeaderboard" className="text-gray-300">Habilitar Ranking</Label>
                     <Switch 
                       id="enableLeaderboard" 
                       checked={gamificationConfig.enableLeaderboard} 
@@ -164,7 +164,7 @@ export default function AdminGames() {
                     />
                   </div>
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="enableAchievements">Habilitar Conquistas</Label>
+                    <Label htmlFor="enableAchievements" className="text-gray-300">Habilitar Conquistas</Label>
                     <Switch 
                       id="enableAchievements" 
                       checked={gamificationConfig.enableAchievements} 
@@ -172,7 +172,7 @@ export default function AdminGames() {
                     />
                   </div>
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="enableLevels">Habilitar Níveis</Label>
+                    <Label htmlFor="enableLevels" className="text-gray-300">Habilitar Níveis</Label>
                     <Switch 
                       id="enableLevels" 
                       checked={gamificationConfig.enableLevels} 
@@ -180,22 +180,22 @@ export default function AdminGames() {
                     />
                   </div>
                 </div>
-                
                 <div className="space-y-2">
-                  <Label htmlFor="maxLevel">Nível Máximo</Label>
+                  <Label htmlFor="maxLevel" className="text-gray-300">Nível Máximo</Label>
                   <Input
                     id="maxLevel"
                     type="number"
                     value={gamificationConfig.maxLevel}
                     onChange={(e) => setGamificationConfig({...gamificationConfig, maxLevel: e.target.value})}
+                    className="bg-[#1f2937] border border-gray-700 text-white"
                   />
                 </div>
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setIsConfigDialogOpen(false)}>
+                <Button variant="outline" className="bg-[#1f2937] text-white" onClick={() => setIsConfigDialogOpen(false)}>
                   Cancelar
                 </Button>
-                <Button onClick={() => setIsConfigDialogOpen(false)}>
+                <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white" onClick={() => setIsConfigDialogOpen(false)}>
                   Salvar Configurações
                 </Button>
               </DialogFooter>
@@ -203,64 +203,66 @@ export default function AdminGames() {
           </Dialog>
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="flex items-center gap-2">
+              <Button className="flex items-center gap-2 bg-[#7e22ce] hover:bg-[#6d1bb7] text-white">
                 <Plus className="w-4 h-4" />
                 Nova Conquista
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="bg-[#1f2937] text-white">
               <DialogHeader>
                 <DialogTitle>Adicionar Nova Conquista</DialogTitle>
                 <DialogDescription>
-                  Crie uma nova conquista para os usuários
+                  Adicione uma nova conquista ao sistema
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
                 <div className="space-y-2">
-                  <Label htmlFor="achievementName">Nome da Conquista</Label>
+                  <Label htmlFor="achievementName" className="text-gray-300">Nome da Conquista</Label>
                   <Input
                     id="achievementName"
                     value={newAchievement.name}
                     onChange={(e) => setNewAchievement({...newAchievement, name: e.target.value})}
-                    placeholder="Ex: Primeiro Login"
+                    placeholder="Ex: Primeira Compra"
+                    className="bg-[#1f2937] border border-gray-700 text-white"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="achievementDescription">Descrição</Label>
+                  <Label htmlFor="achievementDescription" className="text-gray-300">Descrição</Label>
                   <Input
                     id="achievementDescription"
                     value={newAchievement.description}
                     onChange={(e) => setNewAchievement({...newAchievement, description: e.target.value})}
-                    placeholder="Ex: Faça seu primeiro login no sistema"
+                    placeholder="Ex: Realize sua primeira compra"
+                    className="bg-[#1f2937] border border-gray-700 text-white"
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="achievementPoints">Pontos</Label>
-                    <Input
-                      id="achievementPoints"
-                      type="number"
-                      value={newAchievement.points}
-                      onChange={(e) => setNewAchievement({...newAchievement, points: e.target.value})}
-                      placeholder="10"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="achievementIcon">Ícone</Label>
-                    <Input
-                      id="achievementIcon"
-                      value={newAchievement.icon}
-                      onChange={(e) => setNewAchievement({...newAchievement, icon: e.target.value})}
-                      placeholder="🏆"
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="achievementPoints" className="text-gray-300">Pontos</Label>
+                  <Input
+                    id="achievementPoints"
+                    type="number"
+                    value={newAchievement.points}
+                    onChange={(e) => setNewAchievement({...newAchievement, points: e.target.value})}
+                    placeholder="Ex: 10"
+                    className="bg-[#1f2937] border border-gray-700 text-white"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="achievementIcon" className="text-gray-300">Ícone</Label>
+                  <Input
+                    id="achievementIcon"
+                    value={newAchievement.icon}
+                    onChange={(e) => setNewAchievement({...newAchievement, icon: e.target.value})}
+                    placeholder="Ex: 🏆"
+                    className="bg-[#1f2937] border border-gray-700 text-white"
+                  />
                 </div>
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+                <Button variant="outline" className="bg-[#1f2937] text-white" onClick={() => setIsAddDialogOpen(false)}>
                   Cancelar
                 </Button>
-                <Button onClick={handleAddAchievement}>
+                <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white" onClick={handleAddAchievement}>
                   Adicionar Conquista
                 </Button>
               </DialogFooter>
@@ -272,48 +274,48 @@ export default function AdminGames() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total de Pontos</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-300">Total de Pontos</CardTitle>
             <Star className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalPoints}</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-2xl font-bold text-white">{totalPoints}</div>
+            <p className="text-xs text-gray-400">
               Disponíveis
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Conquistas</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-300">Conquistas</CardTitle>
             <Trophy className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalAchievements}</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-2xl font-bold text-white">{totalAchievements}</div>
+            <p className="text-xs text-gray-400">
               {totalUnlocked} desbloqueadas
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Usuários Ativos</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-300">Usuários Ativos</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">156</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-2xl font-bold text-white">156</div>
+            <p className="text-xs text-gray-400">
               Participando
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Nível Médio</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-300">Nível Médio</CardTitle>
             <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">8.5</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-2xl font-bold text-white">8.5</div>
+            <p className="text-xs text-gray-400">
               Dos usuários
             </p>
           </CardContent>
