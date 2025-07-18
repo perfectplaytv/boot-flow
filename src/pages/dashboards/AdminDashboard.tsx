@@ -299,9 +299,13 @@ const AdminDashboard = () => {
     };
     return (
       <div ref={setNodeRef} style={style} {...attributes} className="select-none">
-        <Card className="cursor-pointer hover:shadow-glow transition-all duration-300" onClick={onClick} tabIndex={0} role="button" aria-pressed="false">
+        <Card className="cursor-pointer hover:shadow-glow hover:scale-105 transition-all duration-300 transform" onClick={onClick} tabIndex={0} role="button" aria-pressed="false">
           {content}
           {body}
+          {/* Drag indicator */}
+          <div className="absolute top-2 right-2 opacity-0 hover:opacity-100 transition-opacity">
+            <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+          </div>
         </Card>
       </div>
     );
@@ -389,10 +393,24 @@ const AdminDashboard = () => {
             {/* Kanban Board */}
             <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-white">Sistema Kanban</h2>
+                <div>
+                  <h2 className="text-2xl font-bold text-white">Sistema Kanban</h2>
+                  <p className="text-gray-400">Organize seus serviços por categoria</p>
+                </div>
                 <div className="flex items-center gap-2">
-                  <Badge className="bg-blue-600 text-white">Arraste para reorganizar</Badge>
-                  <Badge className="bg-green-600 text-white">Clique para abrir</Badge>
+                  <Badge className="bg-blue-600 text-white flex items-center gap-1">
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                    </svg>
+                    Arraste para reorganizar
+                  </Badge>
+                  <Badge className="bg-green-600 text-white flex items-center gap-1">
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    Clique para abrir
+                  </Badge>
                 </div>
               </div>
               
@@ -411,15 +429,18 @@ const AdminDashboard = () => {
                     {Object.values(kanbanColumns).map(column => (
                       <div key={column.id} className="space-y-4">
                         {/* Column Header */}
-                        <div className={`${column.color} rounded-lg p-4 text-white`}>
+                        <div className={`${column.color} rounded-lg p-4 text-white shadow-lg`}>
                           <div className="flex items-center justify-between">
-                            <h3 className="font-semibold text-lg">{column.title}</h3>
-                            <Badge className="bg-white/20 text-white">{column.cards.length}</Badge>
+                            <div className="flex items-center gap-2">
+                              <h3 className="font-semibold text-lg">{column.title}</h3>
+                              <div className="w-2 h-2 bg-white rounded-full"></div>
+                            </div>
+                            <Badge className="bg-white/20 text-white font-medium">{column.cards.length}</Badge>
                           </div>
                         </div>
                         
                         {/* Column Cards */}
-                        <div className="space-y-4">
+                        <div className="space-y-4 min-h-[200px] bg-[#1f2937]/50 rounded-lg p-4 border border-gray-700">
                           {column.cards.map(card => (
                             <SortableCard 
                               key={card.id} 
@@ -429,6 +450,11 @@ const AdminDashboard = () => {
                               onClick={card.onClick} 
                             />
                           ))}
+                          {column.cards.length === 0 && (
+                            <div className="flex items-center justify-center h-32 text-gray-500">
+                              <p className="text-sm">Nenhum card nesta coluna</p>
+                            </div>
+                          )}
                         </div>
                       </div>
                     ))}
