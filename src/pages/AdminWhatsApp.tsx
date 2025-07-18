@@ -75,7 +75,9 @@ const AdminWhatsApp: React.FC = () => {
     webhook: '',
     autoReply: false,
     apiToken: '',
-    apiEndpoint: ''
+    apiEndpoint: '',
+    logsDetalhados: false,
+    modoProducao: false
   });
 
   // Abrir modal para novo template
@@ -143,115 +145,57 @@ const AdminWhatsApp: React.FC = () => {
 
       {/* Modal de Configuração */}
       <Dialog open={configModalOpen} onOpenChange={setConfigModalOpen}>
-        <DialogContent className="bg-[#181e29] border-gray-700 text-white max-w-2xl">
-          <DialogHeader>
-            <CardTitle className="text-2xl font-bold text-green-400 flex items-center gap-2"><Settings className="w-6 h-6 text-green-400" />Configuração do WhatsApp</CardTitle>
-            <DialogDescription className="text-gray-400">Configure as integrações e preferências do WhatsApp Business</DialogDescription>
-          </DialogHeader>
-          <Tabs value={configTab} onValueChange={setConfigTab} className="mt-4">
-            <TabsList className="flex bg-[#232a36] rounded-lg mb-4">
-              <TabsTrigger value="geral" className="flex-1 data-[state=active]:bg-white/10 data-[state=active]:text-white">Geral</TabsTrigger>
-              <TabsTrigger value="api" className="flex-1 data-[state=active]:bg-white/10 data-[state=active]:text-white">API</TabsTrigger>
-              <TabsTrigger value="templates" className="flex-1 data-[state=active]:bg-white/10 data-[state=active]:text-white">Templates</TabsTrigger>
-              <TabsTrigger value="horarios" className="flex-1 data-[state=active]:bg-white/10 data-[state=active]:text-white">Horários</TabsTrigger>
-            </TabsList>
-            <TabsContent value="geral">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                  <label className="block text-gray-300 mb-1">Provedor</label>
-                  <select value={config.provider} onChange={e => setConfig({ ...config, provider: e.target.value })} className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-white">
-                    <option>Meta Cloud API</option>
-                    <option>WPPConnect</option>
-                    <option>Z-API</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-gray-300 mb-1">Número do WhatsApp</label>
-                  <Input value={config.number} onChange={e => setConfig({ ...config, number: e.target.value })} placeholder="+55 11 99999-9999" className="bg-gray-800 border-gray-700 text-white" />
-                </div>
+        <DialogContent className="bg-white text-gray-900 max-w-md p-0 rounded-xl shadow-xl">
+          <div className="p-6">
+            <div className="flex items-center gap-2 mb-1">
+              <MessageSquare className="w-6 h-6 text-green-500" />
+              <span className="text-lg font-semibold text-gray-900">Configurar WhatsApp Business</span>
+            </div>
+            <p className="text-gray-500 text-sm mb-6">Envio de mensagens via WhatsApp</p>
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-gray-700 font-medium">Status da Integração</span>
+                <Button className="bg-gray-100 text-gray-700 hover:bg-gray-200 px-4 py-1 rounded" size="sm">Testar Conexão</Button>
               </div>
-              <div className="mb-4">
-                <label className="block text-gray-300 mb-1">URL do Webhook</label>
-                <Input value={config.webhook} onChange={e => setConfig({ ...config, webhook: e.target.value })} placeholder="https://seu-dominio.com/webhook" className="bg-gray-800 border-gray-700 text-white" />
-              </div>
-              <div className="flex items-center gap-3 mb-6">
+              <span className="inline-block px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">conectado</span>
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-700 mb-1 font-medium">Token do WhatsApp Business</label>
+              <Input value={config.apiToken || ''} onChange={e => setConfig({ ...config, apiToken: e.target.value })} placeholder="Insira sua chave/token..." className="bg-gray-100 border border-gray-200 text-gray-900" />
+            </div>
+            <div className="mb-6">
+              <label className="block text-gray-700 mb-1 font-medium">URL do Webhook</label>
+              <Input value={config.apiEndpoint || ''} onChange={e => setConfig({ ...config, apiEndpoint: e.target.value })} placeholder="https://sua-api.com/webhook" className="bg-gray-100 border border-gray-200 text-gray-900" />
+            </div>
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+              <span className="block text-gray-800 font-semibold mb-3">Configurações Avançadas</span>
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <span className="block text-gray-800 font-medium">Auto-resposta</span>
+                  <span className="block text-xs text-gray-500">Respostas automáticas quando offline</span>
+                </div>
                 <Switch checked={config.autoReply} onCheckedChange={v => setConfig({ ...config, autoReply: v })} />
-                <span className="text-white">Ativar auto-resposta</span>
               </div>
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setConfigModalOpen(false)}>Cancelar</Button>
-                <Button className="bg-green-600 hover:bg-green-700">Salvar Configurações</Button>
-              </div>
-            </TabsContent>
-            <TabsContent value="api">
-              <div className="space-y-4">
+              <div className="flex items-center justify-between mb-3">
                 <div>
-                  <label className="block text-gray-300 mb-1">Token da API</label>
-                  <Input value={config.apiToken || ''} onChange={e => setConfig({ ...config, apiToken: e.target.value })} placeholder="Insira o token da API" className="bg-gray-800 border-gray-700 text-white" />
+                  <span className="block text-gray-800 font-medium">Logs detalhados</span>
+                  <span className="block text-xs text-gray-500">Registrar todas as interações</span>
                 </div>
+                <Switch checked={config.logsDetalhados || false} onCheckedChange={v => setConfig({ ...config, logsDetalhados: v })} />
+              </div>
+              <div className="flex items-center justify-between">
                 <div>
-                  <label className="block text-gray-300 mb-1">Endpoint</label>
-                  <Input value={config.apiEndpoint || ''} onChange={e => setConfig({ ...config, apiEndpoint: e.target.value })} placeholder="https://api.whatsapp.com/endpoint" className="bg-gray-800 border-gray-700 text-white" />
+                  <span className="block text-gray-800 font-medium">Modo de produção</span>
+                  <span className="block text-xs text-gray-500">Usar configurações de produção</span>
                 </div>
-                <div className="flex items-center gap-3 mb-4">
-                  <span className="text-gray-400">Status:</span>
-                  <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Conectado</Badge>
-                  <Button className="ml-auto bg-green-600 hover:bg-green-700">Testar Conexão</Button>
-                </div>
+                <Switch checked={config.modoProducao || false} onCheckedChange={v => setConfig({ ...config, modoProducao: v })} />
               </div>
-            </TabsContent>
-            <TabsContent value="templates">
-              <div className="space-y-4">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-gray-300 font-semibold">Templates Cadastrados</span>
-                  <div className="flex gap-2">
-                    <Button variant="outline" className="border-gray-700 bg-gray-900 text-white hover:bg-gray-800"><Upload className="w-4 h-4 mr-2 text-green-400" />Importar</Button>
-                    <Button variant="outline" className="border-gray-700 bg-gray-900 text-white hover:bg-gray-800"><Download className="w-4 h-4 mr-2 text-purple-400" />Exportar</Button>
-                    <Button className="bg-green-600 hover:bg-green-700"><Plus className="w-4 h-4 mr-2" />Novo Template</Button>
-                  </div>
-                </div>
-                <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
-                  {templates.length === 0 && <div className="text-gray-400">Nenhum template cadastrado.</div>}
-                  {templates.map((tpl) => (
-                    <div key={tpl.id} className="flex items-center justify-between bg-[#232a36] rounded px-3 py-2 border border-gray-700">
-                      <div className="flex items-center gap-2">
-                        <span className={`font-medium ${tpl.status === 'Ativo' ? 'text-green-400' : 'text-gray-400'}`}>{tpl.title}</span>
-                        <Badge className={tpl.status === 'Ativo' ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-gray-500/20 text-gray-400 border-gray-500/30'}>{tpl.status}</Badge>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="icon" className="text-gray-400 hover:text-green-400" onClick={() => handleEditTemplate(tpl)}><Edit className="w-4 h-4" /></Button>
-                        <Button variant="ghost" size="icon" className="text-red-400 hover:text-red-300" onClick={() => handleDeleteTemplate(tpl)}><Trash2 className="w-4 h-4" /></Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </TabsContent>
-            <TabsContent value="horarios">
-              <div className="space-y-4">
-                <div className="flex flex-col md:flex-row gap-4">
-                  <div className="flex-1">
-                    <label className="block text-gray-300 mb-1">Dias de Atendimento</label>
-                    <div className="flex flex-wrap gap-2">
-                      {['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'].map((dia) => (
-                        <Button key={dia} variant="outline" className="border-gray-700 bg-gray-900 text-white hover:bg-green-700 px-4 py-1 rounded-full text-xs">{dia}</Button>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="flex-1">
-                    <label className="block text-gray-300 mb-1">Horário de Início</label>
-                    <Input type="time" className="bg-gray-800 border-gray-700 text-white" />
-                    <label className="block text-gray-300 mb-1 mt-2">Horário de Término</label>
-                    <Input type="time" className="bg-gray-800 border-gray-700 text-white" />
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 mt-2">
-                  <Switch />
-                  <span className="text-white">Ativar atendimento automático fora do horário</span>
-                </div>
-              </div>
-            </TabsContent>
-          </Tabs>
+            </div>
+            <div className="flex justify-end gap-2 mt-6">
+              <Button variant="outline" onClick={() => setConfigModalOpen(false)} className="bg-black text-white px-6 py-2 rounded font-semibold">Cancelar</Button>
+              <Button className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-2 rounded font-semibold">Salvar Integração</Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
 
