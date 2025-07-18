@@ -113,7 +113,7 @@ export function AdminSidebar({ onPageChange, currentPage, isMobile = false, onCl
             <Menu className="w-6 h-6" />
           </Button>
         </DrawerTrigger>
-        <DrawerContent className="bg-[#232a36] text-white p-0 w-full h-full fixed left-0 top-0 rounded-none overflow-y-auto shadow-2xl z-[9999] flex flex-col">
+        <DrawerContent className="bg-[#232a36] text-white w-full h-full fixed left-0 top-0 rounded-none overflow-y-auto shadow-2xl z-[99999] flex flex-col border-4 border-purple-700">
           <div className="flex items-center justify-between p-4 mb-2 border-b border-gray-700">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
@@ -130,39 +130,10 @@ export function AdminSidebar({ onPageChange, currentPage, isMobile = false, onCl
               </Button>
             </DrawerClose>
           </div>
-          <div className="flex-1 flex flex-col justify-between px-4 pb-4">
-            <div>
-              <SidebarGroup>
-                <SidebarGroupLabel>Administração</SidebarGroupLabel>
-                <SidebarGroupContent>
-                  <SidebarMenu>
-                    {menuItems.map((item) => (
-                      <SidebarMenuItem key={item.title}>
-                        <SidebarMenuButton 
-                          onClick={() => handlePageChange(item.page)}
-                          className={currentPage === item.page ? "bg-primary text-primary-foreground" : "hover:bg-accent"}
-                        >
-                          <item.icon className="mr-2 h-4 w-4" />
-                          <span>{item.title}</span>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    ))}
-                  </SidebarMenu>
-                </SidebarGroupContent>
-              </SidebarGroup>
-            </div>
-            <div className="mt-6">
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton className="hover:bg-accent">
-                      <LogOut className="mr-2 h-4 w-4" />
-                      <span>Sair</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </div>
+          {/* TESTE: Conteúdo visível para isolar problema */}
+          <div className="flex-1 flex flex-col items-center justify-center">
+            <span className="text-2xl font-bold text-white">MENU TESTE</span>
+            <span className="text-white mt-4">Se você está vendo este texto, o Drawer está funcionando.</span>
           </div>
         </DrawerContent>
       </Drawer>
