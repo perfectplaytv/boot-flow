@@ -31,6 +31,9 @@ const gatewaysMock: Gateway[] = [
 export default function AdminGateways() {
   const [gateways, setGateways] = useState<Gateway[]>(gatewaysMock);
   const [modal, setModal] = useState<{ type: null | 'testar' | 'editar' | 'configurar' | 'desativar', gateway?: Gateway }>({ type: null });
+  const [form, setForm] = useState({ nome: '', tipo: '', taxa: '' });
+  const [config, setConfig] = useState({ apiKey: '', secret: '', webhook: '' });
+  const [testValue, setTestValue] = useState('');
 
   // Cards resumo
   const total = gateways.length;
@@ -38,6 +41,28 @@ export default function AdminGateways() {
   const configurados = gateways.filter(g => g.configurado).length;
   const volumeMensal = 'R$ 212.840,81';
   const transacoes = 5777;
+
+  // Funções dos modais
+  const handleTestar = () => {
+    setTestValue('');
+    setModal({ type: null });
+  };
+  const handleEditar = () => {
+    if (!modal.gateway) return;
+    setGateways(gateways.map(g => g.id === modal.gateway!.id ? { ...g, nome: form.nome, tipo: form.tipo, taxa: form.taxa } : g));
+    setModal({ type: null });
+  };
+  const handleConfigurar = () => {
+    if (!modal.gateway) return;
+    setGateways(gateways.map(g => g.id === modal.gateway!.id ? { ...g, configurado: true, status: 'Ativo' } : g));
+    setConfig({ apiKey: '', secret: '', webhook: '' });
+    setModal({ type: null });
+  };
+  const handleDesativar = () => {
+    if (!modal.gateway) return;
+    setGateways(gateways.map(g => g.id === modal.gateway!.id ? { ...g, status: 'Inativo' } : g));
+    setModal({ type: null });
+  };
 
   return (
     <div className="p-6 min-h-screen bg-gradient-to-br from-[#181e29] via-[#232a36] to-[#181e29]">
@@ -133,12 +158,20 @@ export default function AdminGateways() {
                     <div className="flex gap-2">
                       {g.configurado ? (
                         <>
-                          <Button size="icon" variant="ghost" onClick={() => setModal({ type: 'testar', gateway: g })}><Play className="w-4 h-4 text-blue-400" /></Button>
-                          <Button size="icon" variant="ghost" onClick={() => setModal({ type: 'editar', gateway: g })}><Cog className="w-4 h-4 text-yellow-400" /></Button>
-                          <Button size="icon" variant="ghost" onClick={() => setModal({ type: 'desativar', gateway: g })}><XCircle className="w-4 h-4 text-red-400" /></Button>
+                          <Button size="sm" variant="outline" className="border-blue-600 text-blue-400" onClick={() => { setModal({ type: 'testar', gateway: g }); setTestValue(''); }}>
+                            <Play className="w-4 h-4 mr-1" /> Testar
+                          </Button>
+                          <Button size="sm" variant="outline" className="border-yellow-600 text-yellow-400" onClick={() => { setModal({ type: 'editar', gateway: g }); setForm({ nome: g.nome, tipo: g.tipo, taxa: g.taxa }); }}>
+                            <Cog className="w-4 h-4 mr-1" /> Editar
+                          </Button>
+                          <Button size="sm" variant="outline" className="border-red-600 text-red-400" onClick={() => setModal({ type: 'desativar', gateway: g })}>
+                            <XCircle className="w-4 h-4 mr-1" /> Desativar
+                          </Button>
                         </>
                       ) : (
-                        <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white" onClick={() => setModal({ type: 'configurar', gateway: g })}>Configurar</Button>
+                        <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white" onClick={() => { setModal({ type: 'configurar', gateway: g }); setConfig({ apiKey: '', secret: '', webhook: '' }); }}>
+                          Configurar
+                        </Button>
                       )}
                     </div>
                   </TableCell>
@@ -156,11 +189,11 @@ export default function AdminGateways() {
           </DialogHeader>
           <div className="space-y-4 py-2">
             <p>Simule uma transação de teste para validar a integração do gateway.</p>
-            <Input placeholder="Valor da transação" className="bg-gray-900 border border-gray-700 text-white" type="number" />
+            <Input placeholder="Valor da transação" className="bg-gray-900 border border-gray-700 text-white" type="number" value={testValue} onChange={e => setTestValue(e.target.value)} />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setModal({ type: null })} className="bg-gray-700 text-white">Cancelar</Button>
-            <Button className="bg-green-600 hover:bg-green-700 text-white">Testar</Button>
+            <Button className="bg-green-600 hover:bg-green-700 text-white" onClick={handleTestar}>Testar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -171,13 +204,13 @@ export default function AdminGateways() {
             <DialogTitle>Editar Gateway: {modal.gateway?.nome}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
-            <Input placeholder="Nome" className="bg-gray-900 border border-gray-700 text-white" defaultValue={modal.gateway?.nome} />
-            <Input placeholder="Tipo" className="bg-gray-900 border border-gray-700 text-white" defaultValue={modal.gateway?.tipo} />
-            <Input placeholder="Taxa" className="bg-gray-900 border border-gray-700 text-white" defaultValue={modal.gateway?.taxa} />
+            <Input placeholder="Nome" className="bg-gray-900 border border-gray-700 text-white" value={form.nome} onChange={e => setForm({ ...form, nome: e.target.value })} />
+            <Input placeholder="Tipo" className="bg-gray-900 border border-gray-700 text-white" value={form.tipo} onChange={e => setForm({ ...form, tipo: e.target.value })} />
+            <Input placeholder="Taxa" className="bg-gray-900 border border-gray-700 text-white" value={form.taxa} onChange={e => setForm({ ...form, taxa: e.target.value })} />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setModal({ type: null })} className="bg-gray-700 text-white">Cancelar</Button>
-            <Button className="bg-purple-600 hover:bg-purple-700 text-white">Salvar</Button>
+            <Button className="bg-purple-600 hover:bg-purple-700 text-white" onClick={handleEditar}>Salvar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -188,13 +221,13 @@ export default function AdminGateways() {
             <DialogTitle>Configurar Gateway: {modal.gateway?.nome}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
-            <Input placeholder="Chave/API Key" className="bg-gray-900 border border-gray-700 text-white" />
-            <Input placeholder="Secret/Token" className="bg-gray-900 border border-gray-700 text-white" />
-            <Input placeholder="Webhook URL" className="bg-gray-900 border border-gray-700 text-white" />
+            <Input placeholder="Chave/API Key" className="bg-gray-900 border border-gray-700 text-white" value={config.apiKey} onChange={e => setConfig({ ...config, apiKey: e.target.value })} />
+            <Input placeholder="Secret/Token" className="bg-gray-900 border border-gray-700 text-white" value={config.secret} onChange={e => setConfig({ ...config, secret: e.target.value })} />
+            <Input placeholder="Webhook URL" className="bg-gray-900 border border-gray-700 text-white" value={config.webhook} onChange={e => setConfig({ ...config, webhook: e.target.value })} />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setModal({ type: null })} className="bg-gray-700 text-white">Cancelar</Button>
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white">Salvar Configuração</Button>
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={handleConfigurar}>Salvar Configuração</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -209,7 +242,7 @@ export default function AdminGateways() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setModal({ type: null })} className="bg-gray-700 text-white">Cancelar</Button>
-            <Button className="bg-red-600 hover:bg-red-700 text-white">Desativar</Button>
+            <Button className="bg-red-600 hover:bg-red-700 text-white" onClick={handleDesativar}>Desativar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
