@@ -113,7 +113,7 @@ const AdminBranding: React.FC = () => {
   };
 
   return (
-    <div className="p-6 min-h-screen bg-[#09090b]">
+    <div className="max-w-full w-full overflow-x-auto p-4">
       <div className="flex items-center space-x-3 mb-2">
         <Paintbrush className="w-7 h-7 text-purple-400" />
         <h1 className="text-3xl font-bold text-white">Customizar Marca</h1>
