@@ -9,7 +9,8 @@ import {
   Gamepad2,
   Zap,
   Home,
-  LogOut
+  LogOut,
+  Building2
 } from "lucide-react";
 import {
   Sidebar,
