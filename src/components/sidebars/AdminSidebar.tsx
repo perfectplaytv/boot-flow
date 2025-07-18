@@ -33,6 +33,7 @@ interface AdminSidebarProps {
 const menuItems = [
   { title: "Dashboard", page: "dashboard", icon: Home },
   { title: "Usuários", page: "users", icon: Users },
+  { title: "Revendas", page: "resellers", icon: Building2 },
   { title: "Sistema IPTV", page: "iptv", icon: Tv },
   { title: "Rádio Web", page: "radio", icon: Radio },
   { title: "IA + Voz", page: "ai", icon: Brain },

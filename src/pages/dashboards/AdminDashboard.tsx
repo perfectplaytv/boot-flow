@@ -33,6 +33,7 @@ import { toast } from "sonner";
 
 // Importando as páginas como componentes
 import AdminUsers from "../AdminUsers";
+import AdminResellers from "../AdminResellers";
 import AdminIPTV from "../AdminIPTV";
 import AdminRadio from "../AdminRadio";
 import AdminAI from "../AdminAI";
