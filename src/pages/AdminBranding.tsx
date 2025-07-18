@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Paintbrush, UploadCloud, X, Check } from 'lucide-react';
+import { Paintbrush, UploadCloud, X, Check, GripVertical, Plus, Edit, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -17,6 +17,18 @@ const initialBrand = {
   favicon: ''
 };
 
+const initialDashboards = [
+  {
+    id: 1,
+    name: 'Dashboard Principal',
+    layout: 'Padrão',
+    widgets: ['Métricas', 'Gráficos', 'Atividades Recentes', 'Notificações'],
+    order: ['Métricas', 'Gráficos', 'Atividades Recentes', 'Notificações'],
+    realtime: true,
+    color: '#7c3aed',
+  },
+];
+
 const AdminBranding: React.FC = () => {
   const [tab, setTab] = useState('marca');
   const [brand, setBrand] = useState(initialBrand);
@@ -24,6 +36,17 @@ const AdminBranding: React.FC = () => {
   const [faviconModal, setFaviconModal] = useState(false);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [faviconFile, setFaviconFile] = useState<File | null>(null);
+  const [dashboards, setDashboards] = useState(initialDashboards);
+  const [dashboardModal, setDashboardModal] = useState(false);
+  const [editingDashboard, setEditingDashboard] = useState<any>(null);
+  const [dashboardForm, setDashboardForm] = useState({
+    name: '',
+    layout: 'Padrão',
+    widgets: ['Métricas'],
+    order: ['Métricas'],
+    realtime: true,
+    color: '#7c3aed',
+  });
 
   // Função para simular upload
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,6 +62,54 @@ const AdminBranding: React.FC = () => {
       setBrand({ ...brand, favicon: URL.createObjectURL(e.target.files[0]) });
       setFaviconModal(false);
     }
+  };
+
+  // Funções para manipular dashboards
+  const openNewDashboard = () => {
+    setEditingDashboard(null);
+    setDashboardForm({
+      name: '',
+      layout: 'Padrão',
+      widgets: ['Métricas'],
+      order: ['Métricas'],
+      realtime: true,
+      color: '#7c3aed',
+    });
+    setDashboardModal(true);
+  };
+  const openEditDashboard = (db: any) => {
+    setEditingDashboard(db);
+    setDashboardForm({
+      name: db.name,
+      layout: db.layout,
+      widgets: db.widgets,
+      order: db.order,
+      realtime: db.realtime,
+      color: db.color,
+    });
+    setDashboardModal(true);
+  };
+  const saveDashboard = () => {
+    if (!dashboardForm.name.trim()) return;
+    if (editingDashboard) {
+      setDashboards(dashboards.map(db => db.id === editingDashboard.id ? { ...editingDashboard, ...dashboardForm } : db));
+    } else {
+      setDashboards([
+        ...dashboards,
+        { ...dashboardForm, id: Date.now() },
+      ]);
+    }
+    setDashboardModal(false);
+  };
+  const removeDashboard = (id: number) => {
+    setDashboards(dashboards.filter(db => db.id !== id));
+  };
+  // Drag & drop simples para ordem dos widgets
+  const moveWidget = (from: number, to: number) => {
+    const newOrder = [...dashboardForm.order];
+    const [removed] = newOrder.splice(from, 1);
+    newOrder.splice(to, 0, removed);
+    setDashboardForm({ ...dashboardForm, order: newOrder });
   };
 
   return (
@@ -262,40 +333,110 @@ const AdminBranding: React.FC = () => {
         {/* Dashboard */}
         <TabsContent value="dashboard">
           <div className="max-w-2xl space-y-6">
-            <div className="rounded-2xl border border-purple-700/40 bg-[#232a36] p-6 shadow-lg">
-              <span className="block text-purple-300 font-semibold mb-4 text-lg">Customização do Dashboard</span>
-              <div className="mb-4">
-                <label className="block text-gray-300 mb-1 font-medium">Layout</label>
-                <select className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2">
-                  <option>Padrão</option>
-                  <option>Compacto</option>
-                  <option>Cards Grandes</option>
-                </select>
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-300 mb-1 font-medium">Widgets Visíveis</label>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  <Button variant="outline" className="bg-gray-900 text-white border border-gray-700 rounded-full px-4 py-1">Métricas</Button>
-                  <Button variant="outline" className="bg-gray-900 text-white border border-gray-700 rounded-full px-4 py-1">Gráficos</Button>
-                  <Button variant="outline" className="bg-gray-900 text-white border border-gray-700 rounded-full px-4 py-1">Atividades Recentes</Button>
-                  <Button variant="outline" className="bg-gray-900 text-white border border-gray-700 rounded-full px-4 py-1">Notificações</Button>
-                </div>
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-300 mb-1 font-medium">Ordem dos Cards</label>
-                <ol className="list-decimal ml-6 text-gray-400">
-                  <li>Métricas</li>
-                  <li>Gráficos</li>
-                  <li>Atividades Recentes</li>
-                  <li>Notificações</li>
-                </ol>
-              </div>
-              <div className="flex items-center gap-3 mt-2">
-                <input type="checkbox" className="accent-purple-500" defaultChecked />
-                <span className="text-gray-300">Exibir métricas em tempo real</span>
-              </div>
+            <div className="flex items-center justify-between mb-4">
+              <span className="block text-purple-300 font-semibold text-lg">Customização do Dashboard</span>
+              <Button className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2" onClick={openNewDashboard}>
+                <Plus className="w-4 h-4" /> Nova Dashboard
+              </Button>
+            </div>
+            {/* Lista de dashboards */}
+            <div className="space-y-4">
+              {dashboards.map(db => (
+                <Card key={db.id} className="bg-[#232a36] border border-purple-700/40">
+                  <CardHeader className="flex flex-row items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full mr-2" style={{ background: db.color }} />
+                      <CardTitle className="text-white text-lg">{db.name}</CardTitle>
+                      <span className="text-xs text-gray-400 ml-2">{db.layout}</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button size="icon" variant="ghost" onClick={() => openEditDashboard(db)}><Edit className="w-4 h-4 text-blue-400" /></Button>
+                      {db.id !== 1 && (
+                        <Button size="icon" variant="ghost" onClick={() => removeDashboard(db.id)}><Trash2 className="w-4 h-4 text-red-400" /></Button>
+                      )}
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {db.widgets.map((w: string) => (
+                        <span key={w} className="bg-gray-900 text-purple-300 rounded-full px-3 py-1 text-xs">{w}</span>
+                      ))}
+                    </div>
+                    <div className="text-xs text-gray-400">Ordem: {db.order.join(', ')}</div>
+                    <div className="text-xs text-gray-400">Métricas em tempo real: {db.realtime ? 'Sim' : 'Não'}</div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           </div>
+          {/* Modal de criar/editar dashboard */}
+          <Dialog open={dashboardModal} onOpenChange={setDashboardModal}>
+            <DialogContent className="bg-[#232a36] border border-purple-700 text-white max-w-lg">
+              <DialogHeader>
+                <DialogTitle>{editingDashboard ? 'Editar Dashboard' : 'Nova Dashboard'}</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 py-2">
+                <div>
+                  <label className="block text-gray-300 mb-1 font-medium">Nome *</label>
+                  <Input value={dashboardForm.name} onChange={e => setDashboardForm({ ...dashboardForm, name: e.target.value })} className="bg-gray-900 border border-gray-700 text-white" />
+                </div>
+                <div>
+                  <label className="block text-gray-300 mb-1 font-medium">Layout</label>
+                  <select value={dashboardForm.layout} onChange={e => setDashboardForm({ ...dashboardForm, layout: e.target.value })} className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2">
+                    <option>Padrão</option>
+                    <option>Compacto</option>
+                    <option>Cards Grandes</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-gray-300 mb-1 font-medium">Widgets</label>
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {['Métricas', 'Gráficos', 'Atividades Recentes', 'Notificações'].map(w => (
+                      <label key={w} className="flex items-center gap-1 bg-gray-800 px-3 py-1 rounded-full cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={dashboardForm.widgets.includes(w)}
+                          onChange={e => {
+                            const widgets = dashboardForm.widgets.includes(w)
+                              ? dashboardForm.widgets.filter(x => x !== w)
+                              : [...dashboardForm.widgets, w];
+                            setDashboardForm({ ...dashboardForm, widgets, order: widgets });
+                          }}
+                          className="accent-purple-500"
+                        />
+                        <span className="text-purple-200 text-xs">{w}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-gray-300 mb-1 font-medium">Ordem dos Cards</label>
+                  <ul className="space-y-1">
+                    {dashboardForm.order.map((w, idx) => (
+                      <li key={w} className="flex items-center gap-2">
+                        <button type="button" onClick={() => idx > 0 && moveWidget(idx, idx - 1)} className="text-gray-400 hover:text-purple-400">▲</button>
+                        <button type="button" onClick={() => idx < dashboardForm.order.length - 1 && moveWidget(idx, idx + 1)} className="text-gray-400 hover:text-purple-400">▼</button>
+                        <GripVertical className="w-4 h-4 text-gray-500" />
+                        <span className="text-gray-200 text-xs">{w}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="flex items-center gap-3 mt-2">
+                  <input type="checkbox" className="accent-purple-500" checked={dashboardForm.realtime} onChange={e => setDashboardForm({ ...dashboardForm, realtime: e.target.checked })} />
+                  <span className="text-gray-300">Exibir métricas em tempo real</span>
+                </div>
+                <div>
+                  <label className="block text-gray-300 mb-1 font-medium">Cor de destaque</label>
+                  <input type="color" value={dashboardForm.color} onChange={e => setDashboardForm({ ...dashboardForm, color: e.target.value })} className="w-12 h-12 p-0 border-none bg-transparent" />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setDashboardModal(false)} className="bg-gray-700 text-white">Cancelar</Button>
+                <Button onClick={saveDashboard} className="bg-purple-600 hover:bg-purple-700 text-white">Salvar</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </TabsContent>
       </Tabs>
 
