@@ -115,6 +115,7 @@ export default function AdminUsers() {
     status: "Ativo"
   });
 
+  // Estados para os modais de ação
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [viewingUser, setViewingUser] = useState<User | null>(null);
   const [deletingUser, setDeletingUser] = useState<User | null>(null);
