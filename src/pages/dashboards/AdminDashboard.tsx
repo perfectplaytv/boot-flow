@@ -24,12 +24,14 @@ import {
   TrendingUp,
   Activity,
   Clock,
-  Home
+  Home,
+  Paintbrush
 } from "lucide-react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/sidebars/AdminSidebar";
 import { AIModalManager } from "@/components/modals/AIModalManager";
 import { toast } from "sonner";
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 // Importando as páginas como componentes
 import AdminUsers from "../AdminUsers";
@@ -74,6 +76,8 @@ const AdminDashboard = () => {
     { id: 4, name: "Ana Costa", type: "Cliente", status: "online", lastSeen: "Agora" },
     { id: 5, name: "Carlos Lima", type: "Revendedor", status: "online", lastSeen: "Agora" }
   ]);
+
+  const [brandingModal, setBrandingModal] = useState(false);
 
   const handleModalOpen = (modalType: string) => {
     setActiveModal(modalType);
@@ -218,25 +222,23 @@ const AdminDashboard = () => {
                 </CardContent>
               </Card>
 
-              <Card className="cursor-pointer hover:shadow-glow transition-all duration-300" onClick={() => handleModalOpen("radio_management")}>
+              <Card className="cursor-pointer hover:shadow-glow transition-all duration-300" onClick={() => setBrandingModal(true)}>
                 <CardHeader>
                   <div className="flex items-center space-x-2">
-                    <Radio className="w-6 h-6 text-blue-500" />
-                    <CardTitle>Rádio Web</CardTitle>
+                    <Paintbrush className="w-6 h-6 text-purple-400" />
+                    <CardTitle>Customizar Marca</CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground mb-4">
-                    Configure estações de rádio e streaming
+                    Personalize a aparência, identidade visual e configurações white label da sua plataforma
                   </p>
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-sm">Ouvintes Ativos:</span>
-                      <span className="text-sm font-semibold">{stats.radioListeners.toLocaleString()}</span>
+                      <span className="text-sm">Logo, cores, domínio, rodapé, etc.</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-sm">Estações Ativas:</span>
-                      <span className="text-sm font-semibold text-green-600">8/8</span>
+                      <span className="text-sm">Configurações WhiteLabel exclusivas</span>
                     </div>
                   </div>
                 </CardContent>
@@ -436,6 +438,15 @@ const AdminDashboard = () => {
           onClose={handleModalClose} 
           onAddReseller={handleAddReseller}
         />
+
+        {/* Modal Customizar Marca */}
+        <Dialog open={brandingModal} onOpenChange={setBrandingModal}>
+          <DialogContent className="max-w-4xl bg-[#232a36] border border-purple-700 text-white p-0">
+            <div className="overflow-y-auto max-h-[80vh]">
+              <AdminBranding />
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </SidebarProvider>
   );
