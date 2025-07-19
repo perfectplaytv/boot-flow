@@ -25,6 +25,14 @@ export default function AdminUsers() {
     status: "Ativo"
   });
 
+  // Estados para a extração M3U
+  const [m3uUrl, setM3uUrl] = useState("");
+  const [isExtracting, setIsExtracting] = useState(false);
+  const [extractionResult, setExtractionResult] = useState<any>(null);
+  const [extractionError, setExtractionError] = useState("");
+  const [extractedUsers, setExtractedUsers] = useState<any[]>([]);
+  const [selectedExtractedUser, setSelectedExtractedUser] = useState<any>(null);
+
   // Estados para os modais de ação
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [viewingUser, setViewingUser] = useState<User | null>(null);
