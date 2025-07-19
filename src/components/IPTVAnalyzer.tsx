@@ -83,12 +83,9 @@ const IPTVAnalyzer: React.FC = () => {
   };
 
   const fetchIPTVData = async (baseUrl: string, username: string, password: string) => {
-    // Simulação de dados para demonstração (não usa dados reais)
+    // Simulação instantânea de dados para demonstração
     console.log(`Simulando análise para: ${baseUrl}`);
-    setCurrentProxy('Simulando resposta da API...');
-    
-    // Aguarda um pouco para simular o tempo de resposta
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    setCurrentProxy('Processando dados...');
     
     // Dados simulados para demonstração
     const mockData = {
@@ -120,11 +117,8 @@ const IPTVAnalyzer: React.FC = () => {
   };
 
   const fetchContentCounts = async (baseUrl: string, username: string, password: string) => {
-    // Simulação de estatísticas para demonstração
+    // Simulação instantânea de estatísticas
     console.log('Simulando estatísticas de conteúdo...');
-    
-    // Aguarda um pouco para simular o tempo de resposta
-    await new Promise(resolve => setTimeout(resolve, 1000));
     
     // Estatísticas simuladas
     return {
@@ -255,16 +249,9 @@ const IPTVAnalyzer: React.FC = () => {
             variant="gradient"
           >
             {loading ? (
-              <div className="flex flex-col items-center gap-2">
-                <div className="flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Analisando...
-                </div>
-                {currentProxy && (
-                  <div className="text-xs text-muted-foreground">
-                    {currentProxy}
-                  </div>
-                )}
+              <div className="flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Analisando...
               </div>
             ) : (
               'Analisar IPTV'
