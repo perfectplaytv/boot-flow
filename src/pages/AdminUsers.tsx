@@ -234,7 +234,7 @@ export default function AdminUsers() {
             console.log('Sucesso com acesso direto!');
             
             // Aplicar dados extraídos ao formulário
-            setNewUser({
+            const extractedData = {
               name: data.user_info.username,
               email: `${data.user_info.username}@iptv.com`,
               plan: data.user_info.is_trial === '1' ? 'Trial' : 'Premium',
@@ -244,7 +244,14 @@ export default function AdminUsers() {
               expirationDate: data.user_info.exp_date ? new Date(parseInt(data.user_info.exp_date) * 1000).toISOString().split('T')[0] : '',
               password: data.user_info.password || password,
               bouquets: ''
-            });
+            };
+
+            // Aplicar aos formulários baseado no modal aberto
+            if (isEditDialogOpen && editingUser) {
+              setEditingUser({...editingUser, ...extractedData});
+            } else {
+              setNewUser(extractedData);
+            }
             
             setExtractionResult({
               success: true,
@@ -1012,10 +1019,69 @@ export default function AdminUsers() {
                 <div className="bg-blue-900/30 border border-blue-800 rounded-lg p-4 mb-4">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-blue-300 font-medium">Extração M3U</span>
-                    <Button className="bg-blue-600 text-white hover:bg-blue-700 px-4 py-1 rounded text-sm">Extrair</Button>
+                    <div className="flex gap-2">
+                      <Button 
+                        className="bg-green-600 text-white hover:bg-green-700 px-3 py-1 rounded text-xs"
+                        onClick={() => {
+                          setM3uUrl('http://ztech.blog/get.php?username=268262713&password=936365120&type=m3u_plus&output=mpegts');
+                          setExtractionError('URL de teste carregada! Clique em Extrair.');
+                        }}
+                        disabled={isExtracting}
+                      >
+                        Teste
+                      </Button>
+                      <Button 
+                        className="bg-blue-600 text-white hover:bg-blue-700 px-4 py-1 rounded text-sm"
+                        onClick={extractM3UData}
+                        disabled={isExtracting}
+                      >
+                        {isExtracting ? "Extraindo..." : "Extrair"}
+                      </Button>
+                    </div>
                   </div>
                   <p className="text-xs text-blue-300 mb-2">Serve para importar dados automaticamente a partir de uma URL.</p>
-                  <Input placeholder="Insira a URL do M3U para extrair automaticamente os dados do cliente..." className="bg-[#1f2937] border border-blue-800 text-white" />
+                  <Input 
+                    placeholder="Insira a URL do M3U para extrair automaticamente os dados do cliente..." 
+                    className="bg-[#1f2937] border border-blue-800 text-white mb-2"
+                    value={m3uUrl}
+                    onChange={(e) => setM3uUrl(e.target.value)}
+                  />
+                  
+                  {/* Status de extração */}
+                  {extractionError && (
+                    <div className={`border text-xs rounded p-2 mb-2 ${
+                      extractionError.includes('Testando proxy') 
+                        ? 'bg-blue-900/40 border-blue-700 text-blue-300' 
+                        : 'bg-red-900/40 border-red-700 text-red-300'
+                    }`}>
+                      {extractionError.includes('Testando proxy') ? '🔄' : '❌'} {extractionError}
+                    </div>
+                  )}
+
+                  {/* Resultado da extração */}
+                  {extractionResult && !extractionError && (
+                    <div className="bg-green-900/40 border border-green-700 text-green-300 text-xs rounded p-2 mb-2">
+                      ✅ {extractionResult.message}
+                    </div>
+                  )}
+
+                  {/* Dados extraídos aplicados ao formulário */}
+                  {extractionResult && extractionResult.success && (
+                    <div className="bg-green-900/40 border border-green-700 text-green-300 text-xs rounded p-2">
+                      <div className="font-medium mb-1">✅ Dados aplicados ao formulário:</div>
+                      <div className="space-y-1">
+                        <div>• Nome: {editingUser.name || 'Não extraído'}</div>
+                        <div>• Email: {editingUser.email || 'Não extraído'}</div>
+                        <div>• Senha: {editingUser.password || 'Não extraída'}</div>
+                        <div>• Plano: {editingUser.plan || 'Não extraído'}</div>
+                        <div>• Status: {editingUser.status || 'Não extraído'}</div>
+                        <div>• Telegram: {editingUser.telegram || 'Não extraído'}</div>
+                        <div>• Vencimento: {editingUser.expirationDate || 'Não definido'}</div>
+                        <div>• Bouquets: {editingUser.bouquets || 'Não extraídos'}</div>
+                        <div>• Observações: {editingUser.observations || 'Nenhuma'}</div>
+                      </div>
+                    </div>
+                  )}
                 </div>
                 
                 {/* Informações Básicas */}
@@ -1097,19 +1163,14 @@ export default function AdminUsers() {
                     {/* Bouquets */}
                     <div className="col-span-2">
                       <label className="block text-gray-300 mb-1 font-medium">Bouquets</label>
-                      <select className="w-full bg-[#23272f] border border-gray-700 text-gray-400 rounded px-3 py-2">
-                        <option value="">Selecione um bouquet</option>
-                        <option value="completo-sem-adultos">COMPLETO SEM ADULTOS</option>
-                        <option value="completo-com-adultos">COMPLETO COM ADULTOS</option>
-                        <option value="canais-mais-18">CANAIS +18</option>
-                        <option value="vods">Vods</option>
-                        <option value="canais-menos-18">CANAIS -18</option>
-                        <option value="restream">Restream</option>
-                        <option value="24hrs">24hrs</option>
-                        <option value="ppv">PPV</option>
-                      </select>
+                      <input 
+                        value={editingUser.bouquets || ""}
+                        onChange={(e) => setEditingUser({...editingUser, bouquets: e.target.value})}
+                        placeholder="Bouquets extraídos automaticamente" 
+                        className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+                      />
                       <div className="bg-green-900/40 border border-green-700 text-green-400 text-xs rounded mt-2 p-2">
-                        Apenas você pode visualizar os dados pessoais deste cliente.
+                        Bouquets extraídos automaticamente da conta IPTV
                       </div>
                     </div>
                     {/* Nome */}
@@ -1157,8 +1218,8 @@ export default function AdminUsers() {
                     <div className="col-span-2">
                       <label className="block text-gray-300 mb-1 font-medium">Observações</label>
                       <textarea 
-                        value={editingUser.notes || ""}
-                        onChange={(e) => setEditingUser({...editingUser, notes: e.target.value})}
+                        value={editingUser.observations || editingUser.notes || ""}
+                        onChange={(e) => setEditingUser({...editingUser, observations: e.target.value})}
                         placeholder="Opcional" 
                         className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 min-h-[60px]" 
                       />
