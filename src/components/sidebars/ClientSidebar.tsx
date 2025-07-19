@@ -11,7 +11,8 @@ import {
   Gamepad2,
   ShoppingBag,
   Bell,
-  User
+  User,
+  BarChart3
 } from "lucide-react";
 import {
   Sidebar,
@@ -27,14 +28,18 @@ import {
 } from "@/components/ui/sidebar";
 
 const menuItems = [
-  { title: "Minha Central", url: "/dashboard/client", icon: Home },
-  { title: "IPTV", url: "/dashboard/client/iptv", icon: Tv },
-  { title: "Rádio Web", url: "/dashboard/client/radio", icon: Radio },
-  { title: "Chat IA", url: "/dashboard/client/ai", icon: Brain },
-  { title: "Jogos", url: "/dashboard/client/games", icon: Gamepad2 },
-  { title: "Loja", url: "/dashboard/client/shop", icon: ShoppingBag },
+  { title: "Dashboard", url: "/dashboard/client", icon: Home },
+  { title: "Clientes", url: "/dashboard/client/clients", icon: User },
+  { title: "Revendas", url: "/dashboard/client/resellers", icon: User },
+  { title: "Cobranças", url: "/dashboard/client/billing", icon: BarChart3 },
   { title: "Notificações", url: "/dashboard/client/notifications", icon: Bell },
-  { title: "Perfil", url: "/dashboard/client/profile", icon: User },
+  { title: "WhatsApp", url: "/dashboard/client/whatsapp", icon: MessageSquare },
+  { title: "Gateways", url: "/dashboard/client/gateways", icon: BarChart3 },
+  { title: "Customizar Marca", url: "/dashboard/client/branding", icon: BarChart3 },
+  { title: "E-commerce", url: "/dashboard/client/shop", icon: ShoppingBag },
+  { title: "IA + Voz", url: "/dashboard/client/ai", icon: Brain },
+  { title: "Gamificação", url: "/dashboard/client/games", icon: Gamepad2 },
+  { title: "Analizes", url: "/dashboard/client/analytics", icon: BarChart3 },
   { title: "Configurações", url: "/dashboard/client/settings", icon: Settings },
 ];
 
