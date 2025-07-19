@@ -184,6 +184,76 @@ export default function AdminUsers() {
     setIsDeleteDialogOpen(true);
   };
 
+  // Função para copiar todos os clientes da página de Cobranças
+  const handleCopyAllUsersFromCobrancas = async () => {
+    setIsCopyingUsers(true);
+    setCopyProgress(0);
+    setCopySuccess(false);
+    
+    try {
+      // Filtrar usuários que não existem na página de Clientes
+      const existingEmails = users.map(user => user.email.toLowerCase());
+      const usersToCopy = cobrancasUsers.filter(user => 
+        !existingEmails.includes(user.email.toLowerCase())
+      );
+      
+      if (usersToCopy.length === 0) {
+        alert('Todos os clientes da página de Cobranças já existem na página de Clientes!');
+        setIsCopyingUsers(false);
+        return;
+      }
+      
+      console.log(`Copiando ${usersToCopy.length} usuários da página de Cobranças...`);
+      
+      // Copiar usuários um por um
+      for (let i = 0; i < usersToCopy.length; i++) {
+        const user = usersToCopy[i];
+        
+        // Preparar dados do usuário para o Neon
+        const userData = {
+          name: user.name,
+          email: user.email,
+          password: user.password || '',
+          m3u_url: user.plan || '',
+          bouquets: user.bouquets || '',
+          expiration_date: user.expirationDate || user.renewalDate || null,
+          observations: user.observations || user.notes || ''
+        };
+        
+        console.log(`Copiando usuário ${i + 1}/${usersToCopy.length}:`, user.name);
+        
+        // Adicionar usuário usando o hook do Neon
+        const success = await createUser(userData);
+        
+        if (!success) {
+          console.error(`Erro ao copiar usuário: ${user.name}`);
+        }
+        
+        // Atualizar progresso
+        setCopyProgress(((i + 1) / usersToCopy.length) * 100);
+        
+        // Pequena pausa para não sobrecarregar a API
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+      
+      setCopySuccess(true);
+      alert(`✅ ${usersToCopy.length} clientes copiados com sucesso da página de Cobranças!`);
+      
+      // Fechar modal após 2 segundos
+      setTimeout(() => {
+        setIsCopyDialogOpen(false);
+        setCopySuccess(false);
+        setCopyProgress(0);
+      }, 2000);
+      
+    } catch (error) {
+      console.error('Erro ao copiar usuários:', error);
+      alert('Erro ao copiar usuários. Verifique o console para mais detalhes.');
+    } finally {
+      setIsCopyingUsers(false);
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Ativo": return "bg-green-100 text-green-800";
