@@ -194,9 +194,13 @@ export default function AdminUsers() {
       const apiUrl = `${baseUrl}/player_api.php?username=${username}&password=${password}`;
       const bouquetsUrl = `${baseUrl}/player_api.php?username=${username}&password=${password}&action=get_live_categories`;
       
-      // Tentar primeiro sem proxy (se for HTTPS)
-      try {
-        if (urlObj.protocol === 'https:') {
+      // Verificar se é HTTP e avisar sobre Mixed Content
+      if (urlObj.protocol === 'http:') {
+        console.log('URL HTTP detectada - usando proxies para evitar Mixed Content');
+        setExtractionError('URL HTTP detectada - usando proxies seguros...');
+      } else {
+        // Tentar primeiro sem proxy (se for HTTPS)
+        try {
           console.log('Tentando acesso direto...');
           setExtractionError('Tentando acesso direto...');
           
@@ -229,7 +233,12 @@ export default function AdminUsers() {
               name: data.user_info.username,
               email: `${data.user_info.username}@iptv.com`,
               plan: data.user_info.is_trial === '1' ? 'Trial' : 'Premium',
-              status: data.user_info.status === 'Active' ? 'Ativo' : 'Inativo'
+              status: data.user_info.status === 'Active' ? 'Ativo' : 'Inativo',
+              telegram: data.user_info.username ? `@${data.user_info.username}` : '',
+              observations: `Usuário: ${data.user_info.username} | Acesso direto`,
+              expirationDate: data.user_info.exp_date ? new Date(parseInt(data.user_info.exp_date) * 1000).toISOString().split('T')[0] : '',
+              password: data.user_info.password || password,
+              bouquets: ''
             });
             
             setExtractionResult({
@@ -241,9 +250,9 @@ export default function AdminUsers() {
             setExtractionError("");
             return;
           }
+        } catch (directError) {
+          console.log('Acesso direto falhou, tentando proxies...');
         }
-      } catch (directError) {
-        console.log('Acesso direto falhou, tentando proxies...');
       }
       
       // Tentar com diferentes proxies
@@ -289,7 +298,7 @@ export default function AdminUsers() {
 
           console.log(`Sucesso com proxy: ${proxy.name}`);
           
-          // Buscar dados de bouquets
+          // Buscar dados de bouquets (com tratamento de erro melhorado)
           let bouquetsData = [];
           try {
             const bouquetsResponse = await fetch(bouquetsUrl);
@@ -299,10 +308,12 @@ export default function AdminUsers() {
                 bouquetsData = JSON.parse(bouquetsText);
               } catch (e) {
                 console.log('Erro ao parsear bouquets:', e);
+                bouquetsData = [];
               }
             }
           } catch (e) {
-            console.log('Erro ao buscar bouquets:', e);
+            console.log('Erro ao buscar bouquets (ignorando):', e);
+            bouquetsData = [];
           }
 
           // Preparar observações com dados reais
