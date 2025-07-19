@@ -408,6 +408,7 @@ export default function AdminUsers() {
                     <div className="space-y-1">
                       <div>• Nome: {newUser.name}</div>
                       <div>• Email: {newUser.email}</div>
+                      <div>• Senha: {newUser.password}</div>
                       <div>• Plano: {newUser.plan}</div>
                       <div>• Status: {newUser.status}</div>
                       <div>• Telegram: {newUser.telegram}</div>
