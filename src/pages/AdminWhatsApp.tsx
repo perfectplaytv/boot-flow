@@ -132,6 +132,267 @@ const AdminWhatsApp: React.FC = () => {
     toast.success('Template excluído com sucesso!');
   };
 
+  // Funções para conexão WhatsApp
+  const generateQRCode = async () => {
+    setIsLoadingQR(true);
+    try {
+      // Simular geração de QR Code real
+      // Em produção, isso seria uma chamada para a API do WhatsApp Business
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Gerar um QR Code real usando uma biblioteca como qrcode
+      // Por enquanto, vamos usar um QR Code de exemplo
+      const qrCodeUrl = `data:image/svg+xml;base64,${btoa(`
+        <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+          <rect width="200" height="200" fill="white"/>
+          <g fill="black">
+            <rect x="20" y="20" width="8" height="8"/>
+            <rect x="32" y="20" width="8" height="8"/>
+            <rect x="44" y="20" width="8" height="8"/>
+            <rect x="56" y="20" width="8" height="8"/>
+            <rect x="68" y="20" width="8" height="8"/>
+            <rect x="80" y="20" width="8" height="8"/>
+            <rect x="92" y="20" width="8" height="8"/>
+            <rect x="104" y="20" width="8" height="8"/>
+            <rect x="116" y="20" width="8" height="8"/>
+            <rect x="128" y="20" width="8" height="8"/>
+            <rect x="140" y="20" width="8" height="8"/>
+            <rect x="152" y="20" width="8" height="8"/>
+            <rect x="164" y="20" width="8" height="8"/>
+            <rect x="176" y="20" width="8" height="8"/>
+            <rect x="20" y="32" width="8" height="8"/>
+            <rect x="32" y="32" width="8" height="8"/>
+            <rect x="44" y="32" width="8" height="8"/>
+            <rect x="56" y="32" width="8" height="8"/>
+            <rect x="68" y="32" width="8" height="8"/>
+            <rect x="80" y="32" width="8" height="8"/>
+            <rect x="92" y="32" width="8" height="8"/>
+            <rect x="104" y="32" width="8" height="8"/>
+            <rect x="116" y="32" width="8" height="8"/>
+            <rect x="128" y="32" width="8" height="8"/>
+            <rect x="140" y="32" width="8" height="8"/>
+            <rect x="152" y="32" width="8" height="8"/>
+            <rect x="164" y="32" width="8" height="8"/>
+            <rect x="176" y="32" width="8" height="8"/>
+            <rect x="20" y="44" width="8" height="8"/>
+            <rect x="32" y="44" width="8" height="8"/>
+            <rect x="44" y="44" width="8" height="8"/>
+            <rect x="56" y="44" width="8" height="8"/>
+            <rect x="68" y="44" width="8" height="8"/>
+            <rect x="80" y="44" width="8" height="8"/>
+            <rect x="92" y="44" width="8" height="8"/>
+            <rect x="104" y="44" width="8" height="8"/>
+            <rect x="116" y="44" width="8" height="8"/>
+            <rect x="128" y="44" width="8" height="8"/>
+            <rect x="140" y="44" width="8" height="8"/>
+            <rect x="152" y="44" width="8" height="8"/>
+            <rect x="164" y="44" width="8" height="8"/>
+            <rect x="176" y="44" width="8" height="8"/>
+            <rect x="20" y="56" width="8" height="8"/>
+            <rect x="32" y="56" width="8" height="8"/>
+            <rect x="44" y="56" width="8" height="8"/>
+            <rect x="56" y="56" width="8" height="8"/>
+            <rect x="68" y="56" width="8" height="8"/>
+            <rect x="80" y="56" width="8" height="8"/>
+            <rect x="92" y="56" width="8" height="8"/>
+            <rect x="104" y="56" width="8" height="8"/>
+            <rect x="116" y="56" width="8" height="8"/>
+            <rect x="128" y="56" width="8" height="8"/>
+            <rect x="140" y="56" width="8" height="8"/>
+            <rect x="152" y="56" width="8" height="8"/>
+            <rect x="164" y="56" width="8" height="8"/>
+            <rect x="176" y="56" width="8" height="8"/>
+            <rect x="20" y="68" width="8" height="8"/>
+            <rect x="32" y="68" width="8" height="8"/>
+            <rect x="44" y="68" width="8" height="8"/>
+            <rect x="56" y="68" width="8" height="8"/>
+            <rect x="68" y="68" width="8" height="8"/>
+            <rect x="80" y="68" width="8" height="8"/>
+            <rect x="92" y="68" width="8" height="8"/>
+            <rect x="104" y="68" width="8" height="8"/>
+            <rect x="116" y="68" width="8" height="8"/>
+            <rect x="128" y="68" width="8" height="8"/>
+            <rect x="140" y="68" width="8" height="8"/>
+            <rect x="152" y="68" width="8" height="8"/>
+            <rect x="164" y="68" width="8" height="8"/>
+            <rect x="176" y="68" width="8" height="8"/>
+            <rect x="20" y="80" width="8" height="8"/>
+            <rect x="32" y="80" width="8" height="8"/>
+            <rect x="44" y="80" width="8" height="8"/>
+            <rect x="56" y="80" width="8" height="8"/>
+            <rect x="68" y="80" width="8" height="8"/>
+            <rect x="80" y="80" width="8" height="8"/>
+            <rect x="92" y="80" width="8" height="8"/>
+            <rect x="104" y="80" width="8" height="8"/>
+            <rect x="116" y="80" width="8" height="8"/>
+            <rect x="128" y="80" width="8" height="8"/>
+            <rect x="140" y="80" width="8" height="8"/>
+            <rect x="152" y="80" width="8" height="8"/>
+            <rect x="164" y="80" width="8" height="8"/>
+            <rect x="176" y="80" width="8" height="8"/>
+            <rect x="20" y="92" width="8" height="8"/>
+            <rect x="32" y="92" width="8" height="8"/>
+            <rect x="44" y="92" width="8" height="8"/>
+            <rect x="56" y="92" width="8" height="8"/>
+            <rect x="68" y="92" width="8" height="8"/>
+            <rect x="80" y="92" width="8" height="8"/>
+            <rect x="92" y="92" width="8" height="8"/>
+            <rect x="104" y="92" width="8" height="8"/>
+            <rect x="116" y="92" width="8" height="8"/>
+            <rect x="128" y="92" width="8" height="8"/>
+            <rect x="140" y="92" width="8" height="8"/>
+            <rect x="152" y="92" width="8" height="8"/>
+            <rect x="164" y="92" width="8" height="8"/>
+            <rect x="176" y="92" width="8" height="8"/>
+            <rect x="20" y="104" width="8" height="8"/>
+            <rect x="32" y="104" width="8" height="8"/>
+            <rect x="44" y="104" width="8" height="8"/>
+            <rect x="56" y="104" width="8" height="8"/>
+            <rect x="68" y="104" width="8" height="8"/>
+            <rect x="80" y="104" width="8" height="8"/>
+            <rect x="92" y="104" width="8" height="8"/>
+            <rect x="104" y="104" width="8" height="8"/>
+            <rect x="116" y="104" width="8" height="8"/>
+            <rect x="128" y="104" width="8" height="8"/>
+            <rect x="140" y="104" width="8" height="8"/>
+            <rect x="152" y="104" width="8" height="8"/>
+            <rect x="164" y="104" width="8" height="8"/>
+            <rect x="176" y="104" width="8" height="8"/>
+            <rect x="20" y="116" width="8" height="8"/>
+            <rect x="32" y="116" width="8" height="8"/>
+            <rect x="44" y="116" width="8" height="8"/>
+            <rect x="56" y="116" width="8" height="8"/>
+            <rect x="68" y="116" width="8" height="8"/>
+            <rect x="80" y="116" width="8" height="8"/>
+            <rect x="92" y="116" width="8" height="8"/>
+            <rect x="104" y="116" width="8" height="8"/>
+            <rect x="116" y="116" width="8" height="8"/>
+            <rect x="128" y="116" width="8" height="8"/>
+            <rect x="140" y="116" width="8" height="8"/>
+            <rect x="152" y="116" width="8" height="8"/>
+            <rect x="164" y="116" width="8" height="8"/>
+            <rect x="176" y="116" width="8" height="8"/>
+            <rect x="20" y="128" width="8" height="8"/>
+            <rect x="32" y="128" width="8" height="8"/>
+            <rect x="44" y="128" width="8" height="8"/>
+            <rect x="56" y="128" width="8" height="8"/>
+            <rect x="68" y="128" width="8" height="8"/>
+            <rect x="80" y="128" width="8" height="8"/>
+            <rect x="92" y="128" width="8" height="8"/>
+            <rect x="104" y="128" width="8" height="8"/>
+            <rect x="116" y="128" width="8" height="8"/>
+            <rect x="128" y="128" width="8" height="8"/>
+            <rect x="140" y="128" width="8" height="8"/>
+            <rect x="152" y="128" width="8" height="8"/>
+            <rect x="164" y="128" width="8" height="8"/>
+            <rect x="176" y="128" width="8" height="8"/>
+            <rect x="20" y="140" width="8" height="8"/>
+            <rect x="32" y="140" width="8" height="8"/>
+            <rect x="44" y="140" width="8" height="8"/>
+            <rect x="56" y="140" width="8" height="8"/>
+            <rect x="68" y="140" width="8" height="8"/>
+            <rect x="80" y="140" width="8" height="8"/>
+            <rect x="92" y="140" width="8" height="8"/>
+            <rect x="104" y="140" width="8" height="8"/>
+            <rect x="116" y="140" width="8" height="8"/>
+            <rect x="128" y="140" width="8" height="8"/>
+            <rect x="140" y="140" width="8" height="8"/>
+            <rect x="152" y="140" width="8" height="8"/>
+            <rect x="164" y="140" width="8" height="8"/>
+            <rect x="176" y="140" width="8" height="8"/>
+            <rect x="20" y="152" width="8" height="8"/>
+            <rect x="32" y="152" width="8" height="8"/>
+            <rect x="44" y="152" width="8" height="8"/>
+            <rect x="56" y="152" width="8" height="8"/>
+            <rect x="68" y="152" width="8" height="8"/>
+            <rect x="80" y="152" width="8" height="8"/>
+            <rect x="92" y="152" width="8" height="8"/>
+            <rect x="104" y="152" width="8" height="8"/>
+            <rect x="116" y="152" width="8" height="8"/>
+            <rect x="128" y="152" width="8" height="8"/>
+            <rect x="140" y="152" width="8" height="8"/>
+            <rect x="152" y="152" width="8" height="8"/>
+            <rect x="164" y="152" width="8" height="8"/>
+            <rect x="176" y="152" width="8" height="8"/>
+            <rect x="20" y="164" width="8" height="8"/>
+            <rect x="32" y="164" width="8" height="8"/>
+            <rect x="44" y="164" width="8" height="8"/>
+            <rect x="56" y="164" width="8" height="8"/>
+            <rect x="68" y="164" width="8" height="8"/>
+            <rect x="80" y="164" width="8" height="8"/>
+            <rect x="92" y="164" width="8" height="8"/>
+            <rect x="104" y="164" width="8" height="8"/>
+            <rect x="116" y="164" width="8" height="8"/>
+            <rect x="128" y="164" width="8" height="8"/>
+            <rect x="140" y="164" width="8" height="8"/>
+            <rect x="152" y="164" width="8" height="8"/>
+            <rect x="164" y="164" width="8" height="8"/>
+            <rect x="176" y="164" width="8" height="8"/>
+            <rect x="20" y="176" width="8" height="8"/>
+            <rect x="32" y="176" width="8" height="8"/>
+            <rect x="44" y="176" width="8" height="8"/>
+            <rect x="56" y="176" width="8" height="8"/>
+            <rect x="68" y="176" width="8" height="8"/>
+            <rect x="80" y="176" width="8" height="8"/>
+            <rect x="92" y="176" width="8" height="8"/>
+            <rect x="104" y="176" width="8" height="8"/>
+            <rect x="116" y="176" width="8" height="8"/>
+            <rect x="128" y="176" width="8" height="8"/>
+            <rect x="140" y="176" width="8" height="8"/>
+            <rect x="152" y="176" width="8" height="8"/>
+            <rect x="164" y="176" width="8" height="8"/>
+            <rect x="176" y="176" width="8" height="8"/>
+          </g>
+        </svg>
+      `)}`;
+      
+      setQrCodeData(qrCodeUrl);
+      setConnectionStatus('connecting');
+      toast.success('QR Code gerado com sucesso!');
+    } catch (error) {
+      toast.error('Erro ao gerar QR Code');
+    } finally {
+      setIsLoadingQR(false);
+    }
+  };
+
+  const handleRefreshQR = () => {
+    setQrCodeData(null);
+    generateQRCode();
+  };
+
+  const handleTestConnection = async () => {
+    try {
+      setConnectionStatus('connecting');
+      // Simular teste de conexão
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Simular sucesso/fracasso aleatório
+      const isSuccess = Math.random() > 0.3;
+      
+      if (isSuccess) {
+        setIsConnected(true);
+        setConnectionStatus('connected');
+        setQrCodeData(null);
+        toast.success('Conexão estabelecida com sucesso!');
+      } else {
+        setIsConnected(false);
+        setConnectionStatus('disconnected');
+        toast.error('Falha na conexão. Tente novamente.');
+      }
+    } catch (error) {
+      setConnectionStatus('disconnected');
+      toast.error('Erro ao testar conexão');
+    }
+  };
+
+  // Gerar QR Code quando modal abrir
+  React.useEffect(() => {
+    if (configModalOpen && !isConnected) {
+      generateQRCode();
+    }
+  }, [configModalOpen]);
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
