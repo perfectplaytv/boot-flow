@@ -82,7 +82,23 @@ export default function AdminCobrancas() {
     vencimento: '', 
     observacoes: '' 
   });
-  const [edit, setEdit] = useState({ cliente: '', email: '', descricao: '', valor: '', vencimento: '', status: 'Pendente' });
+  const [edit, setEdit] = useState({ 
+    cliente: '', 
+    nomeCliente: '', 
+    email: '', 
+    telefone: '', 
+    descricao: '', 
+    valor: '', 
+    status: 'Pendente', 
+    vencimento: '', 
+    observacoes: '',
+    telegram: '',
+    whatsapp: '',
+    devices: 1,
+    credits: 0,
+    renewalDate: '',
+    notes: ''
+  });
 
   const total = cobrancas.length;
   const pagas = cobrancas.filter(c => c.status === 'Paga').length;
