@@ -16,7 +16,7 @@ import { useNeonUsers } from "@/hooks/useNeonUsers";
 import type { User } from "@/hooks/useNeonUsers";
 
 export default function AdminUsers() {
-  const { users, addUser, updateUser, deleteUser } = useUsers();
+  const { users, loading, error, createUser, updateUser, deleteUser } = useNeonUsers();
 
   const [newUser, setNewUser] = useState({
     name: "",
