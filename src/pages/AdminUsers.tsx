@@ -12,8 +12,8 @@ import { Users, Plus, Search, Edit, Trash2, Eye, User, Mail, Calendar, Shield, A
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import React from "react";
-import { useUsers } from "@/hooks/useUsers";
-import type { User } from "@/hooks/useUsers";
+import { useNeonUsers } from "@/hooks/useNeonUsers";
+import type { User } from "@/hooks/useNeonUsers";
 
 export default function AdminUsers() {
   const { users, addUser, updateUser, deleteUser } = useUsers();
