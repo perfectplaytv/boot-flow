@@ -117,38 +117,70 @@ export default function AdminUsers() {
     setSelectedExtractedUser(null);
 
     try {
-      // Simular requisição HTTP (em produção, seria uma chamada real)
-      const response = await fetch(m3uUrl);
+      // Verificar se a URL é HTTPS
+      const url = new URL(m3uUrl);
+      if (url.protocol === 'http:' && window.location.protocol === 'https:') {
+        // Converter HTTP para HTTPS se possível
+        url.protocol = 'https:';
+        const httpsUrl = url.toString();
+        
+        try {
+          const response = await fetch(httpsUrl);
+          if (response.ok) {
+            const content = await response.text();
+            processM3UContent(content);
+            return;
+          }
+        } catch (httpsError) {
+          console.warn("HTTPS falhou, tentando proxy CORS:", httpsError);
+        }
+      }
+
+      // Tentar com proxy CORS para evitar Mixed Content
+      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(m3uUrl)}`;
+      const response = await fetch(proxyUrl);
       
       if (!response.ok) {
         throw new Error(`Erro HTTP: ${response.status} - ${response.statusText}`);
       }
 
       const content = await response.text();
-      
-      // Parsear conteúdo M3U
-      const parsedData = parseM3UContent(content);
-      
-      if (parsedData.users.length === 0) {
-        throw new Error("Nenhum usuário encontrado no arquivo M3U.");
-      }
-
-      setExtractedUsers(parsedData.users);
-      
-      if (parsedData.users.length === 1) {
-        // Se só há um usuário, seleciona automaticamente
-        setSelectedExtractedUser(parsedData.users[0]);
-        applyExtractedData(parsedData.users[0]);
-      } else {
-        // Se há múltiplos usuários, mostra seleção
-        setExtractionResult(parsedData);
-      }
+      processM3UContent(content);
 
     } catch (error: any) {
       console.error("Erro na extração M3U:", error);
-      setExtractionError(error.message || "Erro ao processar arquivo M3U.");
+      
+      // Mensagens de erro mais específicas
+      if (error.message.includes('Failed to fetch')) {
+        setExtractionError("Erro de conexão. Verifique se a URL é válida e acessível.");
+      } else if (error.message.includes('Mixed Content')) {
+        setExtractionError("URL HTTP não permitida em HTTPS. Use uma URL HTTPS válida.");
+      } else {
+        setExtractionError(error.message || "Erro ao processar arquivo M3U.");
+      }
     } finally {
       setIsExtracting(false);
+    }
+  };
+
+  // Função para processar conteúdo M3U
+  const processM3UContent = (content: string) => {
+    // Parsear conteúdo M3U
+    const parsedData = parseM3UContent(content);
+    
+    if (parsedData.users.length === 0) {
+      throw new Error("Nenhum usuário encontrado no arquivo M3U.");
+    }
+
+    setExtractedUsers(parsedData.users);
+    
+    if (parsedData.users.length === 1) {
+      // Se só há um usuário, seleciona automaticamente
+      setSelectedExtractedUser(parsedData.users[0]);
+      applyExtractedData(parsedData.users[0]);
+    } else {
+      // Se há múltiplos usuários, mostra seleção
+      setExtractionResult(parsedData);
     }
   };
 
