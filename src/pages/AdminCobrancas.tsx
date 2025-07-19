@@ -164,6 +164,11 @@ export default function AdminCobrancas() {
     }
   };
 
+  // Função para obter usuário por ID
+  const getUserById = (id: number) => {
+    return users.find(user => user.id === id);
+  };
+
   return (
     <div className="p-6 min-h-screen bg-[#09090b]">
       <div className="flex items-center gap-3 mb-2">
