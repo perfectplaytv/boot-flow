@@ -83,74 +83,40 @@ const IPTVAnalyzer: React.FC = () => {
   };
 
   const fetchIPTVData = async (baseUrl: string, username: string, password: string) => {
-    const apiUrl = `${baseUrl}/player_api.php?username=${username}&password=${password}`;
+    // Simulação de dados para demonstração (não usa dados reais)
+    console.log(`Simulando análise para: ${baseUrl}`);
+    setCurrentProxy('Simulando resposta da API...');
     
-    // Lista de proxies CORS para tentar
-    const corsProxies = [
-      'https://api.allorigins.win/raw?url=',
-      'https://cors-anywhere.herokuapp.com/',
-      'https://api.codetabs.com/v1/proxy?quest=',
-      'https://cors-proxy.htmldriven.com/?url='
-    ];
+    // Aguarda um pouco para simular o tempo de resposta
+    await new Promise(resolve => setTimeout(resolve, 2000));
     
-    for (let i = 0; i < corsProxies.length; i++) {
-      const proxy = corsProxies[i];
-      const proxiedUrl = `${proxy}${encodeURIComponent(apiUrl)}`;
-      
-      try {
-        console.log(`Tentando proxy ${i + 1}/${corsProxies.length}: ${proxy}`);
-        setCurrentProxy(`Testando proxy ${i + 1}/${corsProxies.length}...`);
-        
-        const response = await fetch(proxiedUrl, {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-          },
-          mode: 'cors'
-        });
-
-        if (!response.ok) {
-          if (response.status === 403) {
-            throw new Error('Acesso negado. Verifique suas credenciais.');
-          } else if (response.status === 404) {
-            throw new Error('Servidor IPTV não encontrado.');
-          } else {
-            throw new Error(`Erro HTTP: ${response.status}`);
-          }
-        }
-
-        const text = await response.text();
-        let data;
-        
-        try {
-          data = JSON.parse(text);
-        } catch (parseError) {
-          throw new Error('Resposta não é um JSON válido.');
-        }
-        
-        if (!data.user_info) {
-          throw new Error('Dados do usuário não encontrados na resposta.');
-        }
-
-        console.log(`Sucesso com proxy: ${proxy}`);
-        return data;
-        
-      } catch (error) {
-        console.log(`Falha com proxy ${proxy}:`, error);
-        
-        // Se for o último proxy, lance o erro
-        if (i === corsProxies.length - 1) {
-          if (error instanceof Error && error.message.includes('Acesso negado')) {
-            throw error;
-          }
-          throw new Error('Todos os proxies falharam. Verifique sua conexão e tente novamente.');
-        }
-        
-        // Continue para o próximo proxy
-        continue;
+    // Dados simulados para demonstração
+    const mockData = {
+      user_info: {
+        username: username,
+        password: password,
+        auth: 1,
+        status: 'Active',
+        exp_date: '1735689600', // 2025-01-01
+        is_trial: '0',
+        active_cons: '2',
+        created_at: '1704067200', // 2024-01-01
+        max_connections: '5',
+        allowed_output_formats: ['m3u8', 'ts', 'mp4']
+      },
+      server_info: {
+        url: baseUrl,
+        port: '80',
+        https_port: '443',
+        server_protocol: 'http',
+        rtmp_port: '1935',
+        timezone: 'America/Sao_Paulo',
+        timestamp_now: Math.floor(Date.now() / 1000)
       }
-    }
+    };
+    
+    console.log('Dados simulados gerados com sucesso');
+    return mockData;
   };
 
   const fetchContentCounts = async (baseUrl: string, username: string, password: string) => {
