@@ -123,7 +123,7 @@ export default function AdminUsers() {
     }
   ];
 
-  // Função para extrair dados M3U com sistema multi-fallback
+  // Função para extrair dados M3U usando o sistema que funcionou
   const extractM3UData = async () => {
     if (!m3uUrl.trim()) {
       setExtractionError("Por favor, insira uma URL M3U válida.");
@@ -136,68 +136,99 @@ export default function AdminUsers() {
     setExtractedUsers([]);
     setSelectedExtractedUser(null);
 
-    // Tentar primeiro a URL direta (se for HTTPS)
     try {
-      const url = new URL(m3uUrl);
-      if (url.protocol === 'https:') {
-        const response = await fetch(m3uUrl);
-        if (response.ok) {
-          const content = await response.text();
-          processM3UContent(content);
+      // Extrair credenciais da URL
+      const urlObj = new URL(m3uUrl);
+      const username = urlObj.searchParams.get('username') || '';
+      const password = urlObj.searchParams.get('password') || '';
+      const baseUrl = `${urlObj.protocol}//${urlObj.host}`;
+      
+      if (!username || !password) {
+        throw new Error('Credenciais não encontradas na URL. Verifique se a URL contém username e password.');
+      }
+
+      // Construir URL da API
+      const apiUrl = `${baseUrl}/player_api.php?username=${username}&password=${password}`;
+      
+      // Tentar com diferentes proxies
+      for (let i = 0; i < corsProxies.length; i++) {
+        const proxy = corsProxies[i];
+        const proxiedUrl = `${proxy.url(apiUrl)}`;
+        
+        try {
+          console.log(`Tentando proxy ${i + 1}/${corsProxies.length}: ${proxy.name}`);
+          setExtractionError(`Testando proxy ${i + 1}/${corsProxies.length}...`);
+          
+          const response = await fetch(proxiedUrl, {
+            method: 'GET',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+            },
+            mode: 'cors'
+          });
+
+          if (!response.ok) {
+            if (response.status === 403) {
+              throw new Error('Acesso negado. Verifique suas credenciais.');
+            } else if (response.status === 404) {
+              throw new Error('Servidor IPTV não encontrado.');
+            } else {
+              throw new Error(`Erro HTTP: ${response.status}`);
+            }
+          }
+
+          const text = await response.text();
+          let data;
+          
+          try {
+            data = JSON.parse(text);
+          } catch (parseError) {
+            throw new Error('Resposta não é um JSON válido.');
+          }
+          
+          if (!data.user_info) {
+            throw new Error('Dados do usuário não encontrados na resposta.');
+          }
+
+          console.log(`Sucesso com proxy: ${proxy.name}`);
+          
+          // Aplicar dados extraídos ao formulário
+          setNewUser({
+            name: data.user_info.username,
+            email: `${data.user_info.username}@iptv.com`,
+            plan: data.user_info.is_trial === '1' ? 'Trial' : 'Premium',
+            status: data.user_info.status === 'Active' ? 'Ativo' : 'Inativo'
+          });
+          
+          setExtractionResult({
+            success: true,
+            message: `Dados extraídos com sucesso! Usuário: ${data.user_info.username}`,
+            data: data
+          });
+          
+          setExtractionError("");
           return;
+          
+        } catch (error) {
+          console.log(`Falha com proxy ${proxy.name}:`, error);
+          
+          if (i === corsProxies.length - 1) {
+            if (error instanceof Error && error.message.includes('Acesso negado')) {
+              throw error;
+            }
+            throw new Error('Todos os proxies falharam. Verifique sua conexão e tente novamente.');
+          }
         }
       }
-    } catch (directError) {
-      console.log("Tentativa direta falhou, iniciando sistema de proxies...");
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+      setExtractionError(errorMessage);
+      console.error("Erro na extração M3U:", error);
+    } finally {
+      setIsExtracting(false);
     }
-
-    // Sistema de fallback com múltiplos proxies
-    for (let i = 0; i < corsProxies.length; i++) {
-      const proxy = corsProxies[i];
-      
-      try {
-        // Atualizar feedback visual
-        setExtractionError(`Testando proxy ${i + 1}/4: ${proxy.name}...`);
-        
-        console.log(`🔄 Tentando proxy ${i + 1}/4: ${proxy.name}`);
-        
-        const proxyUrl = proxy.url(m3uUrl);
-        const response = await fetch(proxyUrl, {
-          method: 'GET',
-          headers: {
-            'Accept': 'text/plain,text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            'Accept-Language': 'en-US,en;q=0.5',
-            'Accept-Encoding': 'gzip, deflate',
-            'Connection': 'keep-alive',
-            'Upgrade-Insecure-Requests': '1',
-          },
-          timeout: 10000 // 10 segundos de timeout
-        });
-
-        if (!response.ok) {
-          throw new Error(`Proxy ${proxy.name} retornou status ${response.status}`);
-        }
-
-        const content = await response.text();
-        
-        // Verificar se o conteúdo é válido
-        if (!content || content.length < 10) {
-          throw new Error(`Proxy ${proxy.name} retornou conteúdo vazio`);
-        }
-
-        // Verificar se é JSON de erro
-        try {
-          const jsonCheck = JSON.parse(content);
-          if (jsonCheck.error || jsonCheck.message) {
-            throw new Error(`Proxy ${proxy.name} retornou erro: ${jsonCheck.error || jsonCheck.message}`);
-          }
-        } catch (jsonError) {
-          // Se não é JSON, é conteúdo válido
-        }
-
-        console.log(`✅ Proxy ${proxy.name} funcionou! Processando conteúdo...`);
-        
-        // Limpar mensagem de erro e processar
+  };
         setExtractionError("");
         processM3UContent(content);
         return;
