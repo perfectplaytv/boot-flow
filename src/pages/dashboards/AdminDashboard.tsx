@@ -657,7 +657,7 @@ const AdminDashboard = () => {
       case "users":
         return <AdminUsers />;
       case "resellers":
-        return <AdminResellers resellers={resellers} onAddReseller={handleAddReseller} />;
+        return <AdminResellers />;
       case "iptv":
         return <AdminIPTV />;
       case "radio":
