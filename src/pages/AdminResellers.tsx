@@ -281,7 +281,9 @@ export default function AdminResellers() {
                         required
                       />
                       <Button type="button" variant="outline" size="sm" className="border-gray-600 text-gray-400 hover:text-white">
-                        <RefreshCw className="w-4 h-4" />
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
                       </Button>
                     </div>
                     <div className="space-y-1">
@@ -336,14 +338,16 @@ export default function AdminResellers() {
                       Créditos <span className="text-red-500">*</span>
                     </Label>
                     <div className="flex items-center gap-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        size="sm" 
                         className="border-gray-600 text-gray-400 hover:text-white"
                         onClick={() => setNewReseller({...newReseller, credits: Math.max(0, newReseller.credits - 1)})}
                       >
-                        -
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                        </svg>
                       </Button>
                       <Input
                         type="number"
@@ -353,14 +357,16 @@ export default function AdminResellers() {
                         onChange={(e) => setNewReseller({...newReseller, credits: parseInt(e.target.value) || 0})}
                         min="10"
                       />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        size="sm" 
                         className="border-gray-600 text-gray-400 hover:text-white"
                         onClick={() => setNewReseller({...newReseller, credits: newReseller.credits + 1})}
                       >
-                        +
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                        </svg>
                       </Button>
                     </div>
                     <div className="text-blue-400 text-xs">Mínimo de 10 créditos</div>
@@ -401,14 +407,16 @@ export default function AdminResellers() {
                       Desativar login se não recarregar - em dias
                     </Label>
                     <div className="flex items-center gap-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        size="sm" 
                         className="border-gray-600 text-gray-400 hover:text-white"
                         onClick={() => setNewReseller({...newReseller, disable_login_days: Math.max(0, newReseller.disable_login_days - 1)})}
                       >
-                        -
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                        </svg>
                       </Button>
                       <Input
                         type="number"
@@ -418,14 +426,16 @@ export default function AdminResellers() {
                         onChange={(e) => setNewReseller({...newReseller, disable_login_days: parseInt(e.target.value) || 0})}
                         min="0"
                       />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        size="sm" 
                         className="border-gray-600 text-gray-400 hover:text-white"
                         onClick={() => setNewReseller({...newReseller, disable_login_days: newReseller.disable_login_days + 1})}
                       >
-                        +
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                        </svg>
                       </Button>
                     </div>
                     <div className="text-blue-400 text-xs">Deixe 0 para desativar essa opção</div>
