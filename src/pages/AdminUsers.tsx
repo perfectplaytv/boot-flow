@@ -22,7 +22,10 @@ export default function AdminUsers() {
     name: "",
     email: "",
     plan: "",
-    status: "Ativo"
+    status: "Ativo",
+    telegram: "",
+    observations: "",
+    expirationDate: ""
   });
 
   // Estados para a extração M3U
@@ -56,9 +59,20 @@ export default function AdminUsers() {
         email: newUser.email,
         plan: newUser.plan,
         status: newUser.status,
+        telegram: newUser.telegram,
+        observations: newUser.observations,
+        expirationDate: newUser.expirationDate,
         createdAt: new Date().toISOString().split('T')[0]
       });
-      setNewUser({ name: "", email: "", plan: "", status: "Ativo" });
+      setNewUser({ 
+        name: "", 
+        email: "", 
+        plan: "", 
+        status: "Ativo",
+        telegram: "",
+        observations: "",
+        expirationDate: ""
+      });
       setIsAddDialogOpen(false);
     }
   };
@@ -242,7 +256,10 @@ export default function AdminUsers() {
             name: data.user_info.username,
             email: `${data.user_info.username}@iptv.com`,
             plan: data.user_info.is_trial === '1' ? 'Trial' : 'Premium',
-            status: data.user_info.status === 'Active' ? 'Ativo' : 'Inativo'
+            status: data.user_info.status === 'Active' ? 'Ativo' : 'Inativo',
+            telegram: `@${data.user_info.username}`,
+            observations: `Conta IPTV - Expira: ${data.user_info.exp_date ? new Date(parseInt(data.user_info.exp_date) * 1000).toLocaleDateString('pt-BR') : 'Não definido'}`,
+            expirationDate: data.user_info.exp_date ? new Date(parseInt(data.user_info.exp_date) * 1000).toISOString().split('T')[0] : ''
           });
           
           setExtractionResult({
@@ -267,7 +284,10 @@ export default function AdminUsers() {
               name: username,
               email: `${username}@iptv.com`,
               plan: 'Premium',
-              status: 'Ativo'
+              status: 'Ativo',
+              telegram: `@${username}`,
+              observations: `Conta IPTV - Dados simulados`,
+              expirationDate: ''
             });
             
             setExtractionResult({
@@ -387,6 +407,9 @@ export default function AdminUsers() {
                       <div>• Email: {newUser.email}</div>
                       <div>• Plano: {newUser.plan}</div>
                       <div>• Status: {newUser.status}</div>
+                      <div>• Telegram: {newUser.telegram}</div>
+                      <div>• Vencimento: {newUser.expirationDate || 'Não definido'}</div>
+                      <div>• Observações: {newUser.observations}</div>
                     </div>
                   </div>
                 )}
@@ -467,7 +490,12 @@ export default function AdminUsers() {
                   {/* Vencimento */}
                   <div className="col-span-1">
                     <label className="block text-gray-300 mb-1 font-medium">Vencimento (Opcional)</label>
-                    <VencimentoDatePicker />
+                    <input 
+                      type="date" 
+                      className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+                      value={newUser.expirationDate}
+                      onChange={(e) => setNewUser({...newUser, expirationDate: e.target.value})}
+                    />
                   </div>
                   {/* Bouquets */}
                   <div className="col-span-2">
@@ -490,17 +518,32 @@ export default function AdminUsers() {
                   {/* Nome */}
                   <div className="col-span-1">
                     <label className="block text-gray-300 mb-1 font-medium">Nome</label>
-                    <input placeholder="Opcional" className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2" />
+                    <input 
+                      placeholder="Opcional" 
+                      className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+                      value={newUser.name}
+                      onChange={(e) => setNewUser({...newUser, name: e.target.value})}
+                    />
                   </div>
                   {/* E-mail */}
                   <div className="col-span-1">
                     <label className="block text-gray-300 mb-1 font-medium">E-mail</label>
-                    <input placeholder="Opcional" className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2" />
+                    <input 
+                      placeholder="Opcional" 
+                      className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+                      value={newUser.email}
+                      onChange={(e) => setNewUser({...newUser, email: e.target.value})}
+                    />
                   </div>
                   {/* Telegram */}
                   <div className="col-span-1">
                     <label className="block text-gray-300 mb-1 font-medium">Telegram</label>
-                    <input placeholder="Opcional" className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2" />
+                    <input 
+                      placeholder="Opcional" 
+                      className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+                      value={newUser.telegram}
+                      onChange={(e) => setNewUser({...newUser, telegram: e.target.value})}
+                    />
                   </div>
                   {/* WhatsApp */}
                   <div className="col-span-1">
@@ -511,7 +554,12 @@ export default function AdminUsers() {
                   {/* Observações */}
                   <div className="col-span-2">
                     <label className="block text-gray-300 mb-1 font-medium">Observações</label>
-                    <textarea placeholder="Opcional" className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 min-h-[60px]" />
+                    <textarea 
+                      placeholder="Opcional" 
+                      className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 min-h-[60px]"
+                      value={newUser.observations}
+                      onChange={(e) => setNewUser({...newUser, observations: e.target.value})}
+                    />
                   </div>
                 </div>
               </div>
