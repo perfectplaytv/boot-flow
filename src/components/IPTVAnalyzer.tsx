@@ -241,10 +241,7 @@ const IPTVAnalyzer: React.FC = () => {
         credentials: { username, password }
       });
 
-      toast({
-        title: "Sucesso!",
-        description: "Análise IPTV concluída com sucesso.",
-      });
+      console.log("Sucesso: Análise IPTV concluída com sucesso.");
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
