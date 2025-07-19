@@ -393,6 +393,19 @@ const AdminWhatsApp: React.FC = () => {
     }
   }, [configModalOpen]);
 
+  // Simular desconexão periódica (para demonstração)
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      if (isConnected && Math.random() < 0.1) { // 10% chance de desconectar
+        setIsConnected(false);
+        setConnectionStatus('disconnected');
+        toast.warning('WhatsApp desconectado. Reconecte para continuar.');
+      }
+    }, 30000); // Verificar a cada 30 segundos
+
+    return () => clearInterval(interval);
+  }, [isConnected]);
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
