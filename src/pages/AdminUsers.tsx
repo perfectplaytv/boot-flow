@@ -63,6 +63,7 @@ export default function AdminUsers() {
         telegram: newUser.telegram,
         observations: newUser.observations,
         expirationDate: newUser.expirationDate,
+        password: newUser.password,
         createdAt: new Date().toISOString().split('T')[0]
       });
       setNewUser({ 
@@ -72,7 +73,8 @@ export default function AdminUsers() {
         status: "Ativo",
         telegram: "",
         observations: "",
-        expirationDate: ""
+        expirationDate: "",
+        password: ""
       });
       setIsAddDialogOpen(false);
     }
