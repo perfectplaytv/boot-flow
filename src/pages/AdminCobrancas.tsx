@@ -102,18 +102,18 @@ export default function AdminCobrancas() {
       alert('Preencha todos os campos obrigatórios!');
       return;
     }
-    setCobrancas([
-      ...cobrancas,
-      {
-        id: cobrancas.length + 1,
-        cliente: nova.nomeCliente,
-        email: nova.email,
-        descricao: nova.descricao,
-        valor: Number(nova.valor),
-        vencimento: nova.vencimento,
-        status: nova.status as 'Pendente' | 'Vencida' | 'Paga',
-      },
-    ]);
+    
+    const novaCobranca: Cobranca = {
+      id: Math.max(...cobrancas.map(c => c.id)) + 1,
+      cliente: nova.nomeCliente,
+      email: nova.email,
+      descricao: nova.descricao,
+      valor: Number(nova.valor),
+      vencimento: nova.vencimento,
+      status: nova.status as 'Pendente' | 'Vencida' | 'Paga',
+    };
+    
+    setCobrancas([...cobrancas, novaCobranca]);
     setNova({ 
       cliente: '', 
       nomeCliente: '', 
