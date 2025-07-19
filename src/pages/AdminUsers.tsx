@@ -59,7 +59,15 @@ export default function AdminUsers() {
   const [copyProgress, setCopyProgress] = useState(0);
   const [copySuccess, setCopySuccess] = useState(false);
 
-  const filteredUsers = users.filter(user =>
+  // Unifica os usuários do banco e os da cobrança, sem duplicar emails
+  const allUsers = [
+    ...users,
+    ...cobrancasUsers.filter(
+      cUser => !users.some(u => u.email.toLowerCase() === cUser.email.toLowerCase())
+    )
+  ];
+
+  const filteredUsers = allUsers.filter(user =>
     user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -535,7 +543,7 @@ export default function AdminUsers() {
         <div>
           <h1 className="text-3xl font-bold text-white">Gerenciamento de Usuários</h1>
           <p className="text-gray-400">
-            {loading ? 'Carregando...' : `Gerencie todos os usuários do sistema (${users.length} usuários)`}
+            {loading ? 'Carregando...' : `Gerencie todos os usuários do sistema (${allUsers.length} usuários - ${users.length} do banco + ${cobrancasUsers.filter(cUser => !users.some(u => u.email.toLowerCase() === cUser.email.toLowerCase())).length} da cobrança)`}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -1500,7 +1508,10 @@ export default function AdminUsers() {
                 <span className="text-gray-400">Clientes na Cobranças:</span> {cobrancasUsers.length}
               </p>
               <p className="text-white">
-                <span className="text-gray-400">Clientes atuais:</span> {users.length}
+                <span className="text-gray-400">Clientes no banco:</span> {users.length}
+              </p>
+              <p className="text-white">
+                <span className="text-gray-400">Clientes da cobrança:</span> {cobrancasUsers.length}
               </p>
               <p className="text-white">
                 <span className="text-gray-400">Clientes a serem copiados:</span> {
