@@ -305,11 +305,22 @@ export const useUsers = () => {
   }, [users]);
 
   const addUser = (user: Omit<User, 'id'>) => {
-    const newUser = {
-      ...user,
-      id: Math.max(...users.map(u => u.id)) + 1
-    };
-    setUsers([...users, newUser]);
+    try {
+      const newUser = {
+        ...user,
+        id: Math.max(...users.map(u => u.id)) + 1
+      };
+      setUsers(prevUsers => [...prevUsers, newUser]);
+      
+      // Salvar imediatamente no localStorage
+      const updatedUsers = [...users, newUser];
+      localStorage.setItem('users', JSON.stringify(updatedUsers));
+      
+      console.log('Usuário adicionado com sucesso:', newUser);
+    } catch (error) {
+      console.error('Erro ao adicionar usuário:', error);
+      throw error;
+    }
   };
 
   const updateUser = (id: number, updates: Partial<User>) => {

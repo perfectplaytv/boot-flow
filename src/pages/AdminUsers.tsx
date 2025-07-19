@@ -56,25 +56,26 @@ export default function AdminUsers() {
     user.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleAddUser = async () => {
+  const handleAddUser = () => {
     if (newUser.name && newUser.email && newUser.plan) {
       setIsAddingUser(true);
       setAddUserSuccess(false);
       
       try {
-        // Simular um pequeno delay para mostrar o loading
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // Debug: mostrar dados que serão adicionados
+        console.log('Dados do usuário a ser adicionado:', newUser);
         
+        // Adicionar usuário
         addUser({
           name: newUser.name,
           email: newUser.email,
           plan: newUser.plan,
           status: newUser.status,
-          telegram: newUser.telegram,
-          observations: newUser.observations,
-          expirationDate: newUser.expirationDate,
-          password: newUser.password,
-          bouquets: newUser.bouquets,
+          telegram: newUser.telegram || '',
+          observations: newUser.observations || '',
+          expirationDate: newUser.expirationDate || '',
+          password: newUser.password || '',
+          bouquets: newUser.bouquets || '',
           createdAt: new Date().toISOString().split('T')[0]
         });
         
@@ -106,6 +107,7 @@ export default function AdminUsers() {
         
       } catch (error) {
         console.error('Erro ao adicionar usuário:', error);
+        alert('Erro ao adicionar usuário. Tente novamente.');
       } finally {
         setIsAddingUser(false);
       }
