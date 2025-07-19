@@ -121,7 +121,30 @@ export default function AdminUsers() {
 
   const handleEditUser = () => {
     if (editingUser) {
-      updateUser(editingUser.id, editingUser);
+      console.log('Salvando alterações do usuário:', editingUser);
+      
+      // Preparar dados para atualização
+      const updatedUserData = {
+        name: editingUser.name,
+        email: editingUser.email,
+        plan: editingUser.plan,
+        status: editingUser.status,
+        telegram: editingUser.telegram || '',
+        observations: editingUser.observations || '',
+        expirationDate: editingUser.expirationDate || '',
+        password: editingUser.password || '',
+        bouquets: editingUser.bouquets || '',
+        phone: editingUser.phone || '',
+        whatsapp: editingUser.whatsapp || '',
+        notes: editingUser.notes || '',
+        devices: editingUser.devices || 0,
+        credits: editingUser.credits || 0,
+        renewalDate: editingUser.renewalDate || ''
+      };
+      
+      console.log('Dados preparados para atualização:', updatedUserData);
+      
+      updateUser(editingUser.id, updatedUserData);
       setEditingUser(null);
       setIsEditDialogOpen(false);
     }
