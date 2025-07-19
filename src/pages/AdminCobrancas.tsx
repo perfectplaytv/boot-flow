@@ -19,29 +19,46 @@ interface Cobranca {
   status: 'Pendente' | 'Vencida' | 'Paga';
 }
 
-const cobrancasMock: Cobranca[] = [
-  { id: 1, cliente: 'Isa 22', email: 'isa22@gmail.com', descricao: 'Renovação Básico - Plano Mensal', valor: 110, vencimento: '26/06/2025', status: 'Vencida' },
-  { id: 2, cliente: 'Felipe 27', email: 'felipe27@gmail.com', descricao: 'Cobrança Básico - Mensal', valor: 100, vencimento: '27/06/2025', status: 'Vencida' },
-  { id: 3, cliente: 'Rafaela 27', email: 'rafael27@gmail.com', descricao: 'Serviço Básico - Renovação', valor: 100, vencimento: '03/07/2025', status: 'Vencida' },
-  { id: 4, cliente: 'Nivea 21 novo', email: 'nivea21@gmail.com', descricao: 'Manutenção Básico - Mensal', valor: 100, vencimento: '05/07/2025', status: 'Vencida' },
-  { id: 5, cliente: 'Rafaela 27', email: 'juli27@gmail.com', descricao: 'Upgrade Mensal - Básico', valor: 100, vencimento: '07/07/2025', status: 'Vencida' },
-  { id: 6, cliente: 'João filho de Keita 62', email: 'joao62@gmail.com', descricao: 'Renovação Básico - Plano Mensal', valor: 110, vencimento: '10/07/2025', status: 'Vencida' },
-  { id: 7, cliente: 'Diógenes 27', email: 'diogenes27@gmail.com', descricao: 'Cobrança Básico - Mensal', valor: 100, vencimento: '10/07/2025', status: 'Vencida' },
-  { id: 8, cliente: 'Islaine 27 amiga de Janaina', email: 'islaine27@gmail.com', descricao: 'Serviço Básico - Renovação', valor: 100, vencimento: '15/07/2025', status: 'Pendente' },
-  { id: 9, cliente: 'Tobias 27', email: 'tobias27@gmail.com', descricao: 'Manutenção Básico - Mensal', valor: 100, vencimento: '15/07/2025', status: 'Pendente' },
-  { id: 10, cliente: 'Céber 11 novo', email: 'ceber11@gmail.com', descricao: 'Upgrade Mensal - Básico', valor: 100, vencimento: '17/07/2025', status: 'Pendente' },
-  { id: 11, cliente: 'Gustavo taxista', email: 'gustavo27@gmail.com', descricao: 'Renovação Básico - Mensal', valor: 100, vencimento: '20/07/2025', status: 'Pendente' },
-  { id: 12, cliente: 'Amanda 27', email: 'amanda27@gmail.com', descricao: 'Serviço Básico - Renovação', valor: 100, vencimento: '20/07/2025', status: 'Pendente' },
-  { id: 13, cliente: 'Michel 27', email: 'michel27@gmail.com', descricao: 'Serviço Básico - Renovação', valor: 100, vencimento: '25/07/2025', status: 'Pendente' },
-  { id: 14, cliente: 'Rene 27', email: 'rene27@gmail.com', descricao: 'Manutenção Básico - Mensal', valor: 100, vencimento: '29/07/2025', status: 'Pendente' },
-  { id: 15, cliente: 'Eduardo 11 novo 2', email: 'eduardo11@gmail.com', descricao: 'Upgrade Mensal - Básico', valor: 100, vencimento: '05/08/2025', status: 'Pendente' },
-  { id: 16, cliente: 'Kelia 27', email: 'kelia27@gmail.com', descricao: 'Renovação Básico - Plano Mensal', valor: 100, vencimento: '25/12/2026', status: 'Pendente' },
-  { id: 17, cliente: 'Valdeno 27', email: 'valdeno27@gmail.com', descricao: 'Cobrança Básico - Anual', valor: 90, vencimento: '25/06/2026', status: 'Pendente' },
-];
+// Gerar cobranças baseadas nos usuários
+const generateCobrancasFromUsers = (users: User[]): Cobranca[] => {
+  return users.map((user, index) => {
+    const statuses: ('Pendente' | 'Vencida' | 'Paga')[] = ['Pendente', 'Vencida', 'Paga'];
+    const descricoes = [
+      'Renovação Básico - Plano Mensal',
+      'Cobrança Básico - Mensal',
+      'Serviço Básico - Renovação',
+      'Manutenção Básico - Mensal',
+      'Upgrade Mensal - Básico',
+      'Cobrança Básico - Anual'
+    ];
+    
+    // Gerar data de vencimento baseada no índice
+    const hoje = new Date();
+    const vencimento = new Date(hoje);
+    vencimento.setDate(hoje.getDate() + (index * 7) + Math.floor(Math.random() * 30));
+    
+    return {
+      id: user.id,
+      cliente: user.name,
+      email: user.email,
+      descricao: descricoes[index % descricoes.length],
+      valor: Math.floor(Math.random() * 50) + 90, // Valor entre 90 e 140
+      vencimento: vencimento.toLocaleDateString('pt-BR'),
+      status: statuses[index % statuses.length]
+    };
+  });
+};
 
 export default function AdminCobrancas() {
   const { users, getActiveUsers } = useUsers();
-  const [cobrancas, setCobrancas] = useState<Cobranca[]>(cobrancasMock);
+  const [cobrancas, setCobrancas] = useState<Cobranca[]>([]);
+
+  // Gerar cobranças quando os usuários carregarem
+  useEffect(() => {
+    if (users.length > 0) {
+      setCobrancas(generateCobrancasFromUsers(users));
+    }
+  }, [users]);
   const [busca, setBusca] = useState("");
   const [filtroStatus, setFiltroStatus] = useState<string | null>(null);
   const [modalNova, setModalNova] = useState(false);
