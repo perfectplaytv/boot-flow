@@ -215,12 +215,12 @@ export default function AdminResellers() {
               Adicionar Revenda
             </Button>
           </DialogTrigger>
-          <DialogContent className="bg-[#1f2937] text-white max-w-4xl w-full p-0 rounded-xl shadow-xl border border-gray-700">
+          <DialogContent className="bg-[#1f2937] text-white max-w-4xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col max-h-[90vh] overflow-y-auto scrollbar-hide">
             <DialogHeader className="sr-only">
               <DialogTitle>Adicionar Revenda</DialogTitle>
               <DialogDescription>Preencha os dados do novo revendedor</DialogDescription>
             </DialogHeader>
-            <div className="p-6 w-full">
+            <div className="p-6 w-full flex flex-col">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold">Adicionar um Revenda</h2>
                 <div className="flex items-center gap-2">
@@ -242,7 +242,7 @@ export default function AdminResellers() {
                 </div>
               </div>
               
-              <form onSubmit={handleAddReseller} className="space-y-6">
+              <form onSubmit={handleAddReseller} className="space-y-6 flex-1 overflow-y-auto">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-white">
@@ -553,7 +553,7 @@ export default function AdminResellers() {
                 </div>
               </form>
 
-              <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-700 text-xs text-gray-500">
+              <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-700 text-xs text-gray-500 flex-shrink-0">
                 <span>2025© ALLEZCONECCT v3.50</span>
                 <span>Powered by Sigma | Notificações</span>
               </div>
