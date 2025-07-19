@@ -18,6 +18,7 @@ import { useUsers } from "@/hooks/useUsers";
 
 export default function AdminUsers() {
   const { users, loading, error, createUser, updateUser, deleteUser } = useNeonUsers();
+  const { users: cobrancasUsers } = useUsers(); // Usuários da página de Cobranças
 
   const [newUser, setNewUser] = useState({
     name: "",
