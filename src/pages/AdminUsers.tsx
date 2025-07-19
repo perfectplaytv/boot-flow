@@ -761,6 +761,8 @@ export default function AdminUsers() {
                 <TableHead>Email</TableHead>
                 <TableHead>Plano</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Telegram</TableHead>
+                <TableHead>Vencimento</TableHead>
                 <TableHead>Criado em</TableHead>
                 <TableHead>Ações</TableHead>
               </TableRow>
@@ -928,10 +930,40 @@ export default function AdminUsers() {
                 </div>
 
                 {/* Observações */}
-                {viewingUser.notes && (
+                {(viewingUser.notes || viewingUser.observations) && (
                   <div className="bg-[#23272f] rounded-lg p-4">
                     <h3 className="text-lg font-semibold text-white mb-4">Observações</h3>
-                    <p className="text-gray-300">{viewingUser.notes}</p>
+                    <p className="text-gray-300">{viewingUser.observations || viewingUser.notes}</p>
+                  </div>
+                )}
+
+                {/* Dados Extras */}
+                {(viewingUser.password || viewingUser.expirationDate || viewingUser.bouquets) && (
+                  <div className="bg-[#23272f] rounded-lg p-4">
+                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                      <Activity className="w-5 h-5 text-purple-400" />
+                      Dados Extras
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {viewingUser.password && (
+                        <div>
+                          <Label className="text-gray-400 text-sm">Senha</Label>
+                          <p className="text-white font-medium">{viewingUser.password}</p>
+                        </div>
+                      )}
+                      {viewingUser.expirationDate && (
+                        <div>
+                          <Label className="text-gray-400 text-sm">Data de Vencimento</Label>
+                          <p className="text-white font-medium">{viewingUser.expirationDate}</p>
+                        </div>
+                      )}
+                      {viewingUser.bouquets && (
+                        <div>
+                          <Label className="text-gray-400 text-sm">Bouquets</Label>
+                          <p className="text-white font-medium">{viewingUser.bouquets}</p>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
