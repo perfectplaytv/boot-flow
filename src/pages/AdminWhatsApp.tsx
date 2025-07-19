@@ -80,6 +80,12 @@ const AdminWhatsApp: React.FC = () => {
     modoProducao: false
   });
 
+  // Estados para conexão WhatsApp
+  const [isConnected, setIsConnected] = useState(false);
+  const [qrCodeData, setQrCodeData] = useState<string | null>(null);
+  const [isLoadingQR, setIsLoadingQR] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState<'disconnected' | 'connecting' | 'connected'>('disconnected');
+
   // Abrir modal para novo template
   const handleNewTemplate = () => {
     setEditing(false);
