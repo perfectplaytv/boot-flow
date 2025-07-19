@@ -14,7 +14,7 @@ import {
   BarChart3, 
   MessageSquare, 
   Star, 
-  Check, 
+  CheckCircle, 
   ArrowRight,
   Play,
   Zap,
@@ -276,7 +276,7 @@ const Index = () => {
                   <ul className="space-y-2">
                     {plan.features.map((feature, featureIndex) => (
                       <li key={featureIndex} className="flex items-center gap-2">
-                        <Check className="w-4 h-4 text-green-500" />
+                        <CheckCircle className="w-4 h-4 text-green-500" />
                         <span className="text-sm">{feature}</span>
                       </li>
                     ))}
