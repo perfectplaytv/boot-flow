@@ -26,7 +26,8 @@ export default function AdminUsers() {
     telegram: "",
     observations: "",
     expirationDate: "",
-    password: ""
+    password: "",
+    bouquets: ""
   });
 
   // Estados para a extração M3U
