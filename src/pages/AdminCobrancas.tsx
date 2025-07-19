@@ -264,21 +264,168 @@ export default function AdminCobrancas() {
       </Card>
       {/* Modal Nova Cobrança */}
       <Dialog open={modalNova} onOpenChange={setModalNova}>
-        <DialogContent className="bg-[#232a36] border border-purple-700 text-white max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Nova Cobrança</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-2">
-            <Input placeholder="Cliente" className="bg-gray-900 border border-gray-700 text-white" value={nova.cliente} onChange={e => setNova({ ...nova, cliente: e.target.value })} />
-            <Input placeholder="E-mail" className="bg-gray-900 border border-gray-700 text-white" value={nova.email} onChange={e => setNova({ ...nova, email: e.target.value })} />
-            <Input placeholder="Descrição" className="bg-gray-900 border border-gray-700 text-white" value={nova.descricao} onChange={e => setNova({ ...nova, descricao: e.target.value })} />
-            <Input placeholder="Valor" className="bg-gray-900 border border-gray-700 text-white" type="number" value={nova.valor} onChange={e => setNova({ ...nova, valor: e.target.value })} />
-            <Input placeholder="Vencimento" className="bg-gray-900 border border-gray-700 text-white" type="date" value={nova.vencimento} onChange={e => setNova({ ...nova, vencimento: e.target.value })} />
+        <DialogContent className="bg-[#1f2937] text-white max-w-2xl w-full p-0 rounded-xl shadow-xl border border-gray-700">
+          <div className="p-6 max-h-[90vh] overflow-y-auto scrollbar-hide">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-white">Nova Cobrança</h2>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setModalNova(false)}
+                className="text-gray-400 hover:text-white"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </Button>
+            </div>
+            
+            <div className="space-y-6">
+              {/* Cliente */}
+              <div>
+                <label className="block text-gray-300 mb-2 font-medium">
+                  Cliente <span className="text-red-500">*</span>
+                </label>
+                <select 
+                  className="w-full bg-[#23272f] border border-gray-600 text-white rounded-lg px-3 py-2 focus:border-purple-500 focus:outline-none"
+                  value={nova.cliente}
+                  onChange={e => setNova({ ...nova, cliente: e.target.value })}
+                >
+                  <option value="">Selecione um cliente</option>
+                  <option value="cliente1">Cliente 1</option>
+                  <option value="cliente2">Cliente 2</option>
+                  <option value="cliente3">Cliente 3</option>
+                </select>
+              </div>
+
+              {/* Nome do Cliente */}
+              <div>
+                <label className="block text-gray-300 mb-2 font-medium">
+                  Nome do Cliente <span className="text-red-500">*</span>
+                </label>
+                <Input 
+                  placeholder="Nome completo do cliente"
+                  className="bg-[#23272f] border border-gray-600 text-white placeholder-gray-400 focus:border-purple-500"
+                  value={nova.nomeCliente}
+                  onChange={e => setNova({ ...nova, nomeCliente: e.target.value })}
+                />
+              </div>
+
+              {/* Email */}
+              <div>
+                <label className="block text-gray-300 mb-2 font-medium">
+                  Email <span className="text-red-500">*</span>
+                </label>
+                <Input 
+                  placeholder="Email do cliente"
+                  className="bg-[#23272f] border border-gray-600 text-white placeholder-gray-400 focus:border-purple-500"
+                  value={nova.email}
+                  onChange={e => setNova({ ...nova, email: e.target.value })}
+                />
+              </div>
+
+              {/* Telefone */}
+              <div>
+                <label className="block text-gray-300 mb-2 font-medium">
+                  Telefone
+                </label>
+                <Input 
+                  placeholder="(11) 99999-9999"
+                  className="bg-[#23272f] border border-gray-600 text-white placeholder-gray-400 focus:border-purple-500"
+                  value={nova.telefone}
+                  onChange={e => setNova({ ...nova, telefone: e.target.value })}
+                />
+              </div>
+
+              {/* Descrição */}
+              <div>
+                <label className="block text-gray-300 mb-2 font-medium">
+                  Descrição <span className="text-red-500">*</span>
+                </label>
+                <textarea 
+                  placeholder="Descrição da cobrança"
+                  className="w-full bg-[#23272f] border border-gray-600 text-white placeholder-gray-400 focus:border-purple-500 rounded-lg px-3 py-2 min-h-[80px] resize-none"
+                  value={nova.descricao}
+                  onChange={e => setNova({ ...nova, descricao: e.target.value })}
+                />
+              </div>
+
+              {/* Valor */}
+              <div>
+                <label className="block text-gray-300 mb-2 font-medium">
+                  Valor <span className="text-red-500">*</span>
+                </label>
+                <Input 
+                  placeholder="R$ 0,00"
+                  className="bg-[#23272f] border border-gray-600 text-white placeholder-gray-400 focus:border-purple-500"
+                  value={nova.valor}
+                  onChange={e => setNova({ ...nova, valor: e.target.value })}
+                />
+              </div>
+
+              {/* Status */}
+              <div>
+                <label className="block text-gray-300 mb-2 font-medium">
+                  Status
+                </label>
+                <select 
+                  className="w-full bg-[#23272f] border border-gray-600 text-white rounded-lg px-3 py-2 focus:border-purple-500 focus:outline-none"
+                  value={nova.status}
+                  onChange={e => setNova({ ...nova, status: e.target.value })}
+                >
+                  <option value="Pendente">Pendente</option>
+                  <option value="Vencida">Vencida</option>
+                  <option value="Paga">Paga</option>
+                </select>
+              </div>
+
+              {/* Data de Vencimento */}
+              <div>
+                <label className="block text-gray-300 mb-2 font-medium">
+                  Data de Vencimento <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <Input 
+                    type="date"
+                    className="bg-[#23272f] border border-gray-600 text-white focus:border-purple-500 pr-10"
+                    value={nova.vencimento}
+                    onChange={e => setNova({ ...nova, vencimento: e.target.value })}
+                  />
+                  <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                </div>
+              </div>
+
+              {/* Observações */}
+              <div>
+                <label className="block text-gray-300 mb-2 font-medium">
+                  Observações
+                </label>
+                <textarea 
+                  placeholder="Observações adicionais sobre a cobrança"
+                  className="w-full bg-[#23272f] border border-gray-600 text-white placeholder-gray-400 focus:border-purple-500 rounded-lg px-3 py-2 min-h-[100px] resize-y"
+                  value={nova.observacoes}
+                  onChange={e => setNova({ ...nova, observacoes: e.target.value })}
+                />
+              </div>
+            </div>
+
+            {/* Botões */}
+            <div className="flex justify-end gap-3 mt-8 pt-6 border-t border-gray-700">
+              <Button 
+                variant="outline" 
+                onClick={() => setModalNova(false)}
+                className="border-gray-600 text-gray-400 hover:text-white px-6 py-2"
+              >
+                Cancelar
+              </Button>
+              <Button 
+                className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2"
+                onClick={handleSalvarNova}
+              >
+                Criar
+              </Button>
+            </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setModalNova(false)} className="bg-gray-700 text-white">Cancelar</Button>
-            <Button className="bg-purple-600 hover:bg-purple-700 text-white" onClick={handleSalvarNova}>Salvar</Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
       {/* Modal Visualizar */}
