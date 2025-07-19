@@ -154,15 +154,15 @@ export default function AdminUsers() {
     }
   };
 
-  // Sistema de Proxy CORS Multi-Fallback (apenas os mais confiáveis)
+  // Sistema de Proxy CORS Multi-Fallback (apenas HTTPS para evitar Mixed Content)
   const corsProxies = [
     {
       name: "api.allorigins.win",
       url: (targetUrl: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`
     },
     {
-      name: "api.codetabs.com",
-      url: (targetUrl: string) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`
+      name: "corsproxy.io",
+      url: (targetUrl: string) => `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`
     }
   ];
 
