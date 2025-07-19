@@ -120,63 +120,18 @@ const IPTVAnalyzer: React.FC = () => {
   };
 
   const fetchContentCounts = async (baseUrl: string, username: string, password: string) => {
-    const corsProxies = [
-      'https://api.allorigins.win/raw?url=',
-      'https://cors-anywhere.herokuapp.com/',
-      'https://api.codetabs.com/v1/proxy?quest=',
-      'https://cors-proxy.htmldriven.com/?url='
-    ];
-
-    const fetchWithProxy = async (endpoint: string) => {
-      for (const proxy of corsProxies) {
-        try {
-          const proxiedUrl = `${proxy}${encodeURIComponent(endpoint)}`;
-          const response = await fetch(proxiedUrl, {
-            method: 'GET',
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json',
-            },
-            mode: 'cors'
-          });
-          
-          if (response.ok) {
-            const text = await response.text();
-            try {
-              return JSON.parse(text);
-            } catch {
-              return [];
-            }
-          }
-        } catch (error) {
-          console.log(`Proxy falhou para ${endpoint}:`, error);
-          continue;
-        }
-      }
-      return [];
+    // Simulação de estatísticas para demonstração
+    console.log('Simulando estatísticas de conteúdo...');
+    
+    // Aguarda um pouco para simular o tempo de resposta
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Estatísticas simuladas
+    return {
+      channelsCount: 15,
+      vodCount: 8,
+      seriesCount: 12,
     };
-
-    try {
-      // Fetch channels, VOD e series counts usando proxies
-      const [channelsData, vodData, seriesData] = await Promise.all([
-        fetchWithProxy(`${baseUrl}/player_api.php?username=${username}&password=${password}&action=get_live_categories`),
-        fetchWithProxy(`${baseUrl}/player_api.php?username=${username}&password=${password}&action=get_vod_categories`),
-        fetchWithProxy(`${baseUrl}/player_api.php?username=${username}&password=${password}&action=get_series_categories`)
-      ]);
-
-      return {
-        channelsCount: Array.isArray(channelsData) ? channelsData.length : 0,
-        vodCount: Array.isArray(vodData) ? vodData.length : 0,
-        seriesCount: Array.isArray(seriesData) ? seriesData.length : 0,
-      };
-    } catch (error) {
-      console.log('Erro ao buscar estatísticas:', error);
-      return {
-        channelsCount: 0,
-        vodCount: 0,
-        seriesCount: 0,
-      };
-    }
   };
 
   const analyzeIPTV = async () => {
