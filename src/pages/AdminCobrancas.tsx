@@ -6,7 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Calendar, Plus, Search, Filter, Edit, Trash2, Eye, Copy, Mail, MessageSquare, BarChart3 } from 'lucide-react';
-import { useUsers, User } from '@/hooks/useUsers';
+import { useUsers } from '@/hooks/useUsers';
+import type { User } from '@/hooks/useUsers';
 
 interface Cobranca {
   id: number;
