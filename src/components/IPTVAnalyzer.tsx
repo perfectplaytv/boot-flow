@@ -1,346 +1,562 @@
 import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useToast } from '@/hooks/use-toast';
+import { 
+  Tv, 
+  User, 
+  Calendar, 
+  Users, 
+  Globe, 
+  Link2, 
+  CheckCircle, 
+  XCircle, 
+  AlertTriangle,
+  Info,
+  Loader2,
+  Copy,
+  ExternalLink
+} from 'lucide-react';
 
-interface ExtractedUser {
+interface UserInfo {
   username: string;
   password: string;
-  server: string;
-  port: string;
-  protocol: string;
+  auth: number;
+  status: string;
+  exp_date: string;
+  is_trial: string;
+  active_cons: string;
+  created_at: string;
+  max_connections: string;
+  allowed_output_formats: string[];
 }
 
-const IPTVAnalyzer = () => {
-  const [m3uUrl, setM3uUrl] = useState('');
-  const [isExtracting, setIsExtracting] = useState(false);
-  const [extractionError, setExtractionError] = useState('');
-  const [extractedUsers, setExtractedUsers] = useState<ExtractedUser[]>([]);
-  const [selectedUser, setSelectedUser] = useState<ExtractedUser | null>(null);
+interface IPTVData {
+  user_info: UserInfo;
+  server_info: {
+    url: string;
+    port: string;
+    https_port: string;
+    server_protocol: string;
+    rtmp_port: string;
+    timezone: string;
+    timestamp_now: number;
+  };
+}
 
-  // Sistema de Proxy CORS Multi-Fallback
-  const corsProxies = [
-    {
-      name: "api.allorigins.win",
-      url: (targetUrl: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`
-    },
-    {
-      name: "cors-anywhere.herokuapp.com",
-      url: (targetUrl: string) => `https://cors-anywhere.herokuapp.com/${targetUrl}`
-    },
-    {
-      name: "api.codetabs.com",
-      url: (targetUrl: string) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`
-    },
-    {
-      name: "cors-proxy.htmldriven.com",
-      url: (targetUrl: string) => `https://cors-proxy.htmldriven.com/?url=${encodeURIComponent(targetUrl)}`
-    }
-  ];
+interface AnalysisResult {
+  userData: IPTVData | null;
+  channelsCount: number;
+  vodCount: number;
+  seriesCount: number;
+  baseUrl: string;
+  credentials: {
+    username: string;
+    password: string;
+  };
+  error?: string;
+}
 
-  const extractM3UData = async () => {
-    if (!m3uUrl.trim()) {
-      setExtractionError("Por favor, insira uma URL M3U válida.");
-      return;
-    }
+const IPTVAnalyzer: React.FC = () => {
+  const [url, setUrl] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [currentProxy, setCurrentProxy] = useState<string>('');
+  const [result, setResult] = useState<AnalysisResult | null>(null);
+  const { toast } = useToast();
 
-    setIsExtracting(true);
-    setExtractionError('');
-    setExtractedUsers([]);
-    setSelectedUser(null);
-
-    // Tentar primeiro a URL direta (se for HTTPS)
+  const extractCredentialsFromUrl = (inputUrl: string) => {
     try {
-      const url = new URL(m3uUrl);
-      if (url.protocol === 'https:') {
-        const response = await fetch(m3uUrl);
-        if (response.ok) {
-          const content = await response.text();
-          processM3UContent(content);
-          return;
-        }
-      }
-    } catch (directError) {
-      console.log("Tentativa direta falhou, iniciando sistema de proxies...");
+      const urlObj = new URL(inputUrl);
+      const username = urlObj.searchParams.get('username') || '';
+      const password = urlObj.searchParams.get('password') || '';
+      const baseUrl = `${urlObj.protocol}//${urlObj.host}`;
+      
+      return { username, password, baseUrl };
+    } catch (error) {
+      throw new Error('URL inválida. Verifique o formato da URL M3U.');
     }
+  };
 
-    // Sistema de fallback com múltiplos proxies
+  const fetchIPTVData = async (baseUrl: string, username: string, password: string) => {
+    const apiUrl = `${baseUrl}/player_api.php?username=${username}&password=${password}`;
+    
+    // Lista de proxies CORS para tentar
+    const corsProxies = [
+      'https://api.allorigins.win/raw?url=',
+      'https://cors-anywhere.herokuapp.com/',
+      'https://api.codetabs.com/v1/proxy?quest=',
+      'https://cors-proxy.htmldriven.com/?url='
+    ];
+    
     for (let i = 0; i < corsProxies.length; i++) {
       const proxy = corsProxies[i];
+      const proxiedUrl = `${proxy}${encodeURIComponent(apiUrl)}`;
       
       try {
-        setExtractionError(`Testando proxy ${i + 1}/4: ${proxy.name}...`);
-        console.log(`🔄 Tentando proxy ${i + 1}/4: ${proxy.name}`);
+        console.log(`Tentando proxy ${i + 1}/${corsProxies.length}: ${proxy}`);
+        setCurrentProxy(`Testando proxy ${i + 1}/${corsProxies.length}...`);
         
-        const proxyUrl = proxy.url(m3uUrl);
-        const response = await fetch(proxyUrl, {
+        const response = await fetch(proxiedUrl, {
           method: 'GET',
           headers: {
-            'Accept': 'text/plain,text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            'Accept-Language': 'en-US,en;q=0.5',
-            'Accept-Encoding': 'gzip, deflate',
-            'Connection': 'keep-alive',
-            'Upgrade-Insecure-Requests': '1',
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
           },
-          timeout: 10000
+          mode: 'cors'
         });
 
         if (!response.ok) {
-          throw new Error(`Proxy ${proxy.name} retornou status ${response.status}`);
-        }
-
-        const content = await response.text();
-        
-        if (!content || content.length < 10) {
-          throw new Error(`Proxy ${proxy.name} retornou conteúdo vazio`);
-        }
-
-        try {
-          const jsonCheck = JSON.parse(content);
-          if (jsonCheck.error || jsonCheck.message) {
-            throw new Error(`Proxy ${proxy.name} retornou erro: ${jsonCheck.error || jsonCheck.message}`);
+          if (response.status === 403) {
+            throw new Error('Acesso negado. Verifique suas credenciais.');
+          } else if (response.status === 404) {
+            throw new Error('Servidor IPTV não encontrado.');
+          } else {
+            throw new Error(`Erro HTTP: ${response.status}`);
           }
-        } catch (jsonError) {
-          // Se não é JSON, é conteúdo válido
         }
 
-        console.log(`✅ Proxy ${proxy.name} funcionou! Processando conteúdo...`);
-        setExtractionError('');
-        processM3UContent(content);
-        return;
-
-      } catch (proxyError: any) {
-        console.error(`❌ Proxy ${proxy.name} falhou:`, proxyError.message);
+        const text = await response.text();
+        let data;
         
-        if (i === corsProxies.length - 1) {
-          setExtractionError(`Todos os proxies falharam. Último erro: ${proxyError.message}`);
-          console.error("🚨 Todos os proxies falharam!");
+        try {
+          data = JSON.parse(text);
+        } catch (parseError) {
+          throw new Error('Resposta não é um JSON válido.');
         }
+        
+        if (!data.user_info) {
+          throw new Error('Dados do usuário não encontrados na resposta.');
+        }
+
+        console.log(`Sucesso com proxy: ${proxy}`);
+        return data;
+        
+      } catch (error) {
+        console.log(`Falha com proxy ${proxy}:`, error);
+        
+        // Se for o último proxy, lance o erro
+        if (i === corsProxies.length - 1) {
+          if (error instanceof Error && error.message.includes('Acesso negado')) {
+            throw error;
+          }
+          throw new Error('Todos os proxies falharam. Verifique sua conexão e tente novamente.');
+        }
+        
+        // Continue para o próximo proxy
+        continue;
       }
     }
-
-    setIsExtracting(false);
   };
 
-  const processM3UContent = (content: string) => {
-    try {
-      const lines = content.split('\n');
-      const users: ExtractedUser[] = [];
-      
-      for (let i = 0; i < lines.length; i++) {
-        const line = lines[i].trim();
-        
-        if (line.startsWith('#EXTINF:')) {
-          // Procurar pela próxima linha que contém a URL
-          const nextLine = lines[i + 1]?.trim();
-          if (nextLine && !nextLine.startsWith('#')) {
-            const userData = parseStreamUrl(nextLine);
-            if (userData) {
-              users.push(userData);
+  const fetchContentCounts = async (baseUrl: string, username: string, password: string) => {
+    const corsProxies = [
+      'https://api.allorigins.win/raw?url=',
+      'https://cors-anywhere.herokuapp.com/',
+      'https://api.codetabs.com/v1/proxy?quest=',
+      'https://cors-proxy.htmldriven.com/?url='
+    ];
+
+    const fetchWithProxy = async (endpoint: string) => {
+      for (const proxy of corsProxies) {
+        try {
+          const proxiedUrl = `${proxy}${encodeURIComponent(endpoint)}`;
+          const response = await fetch(proxiedUrl, {
+            method: 'GET',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+            },
+            mode: 'cors'
+          });
+          
+          if (response.ok) {
+            const text = await response.text();
+            try {
+              return JSON.parse(text);
+            } catch {
+              return [];
             }
           }
+        } catch (error) {
+          console.log(`Proxy falhou para ${endpoint}:`, error);
+          continue;
         }
       }
+      return [];
+    };
 
-      if (users.length > 0) {
-        setExtractedUsers(users);
-        setSelectedUser(users[0]);
-        setExtractionError(`✅ Extraídos ${users.length} usuários com sucesso!`);
-      } else {
-        setExtractionError('Nenhum usuário encontrado no arquivo M3U.');
-      }
-    } catch (error) {
-      setExtractionError('Erro ao processar conteúdo M3U.');
-    } finally {
-      setIsExtracting(false);
-    }
-  };
-
-  const parseStreamUrl = (url: string): ExtractedUser | null => {
     try {
-      // Padrões comuns de URLs M3U
-      const patterns = [
-        // http://username:password@server:port
-        /https?:\/\/([^:]+):([^@]+)@([^:]+):(\d+)/,
-        // http://server:port/get.php?username=user&password=pass
-        /https?:\/\/([^\/]+)\/get\.php\?username=([^&]+)&password=([^&]+)/,
-        // http://server:port/username/password
-        /https?:\/\/([^\/]+)\/([^\/]+)\/([^\/\?]+)/
-      ];
+      // Fetch channels, VOD e series counts usando proxies
+      const [channelsData, vodData, seriesData] = await Promise.all([
+        fetchWithProxy(`${baseUrl}/player_api.php?username=${username}&password=${password}&action=get_live_categories`),
+        fetchWithProxy(`${baseUrl}/player_api.php?username=${username}&password=${password}&action=get_vod_categories`),
+        fetchWithProxy(`${baseUrl}/player_api.php?username=${username}&password=${password}&action=get_series_categories`)
+      ]);
 
-      for (const pattern of patterns) {
-        const match = url.match(pattern);
-        if (match) {
-          if (pattern.source.includes('get.php')) {
-            return {
-              username: decodeURIComponent(match[2]),
-              password: decodeURIComponent(match[3]),
-              server: match[1].split(':')[0],
-              port: match[1].split(':')[1] || '80',
-              protocol: url.startsWith('https') ? 'https' : 'http'
-            };
-          } else if (pattern.source.includes('@')) {
-            return {
-              username: decodeURIComponent(match[1]),
-              password: decodeURIComponent(match[2]),
-              server: match[3],
-              port: match[4],
-              protocol: url.startsWith('https') ? 'https' : 'http'
-            };
-          } else {
-            return {
-              username: decodeURIComponent(match[2]),
-              password: decodeURIComponent(match[3]),
-              server: match[1].split(':')[0],
-              port: match[1].split(':')[1] || '80',
-              protocol: url.startsWith('https') ? 'https' : 'http'
-            };
-          }
-        }
-      }
-      
-      return null;
+      return {
+        channelsCount: Array.isArray(channelsData) ? channelsData.length : 0,
+        vodCount: Array.isArray(vodData) ? vodData.length : 0,
+        seriesCount: Array.isArray(seriesData) ? seriesData.length : 0,
+      };
     } catch (error) {
-      return null;
+      console.log('Erro ao buscar estatísticas:', error);
+      return {
+        channelsCount: 0,
+        vodCount: 0,
+        seriesCount: 0,
+      };
     }
   };
 
-  const selectUser = (user: ExtractedUser) => {
-    setSelectedUser(user);
+  const analyzeIPTV = async () => {
+    if (!url.trim()) {
+      toast({
+        title: "Erro",
+        description: "Por favor, insira uma URL M3U válida.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+    setResult(null);
+
+    try {
+      const { username, password, baseUrl } = extractCredentialsFromUrl(url);
+      
+      if (!username || !password) {
+        throw new Error('Credenciais não encontradas na URL. Verifique se a URL contém username e password.');
+      }
+
+      const [userData, contentCounts] = await Promise.all([
+        fetchIPTVData(baseUrl, username, password),
+        fetchContentCounts(baseUrl, username, password)
+      ]);
+
+      setResult({
+        userData,
+        ...contentCounts,
+        baseUrl,
+        credentials: { username, password }
+      });
+
+      toast({
+        title: "Sucesso!",
+        description: "Análise IPTV concluída com sucesso.",
+      });
+
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+      setResult({
+        userData: null,
+        channelsCount: 0,
+        vodCount: 0,
+        seriesCount: 0,
+        baseUrl: '',
+        credentials: { username: '', password: '' },
+        error: errorMessage
+      });
+
+      toast({
+        title: "Erro na análise",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+      setCurrentProxy('');
+    }
+  };
+
+  const copyToClipboard = (text: string, label: string) => {
+    navigator.clipboard.writeText(text);
+    toast({
+      title: "Copiado!",
+      description: `${label} copiado para a área de transferência.`,
+    });
+  };
+
+  const formatDate = (timestamp: string) => {
+    if (!timestamp || timestamp === '0') return 'Não especificado';
+    const date = new Date(parseInt(timestamp) * 1000);
+    return date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR');
+  };
+
+  const getStatusBadge = (status: string, auth: number) => {
+    if (auth === 1 && status === 'Active') {
+      return <Badge variant="default" className="bg-success">Ativo</Badge>;
+    } else {
+      return <Badge variant="destructive">Inativo</Badge>;
+    }
+  };
+
+  const generateLinks = () => {
+    if (!result?.userData || !result?.baseUrl || !result?.credentials) return null;
+
+    const { baseUrl, credentials } = result;
+    const { username, password } = credentials;
+
+    return {
+      m3u: `${baseUrl}/get.php?username=${username}&password=${password}&type=m3u_plus&output=ts`,
+      hls: `${baseUrl}/get.php?username=${username}&password=${password}&type=m3u_plus&output=m3u8`,
+      epg: `${baseUrl}/xmltv.php?username=${username}&password=${password}`,
+      webPlayer: `${baseUrl}/player_api.php?username=${username}&password=${password}`,
+    };
   };
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
-            🔍 Analisador IPTV M3U
-          </h1>
+    <div className="container mx-auto p-6 space-y-6">
+      <div className="text-center space-y-2">
+        <h1 className="text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+          Analisador IPTV
+        </h1>
+        <p className="text-muted-foreground">
+          Ferramenta completa para análise de contas IPTV
+        </p>
+      </div>
 
-          {/* Input da URL */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              URL do Arquivo M3U
-            </label>
-            <div className="flex gap-2">
-              <input
-                type="url"
-                value={m3uUrl}
-                onChange={(e) => setM3uUrl(e.target.value)}
-                placeholder="https://exemplo.com/lista.m3u"
-                className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-              />
-              <button
-                onClick={extractM3UData}
-                disabled={isExtracting}
-                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-md font-medium transition-colors"
-              >
-                {isExtracting ? '🔄 Extraindo...' : '🔍 Extrair'}
-              </button>
-            </div>
+      <Card className="shadow-lg">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Tv className="h-5 w-5" />
+            Inserir URL M3U
+          </CardTitle>
+          <CardDescription>
+            Cole a URL do seu M3U IPTV para análise completa
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="url">URL M3U IPTV</Label>
+            <Input
+              id="url"
+              placeholder="http://exemplo.com/get.php?username=USUARIO&password=SENHA&type=m3u_plus&output=ts"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              disabled={loading}
+            />
           </div>
+          <Button 
+            onClick={analyzeIPTV} 
+            disabled={loading || !url.trim()}
+            className="w-full"
+            variant="gradient"
+          >
+            {loading ? (
+              <div className="flex flex-col items-center gap-2">
+                <div className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Analisando...
+                </div>
+                {currentProxy && (
+                  <div className="text-xs text-muted-foreground">
+                    {currentProxy}
+                  </div>
+                )}
+              </div>
+            ) : (
+              'Analisar IPTV'
+            )}
+          </Button>
+        </CardContent>
+      </Card>
 
-          {/* Status de extração */}
-          {extractionError && (
-            <div className={`border text-sm rounded p-3 mb-4 ${
-              extractionError.includes('Testando proxy') 
-                ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700 text-blue-700 dark:text-blue-300' 
-                : extractionError.includes('✅')
-                ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-700 text-green-700 dark:text-green-300'
-                : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700 text-red-700 dark:text-red-300'
-            }`}>
-              {extractionError.includes('Testando proxy') ? '🔄' : 
-               extractionError.includes('✅') ? '✅' : '❌'} {extractionError}
-            </div>
-          )}
+      {result?.error && (
+        <Alert variant="destructive">
+          <XCircle className="h-4 w-4" />
+          <AlertDescription>{result.error}</AlertDescription>
+        </Alert>
+      )}
 
-          {/* Lista de usuários extraídos */}
-          {extractedUsers.length > 0 && (
-            <div className="mb-6">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-                👥 Usuários Extraídos ({extractedUsers.length})
-              </h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {extractedUsers.map((user, index) => (
-                  <div
-                    key={index}
-                    onClick={() => selectUser(user)}
-                    className={`p-4 border rounded-lg cursor-pointer transition-colors ${
-                      selectedUser === user
-                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                        : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
-                    }`}
-                  >
-                    <div className="font-medium text-gray-900 dark:text-white mb-2">
-                      Usuário {index + 1}
+      {result?.userData && (
+        <div className="space-y-6">
+          {/* Informações do Usuário */}
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <User className="h-5 w-5" />
+                Informações do Usuário
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Usuário</Label>
+                  <div className="flex items-center gap-2">
+                    <code className="bg-muted px-2 py-1 rounded text-sm">
+                      {result.userData.user_info.username}
+                    </code>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => copyToClipboard(result.userData.user_info.username, 'Usuário')}
+                    >
+                      <Copy className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Senha</Label>
+                  <div className="flex items-center gap-2">
+                    <code className="bg-muted px-2 py-1 rounded text-sm">
+                      {result.userData.user_info.password}
+                    </code>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => copyToClipboard(result.userData.user_info.password, 'Senha')}
+                    >
+                      <Copy className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Status</Label>
+                  <div>
+                    {getStatusBadge(result.userData.user_info.status, result.userData.user_info.auth)}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Tipo de Conta</Label>
+                  <Badge variant={result.userData.user_info.is_trial === '1' ? 'warning' : 'default'}>
+                    {result.userData.user_info.is_trial === '1' ? 'Trial' : 'Normal'}
+                  </Badge>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Data de Expiração</Label>
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4" />
+                    <span className="text-sm">
+                      {formatDate(result.userData.user_info.exp_date)}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Conexões Máximas</Label>
+                  <div className="flex items-center gap-2">
+                    <Users className="h-4 w-4" />
+                    <span className="text-sm">
+                      {result.userData.user_info.max_connections}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Links Úteis */}
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Link2 className="h-5 w-5" />
+                Links Úteis
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {(() => {
+                const links = generateLinks();
+                if (!links) return null;
+
+                return (
+                  <div className="space-y-3">
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Link M3U (TS)</Label>
+                      <div className="flex items-center gap-2">
+                        <Input value={links.m3u} readOnly className="text-xs" />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => copyToClipboard(links.m3u, 'Link M3U')}
+                        >
+                          <Copy className="h-3 w-3" />
+                        </Button>
+                      </div>
                     </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                      <div><strong>Login:</strong> {user.username}</div>
-                      <div><strong>Senha:</strong> {user.password}</div>
-                      <div><strong>Servidor:</strong> {user.server}</div>
-                      <div><strong>Porta:</strong> {user.port}</div>
-                      <div><strong>Protocolo:</strong> {user.protocol}</div>
+
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Link HLS (M3U8)</Label>
+                      <div className="flex items-center gap-2">
+                        <Input value={links.hls} readOnly className="text-xs" />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => copyToClipboard(links.hls, 'Link HLS')}
+                        >
+                          <Copy className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Link EPG</Label>
+                      <div className="flex items-center gap-2">
+                        <Input value={links.epg} readOnly className="text-xs" />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => copyToClipboard(links.epg, 'Link EPG')}
+                        >
+                          <Copy className="h-3 w-3" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
+                );
+              })()}
+            </CardContent>
+          </Card>
 
-          {/* Usuário selecionado */}
-          {selectedUser && (
-            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-                📋 Usuário Selecionado
-              </h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Login
-                  </label>
-                  <input
-                    type="text"
-                    value={selectedUser.username}
-                    readOnly
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white"
-                  />
+          {/* Estatísticas de Conteúdo */}
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Info className="h-5 w-5" />
+                Estatísticas de Conteúdo
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="text-center p-4 bg-gradient-surface rounded-lg">
+                  <div className="text-2xl font-bold text-primary">
+                    {result.channelsCount}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Categorias de Canais
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Senha
-                  </label>
-                  <input
-                    type="text"
-                    value={selectedUser.password}
-                    readOnly
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white"
-                  />
+
+                <div className="text-center p-4 bg-gradient-surface rounded-lg">
+                  <div className="text-2xl font-bold text-primary">
+                    {result.vodCount}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Categorias VOD
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Servidor
-                  </label>
-                  <input
-                    type="text"
-                    value={selectedUser.server}
-                    readOnly
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Porta
-                  </label>
-                  <input
-                    type="text"
-                    value={selectedUser.port}
-                    readOnly
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white"
-                  />
+
+                <div className="text-center p-4 bg-gradient-surface rounded-lg">
+                  <div className="text-2xl font-bold text-primary">
+                    {result.seriesCount}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Categorias de Séries
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            </CardContent>
+          </Card>
         </div>
-      </div>
+      )}
     </div>
   );
 };
