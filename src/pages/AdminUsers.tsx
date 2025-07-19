@@ -287,22 +287,13 @@ export default function AdminUsers() {
               <div className="bg-blue-900/30 border border-blue-800 rounded-lg p-4 mb-4">
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-blue-300 font-medium">Extração M3U</span>
-                  <div className="flex gap-2">
-                    <Button 
-                      className="bg-green-600 text-white hover:bg-green-700 px-3 py-1 rounded text-xs"
-                      onClick={simulateM3UData}
-                      disabled={isExtracting}
-                    >
-                      Teste
-                    </Button>
-                    <Button 
-                      className="bg-blue-600 text-white hover:bg-blue-700 px-4 py-1 rounded text-sm"
-                      onClick={extractM3UData}
-                      disabled={isExtracting}
-                    >
-                      {isExtracting ? "Extraindo..." : "Extrair"}
-                    </Button>
-                  </div>
+                  <Button 
+                    className="bg-blue-600 text-white hover:bg-blue-700 px-4 py-1 rounded text-sm"
+                    onClick={extractM3UData}
+                    disabled={isExtracting}
+                  >
+                    {isExtracting ? "Extraindo..." : "Extrair"}
+                  </Button>
                 </div>
                 <p className="text-xs text-blue-300 mb-2">Serve para importar dados automaticamente a partir de uma URL.</p>
                 <Input 
@@ -330,38 +321,15 @@ export default function AdminUsers() {
                   </div>
                 )}
 
-                {/* Seleção de usuários múltiplos */}
-                {extractedUsers.length > 1 && (
-                  <div className="bg-yellow-900/40 border border-yellow-700 text-yellow-300 text-xs rounded p-2 mb-2">
-                    <div className="font-medium mb-1">Múltiplos usuários encontrados ({extractedUsers.length}):</div>
-                    <select 
-                      className="w-full bg-[#1f2937] border border-yellow-700 text-white rounded px-2 py-1 text-xs"
-                      onChange={(e) => {
-                        const selected = extractedUsers.find(u => u.username === e.target.value);
-                        if (selected) selectExtractedUser(selected);
-                      }}
-                    >
-                      <option value="">Selecione um usuário...</option>
-                      {extractedUsers.map((user, index) => (
-                        <option key={index} value={user.username}>
-                          {user.name || user.channelName || user.username} 
-                          {user.bouquet && ` (${user.bouquet})`}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-
-                {/* Resumo dos dados extraídos */}
-                {selectedExtractedUser && (
-                  <div className="bg-blue-900/40 border border-blue-700 text-blue-300 text-xs rounded p-2">
-                    <div className="font-medium mb-1">Dados extraídos:</div>
+                {/* Dados extraídos aplicados ao formulário */}
+                {extractionResult && extractionResult.success && (
+                  <div className="bg-green-900/40 border border-green-700 text-green-300 text-xs rounded p-2">
+                    <div className="font-medium mb-1">✅ Dados aplicados ao formulário:</div>
                     <div className="space-y-1">
-                      {selectedExtractedUser.name && <div>• Nome: {selectedExtractedUser.name}</div>}
-                      {selectedExtractedUser.username && <div>• Usuário: {selectedExtractedUser.username}</div>}
-                      {selectedExtractedUser.password && <div>• Senha: {selectedExtractedUser.password}</div>}
-                      {selectedExtractedUser.bouquet && <div>• Bouquet: {selectedExtractedUser.bouquet}</div>}
-                      {selectedExtractedUser.expires && <div>• Expira: {selectedExtractedUser.expires}</div>}
+                      <div>• Nome: {newUser.name}</div>
+                      <div>• Email: {newUser.email}</div>
+                      <div>• Plano: {newUser.plan}</div>
+                      <div>• Status: {newUser.status}</div>
                     </div>
                   </div>
                 )}
@@ -394,7 +362,12 @@ export default function AdminUsers() {
                   <div className="col-span-1">
                     <label className="block text-gray-300 mb-1 font-medium">Usuário *</label>
                     <div className="relative flex items-center">
-                      <input placeholder="Usuário" className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 pr-8" />
+                      <input 
+                        placeholder="Usuário" 
+                        className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 pr-8"
+                        value={newUser.name}
+                        onChange={(e) => setNewUser({...newUser, name: e.target.value})}
+                      />
                       <span className="absolute right-2 text-gray-500 cursor-pointer"><svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/><polyline points="7 9 12 4 17 9"/><line x1="12" x2="12" y1="4" y2="16"/></svg></span>
                     </div>
                   </div>
@@ -402,7 +375,13 @@ export default function AdminUsers() {
                   <div className="col-span-1">
                     <label className="block text-gray-300 mb-1 font-medium">Senha</label>
                     <div className="relative flex items-center">
-                      <input type="password" placeholder="Senha" className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 pr-8" />
+                      <input 
+                        type="password" 
+                        placeholder="Senha" 
+                        className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 pr-8"
+                        value={newUser.email}
+                        onChange={(e) => setNewUser({...newUser, email: e.target.value})}
+                      />
                       <span className="absolute right-2 text-gray-500 cursor-pointer"><svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/><polyline points="7 9 12 4 17 9"/><line x1="12" x2="12" y1="4" y2="16"/></svg></span>
                     </div>
                     <div className="bg-blue-900/40 border border-blue-700 text-blue-300 text-xs rounded mt-2 p-2 space-y-1">
