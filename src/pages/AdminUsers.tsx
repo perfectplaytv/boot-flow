@@ -694,10 +694,28 @@ export default function AdminUsers() {
                 <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} className="bg-gray-700 text-white px-6 py-2 rounded font-semibold">Fechar</Button>
                 <Button 
                   onClick={handleAddUser}
-                  disabled={!newUser.name || !newUser.email || !newUser.plan}
-                  className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded font-semibold disabled:bg-gray-600 disabled:cursor-not-allowed"
+                  disabled={!newUser.name || !newUser.email || !newUser.plan || isAddingUser}
+                  className={`px-6 py-2 rounded font-semibold transition-all duration-300 ${
+                    addUserSuccess 
+                      ? 'bg-green-600 text-white' 
+                      : isAddingUser 
+                        ? 'bg-blue-600 text-white' 
+                        : 'bg-purple-600 hover:bg-purple-700 text-white disabled:bg-gray-600 disabled:cursor-not-allowed'
+                  }`}
                 >
-                  Adicionar Cliente
+                  {addUserSuccess ? (
+                    <div className="flex items-center gap-2">
+                      <Check className="w-4 h-4" />
+                      Cliente Adicionado!
+                    </div>
+                  ) : isAddingUser ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Adicionando...
+                    </div>
+                  ) : (
+                    'Adicionar Cliente'
+                  )}
                 </Button>
               </div>
             </div>
