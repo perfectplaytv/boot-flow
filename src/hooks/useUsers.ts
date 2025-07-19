@@ -281,12 +281,13 @@ export const useUsers = () => {
   // Carregar usuários do localStorage se disponível
   useEffect(() => {
     try {
-      const savedUsers = localStorage.getItem('users');
-      if (savedUsers) {
-        setUsers(JSON.parse(savedUsers));
-      }
+      // Forçar limpeza do localStorage para garantir dados atualizados
+      localStorage.removeItem('users');
+      setUsers(initialUsers);
+      localStorage.setItem('users', JSON.stringify(initialUsers));
     } catch (error) {
       console.error('Erro ao carregar usuários do localStorage:', error);
+      setUsers(initialUsers);
     }
   }, []);
 
