@@ -368,7 +368,7 @@ export default function AdminResellers() {
                       <SelectValue placeholder="Opcional" />
                     </SelectTrigger>
                     <SelectContent className="bg-[#23272f] border-gray-600">
-                      <SelectItem value="">Opcional</SelectItem>
+                      <SelectItem value="none">Opcional</SelectItem>
                       <SelectItem value="server1">Servidor 1</SelectItem>
                       <SelectItem value="server2">Servidor 2</SelectItem>
                       <SelectItem value="server3">Servidor 3</SelectItem>
