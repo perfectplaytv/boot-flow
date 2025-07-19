@@ -374,7 +374,7 @@ export default function AdminCobrancas() {
                       <Button size="icon" variant="ghost" onClick={() => { setModalCopia(c); handleCopiar(c); }}><Copy className="w-4 h-4 text-purple-400" /></Button>
                       <Button size="icon" variant="ghost" onClick={() => setModalEmail(c)}><Mail className="w-4 h-4 text-green-400" /></Button>
                       <Button size="icon" variant="ghost" onClick={() => setModalWhats(c)}><MessageSquare className="w-4 h-4 text-blue-400" /></Button>
-                      <Button size="icon" variant="ghost" onClick={() => { setEdit({ ...c, valor: c.valor.toString() }); setModalEditar(c); }}><Edit className="w-4 h-4 text-yellow-400" /></Button>
+                                              <Button size="icon" variant="ghost" onClick={() => openEditModal(c)}><Edit className="w-4 h-4 text-yellow-400" /></Button>
                       <Button size="icon" variant="ghost" onClick={() => setModalExcluir(c)}><Trash2 className="w-4 h-4 text-red-400" /></Button>
                     </div>
                   </TableCell>
