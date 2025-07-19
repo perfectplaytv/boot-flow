@@ -39,6 +39,7 @@ const cobrancasMock: Cobranca[] = [
 ];
 
 export default function AdminCobrancas() {
+  const { users, getActiveUsers } = useUsers();
   const [cobrancas, setCobrancas] = useState<Cobranca[]>(cobrancasMock);
   const [busca, setBusca] = useState("");
   const [filtroStatus, setFiltroStatus] = useState<string | null>(null);
@@ -119,6 +120,30 @@ export default function AdminCobrancas() {
   const handleCopiar = (c: Cobranca) => {
     navigator.clipboard.writeText(`Cliente: ${c.cliente}\nEmail: ${c.email}\nDescrição: ${c.descricao}\nValor: R$ ${c.valor.toFixed(2)}\nVencimento: ${c.vencimento}`);
     setModalCopia(null);
+  };
+
+  // Função para preencher automaticamente os campos quando um cliente for selecionado
+  const handleClienteChange = (clienteId: string) => {
+    if (clienteId) {
+      const selectedUser = users.find(user => user.id.toString() === clienteId);
+      if (selectedUser) {
+        setNova({
+          ...nova,
+          cliente: clienteId,
+          nomeCliente: selectedUser.name,
+          email: selectedUser.email,
+          telefone: selectedUser.phone || ''
+        });
+      }
+    } else {
+      setNova({
+        ...nova,
+        cliente: '',
+        nomeCliente: '',
+        email: '',
+        telefone: ''
+      });
+    }
   };
 
   return (
