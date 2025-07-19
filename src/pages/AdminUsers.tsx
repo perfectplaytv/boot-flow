@@ -184,6 +184,21 @@ export default function AdminUsers() {
     }
   };
 
+  // Função para simular dados M3U (para testes)
+  const simulateM3UData = () => {
+    const mockM3UContent = `#EXTM3U
+#EXTINF:-1 tvg-name="Cliente Teste" tvg-logo="" group-title="COMPLETO",Cliente Teste
+http://exemplo.com/stream?username=teste123&password=senha456&expires=2024-12-31
+#EXTINF:-1 tvg-name="Cliente Premium" tvg-logo="" group-title="PREMIUM",Cliente Premium
+http://exemplo.com/stream?username=premium789&password=senha789&expires=2024-12-31`;
+
+    try {
+      processM3UContent(mockM3UContent);
+    } catch (error: any) {
+      setExtractionError(error.message);
+    }
+  };
+
   // Função para parsear conteúdo M3U
   const parseM3UContent = (content: string) => {
     const lines = content.split('\n').filter(line => line.trim());
@@ -360,13 +375,22 @@ export default function AdminUsers() {
               <div className="bg-blue-900/30 border border-blue-800 rounded-lg p-4 mb-4">
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-blue-300 font-medium">Extração M3U</span>
-                  <Button 
-                    className="bg-blue-600 text-white hover:bg-blue-700 px-4 py-1 rounded text-sm"
-                    onClick={extractM3UData}
-                    disabled={isExtracting}
-                  >
-                    {isExtracting ? "Extraindo..." : "Extrair"}
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button 
+                      className="bg-green-600 text-white hover:bg-green-700 px-3 py-1 rounded text-xs"
+                      onClick={simulateM3UData}
+                      disabled={isExtracting}
+                    >
+                      Teste
+                    </Button>
+                    <Button 
+                      className="bg-blue-600 text-white hover:bg-blue-700 px-4 py-1 rounded text-sm"
+                      onClick={extractM3UData}
+                      disabled={isExtracting}
+                    >
+                      {isExtracting ? "Extraindo..." : "Extrair"}
+                    </Button>
+                  </div>
                 </div>
                 <p className="text-xs text-blue-300 mb-2">Serve para importar dados automaticamente a partir de uma URL.</p>
                 <Input 
