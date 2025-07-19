@@ -39,18 +39,17 @@ interface AdminSidebarProps {
 
 const menuItems = [
   { title: "Dashboard", page: "dashboard", icon: Home },
-  { title: "Usuários", page: "users", icon: Users },
+  { title: "Clientes", page: "users", icon: Users },
   { title: "Revendas", page: "resellers", icon: Building2 },
-  { title: "Sistema IPTV", page: "iptv", icon: Tv },
-  { title: "WhatsApp", page: "whatsapp", icon: MessageSquare },
   { title: "Cobranças", page: "cobrancas", icon: BarChart3 },
   { title: "Notificações", page: "notificacoes", icon: MessageSquare },
-  { title: "Customizar Marca", page: "branding", icon: Paintbrush },
+  { title: "WhatsApp", page: "whatsapp", icon: MessageSquare },
   { title: "Gateways", page: "gateways", icon: Server },
-  { title: "IA + Voz", page: "ai", icon: Brain },
+  { title: "Customizar Marca", page: "branding", icon: Paintbrush },
   { title: "E-commerce", page: "ecommerce", icon: ShoppingCart },
+  { title: "IA + Voz", page: "ai", icon: Brain },
   { title: "Gamificação", page: "games", icon: Gamepad2 },
-  { title: "Analytics", page: "analytics", icon: BarChart3 },
+  { title: "Analizes", page: "analytics", icon: BarChart3 },
   { title: "Configurações", page: "settings", icon: Settings },
 ];
 

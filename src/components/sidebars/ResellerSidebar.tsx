@@ -26,12 +26,17 @@ import {
 
 const menuItems = [
   { title: "Dashboard", url: "/dashboard/reseller", icon: Home },
-  { title: "Meus Clientes", url: "/dashboard/reseller/clients", icon: Users },
-  { title: "IPTV", url: "/dashboard/reseller/iptv", icon: Tv },
-  { title: "Rádio Web", url: "/dashboard/reseller/radio", icon: Radio },
+  { title: "Clientes", url: "/dashboard/reseller/clients", icon: Users },
+  { title: "Revendas", url: "/dashboard/reseller/resellers", icon: Users },
+  { title: "Cobranças", url: "/dashboard/reseller/billing", icon: BarChart3 },
+  { title: "Notificações", url: "/dashboard/reseller/notifications", icon: MessageSquare },
   { title: "WhatsApp", url: "/dashboard/reseller/whatsapp", icon: MessageSquare },
-  { title: "Vendas", url: "/dashboard/reseller/sales", icon: ShoppingCart },
-  { title: "Relatórios", url: "/dashboard/reseller/reports", icon: BarChart3 },
+  { title: "Gateways", url: "/dashboard/reseller/gateways", icon: BarChart3 },
+  { title: "Customizar Marca", url: "/dashboard/reseller/branding", icon: BarChart3 },
+  { title: "E-commerce", url: "/dashboard/reseller/shop", icon: ShoppingCart },
+  { title: "IA + Voz", url: "/dashboard/reseller/ai", icon: BarChart3 },
+  { title: "Gamificação", url: "/dashboard/reseller/games", icon: BarChart3 },
+  { title: "Analizes", url: "/dashboard/reseller/reports", icon: BarChart3 },
   { title: "Configurações", url: "/dashboard/reseller/settings", icon: Settings },
 ];
 
