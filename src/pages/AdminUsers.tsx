@@ -324,10 +324,71 @@ export default function AdminUsers() {
               <div className="bg-blue-900/30 border border-blue-800 rounded-lg p-4 mb-4">
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-blue-300 font-medium">Extração M3U</span>
-                  <Button className="bg-blue-600 text-white hover:bg-blue-700 px-4 py-1 rounded text-sm">Extrair</Button>
+                  <Button 
+                    className="bg-blue-600 text-white hover:bg-blue-700 px-4 py-1 rounded text-sm"
+                    onClick={extractM3UData}
+                    disabled={isExtracting}
+                  >
+                    {isExtracting ? "Extraindo..." : "Extrair"}
+                  </Button>
                 </div>
                 <p className="text-xs text-blue-300 mb-2">Serve para importar dados automaticamente a partir de uma URL.</p>
-                <Input placeholder="Insira a URL do M3U para extrair automaticamente os dados do cliente..." className="bg-[#1f2937] border border-blue-800 text-white" />
+                <Input 
+                  placeholder="Insira a URL do M3U para extrair automaticamente os dados do cliente..." 
+                  className="bg-[#1f2937] border border-blue-800 text-white mb-2"
+                  value={m3uUrl}
+                  onChange={(e) => setM3uUrl(e.target.value)}
+                />
+                
+                {/* Erro de extração */}
+                {extractionError && (
+                  <div className="bg-red-900/40 border border-red-700 text-red-300 text-xs rounded p-2 mb-2">
+                    ❌ {extractionError}
+                  </div>
+                )}
+
+                {/* Resultado da extração */}
+                {extractionResult && !extractionError && (
+                  <div className="bg-green-900/40 border border-green-700 text-green-300 text-xs rounded p-2 mb-2">
+                    ✅ {extractionResult.message}
+                  </div>
+                )}
+
+                {/* Seleção de usuários múltiplos */}
+                {extractedUsers.length > 1 && (
+                  <div className="bg-yellow-900/40 border border-yellow-700 text-yellow-300 text-xs rounded p-2 mb-2">
+                    <div className="font-medium mb-1">Múltiplos usuários encontrados ({extractedUsers.length}):</div>
+                    <select 
+                      className="w-full bg-[#1f2937] border border-yellow-700 text-white rounded px-2 py-1 text-xs"
+                      onChange={(e) => {
+                        const selected = extractedUsers.find(u => u.username === e.target.value);
+                        if (selected) selectExtractedUser(selected);
+                      }}
+                    >
+                      <option value="">Selecione um usuário...</option>
+                      {extractedUsers.map((user, index) => (
+                        <option key={index} value={user.username}>
+                          {user.name || user.channelName || user.username} 
+                          {user.bouquet && ` (${user.bouquet})`}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                {/* Resumo dos dados extraídos */}
+                {selectedExtractedUser && (
+                  <div className="bg-blue-900/40 border border-blue-700 text-blue-300 text-xs rounded p-2">
+                    <div className="font-medium mb-1">Dados extraídos:</div>
+                    <div className="space-y-1">
+                      {selectedExtractedUser.name && <div>• Nome: {selectedExtractedUser.name}</div>}
+                      {selectedExtractedUser.username && <div>• Usuário: {selectedExtractedUser.username}</div>}
+                      {selectedExtractedUser.password && <div>• Senha: {selectedExtractedUser.password}</div>}
+                      {selectedExtractedUser.bouquet && <div>• Bouquet: {selectedExtractedUser.bouquet}</div>}
+                      {selectedExtractedUser.expires && <div>• Expira: {selectedExtractedUser.expires}</div>}
+                    </div>
+                  </div>
+                )}
               </div>
               {/* Informações Básicas */}
               <div className="bg-[#1f2937] border border-gray-700 rounded-lg p-4 mb-4">
