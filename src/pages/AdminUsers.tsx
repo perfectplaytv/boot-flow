@@ -351,12 +351,16 @@ export default function AdminUsers() {
                   {/* Plano */}
                   <div className="col-span-1">
                     <label className="block text-gray-300 mb-1 font-medium">Plano *</label>
-                    <select disabled className="w-full bg-[#23272f] border border-gray-700 text-gray-400 rounded px-3 py-2">
-                      <option>🟧 TESTE - COMPLETO</option>
+                    <select 
+                      className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+                      value={newUser.plan}
+                      onChange={(e) => setNewUser({...newUser, plan: e.target.value})}
+                    >
+                      <option value="">Selecione um plano</option>
+                      <option value="Trial">🟧 TESTE - COMPLETO</option>
+                      <option value="Premium">🟦 PREMIUM - COMPLETO</option>
+                      <option value="Basic">🟩 BÁSICO</option>
                     </select>
-                    <div className="bg-yellow-900/40 border border-yellow-700 text-yellow-400 text-xs rounded mt-2 p-2">
-                      O plano não pode ser alterado aqui. Para alterar o plano, selecione Ações na lista de clientes e escolha Alterar Plano.
-                    </div>
                   </div>
                   {/* Usuário */}
                   <div className="col-span-1">
@@ -390,8 +394,21 @@ export default function AdminUsers() {
                       <div>A senha precisa ter no mínimo 8 caracteres.</div>
                     </div>
                   </div>
+                  {/* Status */}
+                  <div className="col-span-1">
+                    <label className="block text-gray-300 mb-1 font-medium">Status</label>
+                    <select 
+                      className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+                      value={newUser.status}
+                      onChange={(e) => setNewUser({...newUser, status: e.target.value})}
+                    >
+                      <option value="Ativo">🟢 Ativo</option>
+                      <option value="Inativo">🔴 Inativo</option>
+                      <option value="Pendente">🟡 Pendente</option>
+                    </select>
+                  </div>
                   {/* Vencimento */}
-                  <div className="col-span-2">
+                  <div className="col-span-1">
                     <label className="block text-gray-300 mb-1 font-medium">Vencimento (Opcional)</label>
                     <VencimentoDatePicker />
                   </div>
