@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useToast } from '@/hooks/use-toast';
+// import { useToast } from '@/hooks/use-toast';
 import { 
   Tv, 
   User, 
@@ -255,11 +255,7 @@ const IPTVAnalyzer: React.FC = () => {
         error: errorMessage
       });
 
-      toast({
-        title: "Erro na análise",
-        description: errorMessage,
-        variant: "destructive",
-      });
+      console.log("Erro na análise:", errorMessage);
     } finally {
       setLoading(false);
       setCurrentProxy('');
@@ -268,10 +264,7 @@ const IPTVAnalyzer: React.FC = () => {
 
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
-    toast({
-      title: "Copiado!",
-      description: `${label} copiado para a área de transferência.`,
-    });
+    console.log(`${label} copiado para a área de transferência.`);
   };
 
   const formatDate = (timestamp: string) => {
