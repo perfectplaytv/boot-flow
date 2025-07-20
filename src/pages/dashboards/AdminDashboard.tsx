@@ -53,6 +53,8 @@ import AdminBranding from '../AdminBranding';
 import AdminGateways from "../AdminGateways";
 import AdminCobrancas from "../AdminCobrancas";
 import Notifications from "../Notifications";
+import { useNeonUsers } from "@/hooks/useNeonUsers";
+import { useNeonResellers } from "@/hooks/useNeonResellers";
 
 const AdminDashboard = () => {
   const [activeModal, setActiveModal] = useState<string | null>(null);
@@ -69,21 +71,44 @@ const AdminDashboard = () => {
     aiInteractions: 45678
   });
 
-  const [recentActivity] = useState([
-    { id: 1, type: "user_registered", user: "João Silva", time: "2 min atrás", status: "client" },
-    { id: 2, type: "payment_received", user: "Maria Santos", amount: 297, time: "5 min atrás", status: "reseller" },
-    { id: 3, type: "iptv_activated", user: "Pedro Oliveira", time: "8 min atrás", status: "client" },
-    { id: 4, type: "ai_chat_started", user: "Ana Costa", time: "12 min atrás", status: "client" },
-    { id: 5, type: "reseller_upgraded", user: "Carlos Lima", time: "15 min atrás", status: "reseller" }
-  ]);
+  const { users, loading: loadingUsers } = useNeonUsers();
+  const { resellers: resellersData, loading: loadingResellers } = useNeonResellers();
 
-  const [onlineUsers] = useState([
-    { id: 1, name: "João Silva", type: "Cliente", status: "online", lastSeen: "Agora" },
-    { id: 2, name: "Maria Santos", type: "Revendedor", status: "online", lastSeen: "Agora" },
-    { id: 3, name: "Pedro Oliveira", type: "Cliente", status: "away", lastSeen: "5 min atrás" },
-    { id: 4, name: "Ana Costa", type: "Cliente", status: "online", lastSeen: "Agora" },
-    { id: 5, name: "Carlos Lima", type: "Revendedor", status: "online", lastSeen: "Agora" }
-  ]);
+  // Unificar atividades recentes (exemplo: cadastro, edição, status)
+  const recentActivityUnified = [
+    ...users.slice(-3).map(u => ({
+      id: `user-${u.id}`,
+      type: "user_registered",
+      user: u.real_name || u.name,
+      time: new Date(u.created_at).toLocaleString('pt-BR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' }),
+      status: u.status || 'Ativo',
+    })),
+    ...resellersData.slice(-2).map(r => ({
+      id: `reseller-${r.id}`,
+      type: "payment_received",
+      user: r.personal_name || r.username,
+      time: new Date(r.created_at).toLocaleString('pt-BR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' }),
+      status: r.status,
+    })),
+  ];
+
+  // Unificar usuários online (status Ativo/active)
+  const onlineUsersUnified = [
+    ...users.filter(u => (u.status || '').toLowerCase() === 'ativo').map(u => ({
+      id: `user-${u.id}`,
+      name: u.real_name || u.name,
+      type: 'Cliente',
+      status: 'online',
+      lastSeen: new Date(u.updated_at).toLocaleTimeString('pt-BR'),
+    })),
+    ...resellersData.filter(r => (r.status || '').toLowerCase() === 'active').map(r => ({
+      id: `reseller-${r.id}`,
+      name: r.personal_name || r.username,
+      type: 'Revenda',
+      status: 'online',
+      lastSeen: new Date(r.updated_at).toLocaleTimeString('pt-BR'),
+    })),
+  ];
 
   const [brandingModal, setBrandingModal] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -610,13 +635,17 @@ const AdminDashboard = () => {
 
             {/* Recent Activity & Online Users */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6">
-              <Card>
+              <Card className="bg-[#1f2937]">
                 <CardHeader>
                   <CardTitle className="text-white">Atividade Recente</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {recentActivity.map((activity) => (
+                    {(loadingUsers || loadingResellers) ? (
+                      <div className="text-gray-400">Carregando atividades...</div>
+                    ) : recentActivityUnified.length === 0 ? (
+                      <div className="text-gray-400">Nenhuma atividade recente encontrada.</div>
+                    ) : recentActivityUnified.map((activity) => (
                       <div key={activity.id} className="flex items-center space-x-3">
                         {getActivityIcon(activity.type)}
                         <div className="flex-1">
@@ -630,13 +659,17 @@ const AdminDashboard = () => {
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="bg-[#1f2937]">
                 <CardHeader>
                   <CardTitle className="text-white">Usuários Online</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {onlineUsers.map((user) => (
+                    {(loadingUsers || loadingResellers) ? (
+                      <div className="text-gray-400">Carregando usuários online...</div>
+                    ) : onlineUsersUnified.length === 0 ? (
+                      <div className="text-gray-400">Nenhum usuário online no momento.</div>
+                    ) : onlineUsersUnified.map((user) => (
                       <div key={user.id} className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
                           <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
@@ -999,7 +1032,11 @@ const AdminDashboard = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
-                        {recentActivity.map((activity) => (
+                        {(loadingUsers || loadingResellers) ? (
+                          <div className="text-gray-400">Carregando atividades...</div>
+                        ) : recentActivityUnified.length === 0 ? (
+                          <div className="text-gray-400">Nenhuma atividade recente encontrada.</div>
+                        ) : recentActivityUnified.map((activity) => (
                           <div key={activity.id} className="flex items-center space-x-3">
                             {getActivityIcon(activity.type)}
                             <div className="flex-1">
@@ -1018,7 +1055,11 @@ const AdminDashboard = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
-                        {onlineUsers.map((user) => (
+                        {(loadingUsers || loadingResellers) ? (
+                          <div className="text-gray-400">Carregando usuários online...</div>
+                        ) : onlineUsersUnified.length === 0 ? (
+                          <div className="text-gray-400">Nenhum usuário online no momento.</div>
+                        ) : onlineUsersUnified.map((user) => (
                           <div key={user.id} className="flex items-center justify-between">
                             <div className="flex items-center space-x-3">
                               <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
