@@ -79,6 +79,9 @@ export default function AdminResellers() {
         if (success) {
           setAddResellerSuccess(true);
           
+          // Atualizar Dashboard instantaneamente
+          window.dispatchEvent(new Event('refresh-dashboard'));
+          
           // Limpar formulário
           setNewReseller({
             username: "",
@@ -131,6 +134,9 @@ export default function AdminResellers() {
       });
       
       if (success) {
+        // Atualizar Dashboard instantaneamente
+        window.dispatchEvent(new Event('refresh-dashboard'));
+        
         setEditingReseller(null);
         setIsEditDialogOpen(false);
       }
@@ -142,6 +148,9 @@ export default function AdminResellers() {
       const success = await deleteReseller(deletingReseller.id);
       
       if (success) {
+        // Atualizar Dashboard instantaneamente
+        window.dispatchEvent(new Event('refresh-dashboard'));
+        
         setDeletingReseller(null);
         setIsDeleteDialogOpen(false);
       }

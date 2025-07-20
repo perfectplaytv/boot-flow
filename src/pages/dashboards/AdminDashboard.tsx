@@ -825,6 +825,16 @@ const AdminDashboard = () => {
     return () => clearInterval(interval);
   }, [refreshUsers, refreshResellers]);
 
+  // Listener para atualização instantânea
+  useEffect(() => {
+    const handleRefresh = () => {
+      refreshUsers();
+      if (refreshResellers) refreshResellers();
+    };
+    window.addEventListener('refresh-dashboard', handleRefresh);
+    return () => window.removeEventListener('refresh-dashboard', handleRefresh);
+  }, [refreshUsers, refreshResellers]);
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-[#09090b]">

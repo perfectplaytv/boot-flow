@@ -114,6 +114,9 @@ export default function AdminUsers() {
         if (success) {
           setAddUserSuccess(true);
           
+          // Atualizar Dashboard instantaneamente
+          window.dispatchEvent(new Event('refresh-dashboard'));
+          
           // Limpar formulário
           setNewUser({ 
             name: "", 
@@ -194,6 +197,9 @@ export default function AdminUsers() {
         console.log('✅ Usuário atualizado com sucesso!');
         console.log('Aguardando recarregamento da lista...');
         
+        // Atualizar Dashboard instantaneamente
+        window.dispatchEvent(new Event('refresh-dashboard'));
+        
         // Aguardar um pouco para o fetchUsers ser executado
         setTimeout(() => {
           console.log('Lista de usuários após atualização:', users);
@@ -215,6 +221,9 @@ export default function AdminUsers() {
       const success = await deleteUser(deletingUser.id);
       
       if (success) {
+        // Atualizar Dashboard instantaneamente
+        window.dispatchEvent(new Event('refresh-dashboard'));
+        
         setDeletingUser(null);
         setIsDeleteDialogOpen(false);
       } else {
