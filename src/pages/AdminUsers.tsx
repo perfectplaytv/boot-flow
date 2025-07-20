@@ -624,7 +624,7 @@ export default function AdminUsers() {
           </p>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-          <Dialog open={isCopyDialogOpen} onOpenChange={setIsCopyDialogOpen}>
+          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
               <Button className="flex items-center gap-2 bg-[#7e22ce] hover:bg-[#6d1bb7] text-white h-10 sm:h-auto">
                 <Plus className="w-4 h-4" />
@@ -632,6 +632,10 @@ export default function AdminUsers() {
                 <span className="sm:hidden">Novo</span>
               </Button>
             </DialogTrigger>
+            <DialogContent className="bg-[#1f2937] text-white max-w-2xl w-full p-0 rounded-xl shadow-xl border border-gray-700 sm:max-w-2xl max-w-[98vw] px-1 sm:px-0">
+              {/* TODO: Colar aqui o formulário completo de adicionar cliente (já existente no projeto) */}
+              {/* O conteúdo do formulário deve ser igual ao que era exibido no pop-up antigo */}
+            </DialogContent>
           </Dialog>
         </div>
       </div>
