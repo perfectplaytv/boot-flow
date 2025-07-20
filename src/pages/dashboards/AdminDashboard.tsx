@@ -608,7 +608,7 @@ const AdminDashboard = () => {
             </div>
 
             {/* Recent Activity & Online Users */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6">
               <Card>
                 <CardHeader>
                   <CardTitle className="text-white">Atividade Recente</CardTitle>
