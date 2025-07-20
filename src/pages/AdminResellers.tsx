@@ -587,16 +587,16 @@ export default function AdminResellers() {
             {filteredResellers.length} revendedores encontrados
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow className="border-gray-700">
-                <TableHead className="text-white">Usuário</TableHead>
-                <TableHead className="text-white">Permissão</TableHead>
-                <TableHead className="text-white">Créditos</TableHead>
-                <TableHead className="text-white">Status</TableHead>
-                <TableHead className="text-white">Criado em</TableHead>
-                <TableHead className="text-white">Ações</TableHead>
+                <TableHead className="text-white text-xs sm:text-sm">Usuário</TableHead>
+                <TableHead className="text-white text-xs sm:text-sm">Permissão</TableHead>
+                <TableHead className="text-white text-xs sm:text-sm">Créditos</TableHead>
+                <TableHead className="text-white text-xs sm:text-sm">Status</TableHead>
+                <TableHead className="hidden md:table-cell text-white text-xs sm:text-sm">Criado em</TableHead>
+                <TableHead className="text-white text-xs sm:text-sm">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
