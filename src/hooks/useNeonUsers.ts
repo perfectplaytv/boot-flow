@@ -9,6 +9,7 @@ interface User {
   bouquets?: string;
   expiration_date?: string;
   observations?: string;
+  real_name?: string; // Campo para o nome real
   created_at: string;
   updated_at: string;
 }
