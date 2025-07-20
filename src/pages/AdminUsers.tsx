@@ -258,6 +258,14 @@ export default function AdminUsers() {
           console.error('❌ Erro ao disparar evento:', error);
         }
         
+        // Usar localStorage como fallback
+        try {
+          localStorage.setItem('dashboard-refresh', Date.now().toString());
+          console.log('✅ Flag localStorage definida');
+        } catch (error) {
+          console.error('❌ Erro ao definir flag localStorage:', error);
+        }
+        
         setDeletingUser(null);
         setIsDeleteDialogOpen(false);
       } else {
