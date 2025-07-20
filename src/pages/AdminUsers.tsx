@@ -181,6 +181,17 @@ export default function AdminUsers() {
       const success = await updateUser(editingUser.id, updatedUserData);
       
       if (success) {
+        console.log('✅ Usuário atualizado com sucesso!');
+        console.log('Aguardando recarregamento da lista...');
+        
+        // Aguardar um pouco para o fetchUsers ser executado
+        setTimeout(() => {
+          console.log('Lista de usuários após atualização:', users);
+          const updatedUser = users.find(u => u.id === editingUser.id);
+          console.log('Usuário atualizado na lista:', updatedUser);
+          console.log('Campo real_name na lista:', updatedUser?.real_name);
+        }, 1000);
+        
         setEditingUser(null);
         setIsEditDialogOpen(false);
       } else {

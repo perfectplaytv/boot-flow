@@ -46,6 +46,9 @@ export const useNeonUsers = (): UseNeonUsersReturn => {
       const data = await response.json();
       
       if (data.success) {
+        console.log('📋 Usuários retornados do backend:', data.users);
+        console.log('Exemplo de usuário:', data.users[0]);
+        console.log('Campos disponíveis:', data.users[0] ? Object.keys(data.users[0]) : 'Nenhum usuário');
         setUsers(data.users);
       } else {
         setError(data.message || 'Erro ao buscar usuários');
