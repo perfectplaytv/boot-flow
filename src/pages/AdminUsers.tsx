@@ -633,6 +633,15 @@ export default function AdminUsers() {
               </Button>
             </DialogTrigger>
           </Dialog>
+          <Dialog open={isCopyDialogOpen} onOpenChange={setIsCopyDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="flex items-center gap-2 bg-[#7e22ce] hover:bg-[#6d1bb7] text-white h-10 sm:h-auto">
+                <Plus className="w-4 h-4" />
+                <span className="hidden sm:inline">Novo Cliente</span>
+                <span className="sm:hidden">Novo</span>
+              </Button>
+            </DialogTrigger>
+          </Dialog>
         </div>
           
           <Dialog open={isCopyDialogOpen} onOpenChange={setIsCopyDialogOpen}>
