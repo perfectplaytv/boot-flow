@@ -47,6 +47,7 @@ export default function AdminUsers() {
 
   // Estados para os modais de ação
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [editingRealName, setEditingRealName] = useState<string>('');
   const [viewingUser, setViewingUser] = useState<User | null>(null);
   const [deletingUser, setDeletingUser] = useState<User | null>(null);
 
@@ -229,6 +230,7 @@ export default function AdminUsers() {
     console.log('=== FIM DEBUG ===');
     
     setEditingUser(mappedUser);
+    setEditingRealName(user.real_name || ''); // Inicializar estado do nome real
     setIsEditDialogOpen(true);
   };
 
@@ -1378,10 +1380,10 @@ export default function AdminUsers() {
                     <div className="col-span-1">
                       <label className="block text-gray-300 mb-1 font-medium">Nome</label>
                       <input 
-                        value={editingUser.realName || ""}
+                        value={editingRealName}
                         onChange={(e) => {
                           console.log('Campo Nome alterado:', e.target.value);
-                          setEditingUser({...editingUser, realName: e.target.value});
+                          setEditingRealName(e.target.value);
                         }}
                         placeholder="Opcional" 
                         className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2" 
