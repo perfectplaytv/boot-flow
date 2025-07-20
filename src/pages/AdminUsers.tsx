@@ -116,7 +116,12 @@ export default function AdminUsers() {
           
           // Atualizar Dashboard instantaneamente
           console.log('📤 Clientes: Disparando evento refresh-dashboard após criar usuário');
-          window.dispatchEvent(new CustomEvent('refresh-dashboard', { detail: { source: 'users', action: 'create' } }));
+          try {
+            window.dispatchEvent(new CustomEvent('refresh-dashboard', { detail: { source: 'users', action: 'create' } }));
+            console.log('✅ Evento disparado com sucesso');
+          } catch (error) {
+            console.error('❌ Erro ao disparar evento:', error);
+          }
           
           // Limpar formulário
           setNewUser({ 
