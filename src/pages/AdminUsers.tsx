@@ -983,7 +983,7 @@ export default function AdminUsers() {
             <TableBody>
               {filteredUsers.map(user => (
                 <TableRow key={user.id} className="hover:bg-[#232a36] transition-colors">
-                  <TableCell className="text-white font-medium">{user.name}</TableCell>
+                  <TableCell className="text-white font-medium">{user.real_name || user.name}</TableCell>
                   <TableCell className="text-gray-300">{user.email}</TableCell>
                   <TableCell className="text-gray-300">{user.plan}</TableCell>
                   <TableCell>
@@ -1061,7 +1061,7 @@ export default function AdminUsers() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label className="text-gray-400 text-sm">Nome</Label>
-                      <p className="text-white font-medium">{viewingUser.name}</p>
+                      <p className="text-white font-medium">{viewingUser.real_name || viewingUser.name}</p>
                     </div>
                     <div>
                       <Label className="text-gray-400 text-sm">Email</Label>
