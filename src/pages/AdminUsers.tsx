@@ -384,7 +384,7 @@ export default function AdminUsers() {
                     Adicionar Usuário
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="bg-[#0f1419] border-gray-700 text-white max-w-4xl h-[95vh] p-0">
+                <DialogContent className="bg-[#0f1419] border-gray-700 text-white max-w-4xl h-[95vh] p-0" style={{ maxHeight: '95vh', overflow: 'hidden' }}>
                   <DialogHeader className="sr-only">
                     <DialogTitle>Adicionar Cliente</DialogTitle>
                     <DialogDescription>Preencha os dados do novo cliente para adicioná-lo à base de dados</DialogDescription>
@@ -422,7 +422,7 @@ export default function AdminUsers() {
                     </div>
 
                     {/* Scrollable Content */}
-                    <div className="flex-1 overflow-y-auto p-6 space-y-6 min-h-0">
+                    <div className="flex-1 overflow-y-auto p-6 space-y-6 min-h-0 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
                       {/* Extração M3U Section */}
                       <div className="border border-blue-600 rounded-lg p-4 bg-blue-900/10">
                         <h3 className="text-lg font-medium text-white mb-2">Extração M3U</h3>
