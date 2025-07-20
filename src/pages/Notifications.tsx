@@ -60,6 +60,8 @@ export default function Notifications() {
 
   const variaveisSugeridas = ['nome', 'servico', 'data', 'hora', 'valor', 'pix', 'promocao', 'desconto', 'validade'];
 
+  const searchValue = typeof selectedDest === 'string' ? selectedDest : '';
+
   return (
     <div className="p-6 min-h-screen bg-[#09090b]">
       <div className="flex items-center gap-3 mb-2">
@@ -265,8 +267,8 @@ export default function Notifications() {
               <Input placeholder="Buscar cliente ou revenda..." className="mb-2 bg-gray-900 border border-gray-700 text-white" onChange={e => setSelectedDest(e.target.value)} />
               <div className="max-h-40 overflow-y-auto rounded border border-gray-700 bg-[#181825] divide-y divide-gray-800">
                 <div className="px-2 py-1 text-xs text-purple-400 font-bold">Clientes Ativos</div>
-                {(users.filter(u => (u.status || '').toLowerCase() === 'ativo' && (!selectedDest || (u.real_name || u.name).toLowerCase().includes((selectedDest || '').toLowerCase()))).length > 0 ? (
-                  users.filter(u => (u.status || '').toLowerCase() === 'ativo' && (!selectedDest || (u.real_name || u.name).toLowerCase().includes((selectedDest || '').toLowerCase()))).map(u => (
+                {(users.filter(u => (u.status || '').toLowerCase() === 'ativo' && (!searchValue || (u.real_name || u.name).toLowerCase().includes(searchValue.toLowerCase()))).length > 0 ? (
+                  users.filter(u => (u.status || '').toLowerCase() === 'ativo' && (!searchValue || (u.real_name || u.name).toLowerCase().includes(searchValue.toLowerCase()))).map(u => (
                     <div key={u.id} className="px-3 py-2 hover:bg-purple-900/30 cursor-pointer flex items-center gap-2" onClick={() => setSelectedDest({ tipo: 'cliente', ...u })}>
                       <Users className="w-4 h-4 text-purple-400" /> <span>{u.real_name || u.name} <span className="text-xs text-gray-400">({u.email})</span></span>
                     </div>
@@ -275,8 +277,8 @@ export default function Notifications() {
                   <div className="px-3 py-2 text-xs text-gray-500">Nenhum cliente encontrado.</div>
                 )}
                 <div className="px-2 py-1 text-xs text-green-400 font-bold">Revendas Ativas</div>
-                {(resellers.filter(r => (r.status || '').toLowerCase() === 'active' && (!selectedDest || (r.personal_name || r.username).toLowerCase().includes((selectedDest || '').toLowerCase()))).length > 0 ? (
-                  resellers.filter(r => (r.status || '').toLowerCase() === 'active' && (!selectedDest || (r.personal_name || r.username).toLowerCase().includes((selectedDest || '').toLowerCase()))).map(r => (
+                {(resellers.filter(r => (r.status || '').toLowerCase() === 'active' && (!searchValue || (r.personal_name || r.username).toLowerCase().includes(searchValue.toLowerCase()))).length > 0 ? (
+                  resellers.filter(r => (r.status || '').toLowerCase() === 'active' && (!searchValue || (r.personal_name || r.username).toLowerCase().includes(searchValue.toLowerCase()))).map(r => (
                     <div key={r.id} className="px-3 py-2 hover:bg-green-900/30 cursor-pointer flex items-center gap-2" onClick={() => setSelectedDest({ tipo: 'revenda', ...r })}>
                       <Users className="w-4 h-4 text-green-400" /> <span>{r.personal_name || r.username} <span className="text-xs text-gray-400">({r.email})</span></span>
                     </div>
