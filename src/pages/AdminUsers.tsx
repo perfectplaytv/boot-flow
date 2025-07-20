@@ -115,6 +115,7 @@ export default function AdminUsers() {
           setAddUserSuccess(true);
           
           // Atualizar Dashboard instantaneamente
+          console.log('📤 Clientes: Disparando evento refresh-dashboard após criar usuário');
           window.dispatchEvent(new Event('refresh-dashboard'));
           
           // Limpar formulário
@@ -198,6 +199,7 @@ export default function AdminUsers() {
         console.log('Aguardando recarregamento da lista...');
         
         // Atualizar Dashboard instantaneamente
+        console.log('📤 Clientes: Disparando evento refresh-dashboard após editar usuário');
         window.dispatchEvent(new Event('refresh-dashboard'));
         
         // Aguardar um pouco para o fetchUsers ser executado

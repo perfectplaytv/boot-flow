@@ -828,6 +828,7 @@ const AdminDashboard = () => {
   // Listener para atualização instantânea
   useEffect(() => {
     const handleRefresh = () => {
+      console.log('🔄 Dashboard: Evento refresh-dashboard recebido, atualizando dados...');
       refreshUsers();
       if (refreshResellers) refreshResellers();
     };
