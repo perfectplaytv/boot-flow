@@ -652,12 +652,12 @@ export default function AdminUsers() {
                 <span className="sm:hidden">Copiar</span>
               </Button>
             </DialogTrigger>
-          <DialogContent className="bg-[#1f2937] text-white max-w-2xl w-full p-0 rounded-xl shadow-xl border border-gray-700">
+          <DialogContent className="bg-[#1f2937] text-white max-w-2xl w-full p-0 rounded-xl shadow-xl border border-gray-700 sm:max-w-2xl max-w-[98vw] px-1 sm:px-0">
             <DialogHeader className="sr-only">
               <DialogTitle>Adicionar Cliente</DialogTitle>
               <DialogDescription>Preencha os dados do novo cliente para adicioná-lo à base de dados</DialogDescription>
             </DialogHeader>
-            <div className="p-6 max-h-[80vh] overflow-y-auto scrollbar-hide">
+            <div className="p-2 sm:p-6 max-h-[80vh] overflow-y-auto scrollbar-hide">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <Users className="w-6 h-6 text-green-500" />
