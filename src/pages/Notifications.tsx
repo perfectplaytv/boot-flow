@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Plus, Send, MessageSquare, CheckCircle2, XCircle, TrendingUp, Users } from 'lucide-react';
 import { useNeonUsers } from '@/hooks/useNeonUsers';
 import { useNeonResellers } from '@/hooks/useNeonResellers';
-import { toast } from 'react-toastify';
+import { toast } from 'sonner';
 
 const templatesMock = [
   { id: 1, nome: 'Confirmação de Agendamento', texto: 'Olá {nome}, seu agendamento para {servico} foi confirmado para {data} às {hora}. Aguardamos você!', variaveis: ['nome', 'servico', 'data', 'hora'], status: 'Ativo', envios: 1247, taxa: 98.5 },
