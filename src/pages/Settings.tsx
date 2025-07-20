@@ -39,14 +39,14 @@ export default function Settings() {
   };
 
   return (
-    <div className="min-h-screen bg-[#09090b] p-6">
+    <div className="min-h-screen bg-[#09090b] p-3 sm:p-6">
       <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
           <div>
-            <h1 className="text-3xl font-bold text-white">Configurações</h1>
-            <p className="text-gray-400">Gerencie sua conta e integrações</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-white">Configurações</h1>
+            <p className="text-gray-400 text-sm sm:text-base">Gerencie sua conta e integrações</p>
           </div>
-          <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white px-6 py-2 rounded font-semibold">Salvar Alterações</Button>
+          <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white px-4 sm:px-6 py-2 rounded font-semibold h-10 sm:h-auto">Salvar Alterações</Button>
         </div>
         <Tabs value={tab} onValueChange={setTab} className="mb-6">
           <TabsList className="flex bg-[#1f2937] rounded-lg w-full">
