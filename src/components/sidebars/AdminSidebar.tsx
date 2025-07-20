@@ -84,10 +84,10 @@ export function AdminSidebar({ onPageChange, currentPage, isMobile = false, onCl
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton 
                   onClick={() => handlePageChange(item.page)}
-                  className={currentPage === item.page ? "bg-primary text-primary-foreground" : "hover:bg-accent"}
+                  className={`${currentPage === item.page ? "bg-primary text-primary-foreground" : "hover:bg-accent"} h-10 sm:h-auto`}
                 >
                   <item.icon className="mr-2 h-4 w-4" />
-                  {!collapsed && <span>{item.title}</span>}
+                  {!collapsed && <span className="text-sm sm:text-base">{item.title}</span>}
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
