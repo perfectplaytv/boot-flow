@@ -25,7 +25,8 @@ import {
   Activity,
   Clock,
   Home,
-  Paintbrush
+  Paintbrush,
+  UserPlus
 } from "lucide-react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/sidebars/AdminSidebar";
