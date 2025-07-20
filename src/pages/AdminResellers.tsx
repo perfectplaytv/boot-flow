@@ -137,7 +137,7 @@ export default function AdminResellers() {
       if (success) {
         // Atualizar Dashboard instantaneamente
         console.log('📤 Revendas: Disparando evento refresh-dashboard após editar revenda');
-        window.dispatchEvent(new Event('refresh-dashboard'));
+        window.dispatchEvent(new CustomEvent('refresh-dashboard', { detail: { source: 'resellers', action: 'update' } }));
         
         setEditingReseller(null);
         setIsEditDialogOpen(false);
@@ -152,7 +152,7 @@ export default function AdminResellers() {
       if (success) {
         // Atualizar Dashboard instantaneamente
         console.log('📤 Revendas: Disparando evento refresh-dashboard após deletar revenda');
-        window.dispatchEvent(new Event('refresh-dashboard'));
+        window.dispatchEvent(new CustomEvent('refresh-dashboard', { detail: { source: 'resellers', action: 'delete' } }));
         
         setDeletingReseller(null);
         setIsDeleteDialogOpen(false);

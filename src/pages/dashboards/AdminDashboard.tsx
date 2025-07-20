@@ -842,14 +842,21 @@ const AdminDashboard = () => {
 
   // Listener para atualização instantânea
   useEffect(() => {
-    const handleRefresh = (event: Event) => {
+    const handleRefresh = (event: CustomEvent) => {
       console.log('🔄 Dashboard: Evento refresh-dashboard recebido, atualizando dados...');
       console.log('Evento recebido:', event);
-      refreshUsers();
-      if (refreshResellers) refreshResellers();
+      console.log('Detalhes do evento:', event.detail);
+      
+      // Atualizar dados baseado na fonte
+      if (event.detail?.source === 'users' || !event.detail?.source) {
+        refreshUsers();
+      }
+      if (event.detail?.source === 'resellers' || !event.detail?.source) {
+        if (refreshResellers) refreshResellers();
+      }
     };
-    window.addEventListener('refresh-dashboard', handleRefresh);
-    return () => window.removeEventListener('refresh-dashboard', handleRefresh);
+    window.addEventListener('refresh-dashboard', handleRefresh as EventListener);
+    return () => window.removeEventListener('refresh-dashboard', handleRefresh as EventListener);
   }, [refreshUsers, refreshResellers]);
 
   return (
