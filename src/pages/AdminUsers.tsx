@@ -481,7 +481,8 @@ export default function AdminUsers() {
               observations: `Usuário: ${username} | Senha: ${password} | Dados simulados`,
               expirationDate: '',
               password: password,
-              bouquets: ''
+              bouquets: '',
+              realName: '' // Campo "Nome" na seção de contato fica vazio
             };
 
             // Aplicar aos formulários baseado no modal aberto
