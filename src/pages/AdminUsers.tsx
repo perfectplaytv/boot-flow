@@ -83,7 +83,13 @@ export default function AdminUsers() {
           bouquets: newUser.bouquets || '',
           expiration_date: newUser.expirationDate || null,
           observations: newUser.observations || '',
-          real_name: newUser.realName || '' // Adicionando o campo realName
+          real_name: newUser.realName || '', // Campo nome real
+          telegram: newUser.telegram || '', // Campo telegram
+          whatsapp: newUser.whatsapp || '', // Campo whatsapp
+          status: newUser.status || 'Ativo', // Campo status
+          devices: newUser.devices || 0, // Campo dispositivos
+          credits: newUser.credits || 0, // Campo créditos
+          notes: newUser.notes || '' // Campo anotações
         };
         
         console.log('Dados preparados para adicionar:', userData);
@@ -144,7 +150,13 @@ export default function AdminUsers() {
         bouquets: editingUser.bouquets || '',
         expiration_date: editingUser.expirationDate || null,
         observations: editingUser.observations || '',
-        real_name: editingUser.realName || '' // Adicionando o campo realName
+        real_name: editingUser.realName || '', // Campo nome real
+        telegram: editingUser.telegram || '', // Campo telegram
+        whatsapp: editingUser.whatsapp || '', // Campo whatsapp
+        status: editingUser.status || 'Ativo', // Campo status
+        devices: editingUser.devices || 0, // Campo dispositivos
+        credits: editingUser.credits || 0, // Campo créditos
+        notes: editingUser.notes || '' // Campo anotações
       };
       
       console.log('Dados preparados para atualização:', updatedUserData);

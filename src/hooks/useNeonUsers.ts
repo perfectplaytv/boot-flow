@@ -10,6 +10,12 @@ interface User {
   expiration_date?: string;
   observations?: string;
   real_name?: string; // Campo para o nome real
+  telegram?: string; // Campo para telegram
+  whatsapp?: string; // Campo para whatsapp
+  status?: string; // Campo para status
+  devices?: number; // Campo para número de dispositivos
+  credits?: number; // Campo para créditos
+  notes?: string; // Campo para anotações
   created_at: string;
   updated_at: string;
 }
