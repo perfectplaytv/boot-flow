@@ -92,6 +92,15 @@ const AdminDashboard = () => {
     })),
   ];
 
+  // Log para debug
+  console.log('📊 Dashboard: Dados atualizados:', {
+    usersCount: users.length,
+    resellersCount: resellersData.length,
+    recentActivityCount: recentActivityUnified.length,
+    latestUsers: users.slice(-3).map(u => ({ id: u.id, name: u.real_name || u.name, created: u.created_at })),
+    latestResellers: resellersData.slice(-2).map(r => ({ id: r.id, name: r.personal_name || r.username, created: r.created_at }))
+  });
+
   // Unificar usuários online (status Ativo/active)
   const onlineUsersUnified = [
     ...users.filter(u => (u.status || '').toLowerCase() === 'ativo').map(u => ({

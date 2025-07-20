@@ -80,6 +80,7 @@ export default function AdminResellers() {
           setAddResellerSuccess(true);
           
           // Atualizar Dashboard instantaneamente
+          console.log('📤 Revendas: Disparando evento refresh-dashboard após criar revenda');
           window.dispatchEvent(new Event('refresh-dashboard'));
           
           // Limpar formulário
@@ -135,6 +136,7 @@ export default function AdminResellers() {
       
       if (success) {
         // Atualizar Dashboard instantaneamente
+        console.log('📤 Revendas: Disparando evento refresh-dashboard após editar revenda');
         window.dispatchEvent(new Event('refresh-dashboard'));
         
         setEditingReseller(null);
@@ -149,6 +151,7 @@ export default function AdminResellers() {
       
       if (success) {
         // Atualizar Dashboard instantaneamente
+        console.log('📤 Revendas: Disparando evento refresh-dashboard após deletar revenda');
         window.dispatchEvent(new Event('refresh-dashboard'));
         
         setDeletingReseller(null);

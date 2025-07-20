@@ -224,6 +224,7 @@ export default function AdminUsers() {
       
       if (success) {
         // Atualizar Dashboard instantaneamente
+        console.log('📤 Clientes: Disparando evento refresh-dashboard após deletar usuário');
         window.dispatchEvent(new Event('refresh-dashboard'));
         
         setDeletingUser(null);
