@@ -444,7 +444,7 @@ export default function AdminCobrancas() {
                   value={nova.cliente}
                   onChange={e => handleClienteChange(e.target.value)}
                 >
-                  <option value="">Selecione um cliente ou revenda</option>
+                  <option value="">Selecionar</option>
                   <optgroup label="Clientes">
                     {users.map(user => (
                       <option key={`cliente-${user.id}`} value={`cliente-${user.id}`}>{user.name} - {user.email}</option>
