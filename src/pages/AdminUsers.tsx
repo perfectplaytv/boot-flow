@@ -736,8 +736,8 @@ export default function AdminUsers() {
                     <input 
                       placeholder="Opcional" 
                       className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                      value={newUser.name}
-                      onChange={(e) => setNewUser({...newUser, name: e.target.value})}
+                      value={newUser.realName}
+                      onChange={(e) => setNewUser({...newUser, realName: e.target.value})}
                     />
                   </div>
                   {/* E-mail */}
