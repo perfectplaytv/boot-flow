@@ -77,57 +77,7 @@ const AdminDashboard = () => {
   // Estado para forçar re-renderização
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  // Unificar atividades recentes (exemplo: cadastro, edição, status)
-  const recentActivityUnified = [
-    ...users.slice(-3).map(u => ({
-      id: `user-${u.id}`,
-      type: "user_registered",
-      user: u.real_name || u.name,
-      time: new Date(u.created_at).toLocaleString('pt-BR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' }),
-      status: u.status || 'Ativo',
-    })),
-    ...resellersData.slice(-2).map(r => ({
-      id: `reseller-${r.id}`,
-      type: "payment_received",
-      user: r.personal_name || r.username,
-      time: new Date(r.created_at).toLocaleString('pt-BR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' }),
-      status: r.status,
-    })),
-  ];
 
-  // Log para debug
-  console.log('📊 Dashboard: Dados atualizados:', {
-    refreshTrigger,
-    usersCount: users.length,
-    resellersCount: resellersData.length,
-    recentActivityCount: recentActivityUnified.length,
-    latestUsers: users.slice(-3).map(u => ({ id: u.id, name: u.real_name || u.name, created: u.created_at })),
-    latestResellers: resellersData.slice(-2).map(r => ({ id: r.id, name: r.personal_name || r.username, created: r.created_at }))
-  });
-
-  // Unificar usuários online (status Ativo/active)
-  const onlineUsersUnified = [
-    ...users.filter(u => (u.status || '').toLowerCase() === 'ativo').map(u => ({
-      id: `user-${u.id}`,
-      name: u.real_name || u.name,
-      type: 'Cliente',
-      status: 'online',
-      lastSeen: new Date(u.updated_at).toLocaleTimeString('pt-BR'),
-    })),
-    ...resellersData.filter(r => (r.status || '').toLowerCase() === 'active').map(r => ({
-      id: `reseller-${r.id}`,
-      name: r.personal_name || r.username,
-      type: 'Revenda',
-      status: 'online',
-      lastSeen: new Date(r.updated_at).toLocaleTimeString('pt-BR'),
-    })),
-  ];
-
-  // Log para debug dos usuários online
-  console.log('👥 Dashboard: Usuários online:', {
-    onlineUsersCount: onlineUsersUnified.length,
-    onlineUsers: onlineUsersUnified.map(u => ({ id: u.id, name: u.name, type: u.type, lastSeen: u.lastSeen }))
-  });
 
   const [brandingModal, setBrandingModal] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -152,25 +102,7 @@ const AdminDashboard = () => {
     toast.success("Revendedor adicionado com sucesso!");
   };
 
-  const getActivityIcon = (type: string) => {
-    switch (type) {
-      case "user_registered": return <Users className="w-4 h-4 text-blue-500" />;
-      case "payment_received": return <DollarSign className="w-4 h-4 text-green-500" />;
-      case "iptv_activated": return <Tv className="w-4 h-4 text-purple-500" />;
-      case "ai_chat_started": return <Brain className="w-4 h-4 text-orange-500" />;
-      case "reseller_upgraded": return <TrendingUp className="w-4 h-4 text-indigo-500" />;
-      default: return <Activity className="w-4 h-4 text-gray-500" />;
-    }
-  };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "online": return <Badge className="bg-green-500">Online</Badge>;
-      case "away": return <Badge variant="secondary">Ausente</Badge>;
-      case "offline": return <Badge variant="destructive">Offline</Badge>;
-      default: return <Badge variant="outline">{status}</Badge>;
-    }
-  };
 
   // Kanban columns state
   const [kanbanColumns, setKanbanColumns] = useState({
