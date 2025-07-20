@@ -52,8 +52,7 @@ import AdminBranding from '../AdminBranding';
 import AdminGateways from "../AdminGateways";
 import AdminCobrancas from "../AdminCobrancas";
 import Notifications from "../Notifications";
-import { useNeonUsers } from "@/hooks/useNeonUsers";
-import { useNeonResellers } from "@/hooks/useNeonResellers";
+
 
 const AdminDashboard = () => {
   const [activeModal, setActiveModal] = useState<string | null>(null);
