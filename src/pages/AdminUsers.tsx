@@ -80,14 +80,14 @@ export default function AdminUsers() {
         
         // Preparar dados do usuário para o Neon
         const userData = {
-          name: newUser.name,
+          name: newUser.realName || newUser.name, // Usar o nome real como name principal
           email: newUser.email,
           password: newUser.password || '',
           m3u_url: newUser.plan || '', // usando plan como m3u_url
           bouquets: newUser.bouquets || '',
           expiration_date: newUser.expirationDate || null,
           observations: newUser.observations || '',
-          real_name: newUser.realName || '', // Campo nome real
+          real_name: newUser.realName || '', // Manter também no real_name
           telegram: newUser.telegram || '', // Campo telegram
           whatsapp: newUser.whatsapp || '', // Campo whatsapp
           status: newUser.status || 'Ativo', // Campo status
@@ -155,14 +155,14 @@ export default function AdminUsers() {
       
       // Preparar dados para atualização no Neon
       const updatedUserData = {
-        name: editingUser.name,
+        name: editingUser.realName || editingUser.name, // Usar o nome real como name principal
         email: editingUser.email,
         password: editingUser.password || '',
         m3u_url: editingUser.plan || '', // usando plan como m3u_url
         bouquets: editingUser.bouquets || '',
         expiration_date: editingUser.expirationDate || null,
         observations: editingUser.observations || '',
-        real_name: editingUser.realName || '', // Usar realName do editingUser
+        real_name: editingUser.realName || '', // Manter também no real_name
         telegram: editingUser.telegram || '', // Campo telegram
         whatsapp: editingUser.whatsapp || '', // Campo whatsapp
         status: editingUser.status || 'Ativo', // Campo status
@@ -1006,7 +1006,7 @@ export default function AdminUsers() {
             <TableBody>
               {filteredUsers.map(user => (
                 <TableRow key={user.id} className="hover:bg-[#232a36] transition-colors">
-                  <TableCell className="text-white font-medium">{user.real_name || user.name}</TableCell>
+                  <TableCell className="text-white font-medium">{user.name}</TableCell>
                   <TableCell className="text-gray-300">{user.email}</TableCell>
                   <TableCell className="text-gray-300">{user.plan}</TableCell>
                   <TableCell>
@@ -1084,7 +1084,7 @@ export default function AdminUsers() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label className="text-gray-400 text-sm">Nome</Label>
-                      <p className="text-white font-medium">{viewingUser.real_name || viewingUser.name}</p>
+                      <p className="text-white font-medium">{viewingUser.name}</p>
                     </div>
                     <div>
                       <Label className="text-gray-400 text-sm">Email</Label>
@@ -1578,7 +1578,7 @@ export default function AdminUsers() {
             <div className="bg-[#23272f] rounded-lg p-4 mb-4">
               <h3 className="text-lg font-semibold text-white mb-2">Usuário a ser excluído:</h3>
               <div className="space-y-2">
-                <p className="text-white"><span className="text-gray-400">Nome:</span> {deletingUser.real_name || deletingUser.name}</p>
+                <p className="text-white"><span className="text-gray-400">Nome:</span> {deletingUser.name}</p>
                 <p className="text-white"><span className="text-gray-400">Email:</span> {deletingUser.email}</p>
                 <p className="text-white"><span className="text-gray-400">Plano:</span> {deletingUser.plan}</p>
                 <p className="text-white"><span className="text-gray-400">Status:</span> {deletingUser.status}</p>
