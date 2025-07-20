@@ -142,7 +142,12 @@ export default function AdminResellers() {
       if (success) {
         // Atualizar Dashboard instantaneamente
         console.log('📤 Revendas: Disparando evento refresh-dashboard após editar revenda');
-        window.dispatchEvent(new CustomEvent('refresh-dashboard', { detail: { source: 'resellers', action: 'update' } }));
+        try {
+          window.dispatchEvent(new CustomEvent('refresh-dashboard', { detail: { source: 'resellers', action: 'update' } }));
+          console.log('✅ Evento disparado com sucesso');
+        } catch (error) {
+          console.error('❌ Erro ao disparar evento:', error);
+        }
         
         setEditingReseller(null);
         setIsEditDialogOpen(false);
@@ -157,7 +162,12 @@ export default function AdminResellers() {
       if (success) {
         // Atualizar Dashboard instantaneamente
         console.log('📤 Revendas: Disparando evento refresh-dashboard após deletar revenda');
-        window.dispatchEvent(new CustomEvent('refresh-dashboard', { detail: { source: 'resellers', action: 'delete' } }));
+        try {
+          window.dispatchEvent(new CustomEvent('refresh-dashboard', { detail: { source: 'resellers', action: 'delete' } }));
+          console.log('✅ Evento disparado com sucesso');
+        } catch (error) {
+          console.error('❌ Erro ao disparar evento:', error);
+        }
         
         setDeletingReseller(null);
         setIsDeleteDialogOpen(false);
