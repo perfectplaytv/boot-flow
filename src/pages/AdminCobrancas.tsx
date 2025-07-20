@@ -208,15 +208,30 @@ export default function AdminCobrancas() {
   // Função para preencher automaticamente os campos quando um cliente for selecionado
   const handleClienteChange = (clienteId: string) => {
     if (clienteId) {
-      const selectedUser = users.find(user => user.id.toString() === clienteId);
-      if (selectedUser) {
-        setNova({
-          ...nova,
-          cliente: clienteId,
-          nomeCliente: selectedUser.name,
-          email: selectedUser.email,
-          telefone: selectedUser.phone || ''
-        });
+      if (clienteId.startsWith('cliente-')) {
+        const id = clienteId.replace('cliente-', '');
+        const selectedUser = users.find(user => user.id.toString() === id);
+        if (selectedUser) {
+          setNova({
+            ...nova,
+            cliente: clienteId,
+            nomeCliente: selectedUser.name,
+            email: selectedUser.email,
+            telefone: selectedUser.phone || ''
+          });
+        }
+      } else if (clienteId.startsWith('revenda-')) {
+        const id = clienteId.replace('revenda-', '');
+        const selectedRev = resellers.find(rev => rev.id.toString() === id);
+        if (selectedRev) {
+          setNova({
+            ...nova,
+            cliente: clienteId,
+            nomeCliente: selectedRev.personal_name || selectedRev.username,
+            email: selectedRev.email || '',
+            telefone: selectedRev.whatsapp || ''
+          });
+        }
       }
     } else {
       setNova({
@@ -429,12 +444,17 @@ export default function AdminCobrancas() {
                   value={nova.cliente}
                   onChange={e => handleClienteChange(e.target.value)}
                 >
-                  <option value="">Selecione um cliente</option>
-                  {users.map(user => (
-                    <option key={user.id} value={user.id.toString()}>
-                      {user.name} - {user.email}
-                    </option>
-                  ))}
+                  <option value="">Selecione um cliente ou revenda</option>
+                  <optgroup label="Clientes">
+                    {users.map(user => (
+                      <option key={`cliente-${user.id}`} value={`cliente-${user.id}`}>{user.name} - {user.email}</option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="Revendas">
+                    {resellers.map(rev => (
+                      <option key={`revenda-${rev.id}`} value={`revenda-${rev.id}`}>{rev.personal_name || rev.username} - {rev.email}</option>
+                    ))}
+                  </optgroup>
                 </select>
               </div>
 
