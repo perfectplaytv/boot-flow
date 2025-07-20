@@ -17,6 +17,33 @@ export default function AdminUsers() {
   const { users, loading, error, createUser, updateUser, deleteUser } = useNeonUsers();
   const { users: cobrancasUsers } = useUsers(); // Usuários da página de Cobranças
 
+  // Estilos CSS customizados para o scroll
+  React.useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      .custom-scroll::-webkit-scrollbar {
+        width: 8px;
+      }
+      .custom-scroll::-webkit-scrollbar-track {
+        background: #374151;
+        border-radius: 4px;
+      }
+      .custom-scroll::-webkit-scrollbar-thumb {
+        background: #6b7280;
+        border-radius: 4px;
+      }
+      .custom-scroll::-webkit-scrollbar-thumb:hover {
+        background: #9ca3af;
+      }
+      .custom-scroll {
+        scrollbar-width: thin;
+        scrollbar-color: #6b7280 #374151;
+      }
+    `;
+    document.head.appendChild(style);
+    return () => document.head.removeChild(style);
+  }, []);
+
   const [newUser, setNewUser] = useState({
     name: "",
     email: "",
@@ -422,7 +449,7 @@ export default function AdminUsers() {
                     </div>
 
                     {/* Scrollable Content */}
-                    <div className="flex-1 overflow-y-auto p-6 space-y-6 min-h-0 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
+                    <div className="flex-1 overflow-y-auto p-6 space-y-6 min-h-0 custom-scroll">
                       {/* Extração M3U Section */}
                       <div className="border border-blue-600 rounded-lg p-4 bg-blue-900/10">
                         <h3 className="text-lg font-medium text-white mb-2">Extração M3U</h3>
