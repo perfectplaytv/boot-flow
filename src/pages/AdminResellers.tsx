@@ -217,9 +217,7 @@ export default function AdminResellers() {
                 <span className="sm:hidden">Novo</span>
               </Button>
             </DialogTrigger>
-          </Dialog>
-        </div>
-          <DialogContent className="bg-[#1f2937] text-white max-w-4xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col max-h-[90vh] overflow-y-auto scrollbar-hide">
+            <DialogContent className="bg-[#1f2937] text-white max-w-4xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col max-h-[90vh] overflow-y-auto scrollbar-hide">
             <DialogHeader className="sr-only">
               <DialogTitle>Adicionar Revenda</DialogTitle>
               <DialogDescription>Preencha os dados do novo revendedor</DialogDescription>
@@ -564,6 +562,7 @@ export default function AdminResellers() {
             </div>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       {/* Barra de pesquisa */}
