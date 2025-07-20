@@ -801,12 +801,13 @@ export default function AdminUsers() {
                   </div>
                   {/* Nome */}
                   <div className="col-span-1">
-                    <label className="block text-gray-300 mb-1 font-medium">Nome</label>
+                    <label className="block text-gray-300 mb-1 font-medium">Nome *</label>
                     <input 
-                      placeholder="Opcional" 
+                      placeholder="Digite o nome completo" 
                       className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                       value={newUser.realName}
                       onChange={(e) => setNewUser({...newUser, realName: e.target.value})}
+                      required
                     />
                   </div>
                   {/* E-mail */}
@@ -916,7 +917,7 @@ export default function AdminUsers() {
                 <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} className="bg-gray-700 text-white px-6 py-2 rounded font-semibold">Fechar</Button>
                 <Button 
                   onClick={handleAddUser}
-                  disabled={!newUser.name || !newUser.email || !newUser.plan || isAddingUser}
+                  disabled={!newUser.name || !newUser.email || !newUser.plan || !newUser.realName || isAddingUser}
                   className={`px-6 py-2 rounded font-semibold transition-all duration-300 ${
                     addUserSuccess 
                       ? 'bg-green-600 text-white' 
@@ -1378,15 +1379,16 @@ export default function AdminUsers() {
                     </div>
                     {/* Nome */}
                     <div className="col-span-1">
-                      <label className="block text-gray-300 mb-1 font-medium">Nome</label>
+                      <label className="block text-gray-300 mb-1 font-medium">Nome *</label>
                       <input 
                         value={editingRealName}
                         onChange={(e) => {
                           console.log('Campo Nome alterado:', e.target.value);
                           setEditingRealName(e.target.value);
                         }}
-                        placeholder="Opcional" 
+                        placeholder="Digite o nome completo" 
                         className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2" 
+                        required
                       />
                     </div>
                     {/* E-mail */}
@@ -1526,7 +1528,11 @@ export default function AdminUsers() {
                   <Button variant="outline" onClick={() => setIsEditDialogOpen(false)} className="bg-gray-700 text-white px-6 py-2 rounded font-semibold">
                     Cancelar
                   </Button>
-                  <Button onClick={handleEditUser} className="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-2 rounded font-semibold">
+                  <Button 
+                    onClick={handleEditUser} 
+                    disabled={!editingRealName.trim()}
+                    className="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-2 rounded font-semibold disabled:bg-gray-600 disabled:cursor-not-allowed"
+                  >
                     Salvar Alterações
                   </Button>
                 </div>
