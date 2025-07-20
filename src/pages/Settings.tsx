@@ -49,18 +49,18 @@ export default function Settings() {
           <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white px-4 sm:px-6 py-2 rounded font-semibold h-10 sm:h-auto">Salvar Alterações</Button>
         </div>
         <Tabs value={tab} onValueChange={setTab} className="mb-6">
-          <TabsList className="flex bg-[#1f2937] rounded-lg w-full">
-            <TabsTrigger value="perfil" className="flex-1 data-[state=active]:bg-[#7e22ce] data-[state=active]:text-white">Perfil</TabsTrigger>
-            <TabsTrigger value="notificacoes" className="flex-1 data-[state=active]:bg-[#7e22ce] data-[state=active]:text-white">Notificações</TabsTrigger>
-            <TabsTrigger value="integracoes" className="flex-1 data-[state=active]:bg-[#7e22ce] data-[state=active]:text-white">Integrações</TabsTrigger>
-            <TabsTrigger value="faturamento" className="flex-1 data-[state=active]:bg-[#7e22ce] data-[state=active]:text-white">Faturamento</TabsTrigger>
-            <TabsTrigger value="seguranca" className="flex-1 data-[state=active]:bg-[#7e22ce] data-[state=active]:text-white">Segurança</TabsTrigger>
+          <TabsList className="flex flex-wrap bg-[#1f2937] rounded-lg w-full">
+            <TabsTrigger value="perfil" className="flex-1 min-w-0 text-xs sm:text-sm data-[state=active]:bg-[#7e22ce] data-[state=active]:text-white">Perfil</TabsTrigger>
+            <TabsTrigger value="notificacoes" className="flex-1 min-w-0 text-xs sm:text-sm data-[state=active]:bg-[#7e22ce] data-[state=active]:text-white">Notificações</TabsTrigger>
+            <TabsTrigger value="integracoes" className="flex-1 min-w-0 text-xs sm:text-sm data-[state=active]:bg-[#7e22ce] data-[state=active]:text-white">Integrações</TabsTrigger>
+            <TabsTrigger value="faturamento" className="flex-1 min-w-0 text-xs sm:text-sm data-[state=active]:bg-[#7e22ce] data-[state=active]:text-white">Faturamento</TabsTrigger>
+            <TabsTrigger value="seguranca" className="flex-1 min-w-0 text-xs sm:text-sm data-[state=active]:bg-[#7e22ce] data-[state=active]:text-white">Segurança</TabsTrigger>
           </TabsList>
           <TabsContent value="perfil">
-            <div className="bg-[#1f2937] rounded-xl p-6 border border-purple-700/40 mt-4">
-              <h2 className="text-xl font-bold text-white mb-2 flex items-center gap-2">👤 Informações Pessoais</h2>
-              <p className="text-gray-400 mb-6">Atualize suas informações básicas</p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div className="bg-[#1f2937] rounded-xl p-3 sm:p-6 border border-purple-700/40 mt-4">
+              <h2 className="text-lg sm:text-xl font-bold text-white mb-2 flex items-center gap-2">👤 Informações Pessoais</h2>
+              <p className="text-gray-400 text-sm sm:text-base mb-4 sm:mb-6">Atualize suas informações básicas</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
                 <div>
                   <label className="block text-gray-300 mb-1 font-medium">Nome</label>
                   <Input name="nome" value={perfil.nome} onChange={handleChange} className="bg-[#1f2937] border border-gray-700 text-white" />
@@ -89,10 +89,10 @@ export default function Settings() {
             </div>
           </TabsContent>
           <TabsContent value="notificacoes">
-            <div className="bg-[#1f2937] rounded-xl p-6 border border-purple-700/40 mt-4">
-              <h2 className="text-xl font-bold text-white mb-2">Notificações</h2>
-              <p className="text-gray-400 mb-6">Gerencie como deseja ser avisado</p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div className="bg-[#1f2937] rounded-xl p-3 sm:p-6 border border-purple-700/40 mt-4">
+              <h2 className="text-lg sm:text-xl font-bold text-white mb-2">Notificações</h2>
+              <p className="text-gray-400 text-sm sm:text-base mb-4 sm:mb-6">Gerencie como deseja ser avisado</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
                 <div className="flex items-center justify-between">
                   <span className="text-gray-300">E-mail</span>
                   <Switch checked={notificacoes.email} onCheckedChange={v => setNotificacoes(n => ({ ...n, email: v }))} />
