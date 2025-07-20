@@ -202,6 +202,9 @@ export default function AdminUsers() {
   };
 
   const openEditModal = (user: User) => {
+    console.log('Dados do usuário vindos do banco:', user);
+    console.log('Campo real_name do banco:', user.real_name);
+    
     // Mapear campos do banco para o frontend
     const mappedUser = {
       ...user,
@@ -216,6 +219,10 @@ export default function AdminUsers() {
       credits: user.credits || 0, // Campo créditos
       notes: user.notes || '' // Campo anotações
     };
+    
+    console.log('Usuário mapeado para o frontend:', mappedUser);
+    console.log('Campo realName mapeado:', mappedUser.realName);
+    
     setEditingUser(mappedUser);
     setIsEditDialogOpen(true);
   };
