@@ -397,32 +397,34 @@ const AdminDashboard = () => {
         return (
           <div className="space-y-6">
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <h1 className="text-3xl font-bold text-white">Dashboard Admin</h1>
-                <p className="text-gray-400">Visão geral do sistema</p>
+                <h1 className="text-2xl sm:text-3xl font-bold text-white">Dashboard Admin</h1>
+                <p className="text-gray-400 text-sm sm:text-base">Visão geral do sistema</p>
               </div>
-              <div className="flex items-center space-x-2">
-                <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white" onClick={() => handlePageChange("resellers")}> 
-                  <Plus className="w-4 h-4 mr-2" />
-                  Novo Revenda
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:space-x-2">
+                <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white h-10 sm:h-auto" onClick={() => handlePageChange("resellers")}> 
+                  <Plus className="w-4 h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Novo Revenda</span>
+                  <span className="sm:hidden">Revenda</span>
                 </Button>
-                <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white" onClick={() => handlePageChange("users")}> 
-                  <UserPlus className="w-4 h-4 mr-2" />
-                  Novo Cliente
+                <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white h-10 sm:h-auto" onClick={() => handlePageChange("users")}> 
+                  <UserPlus className="w-4 h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Novo Cliente</span>
+                  <span className="sm:hidden">Cliente</span>
                 </Button>
               </div>
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
               <Card className="hover:shadow-glow transition-all duration-300">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total de Usuários</CardTitle>
-                  <Users className="h-4 w-4 text-muted-foreground" />
+                  <CardTitle className="text-xs sm:text-sm font-medium">Total de Usuários</CardTitle>
+                  <Users className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
                 </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stats.totalUsers.toLocaleString()}</div>
+                <CardContent className="p-3 sm:p-6">
+                  <div className="text-lg sm:text-2xl font-bold">{stats.totalUsers.toLocaleString()}</div>
                   <p className="text-xs text-muted-foreground">
                     +{stats.monthlyGrowth}% em relação ao mês passado
                   </p>
@@ -431,11 +433,11 @@ const AdminDashboard = () => {
 
               <Card className="hover:shadow-glow transition-all duration-300">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Receita Total</CardTitle>
-                  <DollarSign className="h-4 w-4 text-muted-foreground" />
+                  <CardTitle className="text-xs sm:text-sm font-medium">Receita Total</CardTitle>
+                  <DollarSign className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
                 </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">R$ {stats.totalRevenue.toLocaleString()}</div>
+                <CardContent className="p-3 sm:p-6">
+                  <div className="text-lg sm:text-2xl font-bold">R$ {stats.totalRevenue.toLocaleString()}</div>
                   <p className="text-xs text-muted-foreground">
                     +15.3% em relação ao mês passado
                   </p>
@@ -444,11 +446,11 @@ const AdminDashboard = () => {
 
               <Card className="hover:shadow-glow transition-all duration-300">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Revendedores Ativos</CardTitle>
-                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                  <CardTitle className="text-xs sm:text-sm font-medium">Revendedores Ativos</CardTitle>
+                  <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
                 </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stats.activeResellers}</div>
+                <CardContent className="p-3 sm:p-6">
+                  <div className="text-lg sm:text-2xl font-bold">{stats.activeResellers}</div>
                   <p className="text-xs text-muted-foreground">
                     +8.2% em relação ao mês passado
                   </p>
