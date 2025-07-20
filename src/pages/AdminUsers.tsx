@@ -64,6 +64,11 @@ export default function AdminUsers() {
   const [copyProgress, setCopyProgress] = useState(0);
   const [copySuccess, setCopySuccess] = useState(false);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const totalPages = Math.ceil(users.length / itemsPerPage);
+  const paginatedUsers = users.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
   const filteredUsers = users.filter(user =>
     user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.email.toLowerCase().includes(searchTerm.toLowerCase())
@@ -1028,7 +1033,7 @@ export default function AdminUsers() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredUsers.map(user => (
+              {paginatedUsers.map(user => (
                 <TableRow key={user.id} className="hover:bg-[#232a36] transition-colors">
                   <TableCell className="text-white font-medium text-xs sm:text-sm">{user.name}</TableCell>
                   <TableCell className="hidden sm:table-cell text-gray-300 text-xs sm:text-sm">{user.email}</TableCell>
@@ -1078,6 +1083,29 @@ export default function AdminUsers() {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Paginação */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-4 mt-4">
+          <Button
+            variant="outline"
+            className="bg-[#23272f] text-white border border-gray-700 px-4 py-2 rounded disabled:opacity-50"
+            onClick={() => setCurrentPage(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            Voltar
+          </Button>
+          <span className="text-white text-sm">Página {currentPage} de {totalPages}</span>
+          <Button
+            variant="outline"
+            className="bg-[#23272f] text-white border border-gray-700 px-4 py-2 rounded disabled:opacity-50"
+            onClick={() => setCurrentPage(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            Próximo
+          </Button>
+        </div>
+      )}
 
       {/* Modal de Visualização */}
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
