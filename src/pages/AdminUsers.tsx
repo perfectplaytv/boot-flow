@@ -601,6 +601,7 @@ export default function AdminUsers() {
                                 onChange={(e) => setNewUser({...newUser, expirationDate: e.target.value})}
                                 className="bg-[#23272f] border-gray-700 text-white pr-10"
                                 placeholder="dd/mm/aaaa"
+                                min={new Date().toISOString().split('T')[0]}
                               />
                               <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                             </div>
