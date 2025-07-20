@@ -736,6 +736,7 @@ export default function AdminUsers() {
                             <Input
                               type="date"
                               className="bg-[#23272f] border-gray-700 text-white"
+                              min={new Date().toISOString().split('T')[0]}
                             />
                           </div>
 
