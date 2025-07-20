@@ -717,76 +717,7 @@ const AdminDashboard = () => {
     }
   };
 
-  // Polling para atualização automática
-  useEffect(() => {
-    const interval = setInterval(() => {
-      refreshUsers();
-      if (refreshResellers) refreshResellers();
-    }, 10000); // 10 segundos
-    return () => clearInterval(interval);
-  }, [refreshUsers, refreshResellers]);
 
-  // Forçar atualização quando refreshTrigger muda
-  useEffect(() => {
-    if (refreshTrigger > 0) {
-      console.log('🔄 Forçando atualização dos dados...');
-      refreshUsers();
-      if (refreshResellers) refreshResellers();
-    }
-  }, [refreshTrigger, refreshUsers, refreshResellers]);
-
-  // Listener para atualização instantânea
-  useEffect(() => {
-    const handleRefresh = (event: CustomEvent) => {
-      console.log('🔄 Dashboard: Evento refresh-dashboard recebido, atualizando dados...');
-      console.log('Evento recebido:', event);
-      console.log('Detalhes do evento:', event.detail);
-      
-      // Forçar re-renderização
-      setRefreshTrigger(prev => prev + 1);
-      
-      // Atualizar dados baseado na fonte
-      if (event.detail?.source === 'users' || !event.detail?.source) {
-        console.log('🔄 Atualizando dados de usuários...');
-        refreshUsers();
-      }
-      if (event.detail?.source === 'resellers' || !event.detail?.source) {
-        console.log('🔄 Atualizando dados de revendedores...');
-        if (refreshResellers) refreshResellers();
-      }
-    };
-    window.addEventListener('refresh-dashboard', handleRefresh as EventListener);
-    return () => window.removeEventListener('refresh-dashboard', handleRefresh as EventListener);
-  }, [refreshUsers, refreshResellers]);
-
-  // Listener para localStorage (comunicação entre páginas)
-  useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'dashboard-refresh') {
-        console.log('🔄 Dashboard: localStorage change detectado, atualizando dados...');
-        setRefreshTrigger(prev => prev + 1);
-      }
-    };
-    
-    const checkForRefresh = () => {
-      const refreshFlag = localStorage.getItem('dashboard-refresh');
-      if (refreshFlag) {
-        console.log('🔄 Dashboard: Flag de refresh encontrada, atualizando dados...');
-        localStorage.removeItem('dashboard-refresh');
-        setRefreshTrigger(prev => prev + 1);
-      }
-    };
-    
-    window.addEventListener('storage', handleStorageChange);
-    checkForRefresh(); // Verificar ao montar o componente
-    
-    const interval = setInterval(checkForRefresh, 1000); // Verificar a cada segundo
-    
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      clearInterval(interval);
-    };
-  }, []);
 
   return (
     <SidebarProvider>
