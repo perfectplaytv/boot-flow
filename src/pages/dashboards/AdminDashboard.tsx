@@ -403,9 +403,9 @@ const AdminDashboard = () => {
                 <p className="text-gray-400">Visão geral do sistema</p>
               </div>
               <div className="flex items-center space-x-2">
-                <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white" onClick={() => handleModalOpen("ai_config")}> 
-                  <Brain className="w-4 h-4 mr-2" />
-                  Configurar IA
+                <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white" onClick={() => handlePageChange("resellers")}> 
+                  <Plus className="w-4 h-4 mr-2" />
+                  Novo Revenda
                 </Button>
                 <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white" onClick={() => handlePageChange("users")}> 
                   <UserPlus className="w-4 h-4 mr-2" />
@@ -799,9 +799,9 @@ const AdminDashboard = () => {
                     <p className="text-gray-400">Visão geral do sistema</p>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white" onClick={() => handleModalOpen("ai_config")}> 
-                      <Brain className="w-4 h-4 mr-2" />
-                      Configurar IA
+                    <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white" onClick={() => handlePageChange("resellers")}> 
+                      <Plus className="w-4 h-4 mr-2" />
+                      Novo Revenda
                     </Button>
                     <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white" onClick={() => handlePageChange("users")}> 
                       <UserPlus className="w-4 h-4 mr-2" />
