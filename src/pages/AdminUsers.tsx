@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -55,6 +56,37 @@ export default function AdminUsers() {
     password: "",
     bouquets: ""
   });
+
+  // Função para converter data do formato brasileiro para ISO
+  const convertDateToISO = (dateString: string) => {
+    if (!dateString) return "";
+    
+    // Se já está no formato ISO, retorna como está
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+      return dateString;
+    }
+    
+    // Se está no formato brasileiro (dd/mm/yyyy), converte para ISO
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateString)) {
+      const [day, month, year] = dateString.split('/');
+      return `${year}-${month}-${day}`;
+    }
+    
+    return dateString;
+  };
+
+  // Função para converter data do formato ISO para brasileiro
+  const convertDateToBrazilian = (dateString: string) => {
+    if (!dateString) return "";
+    
+    // Se está no formato ISO, converte para brasileiro
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+      const [year, month, day] = dateString.split('-');
+      return `${day}/${month}/${year}`;
+    }
+    
+    return dateString;
+  };
 
   // Estados para a extração M3U
   const [m3uUrl, setM3uUrl] = useState("");
@@ -412,10 +444,12 @@ export default function AdminUsers() {
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="bg-[#0f1419] border-gray-700 text-white max-w-4xl h-[95vh] p-0" style={{ maxHeight: '95vh', overflow: 'hidden' }}>
-                  <DialogHeader className="sr-only">
-                    <DialogTitle>Adicionar Cliente</DialogTitle>
-                    <DialogDescription>Preencha os dados do novo cliente para adicioná-lo à base de dados</DialogDescription>
-                  </DialogHeader>
+                  <VisuallyHidden>
+                    <DialogHeader>
+                      <DialogTitle>Adicionar Cliente</DialogTitle>
+                      <DialogDescription>Preencha os dados do novo cliente para adicioná-lo à base de dados</DialogDescription>
+                    </DialogHeader>
+                  </VisuallyHidden>
                   <div className="flex flex-col h-full">
                     {/* Header */}
                     <div className="flex items-center justify-between p-6 border-b border-gray-700 bg-[#1a1f2e] flex-shrink-0">
