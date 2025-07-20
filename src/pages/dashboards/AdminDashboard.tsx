@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -71,8 +71,8 @@ const AdminDashboard = () => {
     aiInteractions: 45678
   });
 
-  const { users, loading: loadingUsers } = useNeonUsers();
-  const { resellers: resellersData, loading: loadingResellers } = useNeonResellers();
+  const { users, loading: loadingUsers, refreshUsers } = useNeonUsers();
+  const { resellers: resellersData, loading: loadingResellers, refreshResellers } = useNeonResellers();
 
   // Unificar atividades recentes (exemplo: cadastro, edição, status)
   const recentActivityUnified = [
@@ -815,6 +815,15 @@ const AdminDashboard = () => {
       });
     }
   };
+
+  // Polling para atualização automática
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refreshUsers();
+      if (refreshResellers) refreshResellers();
+    }, 10000); // 10 segundos
+    return () => clearInterval(interval);
+  }, [refreshUsers, refreshResellers]);
 
   return (
     <SidebarProvider>
