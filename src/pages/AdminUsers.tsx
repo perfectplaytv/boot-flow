@@ -1314,8 +1314,8 @@ export default function AdminUsers() {
                     <div className="col-span-1">
                       <label className="block text-gray-300 mb-1 font-medium">Nome</label>
                       <input 
-                        value={editingUser.name}
-                        onChange={(e) => setEditingUser({...editingUser, name: e.target.value})}
+                        value={editingUser.realName || ""}
+                        onChange={(e) => setEditingUser({...editingUser, realName: e.target.value})}
                         placeholder="Opcional" 
                         className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2" 
                       />
