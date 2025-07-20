@@ -82,7 +82,8 @@ export default function AdminUsers() {
           m3u_url: newUser.plan || '', // usando plan como m3u_url
           bouquets: newUser.bouquets || '',
           expiration_date: newUser.expirationDate || null,
-          observations: newUser.observations || ''
+          observations: newUser.observations || '',
+          real_name: newUser.realName || '' // Adicionando o campo realName
         };
         
         console.log('Dados preparados para adicionar:', userData);
@@ -141,7 +142,8 @@ export default function AdminUsers() {
         m3u_url: editingUser.plan || '', // usando plan como m3u_url
         bouquets: editingUser.bouquets || '',
         expiration_date: editingUser.expirationDate || null,
-        observations: editingUser.observations || ''
+        observations: editingUser.observations || '',
+        real_name: editingUser.realName || '' // Adicionando o campo realName
       };
       
       console.log('Dados preparados para atualização:', updatedUserData);
