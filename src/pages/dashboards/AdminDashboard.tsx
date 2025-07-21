@@ -740,6 +740,7 @@ const AdminDashboard = () => {
                       <span className="hidden sm:inline">Novo Cliente</span>
                       <span className="sm:hidden">Cliente</span>
                     </Button>
+
                   </div>
                 </div>
                 {/* Cards de métricas do Analytics */}
