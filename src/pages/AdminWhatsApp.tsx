@@ -598,7 +598,7 @@ const AdminWhatsApp: React.FC = () => {
 
       {/* Cards de Métricas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="border-gray-700" style={{ backgroundColor: '#1F2937' }}>
+        <Card className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 border border-purple-700/40">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-400">Total Mensagens</CardTitle>
             <MessageSquare className="h-5 w-5 text-green-400" />
@@ -607,7 +607,7 @@ const AdminWhatsApp: React.FC = () => {
             <div className="text-2xl font-bold text-green-400">{templates.reduce((acc, t) => acc + t.sent, 0)}</div>
           </CardContent>
         </Card>
-        <Card className="border-gray-700" style={{ backgroundColor: '#1F2937' }}>
+        <Card className="bg-gradient-to-br from-green-900/50 to-green-800/30 border border-green-700/40">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-400">Taxa de Entrega</CardTitle>
             <CheckCircle className="h-5 w-5 text-green-400" />
@@ -616,7 +616,7 @@ const AdminWhatsApp: React.FC = () => {
             <div className="text-2xl font-bold text-green-400">{templates.length ? (templates.reduce((acc, t) => acc + t.delivery, 0) / templates.length).toFixed(1) : '0'}%</div>
           </CardContent>
         </Card>
-        <Card className="border-gray-700" style={{ backgroundColor: '#1F2937' }}>
+        <Card className="bg-gradient-to-br from-blue-900/50 to-blue-800/30 border border-blue-700/40">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-400">Taxa de Leitura</CardTitle>
             <Eye className="h-5 w-5 text-blue-400" />
@@ -625,7 +625,7 @@ const AdminWhatsApp: React.FC = () => {
             <div className="text-2xl font-bold text-blue-400">86.1%</div>
           </CardContent>
         </Card>
-        <Card className="border-gray-700" style={{ backgroundColor: '#1F2937' }}>
+        <Card className="bg-gradient-to-br from-yellow-900/50 to-yellow-800/30 border border-yellow-700/40">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-400">Tempo Médio</CardTitle>
             <Clock className="h-5 w-5 text-purple-400" />
