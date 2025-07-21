@@ -287,7 +287,7 @@ export default function AdminEcommerce() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="bg-[#1f2937] text-white">
+        <Card className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 border border-purple-700/40 text-white">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-300">Receita Total</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
@@ -299,7 +299,7 @@ export default function AdminEcommerce() {
             </p>
           </CardContent>
         </Card>
-        <Card className="bg-[#1f2937] text-white">
+        <Card className="bg-gradient-to-br from-green-900/50 to-green-800/30 border border-green-700/40 text-white">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-300">Produtos</CardTitle>
             <Package className="h-4 w-4 text-muted-foreground" />
@@ -311,7 +311,7 @@ export default function AdminEcommerce() {
             </p>
           </CardContent>
         </Card>
-        <Card className="bg-[#1f2937] text-white">
+        <Card className="bg-gradient-to-br from-blue-900/50 to-blue-800/30 border border-blue-700/40 text-white">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-300">Vendas</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
@@ -323,7 +323,7 @@ export default function AdminEcommerce() {
             </p>
           </CardContent>
         </Card>
-        <Card className="bg-[#1f2937] text-white">
+        <Card className="bg-gradient-to-br from-yellow-900/50 to-yellow-800/30 border border-yellow-700/40 text-white">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-300">Clientes</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
