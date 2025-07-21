@@ -71,8 +71,8 @@ const AdminDashboard = () => {
   });
 
   // Hooks para dados de usuários e revendedores
-  const { users, refreshUsers } = useNeonUsers();
-  const { resellers: resellersData, refreshResellers } = useNeonResellers();
+  const { users, loading: loadingUsers, refreshUsers } = useNeonUsers();
+  const { resellers: resellersData, loading: loadingResellers, refreshResellers } = useNeonResellers();
 
   // Atualizar estatísticas quando os dados mudarem
   useEffect(() => {
@@ -83,6 +83,55 @@ const AdminDashboard = () => {
       activeClients: users.length
     }));
   }, [users, resellersData]);
+
+  // Dados para atividade recente e usuários online
+  const recentActivityUnified = [
+    {
+      id: 1,
+      type: 'user',
+      user: 'João Silva',
+      time: '2 minutos atrás',
+      status: 'Ativo'
+    },
+    {
+      id: 2,
+      type: 'reseller',
+      user: 'Maria Santos',
+      time: '5 minutos atrás',
+      status: 'Online'
+    },
+    {
+      id: 3,
+      type: 'user',
+      user: 'Pedro Costa',
+      time: '10 minutos atrás',
+      status: 'Inativo'
+    }
+  ];
+
+  const onlineUsersUnified = [
+    {
+      id: 1,
+      name: 'João Silva',
+      type: 'Cliente',
+      status: 'Online',
+      lastSeen: 'Agora'
+    },
+    {
+      id: 2,
+      name: 'Maria Santos',
+      type: 'Revendedor',
+      status: 'Online',
+      lastSeen: '2 min atrás'
+    },
+    {
+      id: 3,
+      name: 'Pedro Costa',
+      type: 'Cliente',
+      status: 'Away',
+      lastSeen: '5 min atrás'
+    }
+  ];
 
 
   
@@ -112,6 +161,31 @@ const AdminDashboard = () => {
   const handleAddReseller = (reseller: any) => {
     toast.success("Revendedor adicionado com sucesso!");
     // Os dados serão atualizados automaticamente pelo hook
+  };
+
+  // Funções auxiliares para renderização
+  const getActivityIcon = (type: string) => {
+    switch (type) {
+      case 'user':
+        return <Users className="w-4 h-4 text-blue-400" />;
+      case 'reseller':
+        return <UserPlus className="w-4 h-4 text-green-400" />;
+      default:
+        return <Users className="w-4 h-4 text-gray-400" />;
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'Online':
+        return <Badge className="bg-green-500 text-white text-xs">Online</Badge>;
+      case 'Away':
+        return <Badge className="bg-yellow-500 text-white text-xs">Away</Badge>;
+      case 'Offline':
+        return <Badge className="bg-red-500 text-white text-xs">Offline</Badge>;
+      default:
+        return <Badge className="bg-gray-500 text-white text-xs">{status}</Badge>;
+    }
   };
 
 
@@ -1073,7 +1147,7 @@ const AdminDashboard = () => {
             )}
             {/* Renderização das outras páginas continua igual */}
             {currentPage === "users" && <AdminUsers />}
-            {currentPage === "resellers" && <AdminResellers resellers={resellers} onAddReseller={handleAddReseller} />}
+            {currentPage === "resellers" && <AdminResellers resellers={resellersData} onAddReseller={handleAddReseller} />}
             {currentPage === "iptv" && <AdminIPTV />}
             {currentPage === "radio" && <AdminRadio />}
             {currentPage === "ai" && <AdminAI />}
