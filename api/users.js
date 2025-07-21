@@ -21,14 +21,15 @@ export default async function handler(req, res) {
         break;
       }
       case 'POST': {
-        const newUser = req.body || req.body === '' ? req.body : JSON.parse(req.body);
+        const newUser = typeof req.body === 'string' && req.body !== '' ? JSON.parse(req.body) : req.body;
         const { data, error } = await supabase.from('users').insert([newUser]).select();
         if (error) throw error;
         res.status(201).set(headers).json({ success: true, message: 'Usuário criado com sucesso!', user: data[0] });
         break;
       }
       case 'PUT': {
-        const { id, ...updateData } = req.body || req.body === '' ? req.body : JSON.parse(req.body);
+        const body = typeof req.body === 'string' && req.body !== '' ? JSON.parse(req.body) : req.body;
+        const { id, ...updateData } = body;
         const { data, error } = await supabase.from('users').update(updateData).eq('id', id).select();
         if (error) throw error;
         if (!data.length) {
@@ -39,7 +40,8 @@ export default async function handler(req, res) {
         break;
       }
       case 'DELETE': {
-        const { id } = req.body || req.body === '' ? req.body : JSON.parse(req.body);
+        const body = typeof req.body === 'string' && req.body !== '' ? JSON.parse(req.body) : req.body;
+        const { id } = body;
         const { data, error } = await supabase.from('users').delete().eq('id', id).select();
         if (error) throw error;
         if (!data.length) {
@@ -53,6 +55,7 @@ export default async function handler(req, res) {
         res.status(405).set(headers).json({ success: false, message: 'Método não permitido' });
     }
   } catch (error) {
+    console.error('Erro na rota /api/users:', error);
     res.status(500).set(headers).json({ success: false, message: 'Erro interno do servidor', error: error.message });
   }
 } 
