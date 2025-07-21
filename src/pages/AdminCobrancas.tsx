@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Calendar, Plus, Search, Filter, Edit, Trash2, Eye, Copy, Mail, MessageSquare, BarChart3, Users } from 'lucide-react';
+import { Calendar, Plus, Search, Filter, Edit, Trash2, Eye, Copy, Mail, MessageSquare, BarChart3, Users, TrendingUp, DollarSign, AlertCircle, CheckCircle, Clock, Download, Upload, Zap, CreditCard, Receipt, Bell, Settings } from 'lucide-react';
 import { useUsers } from '@/hooks/useUsers';
 import type { User } from '@/hooks/useUsers';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
@@ -13,6 +13,10 @@ import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover
 import React from "react";
 import { useNeonUsers } from '@/hooks/useNeonUsers';
 import { useNeonResellers } from '@/hooks/useNeonResellers';
+import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { toast } from 'sonner';
 
 interface Cobranca {
   id: number;
@@ -21,8 +25,25 @@ interface Cobranca {
   descricao: string;
   valor: number;
   vencimento: string;
-  status: 'Pendente' | 'Vencida' | 'Paga';
+  status: 'Pendente' | 'Vencida' | 'Paga' | 'Cancelada';
   tipo: 'Cliente' | 'Revenda';
+  gateway?: string;
+  formaPagamento?: string;
+  tentativas?: number;
+  ultimaTentativa?: string;
+  proximaTentativa?: string;
+  observacoes?: string;
+  tags?: string[];
+}
+
+interface GatewayConfig {
+  id: string;
+  nome: string;
+  tipo: 'PIX' | 'Cartão' | 'Boleto';
+  status: 'Ativo' | 'Inativo';
+  taxa: string;
+  limite: string;
+  configurado: boolean;
 }
 
 // Gerar cobranças baseadas nos usuários
