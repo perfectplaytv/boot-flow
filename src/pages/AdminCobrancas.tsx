@@ -491,62 +491,107 @@ export default function AdminCobrancas() {
           </TabsTrigger>
         </TabsList>
       </Tabs>
-      {/* Alertas */}
-      <div className="mb-4">
-        {vencidas > 0 && (
-          <div className="bg-red-900/80 text-red-200 rounded-lg px-4 py-3 mb-2 font-semibold">
-            <span className="mr-2">⚠️</span> Você tem {vencidas} cobrança(s) vencida(s) totalizando R$ 300,00
-          </div>
-        )}
-        {vencendo.length > 0 && (
-          <div className="bg-yellow-900/80 text-yellow-200 rounded-lg px-4 py-3 font-semibold">
-            <span className="mr-2">⏰</span> Você tem {vencendo.length} cobrança(s) vencendo nos próximos 7 dias
-          </div>
-        )}
-      </div>
-      {/* Filtros e busca */}
-      <div className="flex flex-col md:flex-row md:items-center gap-3 mb-4">
-        <div className="flex-1 flex items-center bg-[#1f2937] rounded-lg px-3">
-          <Search className="w-5 h-5 text-gray-400 mr-2" />
-          <Input
-            placeholder="Buscar por cliente, descrição ou email..."
-            className="bg-transparent border-none text-white focus:ring-0"
-            value={busca}
-            onChange={e => setBusca(e.target.value)}
-          />
+      {/* Conteúdo das Tabs */}
+      <TabsContent value="dashboard" className="space-y-6">
+        {/* Alertas */}
+        <div className="mb-4">
+          {cobrancasVencidas > 0 && (
+            <div className="bg-red-900/80 text-red-200 rounded-lg px-4 py-3 mb-2 font-semibold">
+              <span className="mr-2">⚠️</span> Você tem {cobrancasVencidas} cobrança(s) vencida(s) totalizando R$ {(cobrancas.filter(c => c.status === 'Vencida').reduce((acc, c) => acc + c.valor, 0)).toLocaleString()}
+            </div>
+          )}
+          {cobrancasPendentes > 0 && (
+            <div className="bg-yellow-900/80 text-yellow-200 rounded-lg px-4 py-3 font-semibold">
+              <span className="mr-2">⏰</span> Você tem {cobrancasPendentes} cobrança(s) pendente(s) totalizando R$ {(cobrancas.filter(c => c.status === 'Pendente').reduce((acc, c) => acc + c.valor, 0)).toLocaleString()}
+            </div>
+          )}
         </div>
-        <select
-          className="bg-[#1f2937] border border-gray-700 text-gray-300 rounded px-3 py-2"
-          value={filtroStatus || ''}
-          onChange={e => setFiltroStatus(e.target.value || null)}
-        >
-          <option value="">Todos</option>
-          <option value="Pendente">Pendentes</option>
-          <option value="Vencida">Vencidas</option>
-          <option value="Paga">Pagas</option>
-        </select>
-        <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white" onClick={() => setModalNova(true)}>
-          <Plus className="w-4 h-4 mr-2" /> Nova Cobrança
-        </Button>
-      </div>
-      {/* Tabela de cobranças */}
-      <Card className="bg-[#1f2937] border border-purple-700/40">
-        <CardHeader>
-          <CardTitle className="text-white text-lg">Lista de Cobranças ({filtradas.length})</CardTitle>
-        </CardHeader>
-        <CardContent className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Cliente</TableHead>
-                <TableHead>Descrição</TableHead>
-                <TableHead>Valor</TableHead>
-                <TableHead>Vencimento</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-white text-xs sm:text-sm">Tipo</TableHead>
-                <TableHead>Ações</TableHead>
-              </TableRow>
-            </TableHeader>
+
+        {/* Gráficos e Métricas */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card className="bg-[#1f2937] border border-purple-700/40">
+            <CardHeader>
+              <CardTitle className="text-white">Taxa de Conversão</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center">
+                <div className="text-4xl font-bold text-green-400 mb-2">{taxaConversao.toFixed(1)}%</div>
+                <Progress value={taxaConversao} className="h-3" />
+                <p className="text-gray-400 text-sm mt-2">{cobrancasPagas} de {totalCobrancas} cobranças pagas</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-[#1f2937] border border-purple-700/40">
+            <CardHeader>
+              <CardTitle className="text-white">Performance por Gateway</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {gateways.filter(g => g.configurado).map(gateway => (
+                  <div key={gateway.id} className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-3 h-3 rounded-full ${gateway.status === 'Ativo' ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                      <span className="text-gray-300">{gateway.nome}</span>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm font-semibold text-white">{gateway.taxa}</div>
+                      <div className="text-xs text-gray-400">{gateway.limite}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </TabsContent>
+
+      <TabsContent value="cobrancas" className="space-y-6">
+        {/* Filtros e busca */}
+        <div className="flex flex-col md:flex-row md:items-center gap-3 mb-4">
+          <div className="flex-1 flex items-center bg-[#1f2937] rounded-lg px-3">
+            <Search className="w-5 h-5 text-gray-400 mr-2" />
+            <Input
+              placeholder="Buscar por cliente, descrição ou email..."
+              className="bg-transparent border-none text-white focus:ring-0"
+              value={busca}
+              onChange={e => setBusca(e.target.value)}
+            />
+          </div>
+          <select
+            className="bg-[#1f2937] border border-gray-700 text-gray-300 rounded px-3 py-2"
+            value={filtroStatus || ''}
+            onChange={e => setFiltroStatus(e.target.value || null)}
+          >
+            <option value="">Todos</option>
+            <option value="Pendente">Pendentes</option>
+            <option value="Vencida">Vencidas</option>
+            <option value="Paga">Pagas</option>
+          </select>
+          <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white" onClick={() => setModalNova(true)}>
+            <Plus className="w-4 h-4 mr-2" /> Nova Cobrança
+          </Button>
+        </div>
+
+        {/* Tabela de cobranças modernizada */}
+        <Card className="bg-[#1f2937] border border-purple-700/40">
+          <CardHeader>
+            <CardTitle className="text-white text-lg">Lista de Cobranças ({filtradas.length})</CardTitle>
+          </CardHeader>
+          <CardContent className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Cliente</TableHead>
+                  <TableHead>Descrição</TableHead>
+                  <TableHead>Valor</TableHead>
+                  <TableHead>Vencimento</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Gateway</TableHead>
+                  <TableHead>Tentativas</TableHead>
+                  <TableHead>Ações</TableHead>
+                </TableRow>
+              </TableHeader>
             <TableBody>
               {filtradas.map(c => (
                 <TableRow key={c.id}>
@@ -585,6 +630,103 @@ export default function AdminCobrancas() {
           </Table>
         </CardContent>
       </Card>
+      </TabsContent>
+
+      <TabsContent value="gateways" className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {gateways.map(gateway => (
+            <Card key={gateway.id} className="bg-[#1f2937] border border-purple-700/40">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-white text-lg">{gateway.nome}</CardTitle>
+                  <Badge className={gateway.status === 'Ativo' ? 'bg-green-700 text-green-200' : 'bg-red-700 text-red-200'}>
+                    {gateway.status}
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Tipo:</span>
+                    <span className="text-white">{gateway.tipo}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Taxa:</span>
+                    <span className="text-white">{gateway.taxa}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Limite:</span>
+                    <span className="text-white">{gateway.limite}</span>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="flex-1 border-purple-700 text-purple-400 hover:bg-purple-700/20"
+                    onClick={() => handleTestarGateway(gateway.id)}
+                  >
+                    <Zap className="w-4 h-4 mr-1" />
+                    Testar
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="flex-1 border-blue-700 text-blue-400 hover:bg-blue-700/20"
+                  >
+                    <Settings className="w-4 h-4 mr-1" />
+                    Config
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </TabsContent>
+
+      <TabsContent value="configuracoes" className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card className="bg-[#1f2937] border border-purple-700/40">
+            <CardHeader>
+              <CardTitle className="text-white">Configurações de Notificação</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-gray-300">Email automático</span>
+                <Switch defaultChecked />
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-300">WhatsApp automático</span>
+                <Switch defaultChecked />
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-300">Notificações push</span>
+                <Switch />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-[#1f2937] border border-purple-700/40">
+            <CardHeader>
+              <CardTitle className="text-white">Automação de Cobranças</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-gray-300">Cobrança automática</span>
+                <Switch defaultChecked />
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-300">Retry automático</span>
+                <Switch defaultChecked />
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-300">Multa por atraso</span>
+                <Switch />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </TabsContent>
       {/* Modal Nova Cobrança */}
       <Dialog open={modalNova} onOpenChange={setModalNova}>
         <DialogContent className="bg-[#1f2937] text-white max-w-2xl w-full p-0 rounded-xl shadow-xl border border-gray-700">
