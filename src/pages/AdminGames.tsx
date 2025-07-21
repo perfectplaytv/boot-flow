@@ -92,8 +92,8 @@ export default function AdminGames() {
   const totalAchievements = achievements.length;
 
   return (
-    <div className="max-w-full w-full h-full overflow-auto p-4">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-6 min-h-screen bg-[#09090b] p-3 sm:p-6">
+      <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold text-white">Gamificação</h1>
           <p className="text-gray-400">Gerencie sistema de pontos, conquistas e rankings</p>
@@ -271,7 +271,7 @@ export default function AdminGames() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
         <Card className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 border border-purple-700/40 text-white">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-300">Total de Pontos</CardTitle>
