@@ -71,7 +71,8 @@ const AdminDashboard = () => {
 
 
   
-
+  // Estado para forçar re-renderização
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
 
 
@@ -386,7 +387,17 @@ const AdminDashboard = () => {
                   <span className="hidden sm:inline">Novo Cliente</span>
                   <span className="sm:hidden">Cliente</span>
                 </Button>
-
+                <Button 
+                  className="bg-green-600 hover:bg-green-700 text-white h-10 sm:h-auto" 
+                  onClick={() => {
+                    console.log('🔄 Teste manual: Atualizando dados...');
+                    setRefreshTrigger(prev => prev + 1);
+                  }}
+                > 
+                  <RefreshCw className="w-4 h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Atualizar</span>
+                  <span className="sm:hidden">Refresh</span>
+                </Button>
               </div>
             </div>
 
@@ -706,7 +717,76 @@ const AdminDashboard = () => {
     }
   };
 
+  // Polling para atualização automática
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refreshUsers();
+      if (refreshResellers) refreshResellers();
+    }, 10000); // 10 segundos
+    return () => clearInterval(interval);
+  }, [refreshUsers, refreshResellers]);
 
+  // Forçar atualização quando refreshTrigger muda
+  useEffect(() => {
+    if (refreshTrigger > 0) {
+      console.log('🔄 Forçando atualização dos dados...');
+      refreshUsers();
+      if (refreshResellers) refreshResellers();
+    }
+  }, [refreshTrigger, refreshUsers, refreshResellers]);
+
+  // Listener para atualização instantânea
+  useEffect(() => {
+    const handleRefresh = (event: CustomEvent) => {
+      console.log('🔄 Dashboard: Evento refresh-dashboard recebido, atualizando dados...');
+      console.log('Evento recebido:', event);
+      console.log('Detalhes do evento:', event.detail);
+      
+      // Forçar re-renderização
+      setRefreshTrigger(prev => prev + 1);
+      
+      // Atualizar dados baseado na fonte
+      if (event.detail?.source === 'users' || !event.detail?.source) {
+        console.log('🔄 Atualizando dados de usuários...');
+        refreshUsers();
+      }
+      if (event.detail?.source === 'resellers' || !event.detail?.source) {
+        console.log('🔄 Atualizando dados de revendedores...');
+        if (refreshResellers) refreshResellers();
+      }
+    };
+    window.addEventListener('refresh-dashboard', handleRefresh as EventListener);
+    return () => window.removeEventListener('refresh-dashboard', handleRefresh as EventListener);
+  }, [refreshUsers, refreshResellers]);
+
+  // Listener para localStorage (comunicação entre páginas)
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'dashboard-refresh') {
+        console.log('🔄 Dashboard: localStorage change detectado, atualizando dados...');
+        setRefreshTrigger(prev => prev + 1);
+      }
+    };
+    
+    const checkForRefresh = () => {
+      const refreshFlag = localStorage.getItem('dashboard-refresh');
+      if (refreshFlag) {
+        console.log('🔄 Dashboard: Flag de refresh encontrada, atualizando dados...');
+        localStorage.removeItem('dashboard-refresh');
+        setRefreshTrigger(prev => prev + 1);
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    checkForRefresh(); // Verificar ao montar o componente
+    
+    const interval = setInterval(checkForRefresh, 1000); // Verificar a cada segundo
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, []);
 
   return (
     <SidebarProvider>
@@ -740,7 +820,6 @@ const AdminDashboard = () => {
                       <span className="hidden sm:inline">Novo Cliente</span>
                       <span className="sm:hidden">Cliente</span>
                     </Button>
-
                   </div>
                 </div>
                 {/* Cards de métricas do Analytics */}
@@ -918,7 +997,65 @@ const AdminDashboard = () => {
                   )}
                 </div>
 
-
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6">
+                  <Card className="bg-[#1f2937]">
+                    <CardHeader>
+                      <CardTitle className="text-white">Atividade Recente</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {(loadingUsers || loadingResellers) ? (
+                          <div className="text-gray-400">Carregando atividades...</div>
+                        ) : recentActivityUnified.length === 0 ? (
+                          <div className="text-gray-400">Nenhuma atividade recente encontrada.</div>
+                        ) : recentActivityUnified.map((activity) => (
+                          <div key={activity.id} className="flex items-center space-x-3">
+                            {getActivityIcon(activity.type)}
+                            <div className="flex-1">
+                              <p className="text-sm font-medium text-white">{activity.user}</p>
+                              <p className="text-xs text-gray-400">{activity.time}</p>
+                            </div>
+                            <Badge variant="outline">{activity.status}</Badge>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card className="bg-[#1f2937]">
+                    <CardHeader>
+                      <CardTitle className="text-white">Usuários Online</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {(loadingUsers || loadingResellers) ? (
+                          <div className="text-gray-400">Carregando usuários online...</div>
+                        ) : onlineUsersUnified.length === 0 ? (
+                          <div className="text-gray-400">Nenhum usuário online no momento.</div>
+                        ) : onlineUsersUnified.map((user) => (
+                          <div key={user.id} className="flex items-center justify-between">
+                            <div className="flex items-center space-x-3">
+                              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                                <span className="text-white text-xs font-medium">
+                                  {user.name.split(' ').map(n => n[0]).join('')}
+                                </span>
+                              </div>
+                              <div>
+                                <p className="text-sm font-medium text-white">{user.name}</p>
+                                <p className="text-xs text-gray-400">{user.type}</p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              {getStatusBadge(user.status)}
+                              <p className="text-xs text-gray-400">{user.lastSeen}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </>
+            )}
             {/* Renderização das outras páginas continua igual */}
             {currentPage === "users" && <AdminUsers />}
             {currentPage === "resellers" && <AdminResellers resellers={resellers} onAddReseller={handleAddReseller} />}
