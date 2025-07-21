@@ -54,6 +54,7 @@ import AdminBranding from '../AdminBranding';
 import AdminGateways from "../AdminGateways";
 import AdminCobrancas from "../AdminCobrancas";
 import Notifications from "../Notifications";
+import Profile from "../Profile";
 
 
 const AdminDashboard = () => {
@@ -701,6 +702,8 @@ const AdminDashboard = () => {
         return <AdminCobrancas />;
       case "notificacoes":
         return <Notifications />;
+      case "profile":
+        return <Profile />;
       default:
         return <div>Página não encontrada</div>;
     }
@@ -1149,6 +1152,7 @@ const AdminDashboard = () => {
             {currentPage === "gateways" && <AdminGateways />}
             {currentPage === "cobrancas" && <AdminCobrancas />}
             {currentPage === "notificacoes" && <Notifications />}
+            {currentPage === "profile" && <Profile />}
           </div>
         </main>
 
