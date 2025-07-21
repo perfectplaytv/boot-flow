@@ -70,40 +70,40 @@ export default function Notifications() {
       </div>
       <p className="text-gray-400 mb-6">Gerencie templates e envie notificações para seus clientes</p>
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-        <Card className="bg-[#1f2937] border border-purple-700/40">
-          <CardHeader>
+        <Card className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 border border-purple-700/40">
+          <CardHeader className="pb-2">
             <CardTitle className="text-sm text-gray-300">Total Enviados</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-white">{enviados}</div>
           </CardContent>
         </Card>
-        <Card className="bg-[#1f2937] border border-green-700/40">
-          <CardHeader>
+        <Card className="bg-gradient-to-br from-green-900/50 to-green-800/30 border border-green-700/40">
+          <CardHeader className="pb-2">
             <CardTitle className="text-sm text-gray-300">Entregues</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-400">{entregues}</div>
           </CardContent>
         </Card>
-        <Card className="bg-[#1f2937] border border-blue-700/40">
-          <CardHeader>
+        <Card className="bg-gradient-to-br from-blue-900/50 to-blue-800/30 border border-blue-700/40">
+          <CardHeader className="pb-2">
             <CardTitle className="text-sm text-gray-300">Lidos</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-400">{lidos}</div>
           </CardContent>
         </Card>
-        <Card className="bg-[#1f2937] border border-red-700/40">
-          <CardHeader>
+        <Card className="bg-gradient-to-br from-red-900/50 to-red-800/30 border border-red-700/40">
+          <CardHeader className="pb-2">
             <CardTitle className="text-sm text-gray-300">Falhas</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-400">{falhas}</div>
           </CardContent>
         </Card>
-        <Card className="bg-[#1f2937] border border-yellow-700/40">
-          <CardHeader>
+        <Card className="bg-gradient-to-br from-yellow-900/50 to-yellow-800/30 border border-yellow-700/40">
+          <CardHeader className="pb-2">
             <CardTitle className="text-sm text-gray-300">Taxa Entrega</CardTitle>
           </CardHeader>
           <CardContent>
