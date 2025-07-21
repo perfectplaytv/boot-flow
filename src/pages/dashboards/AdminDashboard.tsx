@@ -110,8 +110,8 @@ const AdminDashboard = () => {
   };
 
   const handleAddReseller = (reseller: any) => {
-    setResellers([...resellers, reseller]);
     toast.success("Revendedor adicionado com sucesso!");
+    // Os dados serão atualizados automaticamente pelo hook
   };
 
 
