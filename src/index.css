@@ -157,14 +157,13 @@ All colors MUST be HSL.
 }
 
 @layer utilities {
-  /* Esconde a barra de rolagem no Chrome, Edge e Safari */
+  /* Classe para ocultar a barra de rolagem */
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
-  
-  /* Esconde a barra de rolagem no Firefox */
   .scrollbar-hide {
-    scrollbar-width: none;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
   }
 
   /* Utilitários para gradientes */

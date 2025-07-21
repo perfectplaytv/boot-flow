@@ -83,7 +83,7 @@ export function AdminSidebar({ onPageChange, currentPage, isMobile = false, onCl
   };
 
   const sidebarContent = (
-    <>
+    <div className="flex flex-col h-full scrollbar-hide">
       <div className="p-3 sm:p-4">
         <div className="flex items-center space-x-2 mb-4 sm:mb-6">
           <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
@@ -92,7 +92,7 @@ export function AdminSidebar({ onPageChange, currentPage, isMobile = false, onCl
           {!collapsed && <span className="text-lg sm:text-xl font-bold">Admin</span>}
         </div>
       </div>
-      <SidebarGroup>
+      <SidebarGroup className="flex-1 overflow-y-auto scrollbar-hide">
         <SidebarGroupLabel>Administração</SidebarGroupLabel>
         <SidebarGroupContent>
           <SidebarMenu>
@@ -145,7 +145,7 @@ export function AdminSidebar({ onPageChange, currentPage, isMobile = false, onCl
           </DropdownMenu>
         </SidebarGroupContent>
       </SidebarGroup>
-    </>
+    </div>
   );
 
   if (isMobile) {
@@ -157,7 +157,7 @@ export function AdminSidebar({ onPageChange, currentPage, isMobile = false, onCl
               <Menu className="w-5 h-5" />
             </Button>
           </DrawerTrigger>
-          <DrawerContent className="bg-[#232a36] text-white w-full h-full fixed left-0 top-0 rounded-none overflow-y-auto shadow-2xl z-[99999] flex flex-col border-2 sm:border-4 border-purple-700">
+          <DrawerContent className="bg-[#232a36] text-white w-full h-full fixed left-0 top-0 rounded-none overflow-y-auto shadow-2xl z-[99999] flex flex-col border-2 sm:border-4 border-purple-700 scrollbar-hide">
             <div className="flex items-center justify-between p-3 sm:p-4 mb-2 border-b border-gray-700">
               <div className="flex items-center space-x-2">
                 <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
@@ -175,7 +175,7 @@ export function AdminSidebar({ onPageChange, currentPage, isMobile = false, onCl
               </DrawerClose>
             </div>
             {/* Menu lateral real */}
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto scrollbar-hide">
               {sidebarContent}
             </div>
           </DrawerContent>
@@ -189,7 +189,7 @@ export function AdminSidebar({ onPageChange, currentPage, isMobile = false, onCl
     <>
       <Sidebar collapsible="icon">
         <SidebarTrigger className="m-2 self-end" />
-        <SidebarContent>{sidebarContent}</SidebarContent>
+        <SidebarContent className="scrollbar-hide">{sidebarContent}</SidebarContent>
       </Sidebar>
       <AvatarSelectionModal isOpen={isAvatarModalOpen} onClose={() => setIsAvatarModalOpen(false)} />
     </>

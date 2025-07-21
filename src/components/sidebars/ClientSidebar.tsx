@@ -73,73 +73,75 @@ export function ClientSidebar() {
       <Sidebar collapsible="icon">
         <SidebarTrigger className="m-2 self-end" />
 
-        <SidebarContent>
-          <div className="p-4">
-            <div className="flex items-center space-x-2 mb-6">
-              <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-                <Zap className="w-5 h-5 text-white" />
+        <SidebarContent className="scrollbar-hide">
+          <div className="flex flex-col h-full">
+            <div className="p-4">
+              <div className="flex items-center space-x-2 mb-6">
+                <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+                  <Zap className="w-5 h-5 text-white" />
+                </div>
+                {!collapsed && <span className="text-xl font-bold">Cliente</span>}
               </div>
-              {!collapsed && <span className="text-xl font-bold">Cliente</span>}
             </div>
+
+            <SidebarGroup className="flex-1 overflow-y-auto scrollbar-hide">
+              <SidebarGroupLabel>Menu</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {menuItems.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton asChild>
+                        <NavLink 
+                          to={item.url} 
+                          className={({ isActive }) =>
+                            isActive ? "bg-primary text-primary-foreground" : "hover:bg-accent"
+                          }
+                        >
+                          <item.icon className="mr-2 h-4 w-4" />
+                          {!collapsed && <span>{item.title}</span>}
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+
+            <SidebarGroup className="mt-auto">
+              <SidebarGroupContent>
+                <div className="flex items-center gap-2 p-2 rounded-lg hover:bg-accent cursor-pointer" onClick={() => setIsAvatarModalOpen(true)}>
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={avatar} alt={`@${userName}`} />
+                    <AvatarFallback>{userName.substring(0, 2).toUpperCase()}</AvatarFallback>
+                  </Avatar>
+                  {!collapsed && (
+                    <div className="flex flex-col">
+                      <span className="text-sm font-semibold text-white">{userName}</span>
+                      <span className="text-xs text-gray-400">{userEmail}</span>
+                    </div>
+                  )}
+                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <div className="w-full h-full absolute top-0 left-0" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56" side="right" align="start">
+                    <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleProfileClick}>
+                      Meu Perfil
+                    </DropdownMenuItem>
+                     <DropdownMenuItem onClick={() => setIsAvatarModalOpen(true)}>
+                      Alterar Avatar
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/')}>
+                      Sair
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
           </div>
-
-          <SidebarGroup>
-            <SidebarGroupLabel>Menu</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {menuItems.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild>
-                      <NavLink 
-                        to={item.url} 
-                        className={({ isActive }) =>
-                          isActive ? "bg-primary text-primary-foreground" : "hover:bg-accent"
-                        }
-                      >
-                        <item.icon className="mr-2 h-4 w-4" />
-                        {!collapsed && <span>{item.title}</span>}
-                      </NavLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-
-          <SidebarGroup className="mt-auto">
-            <SidebarGroupContent>
-              <div className="flex items-center gap-2 p-2 rounded-lg hover:bg-accent cursor-pointer" onClick={() => setIsAvatarModalOpen(true)}>
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src={avatar} alt={`@${userName}`} />
-                  <AvatarFallback>{userName.substring(0, 2).toUpperCase()}</AvatarFallback>
-                </Avatar>
-                {!collapsed && (
-                  <div className="flex flex-col">
-                    <span className="text-sm font-semibold text-white">{userName}</span>
-                    <span className="text-xs text-gray-400">{userEmail}</span>
-                  </div>
-                )}
-              </div>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <div className="w-full h-full absolute top-0 left-0" />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" side="right" align="start">
-                  <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleProfileClick}>
-                    Meu Perfil
-                  </DropdownMenuItem>
-                   <DropdownMenuItem onClick={() => setIsAvatarModalOpen(true)}>
-                    Alterar Avatar
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/')}>
-                    Sair
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
         </SidebarContent>
       </Sidebar>
       <AvatarSelectionModal isOpen={isAvatarModalOpen} onClose={() => setIsAvatarModalOpen(false)} />
