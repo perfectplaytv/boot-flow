@@ -1229,7 +1229,140 @@ export default function AdminCobrancas() {
           </DialogHeader>
           <div className="py-4">Cobrança enviada para <b>{modalWhats?.cliente}</b> via WhatsApp!</div>
           <DialogFooter>
-            <Button className="bg-purple-600 hover:bg-purple-700 text-white" onClick={() => setModalWhats(null)}>OK</Button>
+            <Button className="bg-purple-600 hover:bg-purple-700 text-white" onClick={() => handleEnviarNotificacao(modalWhats!)}>Enviar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Relatório */}
+      <Dialog open={modalRelatorio} onOpenChange={setModalRelatorio}>
+        <DialogContent className="bg-[#1f2937] text-white max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold">Gerar Relatório</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-gray-300 mb-2">Período</label>
+                <Select>
+                  <SelectTrigger className="bg-[#23272f] border-gray-700">
+                    <SelectValue placeholder="Selecione o período" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#23272f] border-gray-700">
+                    <SelectItem value="7">Últimos 7 dias</SelectItem>
+                    <SelectItem value="30">Últimos 30 dias</SelectItem>
+                    <SelectItem value="90">Últimos 90 dias</SelectItem>
+                    <SelectItem value="365">Último ano</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="block text-gray-300 mb-2">Formato</label>
+                <Select>
+                  <SelectTrigger className="bg-[#23272f] border-gray-700">
+                    <SelectValue placeholder="Selecione o formato" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#23272f] border-gray-700">
+                    <SelectItem value="pdf">PDF</SelectItem>
+                    <SelectItem value="excel">Excel</SelectItem>
+                    <SelectItem value="csv">CSV</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div>
+              <label className="block text-gray-300 mb-2">Incluir</label>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <input type="checkbox" defaultChecked className="accent-purple-500" />
+                  <span className="text-gray-300">Métricas de conversão</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input type="checkbox" defaultChecked className="accent-purple-500" />
+                  <span className="text-gray-300">Performance por gateway</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input type="checkbox" className="accent-purple-500" />
+                  <span className="text-gray-300">Análise de tendências</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setModalRelatorio(false)} className="border-gray-700 text-gray-300">
+              Cancelar
+            </Button>
+            <Button onClick={handleGerarRelatorio} className="bg-purple-600 hover:bg-purple-700">
+              <Download className="w-4 h-4 mr-2" />
+              Gerar Relatório
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Automação */}
+      <Dialog open={modalAutomacao} onOpenChange={setModalAutomacao}>
+        <DialogContent className="bg-[#1f2937] text-white max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold">Configurar Automação</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-gray-300 mb-2">Tipo de Automação</label>
+                <Select>
+                  <SelectTrigger className="bg-[#23272f] border-gray-700">
+                    <SelectValue placeholder="Selecione o tipo" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#23272f] border-gray-700">
+                    <SelectItem value="cobranca">Cobrança Recorrente</SelectItem>
+                    <SelectItem value="lembrete">Lembretes Automáticos</SelectItem>
+                    <SelectItem value="retry">Retry Automático</SelectItem>
+                    <SelectItem value="multa">Multa por Atraso</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="block text-gray-300 mb-2">Frequência</label>
+                <Select>
+                  <SelectTrigger className="bg-[#23272f] border-gray-700">
+                    <SelectValue placeholder="Selecione a frequência" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#23272f] border-gray-700">
+                    <SelectItem value="diario">Diário</SelectItem>
+                    <SelectItem value="semanal">Semanal</SelectItem>
+                    <SelectItem value="mensal">Mensal</SelectItem>
+                    <SelectItem value="personalizado">Personalizado</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div>
+              <label className="block text-gray-300 mb-2">Configurações</label>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-300">Tentativas máximas</span>
+                  <input type="number" min="1" max="10" defaultValue="3" className="w-20 bg-[#23272f] border border-gray-700 text-white rounded px-2 py-1" />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-300">Intervalo entre tentativas (dias)</span>
+                  <input type="number" min="1" max="30" defaultValue="7" className="w-20 bg-[#23272f] border border-gray-700 text-white rounded px-2 py-1" />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-300">Multa por atraso (%)</span>
+                  <input type="number" min="0" max="20" defaultValue="2" className="w-20 bg-[#23272f] border border-gray-700 text-white rounded px-2 py-1" />
+                </div>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setModalAutomacao(false)} className="border-gray-700 text-gray-300">
+              Cancelar
+            </Button>
+            <Button onClick={handleConfigurarAutomacao} className="bg-green-600 hover:bg-green-700">
+              <Zap className="w-4 h-4 mr-2" />
+              Configurar Automação
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
