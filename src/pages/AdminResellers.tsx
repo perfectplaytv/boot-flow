@@ -616,6 +616,61 @@ export default function AdminResellers() {
         </div>
       </div>
 
+      {/* Estatísticas */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <Card className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 border border-purple-700/40">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-gray-300 flex items-center gap-2">
+              <Users className="w-4 h-4" />
+              Total de Revendas
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-white">{resellers.length}</div>
+            <div className="text-xs text-gray-400 mt-1">Revendedores cadastrados</div>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-gradient-to-br from-green-900/50 to-green-800/30 border border-green-700/40">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-gray-300 flex items-center gap-2">
+              <CheckCircle className="w-4 h-4" />
+              Revendas Ativas
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-400">{resellers.filter(r => r.status === 'active').length}</div>
+            <div className="text-xs text-gray-400 mt-1">Revendedores com acesso</div>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-gradient-to-br from-blue-900/50 to-blue-800/30 border border-blue-700/40">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-gray-300 flex items-center gap-2">
+              <Shield className="w-4 h-4" />
+              Admins
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-400">{resellers.filter(r => r.permission === 'admin').length}</div>
+            <div className="text-xs text-gray-400 mt-1">Contas de administrador</div>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-gradient-to-br from-yellow-900/50 to-yellow-800/30 border border-yellow-700/40">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-gray-300 flex items-center gap-2">
+              <Calendar className="w-4 h-4" />
+              Novos este Mês
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-yellow-400">5</div>
+            <div className="text-xs text-gray-400 mt-1">Novos revendedores</div>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Barra de pesquisa */}
       <div className="flex items-center gap-4">
         <div className="relative flex-1">
