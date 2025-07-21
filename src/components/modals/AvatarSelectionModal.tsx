@@ -4,12 +4,12 @@ import { useUser } from '@/contexts/UserContext';
 import { CheckCircle } from 'lucide-react';
 
 const avatarOptions = [
-  'https://source.boringavatars.com/beam/120/Admin?colors=7e22ce,a855f7,6d28d9,e9d5ff',
-  'https://source.boringavatars.com/marble/120/Reseller?colors=16a34a,4ade80,15803d,dcfce7',
-  'https://source.boringavatars.com/pixel/120/Client?colors=2563eb,60a5fa,1d4ed8,dbeafe',
-  'https://source.boringavatars.com/sunset/120/Support?colors=f59e0b,fcd34d,b45309,fefce8',
-  'https://source.boringavatars.com/ring/120/Manager?colors=dc2626,f87171,b91c1c,fee2e2',
-  'https://source.boringavatars.com/bauhaus/120/Developer?colors=8b5cf6,c4b5fd,a78bfa,ede9fe'
+  'https://randomuser.me/api/portraits/women/44.jpg',
+  'https://randomuser.me/api/portraits/men/32.jpg',
+  'https://randomuser.me/api/portraits/women/26.jpg',
+  'https://randomuser.me/api/portraits/men/75.jpg',
+  'https://randomuser.me/api/portraits/women/75.jpg',
+  'https://randomuser.me/api/portraits/men/86.jpg',
 ];
 
 interface AvatarSelectionModalProps {
