@@ -120,7 +120,7 @@ export default function AdminAI() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         {/* Estúdio de Voz */}
-        <Card className="md:col-span-2 bg-[#1f2937] border border-purple-700/40">
+        <Card className="md:col-span-2 bg-gradient-to-br from-purple-900/50 to-purple-800/30 border border-purple-700/40">
           <CardHeader>
             <CardTitle className="text-lg text-white">3a7 Estúdio de Voz</CardTitle>
             <p className="text-gray-400">Crie e personalize vozes para seus bots</p>
@@ -165,7 +165,7 @@ export default function AdminAI() {
           </CardContent>
         </Card>
         {/* Perfis de Voz */}
-        <Card className="bg-[#1f2937] border border-green-700/40">
+        <Card className="bg-gradient-to-br from-green-900/50 to-green-800/30 border border-green-700/40">
           <CardHeader>
             <CardTitle className="text-lg text-white">Perfis de Voz</CardTitle>
             <p className="text-gray-400">Suas vozes personalizadas</p>
@@ -202,7 +202,7 @@ export default function AdminAI() {
       </div>
       {/* Transcrições de Áudio */}
       <div className="mb-6">
-        <Card className="bg-white dark:bg-[#232a36] border border-purple-700/40">
+        <Card className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 border border-purple-700/40">
           <CardHeader>
             <CardTitle className="text-lg text-gray-900 dark:text-white">Transcrições de Áudio</CardTitle>
             <p className="text-gray-500 dark:text-gray-400">Áudios processados com IA e resumos automáticos</p>
