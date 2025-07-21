@@ -57,7 +57,7 @@ export default function Settings() {
             <TabsTrigger value="seguranca" className="flex-1 min-w-0 text-xs sm:text-sm data-[state=active]:bg-[#7e22ce] data-[state=active]:text-white">Segurança</TabsTrigger>
           </TabsList>
           <TabsContent value="perfil">
-            <div className="bg-[#1f2937] rounded-xl p-3 sm:p-6 border border-purple-700/40 mt-4">
+            <div className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 rounded-xl p-3 sm:p-6 border border-purple-700/40 mt-4">
               <h2 className="text-lg sm:text-xl font-bold text-white mb-2 flex items-center gap-2">👤 Informações Pessoais</h2>
               <p className="text-gray-400 text-sm sm:text-base mb-4 sm:mb-6">Atualize suas informações básicas</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
@@ -89,7 +89,7 @@ export default function Settings() {
             </div>
           </TabsContent>
           <TabsContent value="notificacoes">
-            <div className="bg-[#1f2937] rounded-xl p-3 sm:p-6 border border-purple-700/40 mt-4">
+            <div className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 rounded-xl p-3 sm:p-6 border border-purple-700/40 mt-4">
               <h2 className="text-lg sm:text-xl font-bold text-white mb-2">Notificações</h2>
               <p className="text-gray-400 text-sm sm:text-base mb-4 sm:mb-6">Gerencie como deseja ser avisado</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
@@ -129,7 +129,7 @@ export default function Settings() {
             </div>
           </TabsContent>
           <TabsContent value="integracoes">
-            <div className="bg-[#1f2937] rounded-xl p-6 border border-purple-700/40 mt-4">
+            <div className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 rounded-xl p-6 border border-purple-700/40 mt-4">
               <h2 className="text-xl font-bold text-white mb-2">Integrações</h2>
               <p className="text-gray-400 mb-6">Conecte com outros sistemas</p>
               <div className="space-y-4">
@@ -163,7 +163,7 @@ export default function Settings() {
             </div>
           </TabsContent>
           <TabsContent value="faturamento">
-            <div className="bg-[#1f2937] rounded-xl p-6 border border-purple-700/40 mt-4">
+            <div className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 rounded-xl p-6 border border-purple-700/40 mt-4">
               <h2 className="text-xl font-bold text-white mb-2">Faturamento</h2>
               <p className="text-gray-400 mb-6">Gerencie seu plano e pagamentos</p>
               <div className="mb-4">
@@ -202,7 +202,7 @@ export default function Settings() {
             </div>
           </TabsContent>
           <TabsContent value="seguranca">
-            <div className="bg-[#1f2937] rounded-xl p-6 border border-purple-700/40 mt-4">
+            <div className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 rounded-xl p-6 border border-purple-700/40 mt-4">
               <h2 className="text-xl font-bold text-white mb-2">Segurança</h2>
               <p className="text-gray-400 mb-6">Proteja sua conta</p>
               <div className="mb-4">
