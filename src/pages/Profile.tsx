@@ -50,7 +50,7 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-6">
+    <div className="min-h-screen bg-[#09090b] text-white p-6">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center gap-4">
@@ -59,12 +59,12 @@ const Profile = () => {
           </Button>
           <div>
             <h1 className="text-3xl font-bold">Perfil</h1>
-            <p className="text-muted-foreground">Gerencie suas informações pessoais</p>
+            <p className="text-gray-400">Gerencie suas informações pessoais</p>
           </div>
         </div>
 
         {/* Profile Card */}
-        <Card>
+        <Card className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 border-purple-700/40">
           <CardHeader>
             <div className="flex justify-between items-start">
               <div className="flex items-center gap-4">
@@ -89,8 +89,8 @@ const Profile = () => {
                 </div>
                 <div>
                   <h2 className="text-2xl font-semibold">{profile.name}</h2>
-                  <p className="text-muted-foreground">{profile.email}</p>
-                  <Badge variant="secondary" className="mt-2">
+                  <p className="text-gray-400">{profile.email}</p>
+                  <Badge variant="secondary" className="mt-2 bg-purple-600/30 border border-purple-500 text-purple-200">
                     <Shield className="h-3 w-3 mr-1" />
                     {profile.role}
                   </Badge>
@@ -178,7 +178,7 @@ const Profile = () => {
               />
             </div>
 
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2 text-sm text-gray-400">
               <Calendar className="h-4 w-4" />
               Membro desde {profile.joinDate}
             </div>
@@ -186,10 +186,10 @@ const Profile = () => {
         </Card>
 
         {/* Notification Settings */}
-        <Card>
+        <Card className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 border-purple-700/40">
           <CardHeader>
             <CardTitle>Configurações de Notificação</CardTitle>
-            <CardDescription>
+            <CardDescription className="text-gray-400">
               Gerencie como você recebe notificações
             </CardDescription>
           </CardHeader>
