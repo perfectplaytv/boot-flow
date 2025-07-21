@@ -1046,6 +1046,61 @@ export default function AdminUsers() {
         </div>
       </div>
 
+      {/* Estatísticas */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <Card className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 border border-purple-700/40">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-gray-300 flex items-center gap-2">
+              <Users className="w-4 h-4" />
+              Total de Clientes
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-white">{users.length}</div>
+            <div className="text-xs text-gray-400 mt-1">Usuários cadastrados</div>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-gradient-to-br from-green-900/50 to-green-800/30 border border-green-700/40">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-gray-300 flex items-center gap-2">
+              <CheckCircle className="w-4 h-4" />
+              Clientes Ativos
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-400">{users.filter(u => u.status === 'Ativo').length}</div>
+            <div className="text-xs text-gray-400 mt-1">Usuários com acesso</div>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-gradient-to-br from-red-900/50 to-red-800/30 border border-red-700/40">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-gray-300 flex items-center gap-2">
+              <Shield className="w-4 h-4" />
+              Clientes Inativos
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-red-400">{users.filter(u => u.status === 'Inativo').length}</div>
+            <div className="text-xs text-gray-400 mt-1">Usuários bloqueados</div>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-gradient-to-br from-blue-900/50 to-blue-800/30 border border-blue-700/40">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-gray-300 flex items-center gap-2">
+              <Calendar className="w-4 h-4" />
+              Novos este Mês
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-400">12</div>
+            <div className="text-xs text-gray-400 mt-1">Novos usuários</div>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Search bar */}
       <div className="flex items-center gap-4 mb-4">
         <div className="relative flex-1 max-w-md">
