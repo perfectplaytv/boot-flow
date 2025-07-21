@@ -69,6 +69,12 @@ export default function Notifications() {
         <h1 className="text-3xl font-bold text-purple-300">Notificações WhatsApp</h1>
       </div>
       <p className="text-gray-400 mb-6">Gerencie templates e envie notificações para seus clientes</p>
+      
+      <div className="flex justify-end gap-2 mb-4">
+        <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white" onClick={() => setModal({ type: 'novo' })}><Plus className="w-4 h-4 mr-2" /> Novo Template</Button>
+        <Button className="bg-green-600 hover:bg-green-700 text-white" onClick={() => { setModal({ type: 'enviar' }); setSelectedDest(null); setSelectedTemplate(templates[0]); }}><Send className="w-4 h-4 mr-2" /> Enviar Notificação</Button>
+      </div>
+
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
         <Card className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 border border-purple-700/40">
           <CardHeader className="pb-2">
@@ -111,10 +117,7 @@ export default function Notifications() {
           </CardContent>
         </Card>
       </div>
-      <div className="flex justify-end gap-2 mb-4">
-        <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white" onClick={() => setModal({ type: 'novo' })}><Plus className="w-4 h-4 mr-2" /> Novo Template</Button>
-        <Button className="bg-green-600 hover:bg-green-700 text-white" onClick={() => { setModal({ type: 'enviar' }); setSelectedDest(null); setSelectedTemplate(templates[0]); }}><Send className="w-4 h-4 mr-2" /> Enviar Notificação</Button>
-      </div>
+      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Templates */}
         <Card className="bg-[#1f2937] border border-purple-700/40">
