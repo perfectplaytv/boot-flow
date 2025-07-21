@@ -917,65 +917,7 @@ const AdminDashboard = () => {
                   )}
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6">
-                  <Card className="bg-[#1f2937]">
-                    <CardHeader>
-                      <CardTitle className="text-white">Atividade Recente</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        {(loadingUsers || loadingResellers) ? (
-                          <div className="text-gray-400">Carregando atividades...</div>
-                        ) : recentActivityUnified.length === 0 ? (
-                          <div className="text-gray-400">Nenhuma atividade recente encontrada.</div>
-                        ) : recentActivityUnified.map((activity) => (
-                          <div key={activity.id} className="flex items-center space-x-3">
-                            {getActivityIcon(activity.type)}
-                            <div className="flex-1">
-                              <p className="text-sm font-medium text-white">{activity.user}</p>
-                              <p className="text-xs text-gray-400">{activity.time}</p>
-                            </div>
-                            <Badge variant="outline">{activity.status}</Badge>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card className="bg-[#1f2937]">
-                    <CardHeader>
-                      <CardTitle className="text-white">Usuários Online</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        {(loadingUsers || loadingResellers) ? (
-                          <div className="text-gray-400">Carregando usuários online...</div>
-                        ) : onlineUsersUnified.length === 0 ? (
-                          <div className="text-gray-400">Nenhum usuário online no momento.</div>
-                        ) : onlineUsersUnified.map((user) => (
-                          <div key={user.id} className="flex items-center justify-between">
-                            <div className="flex items-center space-x-3">
-                              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                                <span className="text-white text-xs font-medium">
-                                  {user.name.split(' ').map(n => n[0]).join('')}
-                                </span>
-                              </div>
-                              <div>
-                                <p className="text-sm font-medium text-white">{user.name}</p>
-                                <p className="text-xs text-gray-400">{user.type}</p>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              {getStatusBadge(user.status)}
-                              <p className="text-xs text-gray-400">{user.lastSeen}</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </>
-            )}
+
             {/* Renderização das outras páginas continua igual */}
             {currentPage === "users" && <AdminUsers />}
             {currentPage === "resellers" && <AdminResellers resellers={resellers} onAddReseller={handleAddReseller} />}
