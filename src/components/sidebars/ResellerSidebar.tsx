@@ -36,7 +36,7 @@ const menuItems = [
   { title: "E-commerce", url: "/dashboard/reseller/shop", icon: ShoppingCart },
   { title: "IA + Voz", url: "/dashboard/reseller/ai", icon: BarChart3 },
   { title: "Gamificação", url: "/dashboard/reseller/games", icon: BarChart3 },
-  { title: "Analizes", url: "/dashboard/reseller/reports", icon: BarChart3 },
+  { title: "Análises", url: "/dashboard/reseller/reports", icon: BarChart3 },
   { title: "Configurações", url: "/dashboard/reseller/settings", icon: Settings },
 ];
 
