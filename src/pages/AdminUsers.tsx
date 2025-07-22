@@ -16,7 +16,7 @@ import { useClientes } from "@/hooks/useClientes";
 import { useUsers } from "@/hooks/useUsers";
 
 export default function AdminUsers() {
-  const { users, loading, error, createUser, updateUser, deleteUser } = useClientes();
+  const { users, loading, error, addCliente, updateUser, deleteUser } = useClientes();
   const { users: cobrancasUsers } = useUsers(); // Usuários da página de Cobranças
 
   const [newUser, setNewUser] = useState({
@@ -109,7 +109,7 @@ export default function AdminUsers() {
         console.log('Dados preparados para adicionar:', userData);
         
         // Adicionar usuário usando o hook do Neon
-        const success = await createUser(userData);
+        const success = await addCliente(userData);
         
         if (success) {
           setAddUserSuccess(true);
@@ -354,7 +354,7 @@ export default function AdminUsers() {
         console.log(`Copiando usuário ${i + 1}/${usersToCopy.length}:`, user.name);
         
         // Adicionar usuário usando o hook do Neon
-        const success = await createUser(userData);
+        const success = await addCliente(userData);
         
         if (!success) {
           console.error(`Erro ao copiar usuário: ${user.name}`);
