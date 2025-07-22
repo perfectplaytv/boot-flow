@@ -266,7 +266,7 @@ export default function AdminUsers() {
         setDeletingUser(null);
         setIsDeleteDialogOpen(false);
       } else {
-        alert('Erro ao deletar usuário. Tente novamente.');
+        alert('Erro ao deletar usuário. Verifique se você tem permissão no Supabase ou se há policies bloqueando a exclusão.');
       }
     }
   };
