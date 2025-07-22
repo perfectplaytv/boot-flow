@@ -75,6 +75,15 @@ const AdminDashboard = () => {
   const { clientes, loading: loadingClientes, fetchClientes } = useClientes();
   const { revendas, loading: loadingRevendas, fetchRevendas } = useRevendas();
 
+  // Função para atualizar clientes
+  const refreshUsers = () => {
+    if (fetchClientes) fetchClientes();
+  };
+  // Função para atualizar revendas
+  const refreshResellers = () => {
+    if (fetchRevendas) fetchRevendas();
+  };
+
   // Atualizar estatísticas quando os dados mudarem
   useEffect(() => {
     setStats(prev => ({
@@ -868,16 +877,6 @@ const AdminDashboard = () => {
       clearInterval(interval);
     };
   }, []);
-
-  // Adicione a função refreshUsers para atualizar os clientes
-  const refreshUsers = () => {
-    if (fetchClientes) fetchClientes();
-  };
-
-  // Adicione a função refreshResellers para atualizar as revendas
-  const refreshResellers = () => {
-    if (fetchRevendas) fetchRevendas();
-  };
 
   return (
     <SidebarProvider>
