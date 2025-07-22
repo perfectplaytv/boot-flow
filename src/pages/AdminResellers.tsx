@@ -149,28 +149,6 @@ export default function AdminResellers() {
       if (success) {
         // Atualizar Dashboard instantaneamente
         console.log('📤 Revendas: Disparando evento refresh-dashboard após editar revenda');
-  const handleEditReseller = async () => {
-    if (editingReseller) {
-      const success = await updateReseller(editingReseller.id, {
-        username: editingReseller.username,
-        password: editingReseller.password,
-        force_password_change: editingReseller.force_password_change,
-        permission: editingReseller.permission,
-        credits: editingReseller.credits,
-        servers: editingReseller.servers,
-        master_reseller: editingReseller.master_reseller,
-        disable_login_days: editingReseller.disable_login_days,
-        monthly_reseller: editingReseller.monthly_reseller,
-        personal_name: editingReseller.personal_name,
-        email: editingReseller.email,
-        telegram: editingReseller.telegram,
-        whatsapp: editingReseller.whatsapp,
-        observations: editingReseller.observations
-      });
-      
-      if (success) {
-        // Atualizar Dashboard instantaneamente
-        console.log('📤 Revendas: Disparando evento refresh-dashboard após editar revenda');
         try {
           window.dispatchEvent(new CustomEvent('refresh-dashboard', { detail: { source: 'resellers', action: 'update' } }));
           console.log('✅ Evento disparado com sucesso');
@@ -186,15 +164,15 @@ export default function AdminResellers() {
           console.error('❌ Erro ao definir flag localStorage:', error);
         }
         
-        setEditingReseller(null);
+        setEditingRevenda(null);
         setIsEditDialogOpen(false);
       }
     }
   };
 
-  const handleDeleteReseller = async () => {
-    if (deletingReseller) {
-      const success = await deleteReseller(deletingReseller.id);
+  const handleDeleteRevenda = async () => {
+    if (deletingRevenda) {
+      const success = await deleteRevenda(deletingRevenda.id);
       
       if (success) {
         // Atualizar Dashboard instantaneamente
@@ -214,24 +192,24 @@ export default function AdminResellers() {
           console.error('❌ Erro ao definir flag localStorage:', error);
         }
         
-        setDeletingReseller(null);
+        setDeletingRevenda(null);
         setIsDeleteDialogOpen(false);
       }
     }
   };
 
-  const openViewModal = (reseller: Reseller) => {
-    setViewingReseller(reseller);
+  const openViewModal = (revenda: any) => {
+    setViewingRevenda(revenda);
     setIsViewDialogOpen(true);
   };
 
-  const openEditModal = (reseller: Reseller) => {
-    setEditingReseller({ ...reseller });
+  const openEditModal = (revenda: any) => {
+    setEditingRevenda({ ...revenda });
     setIsEditDialogOpen(true);
   };
 
-  const openDeleteModal = (reseller: Reseller) => {
-    setDeletingReseller(reseller);
+  const openDeleteModal = (revenda: any) => {
+    setDeletingRevenda(revenda);
     setIsDeleteDialogOpen(true);
   };
 
