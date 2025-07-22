@@ -158,7 +158,11 @@ export default function AdminUsers() {
         
       } catch (error) {
         console.error('Erro ao adicionar usuário:', error);
-        alert('Erro ao adicionar usuário. Tente novamente.');
+        if (error && error.message && error.message.includes('duplicate key value')) {
+          alert('Já existe um usuário com este e-mail!');
+        } else {
+          alert('Erro ao adicionar usuário. Tente novamente.');
+        }
       } finally {
         setIsAddingUser(false);
       }
