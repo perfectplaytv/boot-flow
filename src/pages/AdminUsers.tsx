@@ -12,12 +12,11 @@ import { Users, Plus, Search, Edit, Trash2, Eye, User, Mail, Calendar, Shield, A
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import React from "react";
-import { useNeonUsers } from "@/hooks/useNeonUsers";
-import type { User } from "@/hooks/useNeonUsers";
+import { useClientes } from "@/hooks/useClientes";
 import { useUsers } from "@/hooks/useUsers";
 
 export default function AdminUsers() {
-  const { users, loading, error, createUser, updateUser, deleteUser } = useNeonUsers();
+  const { users, loading, error, createUser, updateUser, deleteUser } = useClientes();
   const { users: cobrancasUsers } = useUsers(); // Usuários da página de Cobranças
 
   const [newUser, setNewUser] = useState({
@@ -46,9 +45,9 @@ export default function AdminUsers() {
   const [selectedExtractedUser, setSelectedExtractedUser] = useState<any>(null);
 
   // Estados para os modais de ação
-  const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [viewingUser, setViewingUser] = useState<User | null>(null);
-  const [deletingUser, setDeletingUser] = useState<User | null>(null);
+  const [editingUser, setEditingUser] = useState<any | null>(null);
+  const [viewingUser, setViewingUser] = useState<any | null>(null);
+  const [deletingUser, setDeletingUser] = useState<any | null>(null);
 
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
@@ -274,12 +273,12 @@ export default function AdminUsers() {
     }
   };
 
-  const openViewModal = (user: User) => {
+  const openViewModal = (user: any) => {
     setViewingUser(user);
     setIsViewDialogOpen(true);
   };
 
-  const openEditModal = (user: User) => {
+  const openEditModal = (user: any) => {
     console.log('=== DEBUG: Abrindo modal de edição ===');
     console.log('Dados do usuário vindos do banco:', user);
     console.log('Campo real_name do banco:', user.real_name);
@@ -310,7 +309,7 @@ export default function AdminUsers() {
     setIsEditDialogOpen(true);
   };
 
-  const openDeleteModal = (user: User) => {
+  const openDeleteModal = (user: any) => {
     setDeletingUser(user);
     setIsDeleteDialogOpen(true);
   };
@@ -1881,7 +1880,7 @@ function RenovacaoDatePicker() {
   );
 }
 
-function VencimentoDatePickerEdit({ editingUser, setEditingUser }: { editingUser: User | null, setEditingUser: (user: User) => void }) {
+function VencimentoDatePickerEdit({ editingUser, setEditingUser }: { editingUser: any | null, setEditingUser: (user: any) => void }) {
   const [open, setOpen] = React.useState(false);
   const [date, setDate] = React.useState<Date | undefined>(
     editingUser?.expirationDate ? new Date(editingUser.expirationDate) : undefined
