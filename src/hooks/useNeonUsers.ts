@@ -30,7 +30,7 @@ interface UseNeonUsersReturn {
   refreshUsers: () => Promise<void>;
 }
 
-const API_BASE = '/.netlify/functions';
+const API_BASE = '/api';
 
 export const useNeonUsers = (): UseNeonUsersReturn => {
   const [users, setUsers] = useState<User[]>([]);

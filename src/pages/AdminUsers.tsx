@@ -13,7 +13,7 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import React from "react";
 import { useNeonUsers } from "@/hooks/useNeonUsers";
-import type { User } from "@/hooks/useUsers";
+import type { User } from "@/hooks/useNeonUsers";
 import { useUsers } from "@/hooks/useUsers";
 
 export default function AdminUsers() {

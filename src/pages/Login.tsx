@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { LogIn, Mail, Lock, Loader2, User, Shield, Users } from 'lucide-react';
+import { LogIn, Mail, Lock, Loader2, User, Shield, Users, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabaseClient';
 
@@ -16,6 +16,8 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showAdminCode, setShowAdminCode] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -124,26 +126,46 @@ export default function Login() {
               <div className="relative">
                 <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   placeholder="Sua senha"
-                  className="pl-10 bg-[#181825] border border-gray-700 text-white"
+                  className="pl-10 pr-10 bg-[#181825] border border-gray-700 text-white"
                   value={senha}
                   onChange={e => setSenha(e.target.value)}
                   required
                 />
+                <button
+                  type="button"
+                  className="absolute right-3 top-2.5 text-gray-400 hover:text-white"
+                  tabIndex={-1}
+                  onClick={() => setShowPassword(v => !v)}
+                  aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
               </div>
             </div>
             {loginType === 'admin' && (
               <div>
                 <label className="block text-gray-300 mb-1 font-medium">Código Secreto do Admin</label>
-                <Input
-                  type="password"
-                  placeholder="Digite o código secreto"
-                  className="bg-[#181825] border border-gray-700 text-white"
-                  value={adminCode}
-                  onChange={e => setAdminCode(e.target.value)}
-                  required
-                />
+                <div className="relative">
+                  <Input
+                    type={showAdminCode ? 'text' : 'password'}
+                    placeholder="Digite o código secreto"
+                    className="pr-10 bg-[#181825] border border-gray-700 text-white"
+                    value={adminCode}
+                    onChange={e => setAdminCode(e.target.value)}
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-2.5 text-gray-400 hover:text-white"
+                    tabIndex={-1}
+                    onClick={() => setShowAdminCode(v => !v)}
+                    aria-label={showAdminCode ? 'Ocultar código' : 'Mostrar código'}
+                  >
+                    {showAdminCode ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
               </div>
             )}
             {error && <div className="text-red-500 text-sm text-center">{error}</div>}
