@@ -65,7 +65,8 @@ export default function AdminUsers() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-  const filteredUsers = users.filter(user =>
+  const usersSafe = users || [];
+  const filteredUsers = usersSafe.filter(user =>
     user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.real_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
