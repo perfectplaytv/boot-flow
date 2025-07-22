@@ -6,8 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Calendar, Plus, Search, Filter, Edit, Trash2, Eye, Copy, Mail, MessageSquare, BarChart3, Users, TrendingUp, DollarSign, AlertCircle, CheckCircle, Clock, Download, Upload, Zap, CreditCard, Receipt, Bell, Settings } from 'lucide-react';
-import { useUsers } from '@/hooks/useUsers';
-import type { User } from '@/hooks/useUsers';
+import { useClientes } from '@/hooks/useClientes';
+import type { User } from '@/hooks/useClientes';
+import { useRevendas } from '@/hooks/useRevendas';
+import type { Revenda } from '@/hooks/useRevendas';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import React from "react";
@@ -79,8 +81,8 @@ const generateCobrancasFromUsers = (users: User[]): Cobranca[] => {
 };
 
 export default function AdminCobrancas() {
-  const { users } = useNeonUsers();
-  const { resellers } = useNeonResellers();
+  const { clientes } = useClientes();
+  const { revendas } = useRevendas();
   const [cobrancas, setCobrancas] = useState<Cobranca[]>([]);
   const [activeTab, setActiveTab] = useState('dashboard');
   
@@ -94,8 +96,8 @@ export default function AdminCobrancas() {
 
   // Gerar cobranças para clientes e revendas
   useEffect(() => {
-    const cobrancasClientes = users.length > 0 ? generateCobrancasFromUsers(users) : [];
-    const cobrancasRevendas = resellers.length > 0 ? resellers.map((rev, idx) => ({
+    const cobrancasClientes = clientes.length > 0 ? generateCobrancasFromUsers(clientes) : [];
+    const cobrancasRevendas = revendas.length > 0 ? revendas.map((rev, idx) => ({
       id: 10000 + rev.id, // evitar conflito de id
       cliente: rev.personal_name || rev.username,
       email: rev.email || '',
@@ -123,7 +125,7 @@ export default function AdminCobrancas() {
       observacoes: Math.random() > 0.7 ? 'Cliente com histórico de atraso' : '',
       tags: Math.random() > 0.8 ? ['Urgente'] : Math.random() > 0.6 ? ['Recorrente'] : [],
     })), ...cobrancasRevendas]);
-  }, [users, resellers]);
+  }, [clientes, revendas]);
   const [busca, setBusca] = useState("");
   const [filtroStatus, setFiltroStatus] = useState<string | null>(null);
   const [modalNova, setModalNova] = useState(false);
@@ -298,7 +300,7 @@ export default function AdminCobrancas() {
     if (clienteId) {
       if (clienteId.startsWith('cliente-')) {
         const id = clienteId.replace('cliente-', '');
-        const selectedUser = users.find(user => user.id.toString() === id);
+        const selectedUser = clientes.find(user => user.id.toString() === id);
         if (selectedUser) {
           setNova({
             ...nova,
@@ -310,7 +312,7 @@ export default function AdminCobrancas() {
         }
       } else if (clienteId.startsWith('revenda-')) {
         const id = clienteId.replace('revenda-', '');
-        const selectedRev = resellers.find(rev => rev.id.toString() === id);
+        const selectedRev = revendas.find(rev => rev.id.toString() === id);
         if (selectedRev) {
           setNova({
             ...nova,
@@ -334,12 +336,12 @@ export default function AdminCobrancas() {
 
   // Função para obter usuário por ID
   const getUserById = (id: number) => {
-    return users.find(user => user.id === id);
+    return clientes.find(user => user.id === id);
   };
 
   // Função para abrir modal de edição com dados preenchidos
   const openEditModal = (cobranca: Cobranca) => {
-    const user = users.find(u => u.name === cobranca.cliente);
+    const user = clientes.find(u => u.name === cobranca.cliente);
     setEdit({
       cliente: user?.id.toString() || '',
       nomeCliente: cobranca.cliente,
@@ -760,12 +762,12 @@ export default function AdminCobrancas() {
                 >
                   <option value="">Selecionar</option>
                   <optgroup label="Clientes">
-                    {users.map(user => (
+                    {clientes.map(user => (
                       <option key={`cliente-${user.id}`} value={`cliente-${user.id}`}>{user.name} - {user.email}</option>
                     ))}
                   </optgroup>
                   <optgroup label="Revendas">
-                    {resellers.map(rev => (
+                    {revendas.map(rev => (
                       <option key={`revenda-${rev.id}`} value={`revenda-${rev.id}`}>{rev.personal_name || rev.username} - {rev.email}</option>
                     ))}
                   </optgroup>
@@ -953,7 +955,7 @@ export default function AdminCobrancas() {
                     className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                     value={edit.cliente}
                     onChange={e => {
-                      const selectedUser = users.find(user => user.id.toString() === e.target.value);
+                      const selectedUser = clientes.find(user => user.id.toString() === e.target.value);
                       if (selectedUser) {
                         setEdit({
                           ...edit,
@@ -972,7 +974,7 @@ export default function AdminCobrancas() {
                     }}
                   >
                     <option value="">Selecione um cliente</option>
-                    {users.map(user => (
+                    {clientes.map(user => (
                       <option key={user.id} value={user.id.toString()}>
                         {user.name}
                       </option>

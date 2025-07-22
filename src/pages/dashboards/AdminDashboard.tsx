@@ -55,6 +55,8 @@ import AdminGateways from "../AdminGateways";
 import AdminCobrancas from "../AdminCobrancas";
 import Notifications from "../Notifications";
 import Profile from "../Profile";
+import { useClientes } from '@/hooks/useClientes';
+import { useRevendas } from '@/hooks/useRevendas';
 
 
 const AdminDashboard = () => {
@@ -72,18 +74,18 @@ const AdminDashboard = () => {
   });
 
   // Hooks para dados de usuários e revendedores
-  const { users, loading: loadingUsers, refreshUsers } = useNeonUsers();
-  const { resellers: resellersData, loading: loadingResellers, refreshResellers } = useNeonResellers();
+  const { clientes, loading: loadingClientes } = useClientes();
+  const { revendas, loading: loadingRevendas } = useRevendas();
 
   // Atualizar estatísticas quando os dados mudarem
   useEffect(() => {
     setStats(prev => ({
       ...prev,
-      totalUsers: users.length,
-      activeResellers: resellersData.length,
-      activeClients: users.length
+      totalUsers: clientes.length,
+      activeResellers: revendas.length,
+      activeClients: clientes.length
     }));
-  }, [users, resellersData]);
+  }, [clientes, revendas]);
 
   // Dados para atividade recente e usuários online
   const recentActivityUnified = [
@@ -1085,7 +1087,7 @@ const AdminDashboard = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
-                        {(loadingUsers || loadingResellers) ? (
+                        {(loadingClientes || loadingRevendas) ? (
                           <div className="text-gray-400">Carregando atividades...</div>
                         ) : recentActivityUnified.length === 0 ? (
                           <div className="text-gray-400">Nenhuma atividade recente encontrada.</div>
@@ -1108,7 +1110,7 @@ const AdminDashboard = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
-                        {(loadingUsers || loadingResellers) ? (
+                        {(loadingClientes || loadingRevendas) ? (
                           <div className="text-gray-400">Carregando usuários online...</div>
                         ) : onlineUsersUnified.length === 0 ? (
                           <div className="text-gray-400">Nenhum usuário online no momento.</div>
@@ -1139,7 +1141,7 @@ const AdminDashboard = () => {
             )}
             {/* Renderização das outras páginas continua igual */}
             {currentPage === "users" && <AdminUsers />}
-            {currentPage === "resellers" && <AdminResellers resellers={resellersData} onAddReseller={handleAddReseller} />}
+            {currentPage === "resellers" && <AdminResellers resellers={revendas} onAddReseller={handleAddReseller} />}
             {currentPage === "iptv" && <AdminIPTV />}
             {currentPage === "radio" && <AdminRadio />}
             {currentPage === "ai" && <AdminAI />}
