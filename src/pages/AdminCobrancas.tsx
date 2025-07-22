@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Calendar, Plus, Search, Filter, Edit, Trash2, Eye, Copy, Mail, MessageSquare, BarChart3, Users, TrendingUp, DollarSign, AlertCircle, CheckCircle, Clock, Download, Upload, Zap, CreditCard, Receipt, Bell, Settings } from 'lucide-react';
 import { useClientes } from '@/hooks/useClientes';
 import type { User } from '@/hooks/useClientes';
@@ -725,6 +725,8 @@ export default function AdminCobrancas() {
       {/* Modal Nova Cobrança */}
       <Dialog open={modalNova} onOpenChange={setModalNova}>
         <DialogContent className="bg-[#1f2937] text-white max-w-2xl w-full p-0 rounded-xl shadow-xl border border-gray-700">
+          <DialogTitle>Nova Cobrança</DialogTitle>
+          <DialogDescription>Preencha os dados para criar uma nova cobrança.</DialogDescription>
           <div className="p-6 max-h-[90vh] overflow-y-auto scrollbar-hide">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-white">Nova Cobrança</h2>
@@ -898,9 +900,8 @@ export default function AdminCobrancas() {
       {/* Modal Visualizar */}
       <Dialog open={!!modalVisualizar} onOpenChange={() => setModalVisualizar(null)}>
         <DialogContent className="bg-[#232a36] border border-purple-700 text-white max-w-md">
-          <DialogHeader>
-            <DialogTitle>Detalhes da Cobrança</DialogTitle>
-          </DialogHeader>
+          <DialogTitle>Detalhes da Cobrança</DialogTitle>
+          <DialogDescription>Veja as informações completas da cobrança selecionada.</DialogDescription>
           <div className="space-y-2 py-2">
             <div><b>Cliente:</b> {modalVisualizar?.cliente}</div>
             <div><b>E-mail:</b> {modalVisualizar?.email}</div>
@@ -917,6 +918,8 @@ export default function AdminCobrancas() {
       {/* Modal Editar */}
       <Dialog open={!!modalEditar} onOpenChange={() => setModalEditar(null)}>
         <DialogContent className="bg-[#1f2937] text-white max-w-2xl w-full p-0 rounded-xl shadow-xl border border-gray-700">
+          <DialogTitle>Editar Cobrança</DialogTitle>
+          <DialogDescription>Edite os dados da cobrança e do cliente</DialogDescription>
           <div className="p-6 max-h-[80vh] overflow-y-auto scrollbar-hide">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
