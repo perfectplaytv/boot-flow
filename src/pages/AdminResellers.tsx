@@ -9,13 +9,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Users, Plus, Search, Edit, Trash2, Eye, User, Mail, Calendar, Shield, Activity, CheckCircle, RefreshCw, Maximize2, Moon } from "lucide-react";
-import { useNeonResellers } from "@/hooks/useNeonResellers";
-import type { Reseller } from "@/hooks/useNeonResellers";
+import { useRevendas } from "@/hooks/useRevendas";
 
 export default function AdminResellers() {
-  const { resellers, loading, error, createReseller, updateReseller, deleteReseller } = useNeonResellers();
+  const { revendas, loading, error, addRevenda, updateRevenda, deleteRevenda } = useRevendas();
 
-  const [newReseller, setNewReseller] = useState({
+  const [newRevenda, setNewRevenda] = useState({
     username: "",
     password: "",
     force_password_change: false,
@@ -33,51 +32,51 @@ export default function AdminResellers() {
   });
 
   // Estados para os modais
-  const [editingReseller, setEditingReseller] = useState<Reseller | null>(null);
-  const [viewingReseller, setViewingReseller] = useState<Reseller | null>(null);
-  const [deletingReseller, setDeletingReseller] = useState<Reseller | null>(null);
+  const [editingRevenda, setEditingRevenda] = useState<any | null>(null);
+  const [viewingRevenda, setViewingRevenda] = useState<any | null>(null);
+  const [deletingRevenda, setDeletingRevenda] = useState<any | null>(null);
 
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [isAddingReseller, setIsAddingReseller] = useState(false);
-  const [addResellerSuccess, setAddResellerSuccess] = useState(false);
+  const [isAddingRevenda, setIsAddingRevenda] = useState(false);
+  const [addRevendaSuccess, setAddRevendaSuccess] = useState(false);
 
-  const filteredResellers = resellers.filter(reseller =>
-    reseller.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    reseller.personal_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    reseller.email?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredRevendas = revendas.filter(revenda =>
+    revenda.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    revenda.personal_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    revenda.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleAddReseller = async (e: React.FormEvent) => {
+  const handleAddRevenda = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (newReseller.username && newReseller.password && newReseller.permission) {
-      setIsAddingReseller(true);
-      setAddResellerSuccess(false);
+    if (newRevenda.username && newRevenda.password && newRevenda.permission) {
+      setIsAddingRevenda(true);
+      setAddRevendaSuccess(false);
       
       try {
-        const success = await createReseller({
-          username: newReseller.username,
-          password: newReseller.password,
-          force_password_change: newReseller.force_password_change,
-          permission: newReseller.permission as 'admin' | 'reseller' | 'subreseller',
-          credits: newReseller.credits,
-          servers: newReseller.servers || undefined,
-          master_reseller: newReseller.master_reseller || undefined,
-          disable_login_days: newReseller.disable_login_days,
-          monthly_reseller: newReseller.monthly_reseller,
-          personal_name: newReseller.personal_name || undefined,
-          email: newReseller.email || undefined,
-          telegram: newReseller.telegram || undefined,
-          whatsapp: newReseller.whatsapp || undefined,
-          observations: newReseller.observations || undefined
+        const success = await addRevenda({
+          username: newRevenda.username,
+          password: newRevenda.password,
+          force_password_change: newRevenda.force_password_change,
+          permission: newRevenda.permission as 'admin' | 'reseller' | 'subreseller',
+          credits: newRevenda.credits,
+          servers: newRevenda.servers || undefined,
+          master_reseller: newRevenda.master_reseller || undefined,
+          disable_login_days: newRevenda.disable_login_days,
+          monthly_reseller: newRevenda.monthly_reseller,
+          personal_name: newRevenda.personal_name || undefined,
+          email: newRevenda.email || undefined,
+          telegram: newRevenda.telegram || undefined,
+          whatsapp: newRevenda.whatsapp || undefined,
+          observations: newRevenda.observations || undefined
         });
         
         if (success) {
-          setAddResellerSuccess(true);
+          setAddRevendaSuccess(true);
           
           // Atualizar Dashboard instantaneamente
           console.log('📤 Revendas: Disparando evento refresh-dashboard após criar revenda');
@@ -97,7 +96,7 @@ export default function AdminResellers() {
           }
           
           // Limpar formulário
-          setNewReseller({
+          setNewRevenda({
             username: "",
             password: "",
             force_password_change: false,
@@ -117,17 +116,39 @@ export default function AdminResellers() {
           // Fechar modal após 1 segundo
           setTimeout(() => {
             setIsAddDialogOpen(false);
-            setAddResellerSuccess(false);
+            setAddRevendaSuccess(false);
           }, 1000);
         }
       } catch (error) {
         console.error('Erro ao adicionar revendedor:', error);
       } finally {
-        setIsAddingReseller(false);
+        setIsAddingRevenda(false);
       }
     }
   };
 
+  const handleEditRevenda = async () => {
+    if (editingRevenda) {
+      const success = await updateRevenda(editingRevenda.id, {
+        username: editingRevenda.username,
+        password: editingRevenda.password,
+        force_password_change: editingRevenda.force_password_change,
+        permission: editingRevenda.permission,
+        credits: editingRevenda.credits,
+        servers: editingRevenda.servers,
+        master_reseller: editingRevenda.master_reseller,
+        disable_login_days: editingRevenda.disable_login_days,
+        monthly_reseller: editingRevenda.monthly_reseller,
+        personal_name: editingRevenda.personal_name,
+        email: editingRevenda.email,
+        telegram: editingRevenda.telegram,
+        whatsapp: editingRevenda.whatsapp,
+        observations: editingRevenda.observations
+      });
+      
+      if (success) {
+        // Atualizar Dashboard instantaneamente
+        console.log('📤 Revendas: Disparando evento refresh-dashboard após editar revenda');
   const handleEditReseller = async () => {
     if (editingReseller) {
       const success = await updateReseller(editingReseller.id, {
