@@ -90,20 +90,13 @@ export default function AdminUsers() {
         
         // Preparar dados do usuário para o Neon
         const userData = {
-          name: newUser.realName || newUser.name, // Usar o nome real como name principal
+          name: newUser.realName || newUser.name,
           email: newUser.email,
           password: newUser.password || '',
-          m3u_url: newUser.plan || '', // usando plan como m3u_url
+          m3u_url: newUser.plan || '',
           bouquets: newUser.bouquets || '',
           expiration_date: newUser.expirationDate || null,
-          observations: newUser.observations || '',
-          real_name: newUser.realName || '', // Manter também no real_name
-          telegram: newUser.telegram || '', // Campo telegram
-          whatsapp: newUser.whatsapp || '', // Campo whatsapp
-          status: newUser.status || 'Ativo', // Campo status
-          devices: newUser.devices || 0, // Campo dispositivos
-          credits: newUser.credits || 0, // Campo créditos
-          notes: newUser.notes || '' // Campo anotações
+          observations: newUser.observations || ''
         };
         
         console.log('Dados preparados para adicionar:', userData);
