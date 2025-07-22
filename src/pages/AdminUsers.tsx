@@ -681,7 +681,7 @@ export default function AdminUsers() {
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-white">Gerenciamento de Usuários</h1>
           <p className="text-gray-400 text-sm sm:text-base">
-            {loading ? 'Carregando...' : `Gerencie todos os usuários do sistema (${users.length} usuários)`}
+            {loading ? 'Carregando...' : `Gerencie todos os usuários do sistema (${(users || []).length} usuários)`}
           </p>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
@@ -1056,7 +1056,7 @@ export default function AdminUsers() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">{users.length}</div>
+            <div className="text-2xl font-bold text-white">{(users || []).length}</div>
             <div className="text-xs text-gray-400 mt-1">Usuários cadastrados</div>
           </CardContent>
         </Card>
@@ -1069,7 +1069,7 @@ export default function AdminUsers() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-400">{users.filter(u => u.status === 'Ativo').length}</div>
+            <div className="text-2xl font-bold text-green-400">{(users || []).filter(u => u.status === 'Ativo').length}</div>
             <div className="text-xs text-gray-400 mt-1">Usuários com acesso</div>
           </CardContent>
         </Card>
@@ -1082,7 +1082,7 @@ export default function AdminUsers() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-400">{users.filter(u => u.status === 'Inativo').length}</div>
+            <div className="text-2xl font-bold text-red-400">{(users || []).filter(u => u.status === 'Inativo').length}</div>
             <div className="text-xs text-gray-400 mt-1">Usuários bloqueados</div>
           </CardContent>
         </Card>
