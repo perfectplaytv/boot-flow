@@ -857,7 +857,6 @@ export default function AdminUsers() {
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-blue-300 font-medium">Extração M3U</span>
                       <div className="flex gap-2">
-                        <Button className="bg-green-600 text-white hover:bg-green-700 px-3 py-1 rounded text-xs" onClick={() => { setM3uUrl('http://ztech.blog/get.php?username=268262713&password=936365120&type=m3u_plus&output=mpegts'); setExtractionError('URL de teste carregada! Clique em Extrair.'); }} disabled={isExtracting}>Teste</Button>
                         <Button className="bg-blue-600 text-white hover:bg-blue-700 px-4 py-1 rounded text-sm" onClick={extractM3UData} disabled={isExtracting}>Extrair</Button>
                       </div>
                     </div>
@@ -1751,20 +1750,6 @@ export default function AdminUsers() {
                       Extração M3U
                     </span>
                     <div className="flex gap-2">
-                      <Button
-                        className="bg-green-600 text-white hover:bg-green-700 px-3 py-1 rounded text-xs"
-                        onClick={() => {
-                          setM3uUrl(
-                            "http://ztech.blog/get.php?username=268262713&password=936365120&type=m3u_plus&output=mpegts"
-                          );
-                          setExtractionError(
-                            "URL de teste carregada! Clique em Extrair."
-                          );
-                        }}
-                        disabled={isExtracting}
-                      >
-                        Teste
-                      </Button>
                       <Button
                         className="bg-blue-600 text-white hover:bg-blue-700 px-4 py-1 rounded text-sm"
                         onClick={extractM3UData}
