@@ -57,11 +57,6 @@ export default function AdminUsers() {
   const [isAddingUser, setIsAddingUser] = useState(false);
   const [addUserSuccess, setAddUserSuccess] = useState(false);
   
-  // Estados para copiar clientes da página de Cobranças
-  const [isCopyDialogOpen, setIsCopyDialogOpen] = useState(false);
-  const [copyProgress, setCopyProgress] = useState(0);
-  const [copySuccess, setCopySuccess] = useState(false);
-
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const usersSafe = users || [];
