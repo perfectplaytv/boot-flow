@@ -58,7 +58,6 @@ export default function AdminUsers() {
   const [addUserSuccess, setAddUserSuccess] = useState(false);
   
   // Estados para copiar clientes da página de Cobranças
-  const [isCopyDialogOpen, setIsCopyDialogOpen] = useState(false);
   const [isCopyingUsers, setIsCopyingUsers] = useState(false);
   const [copyProgress, setCopyProgress] = useState(0);
   const [copySuccess, setCopySuccess] = useState(false);
@@ -365,7 +364,7 @@ export default function AdminUsers() {
       
       // Fechar modal após 2 segundos
       setTimeout(() => {
-        setIsCopyDialogOpen(false);
+        setIsCopyingUsers(false);
         setCopySuccess(false);
         setCopyProgress(0);
       }, 2000);
