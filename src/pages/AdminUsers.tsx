@@ -152,7 +152,11 @@ export default function AdminUsers() {
       {/* Modal de Adicionar Cliente */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
         <DialogContent className="bg-[#1f2937] text-white max-w-2xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col max-h-[90vh] overflow-y-auto scrollbar-hide">
-          <div className="p-6 w-full">
+          <DialogHeader>
+            <DialogTitle>Adicionar Cliente</DialogTitle>
+            <DialogDescription>Preencha os dados do novo cliente para adicioná-lo à base de dados.</DialogDescription>
+          </DialogHeader>
+          <div className="p-6 w-full pt-0">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold">Adicionar Cliente <span className="ml-2 text-xs bg-green-700 text-white px-2 py-1 rounded">Novo</span></h2>
               <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white" onClick={() => setIsAddDialogOpen(false)}>Fechar</Button>
@@ -182,7 +186,10 @@ export default function AdminUsers() {
                 <Label className="text-gray-300">Plano</Label>
                 <Select>
                   <SelectTrigger className="bg-[#232a36] border border-gray-700 text-white"><SelectValue placeholder="Selecione um plano" /></SelectTrigger>
-                  <SelectContent><SelectItem value="">Selecione um plano</SelectItem></SelectContent>
+                  <SelectContent>
+                    <SelectItem value="plano1">Plano 1</SelectItem>
+                    <SelectItem value="plano2">Plano 2</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
               <div>
@@ -247,7 +254,10 @@ export default function AdminUsers() {
                   <Label className="text-gray-300">Classe de Serviço</Label>
                   <Select>
                     <SelectTrigger className="bg-[#232a36] border border-gray-700 text-white"><SelectValue placeholder="Selecione" /></SelectTrigger>
-                    <SelectContent><SelectItem value="">Selecione</SelectItem></SelectContent>
+                    <SelectContent>
+                      <SelectItem value="classe1">Classe 1</SelectItem>
+                      <SelectItem value="classe2">Classe 2</SelectItem>
+                    </SelectContent>
                   </Select>
                 </div>
                 <div>
