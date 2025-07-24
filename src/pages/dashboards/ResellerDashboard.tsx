@@ -25,6 +25,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus, Users } from "lucide-react";
 import { useState } from "react";
+import { useClientes } from "@/hooks/useClientes";
 
 const ResellerDashboard = () => {
   const [stats] = useState({
@@ -53,6 +54,47 @@ const ResellerDashboard = () => {
     observations: ""
   });
   const isExtracting = false; // Substitua pela lógica real se necessário
+  const { addCliente } = useClientes();
+
+  // Função para validar e salvar cliente
+  async function handleAddCliente() {
+    if (!newUser.realName || !newUser.name || !newUser.plan) {
+      toast.error("Preencha todos os campos obrigatórios: Nome, Usuário e Plano.");
+      return;
+    }
+    try {
+      await addCliente({
+        name: newUser.name,
+        real_name: newUser.realName,
+        password: newUser.password,
+        plan: newUser.plan,
+        status: newUser.status,
+        expiration_date: newUser.expirationDate,
+        bouquets: newUser.bouquets,
+        email: newUser.email,
+        telegram: newUser.telegram,
+        whatsapp: newUser.whatsapp,
+        observations: newUser.observations
+      });
+      toast.success("Cliente adicionado com sucesso!");
+      setIsAddDialogOpen(false);
+      setNewUser({
+        name: "",
+        realName: "",
+        password: "",
+        plan: "",
+        status: "Ativo",
+        expirationDate: "",
+        bouquets: "",
+        email: "",
+        telegram: "",
+        whatsapp: "",
+        observations: ""
+      });
+    } catch (e) {
+      toast.error("Erro ao adicionar cliente. Tente novamente.");
+    }
+  }
 
   return (
     <SidebarProvider>
@@ -219,7 +261,7 @@ const ResellerDashboard = () => {
                     </div>
                     <div className="flex justify-end gap-2 mt-4">
                       <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>Fechar</Button>
-                      <Button className="bg-green-600 text-white hover:bg-green-700">Adicionar Cliente</Button>
+                      <Button className="bg-green-600 text-white hover:bg-green-700" onClick={handleAddCliente}>Adicionar Cliente</Button>
                     </div>
                   </div>
                 </DialogContent>
