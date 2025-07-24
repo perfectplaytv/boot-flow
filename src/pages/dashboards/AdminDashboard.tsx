@@ -28,7 +28,8 @@ import {
   Home,
   Paintbrush,
   UserPlus,
-  Bell
+  Bell,
+  RefreshCw
 } from "lucide-react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/sidebars/AdminSidebar";

@@ -59,11 +59,16 @@ const templatesMock = [
 
 const initialForm = { id: null, title: '', status: 'Ativo', tag: '', content: '', variables: 1 };
 
-export const WhatsAppStatusContext = createContext({
+export const WhatsAppStatusContext = createContext<{
+  isConnected: boolean;
+  connectionStatus: 'disconnected' | 'connecting' | 'connected';
+  setIsConnected: (v: boolean) => void;
+  setConnectionStatus: (v: 'disconnected' | 'connecting' | 'connected') => void;
+}>({
   isConnected: false,
   connectionStatus: 'disconnected',
   setIsConnected: (v: boolean) => {},
-  setConnectionStatus: (v: string) => {},
+  setConnectionStatus: (v: 'disconnected' | 'connecting' | 'connected') => {},
 });
 
 export const useWhatsAppStatus = () => useContext(WhatsAppStatusContext);

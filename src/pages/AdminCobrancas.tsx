@@ -58,7 +58,7 @@ const generateCobrancasFromUsers = (users: Cliente[]): Cobranca[] => {
       valor: Math.floor(Math.random() * 50) + 90, // Valor entre 90 e 140
       vencimento: vencimento.toLocaleDateString('pt-BR'),
       status: statuses[index % statuses.length],
-      tipo: 'Cliente' as 'Cliente' | 'Revenda',
+      tipo: 'Cliente' as const,
     };
   });
 };
@@ -88,7 +88,7 @@ export default function AdminCobrancas() {
       valor: Math.floor(Math.random() * 80) + 120, // Valor entre 120 e 200
       vencimento: new Date(Date.now() + (idx * 5 + 3) * 86400000).toLocaleDateString('pt-BR'),
       status: ['Pendente', 'Vencida', 'Paga'][idx % 3] as 'Pendente' | 'Vencida' | 'Paga',
-      tipo: 'Revenda',
+      tipo: 'Revenda' as const,
       gateway: ['PIX', 'Stripe', 'Mercado Pago'][idx % 3],
       formaPagamento: ['PIX', 'Cartão de Crédito', 'Cartão de Débito'][idx % 3],
       tentativas: Math.floor(Math.random() * 3),
