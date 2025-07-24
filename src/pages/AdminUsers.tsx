@@ -266,35 +266,6 @@ export default function AdminUsers() {
       }
     }
   };
-    if (deletingUser) {
-      const success = await deleteUser(deletingUser.id);
-      
-      await deleteUser(userToDelete.id);
-        // Atualizar Dashboard instantaneamente
-        console.log('📤 Clientes: Disparando evento refresh-dashboard após deletar usuário');
-        try {
-          window.dispatchEvent(new CustomEvent('refresh-dashboard', { detail: { source: 'users', action: 'delete' } }));
-          console.log('✅ Evento disparado com sucesso');
-        } catch (error) {
-          console.error('❌ Erro ao disparar evento:', error);
-        }
-        
-        // Usar localStorage como fallback
-        try {
-          localStorage.setItem('dashboard-refresh', Date.now().toString());
-          console.log('✅ Flag localStorage definida');
-        } catch (error) {
-          console.error('❌ Erro ao definir flag localStorage:', error);
-        }
-        
-        setDeletingUser(null);
-        setIsDeleteDialogOpen(false);
-      } else {
-        alert('Erro ao deletar usuário. Verifique se você tem permissão no Supabase ou se há policies bloqueando a exclusão.');
-      }
-    }
-  };
-
   const openViewModal = (user: any) => {
     setViewingUser(user);
     setIsViewDialogOpen(true);
