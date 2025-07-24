@@ -12,9 +12,8 @@ import { Users, Plus, Search, Edit, Trash2, Eye, User, Mail, Calendar, Shield, A
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import React from "react";
-import { useNeonUsers } from "@/hooks/useNeonUsers";
-import type { User } from "@/hooks/useNeonUsers";
-import { useUsers } from "@/hooks/useUsers";
+import { useNeonUsers, type User as NeonUser } from "@/hooks/useNeonUsers";
+import { useUsers, type User as OldUser } from "@/hooks/useUsers";
 
 export default function AdminUsers() {
   const { users, loading, error, createUser, updateUser, deleteUser } = useNeonUsers();
@@ -46,9 +45,9 @@ export default function AdminUsers() {
   const [selectedExtractedUser, setSelectedExtractedUser] = useState<any>(null);
 
   // Estados para os modais de ação
-  const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [viewingUser, setViewingUser] = useState<User | null>(null);
-  const [deletingUser, setDeletingUser] = useState<User | null>(null);
+  const [editingUser, setEditingUser] = useState<NeonUser | null>(null);
+  const [viewingUser, setViewingUser] = useState<NeonUser | null>(null);
+  const [deletingUser, setDeletingUser] = useState<NeonUser | null>(null);
 
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 
-interface User {
+export interface User {
   id: number;
   name: string;
   email: string;
@@ -19,6 +19,13 @@ interface User {
   notes?: string;
   created_at: string;
   updated_at: string;
+  // Legacy compatibility fields
+  plan?: string;
+  createdAt?: string;
+  phone?: string;
+  renewalDate?: string;
+  expirationDate?: string;
+  realName?: string;
 }
 
 interface UseNeonUsersReturn {
@@ -45,7 +52,17 @@ export const useNeonUsers = (): UseNeonUsersReturn => {
         setError('Erro ao buscar usuários do Supabase');
         setUsers([]);
       } else {
-        setUsers(data || []);
+        const processedUsers = (data || []).map(user => ({
+          ...user,
+          // Add legacy compatibility fields
+          plan: 'Basic',
+          createdAt: user.created_at,
+          phone: '',
+          renewalDate: user.expiration_date,
+          expirationDate: user.expiration_date,
+          realName: user.real_name
+        }));
+        setUsers(processedUsers);
       }
     } catch (err) {
       setError('Erro de conexão com o Supabase');
@@ -116,4 +133,4 @@ export const useNeonUsers = (): UseNeonUsersReturn => {
     deleteUser,
     refreshUsers: fetchUsers,
   };
-}; 
+};

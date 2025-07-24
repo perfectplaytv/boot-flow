@@ -94,7 +94,7 @@ export default function AdminCobrancas() {
 
   // Gerar cobranças para clientes e revendas
   useEffect(() => {
-    const cobrancasClientes = users.length > 0 ? generateCobrancasFromUsers(users) : [];
+    const cobrancasClientes = users.length > 0 ? generateCobrancasFromUsers(users as any) : [];
     const cobrancasRevendas = resellers.length > 0 ? resellers.map((rev, idx) => ({
       id: 10000 + rev.id, // evitar conflito de id
       cliente: rev.personal_name || rev.username,
@@ -210,7 +210,10 @@ export default function AdminCobrancas() {
       valor: '', 
       status: 'Pendente', 
       vencimento: '', 
-      observacoes: '' 
+      observacoes: '',
+      gateway: '',
+      formaPagamento: '',
+      tags: []
     });
     setModalNova(false);
   };

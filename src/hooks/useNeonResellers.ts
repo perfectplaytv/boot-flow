@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-interface Reseller {
+export interface Reseller {
   id: number;
   username: string;
   password: string;
