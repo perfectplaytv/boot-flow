@@ -80,6 +80,8 @@ export default function LoginForm() {
               <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <input
                 type="email"
+                id="login-email"
+                name="email"
                 className="flex h-10 w-full rounded-md px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm pl-10 bg-[#181825] border border-gray-700 text-white"
                 placeholder="seu@email.com"
                 required
@@ -94,6 +96,8 @@ export default function LoginForm() {
               <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <input
                 type={showPassword ? 'text' : 'password'}
+                id="login-password"
+                name="password"
                 className="flex h-10 w-full rounded-md px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm pl-10 pr-10 bg-[#181825] border border-gray-700 text-white"
                 placeholder="Sua senha"
                 required
@@ -111,6 +115,8 @@ export default function LoginForm() {
               <div className="relative">
                 <input
                   type={showAdminCode ? 'text' : 'password'}
+                  id="login-admin-code"
+                  name="adminCode"
                   className="flex h-10 w-full rounded-md px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm pr-10 bg-[#181825] border border-gray-700 text-white"
                   placeholder="Digite o código secreto"
                   required

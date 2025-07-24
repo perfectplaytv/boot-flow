@@ -113,6 +113,8 @@ export default function Login() {
                 <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   type="email"
+                  id="login-email"
+                  name="email"
                   placeholder="seu@email.com"
                   className="pl-10 bg-[#181825] border border-gray-700 text-white"
                   value={email}
@@ -127,6 +129,8 @@ export default function Login() {
                 <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   type={showPassword ? 'text' : 'password'}
+                  id="login-password"
+                  name="password"
                   placeholder="Sua senha"
                   className="pl-10 pr-10 bg-[#181825] border border-gray-700 text-white"
                   value={senha}
@@ -150,6 +154,8 @@ export default function Login() {
                 <div className="relative">
                   <Input
                     type={showAdminCode ? 'text' : 'password'}
+                    id="login-admin-code"
+                    name="adminCode"
                     placeholder="Digite o código secreto"
                     className="pr-10 bg-[#181825] border border-gray-700 text-white"
                     value={adminCode}
