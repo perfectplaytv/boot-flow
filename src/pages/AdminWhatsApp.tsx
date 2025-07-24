@@ -57,7 +57,7 @@ const templatesMock = [
   }
 ];
 
-const initialForm = { id: null, title: '', status: 'Ativo', tag: '', content: '', variables: 1 };
+const initialForm = { id: null, title: '', status: 'Ativo', tag: '', content: '', variables: 1, sent: 0, delivery: 0, read: false };
 
 export const WhatsAppStatusContext = createContext<{
   isConnected: boolean;
@@ -121,12 +121,25 @@ const AdminWhatsApp: React.FC = () => {
       return;
     }
     if (editing) {
-      setTemplates((prev) => prev.map((tpl) => tpl.id === form.id ? { ...form } : tpl));
+      setTemplates((prev) => prev.map((tpl) => tpl.id === form.id ? { 
+        ...form, 
+        sent: form.sent || 0,
+        delivery: form.delivery || 0,
+        read: form.read || false
+      } : tpl));
       toast.success('Template atualizado com sucesso!');
     } else {
       setTemplates((prev) => [
         ...prev,
-        { ...form, id: Date.now(), sent: 0, delivery: 0, variables: form.variables || 1, status: 'Ativo', read: false }
+        { 
+          ...form, 
+          id: Date.now(), 
+          sent: 0, 
+          delivery: 0, 
+          variables: form.variables || 1, 
+          status: 'Ativo', 
+          read: false 
+        }
       ]);
       toast.success('Template criado com sucesso!');
     }
