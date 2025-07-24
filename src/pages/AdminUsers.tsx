@@ -1789,7 +1789,6 @@ export default function AdminUsers() {
       </AlertDialog>
     </div>
   );
-}
 
 function VencimentoDatePicker() {
   const [open, setOpen] = React.useState(false);
