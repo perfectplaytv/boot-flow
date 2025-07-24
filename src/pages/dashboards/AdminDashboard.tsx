@@ -28,8 +28,7 @@ import {
   Home,
   Paintbrush,
   UserPlus,
-  Bell,
-  RefreshCw
+  Bell
 } from "lucide-react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/sidebars/AdminSidebar";
@@ -1149,7 +1148,7 @@ const AdminDashboard = () => {
             )}
             {/* Renderização das outras páginas continua igual */}
             {currentPage === "users" && <AdminUsers />}
-            {currentPage === "resellers" && <AdminResellers />}
+            {currentPage === "resellers" && <AdminResellers resellers={revendas} onAddReseller={handleAddReseller} />}
             {currentPage === "iptv" && <AdminIPTV />}
             {currentPage === "radio" && <AdminRadio />}
             {currentPage === "ai" && <AdminAI />}

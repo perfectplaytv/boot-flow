@@ -18,9 +18,25 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
-import { useCobrancas, type Cobranca } from '@/hooks/useCobrancas';
+import { useCobrancas } from '@/hooks/useCobrancas';
 
-// Remove duplicate interface - using the one from useCobrancas hook
+interface Cobranca {
+  id: number;
+  cliente: string;
+  email: string;
+  descricao: string;
+  valor: number;
+  vencimento: string;
+  status: 'Pendente' | 'Vencida' | 'Paga' | 'Cancelada';
+  tipo: 'Cliente' | 'Revenda';
+  gateway?: string;
+  formaPagamento?: string;
+  tentativas?: number;
+  ultimaTentativa?: string;
+  proximaTentativa?: string;
+  observacoes?: string;
+  tags?: string[];
+}
 
 interface GatewayConfig {
   id: string;
@@ -58,7 +74,7 @@ const generateCobrancasFromUsers = (users: Cliente[]): Cobranca[] => {
       valor: Math.floor(Math.random() * 50) + 90, // Valor entre 90 e 140
       vencimento: vencimento.toLocaleDateString('pt-BR'),
       status: statuses[index % statuses.length],
-      tipo: 'Cliente' as const,
+      tipo: 'Cliente',
     };
   });
 };
@@ -88,7 +104,7 @@ export default function AdminCobrancas() {
       valor: Math.floor(Math.random() * 80) + 120, // Valor entre 120 e 200
       vencimento: new Date(Date.now() + (idx * 5 + 3) * 86400000).toLocaleDateString('pt-BR'),
       status: ['Pendente', 'Vencida', 'Paga'][idx % 3] as 'Pendente' | 'Vencida' | 'Paga',
-      tipo: 'Revenda' as const,
+      tipo: 'Revenda',
       gateway: ['PIX', 'Stripe', 'Mercado Pago'][idx % 3],
       formaPagamento: ['PIX', 'Cartão de Crédito', 'Cartão de Débito'][idx % 3],
       tentativas: Math.floor(Math.random() * 3),

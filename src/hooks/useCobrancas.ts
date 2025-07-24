@@ -8,8 +8,8 @@ export interface Cobranca {
   descricao: string;
   valor: number;
   vencimento: string;
-  status: 'Pendente' | 'Vencida' | 'Paga' | 'Cancelada';
-  tipo: 'Cliente' | 'Revenda';
+  status: string;
+  tipo: string;
   gateway?: string;
   formaPagamento?: string;
   tentativas?: number;

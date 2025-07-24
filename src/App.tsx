@@ -38,7 +38,7 @@ const queryClient = new QueryClient();
 
 const App = () => {
   const [isConnected, setIsConnected] = useState(false);
-  const [connectionStatus, setConnectionStatus] = useState<'disconnected' | 'connecting' | 'connected'>('disconnected');
+  const [connectionStatus, setConnectionStatus] = useState('disconnected');
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
