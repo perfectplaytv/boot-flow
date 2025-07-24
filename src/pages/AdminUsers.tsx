@@ -849,15 +849,34 @@ export default function AdminUsers() {
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
-                      className="bg-[#1f2937] text-white border border-gray-700 px-3 py-1 rounded text-sm"
+                      className="inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-10 bg-[#1f2937] text-white border border-gray-700 px-3 py-1 rounded text-sm"
                     >
                       Importar
                     </Button>
                     <Button
                       variant="outline"
-                      className="bg-[#1f2937] text-white border border-gray-700 px-3 py-1 rounded text-sm"
+                      className="inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-10 bg-[#1f2937] text-white border border-gray-700 px-3 py-1 rounded text-sm"
                     >
                       Modelo
+                    </Button>
+                    <Button
+                      className="inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-10 bg-green-600 text-white hover:bg-green-700 px-3 py-1 rounded text-xs"
+                      onClick={() => {
+                        setM3uUrl(
+                          'http://ztech.blog/get.php?username=268262713&password=936365120&type=m3u_plus&output=mpegts'
+                        );
+                        setExtractionError('URL de teste carregada! Clique em Extrair.');
+                      }}
+                      disabled={isExtracting}
+                    >
+                      Teste
+                    </Button>
+                    <Button
+                      className="inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-10 bg-blue-600 text-white hover:bg-blue-700 px-4 py-1 rounded text-sm"
+                      onClick={extractM3UData}
+                      disabled={isExtracting}
+                    >
+                      Extrair
                     </Button>
                   </div>
                 </div>
@@ -1353,7 +1372,7 @@ export default function AdminUsers() {
                   <Button
                     variant="outline"
                     onClick={() => setIsAddDialogOpen(false)}
-                    className="bg-gray-700 text-white px-6 py-2 rounded font-semibold"
+                    className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input hover:bg-accent hover:text-accent-foreground h-10 bg-gray-700 text-white px-6 py-2 rounded font-semibold"
                   >
                     Fechar
                   </Button>
@@ -1366,13 +1385,7 @@ export default function AdminUsers() {
                       !newUser.realName ||
                       isAddingUser
                     }
-                    className={`px-6 py-2 rounded font-semibold transition-all duration-300 ${
-                      addUserSuccess
-                        ? "bg-green-600 text-white"
-                        : isAddingUser
-                        ? "bg-blue-600 text-white"
-                        : "bg-purple-600 hover:bg-purple-700 text-white disabled:bg-gray-600 disabled:cursor-not-allowed"
-                    }`}
+                    className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-10 px-6 py-2 rounded font-semibold transition-all duration-300 bg-purple-600 hover:bg-purple-700 text-white disabled:bg-gray-600 disabled:cursor-not-allowed"
                   >
                     {addUserSuccess ? (
                       <div className="flex items-center gap-2">
