@@ -36,11 +36,39 @@ export default function AdminUsers() {
     notes: ""
   });
 
-  // Estados para a extração M3U
+  // Estado para URL M3U e extração
   const [m3uUrl, setM3uUrl] = useState("");
   const [isExtracting, setIsExtracting] = useState(false);
+  const [extractError, setExtractError] = useState("");
+
+  // Função para extrair dados da M3U
+  async function handleExtractM3U() {
+    setIsExtracting(true);
+    setExtractError("");
+    try {
+      // Exemplo de requisição para endpoint de extração (ajuste a URL real se necessário)
+      const res = await fetch(`/api/extract-m3u?url=${encodeURIComponent(m3uUrl)}`);
+      if (!res.ok) throw new Error("Erro ao extrair dados da M3U");
+      const data = await res.json();
+      // Preencher campos do formulário automaticamente (ajuste conforme estrutura retornada)
+      setNewUser((prev) => ({
+        ...prev,
+        name: data.name || prev.name,
+        email: data.email || prev.email,
+        password: data.password || prev.password,
+        bouquets: data.bouquets || prev.bouquets,
+        expirationDate: data.expirationDate || prev.expirationDate,
+        // Adicione outros campos conforme necessário
+      }));
+    } catch (err) {
+      setExtractError("Não foi possível extrair os dados da M3U.");
+    } finally {
+      setIsExtracting(false);
+    }
+  }
+
+  // Estados para a extração M3U
   const [extractionResult, setExtractionResult] = useState<any>(null);
-  const [extractionError, setExtractionError] = useState("");
   const [extractedUsers, setExtractedUsers] = useState<any[]>([]);
   const [selectedExtractedUser, setSelectedExtractedUser] = useState<any>(null);
 
@@ -166,12 +194,21 @@ export default function AdminUsers() {
               <div className="flex items-center justify-between mb-2">
                 <span className="font-semibold text-blue-300">Extração M3U</span>
                 <div className="flex gap-2">
-                  <Button size="sm" className="bg-green-700">Teste</Button>
-                  <Button size="sm" className="bg-blue-700">Extrair</Button>
+                  <Button size="sm" className="bg-green-700" disabled={isExtracting}>Teste</Button>
+                  <Button size="sm" className="bg-blue-700" onClick={handleExtractM3U} disabled={isExtracting || !m3uUrl}>
+                    {isExtracting ? "Extraindo..." : "Extrair"}
+                  </Button>
                 </div>
               </div>
-              <Input placeholder="Insira a URL do M3U para extrair automaticamente os dados do cliente..." className="bg-[#1f2937] border border-gray-700 text-white" />
+              <Input
+                placeholder="Insira a URL do M3U para extrair automaticamente os dados do cliente..."
+                className="bg-[#1f2937] border border-gray-700 text-white"
+                value={m3uUrl}
+                onChange={e => setM3uUrl(e.target.value)}
+                disabled={isExtracting}
+              />
               <p className="text-xs text-blue-400 mt-2">Se preencher os dados, automaticamente extrai a partir da URL.</p>
+              {extractError && <p className="text-xs text-red-400 mt-2">{extractError}</p>}
             </div>
             {/* Informações Básicas */}
             <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
