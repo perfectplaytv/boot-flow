@@ -59,6 +59,7 @@ export default function AdminUsers() {
   
   // Estados para copiar clientes da página de Cobranças
   const [isCopyDialogOpen, setIsCopyDialogOpen] = useState(false);
+  const [isCopyingUsers, setIsCopyingUsers] = useState(false);
   const [copyProgress, setCopyProgress] = useState(0);
   const [copySuccess, setCopySuccess] = useState(false);
 
@@ -306,6 +307,97 @@ export default function AdminUsers() {
     setDeletingUser(user);
     setIsDeleteDialogOpen(true);
   };
+
+  // Função para copiar todos os clientes da página de Cobranças
+  const handleCopyAllUsersFromCobrancas = async () => {
+    setIsCopyingUsers(true);
+    setCopyProgress(0);
+    setCopySuccess(false);
+    
+    try {
+      // Filtrar usuários que não existem na página de Clientes
+      const existingEmails = users.map(user => user.email.toLowerCase());
+      const usersToCopy = cobrancasUsers.filter(user => 
+        !existingEmails.includes(user.email.toLowerCase())
+      );
+      
+      if (usersToCopy.length === 0) {
+        alert('Todos os clientes da página de Cobranças já existem na página de Clientes!');
+        setIsCopyingUsers(false);
+        return;
+      }
+      
+      console.log(`Copiando ${usersToCopy.length} usuários da página de Cobranças...`);
+      
+      // Copiar usuários um por um
+      for (let i = 0; i < usersToCopy.length; i++) {
+        const user = usersToCopy[i];
+        
+        // Preparar dados do usuário para o Neon
+        const userData = {
+          name: user.name,
+          email: user.email,
+          password: user.password || '',
+          m3u_url: user.plan || '',
+          bouquets: user.bouquets || '',
+          expiration_date: user.expirationDate || user.renewalDate || null,
+          observations: user.observations || user.notes || ''
+        };
+        
+        console.log(`Copiando usuário ${i + 1}/${usersToCopy.length}:`, user.name);
+        
+        // Adicionar usuário usando o hook do Neon
+        const success = await addCliente(userData);
+        
+        if (!success) {
+          console.error(`Erro ao copiar usuário: ${user.name}`);
+        }
+        
+        // Atualizar progresso
+        setCopyProgress(((i + 1) / usersToCopy.length) * 100);
+        
+        // Pequena pausa para não sobrecarregar a API
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+      
+      setCopySuccess(true);
+      alert(`✅ ${usersToCopy.length} clientes copiados com sucesso da página de Cobranças!`);
+      
+      // Fechar modal após 2 segundos
+      setTimeout(() => {
+        setIsCopyDialogOpen(false);
+        setCopySuccess(false);
+        setCopyProgress(0);
+      }, 2000);
+      
+    } catch (error) {
+      console.error('Erro ao copiar usuários:', error);
+      alert('Erro ao copiar usuários. Verifique o console para mais detalhes.');
+    } finally {
+      setIsCopyingUsers(false);
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "Ativo": return "bg-green-100 text-green-800";
+      case "Inativo": return "bg-red-100 text-red-800";
+      case "Pendente": return "bg-yellow-100 text-yellow-800";
+      default: return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  // Sistema de Proxy CORS Multi-Fallback (apenas HTTPS para evitar Mixed Content)
+  const corsProxies = [
+    {
+      name: "api.allorigins.win",
+      url: (targetUrl: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`
+    },
+    {
+      name: "corsproxy.io",
+      url: (targetUrl: string) => `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`
+    }
+  ];
 
   // Função para extrair dados M3U usando o sistema que funcionou
   const extractM3UData = async () => {
@@ -1063,8 +1155,8 @@ export default function AdminUsers() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {paginatedUsers.map((user) => (
-                <TableRow key={user.id}>
+              {paginatedUsers.map(user => (
+                <TableRow key={user.id} className="hover:bg-[#232a36] transition-colors">
                   <TableCell className="text-white font-medium text-xs sm:text-sm">{user.name}</TableCell>
                   <TableCell className="hidden sm:table-cell text-gray-300 text-xs sm:text-sm">{user.email}</TableCell>
                   <TableCell className="text-gray-300 text-xs sm:text-sm">{user.plan}</TableCell>
@@ -1097,16 +1189,14 @@ export default function AdminUsers() {
                       > 
                         <Edit className="w-3 h-3 sm:w-4 sm:h-4" /> 
                       </Button>
-                      <button
-                        className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border bg-background rounded-md border-red-600 text-red-400 hover:bg-red-600 hover:text-white h-8 w-8 sm:h-9 sm:w-9 p-0"
-                        onClick={() => {
-                          if (window.confirm('Tem certeza que deseja excluir este cliente?')) {
-                            deleteUser(user.id);
-                          }
-                        }}
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-trash2 w-3 h-3 sm:w-4 sm:h-4"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg>
-                      </button>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="border-red-600 text-red-400 hover:bg-red-600 hover:text-white h-8 w-8 sm:h-9 sm:w-9 p-0"
+                        onClick={() => openDeleteModal(user)}
+                      > 
+                        <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" /> 
+                      </Button>
                     </div>
                   </TableCell>
                 </TableRow>
