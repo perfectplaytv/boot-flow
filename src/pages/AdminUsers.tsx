@@ -200,7 +200,14 @@ export default function AdminUsers() {
       
       const success = await updateUser(editingUser.id, updatedUserData);
       
-        await updateUser(userId, updatedUser);
+        await updateUser(editingUser.id, {
+          name: editingUser.name,
+          email: editingUser.email,
+          password: editingUser.password,
+          bouquets: editingUser.bouquets,
+          expiration_date: editingUser.expirationDate,
+          observations: editingUser.observations
+        });
         console.log('✅ Usuário atualizado com sucesso!');
         console.log('Aguardando recarregamento da lista...');
         
@@ -1789,6 +1796,7 @@ export default function AdminUsers() {
       </AlertDialog>
     </div>
   );
+
 
 function VencimentoDatePicker() {
   const [open, setOpen] = React.useState(false);

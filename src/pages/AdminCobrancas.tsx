@@ -58,7 +58,7 @@ const generateCobrancasFromUsers = (users: Cliente[]): Cobranca[] => {
       valor: Math.floor(Math.random() * 50) + 90, // Valor entre 90 e 140
       vencimento: vencimento.toLocaleDateString('pt-BR'),
       status: statuses[index % statuses.length],
-      tipo: 'Cliente',
+      tipo: 'Cliente' as 'Cliente' | 'Revenda',
     };
   });
 };
