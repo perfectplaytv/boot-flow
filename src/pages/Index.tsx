@@ -22,7 +22,8 @@ import {
   Globe,
   Headphones,
   Phone,
-  Mail
+  Mail,
+  LogIn
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -174,14 +175,12 @@ const Index = () => {
           </nav>
 
           <div className="flex items-center space-x-2">
-            <Button variant="outline" onClick={() => handleLogin('admin')}>
-              Admin
-            </Button>
-            <Button variant="outline" onClick={() => handleLogin('reseller')}>
-              Revendedor
-            </Button>
-            <Button onClick={() => handleLogin('client')}>
-              Cliente
+            <Button
+              className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white font-semibold px-6 py-2 rounded-lg shadow-lg flex items-center gap-2 border-none focus:ring-2 focus:ring-[#a855f7] focus:ring-offset-2 transition-all"
+              onClick={() => navigate('/login')}
+            >
+              <LogIn className="w-5 h-5 mr-1" />
+              Login
             </Button>
           </div>
         </div>

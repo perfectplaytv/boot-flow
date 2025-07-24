@@ -25,7 +25,7 @@ const transcricoesMock = [
 ];
 
 export default function AdminAI() {
-  const [tab, setTab] = useState<'tts' | 'gravar' | 'clonar'>('tts');
+  const [tab, setTab] = useState('tts');
   const [voz, setVoz] = useState('');
   const [texto, setTexto] = useState('');
   const [velocidade, setVelocidade] = useState(1);
@@ -112,7 +112,7 @@ export default function AdminAI() {
     } else if (cardId === 'clonar') {
       setModal({ type: 'clonarVoz' });
     } else {
-      setTab(cardId as 'tts' | 'gravar' | 'clonar');
+      setTab(cardId);
     }
   };
 
@@ -196,8 +196,8 @@ export default function AdminAI() {
             <CardContent>
               <div className="flex gap-2 mb-4">
                 <Button variant={tab === 'tts' ? 'default' : 'outline'} className={tab === 'tts' ? 'bg-[#7e22ce] text-white flex-1' : 'bg-[#1f2937] text-white flex-1'} onClick={() => setTab('tts')}>Text-to-Speech</Button>
-                <Button variant="outline" className="bg-[#1f2937] text-white flex-1" onClick={() => { setTab('gravar'); setModal({ type: 'gravarVoz' }); }}>Gravar Voz</Button>
-                <Button variant="outline" className="bg-[#1f2937] text-white flex-1" onClick={() => { setTab('clonar'); setModal({ type: 'clonarVoz' }); }}>Clonar Voz</Button>
+                <Button variant={tab === 'gravar' ? 'default' : 'outline'} className={tab === 'gravar' ? 'bg-[#7e22ce] text-white flex-1' : 'bg-[#1f2937] text-white flex-1'} onClick={() => setModal({ type: 'gravarVoz' })}>Gravar Voz</Button>
+                <Button variant={tab === 'clonar' ? 'default' : 'outline'} className={tab === 'clonar' ? 'bg-[#7e22ce] text-white flex-1' : 'bg-[#1f2937] text-white flex-1'} onClick={() => setModal({ type: 'clonarVoz' })}>Clonar Voz</Button>
               </div>
               <div className="mb-4">
                 <label className="block text-gray-300 mb-1 font-medium">Selecionar Voz</label>

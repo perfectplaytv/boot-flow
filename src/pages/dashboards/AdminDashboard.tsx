@@ -3,8 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { useClientes } from '@/hooks/useClientes';
-import { useRevendas } from '@/hooks/useRevendas';
+import { useNeonUsers } from "@/hooks/useNeonUsers";
+import { useNeonResellers } from "@/hooks/useNeonResellers";
 import { 
   Brain, 
   Users, 
@@ -28,8 +28,7 @@ import {
   Home,
   Paintbrush,
   UserPlus,
-  Bell,
-  RefreshCw
+  Bell
 } from "lucide-react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/sidebars/AdminSidebar";
@@ -73,27 +72,18 @@ const AdminDashboard = () => {
   });
 
   // Hooks para dados de usuários e revendedores
-  const { clientes, loading: loadingClientes, fetchClientes } = useClientes();
-  const { revendas, loading: loadingRevendas, fetchRevendas } = useRevendas();
-
-  // Função para atualizar clientes
-  const refreshUsers = () => {
-    if (fetchClientes) fetchClientes();
-  };
-  // Função para atualizar revendas
-  const refreshResellers = () => {
-    if (fetchRevendas) fetchRevendas();
-  };
+  const { users, loading: loadingUsers, refreshUsers } = useNeonUsers();
+  const { resellers: resellersData, loading: loadingResellers, refreshResellers } = useNeonResellers();
 
   // Atualizar estatísticas quando os dados mudarem
   useEffect(() => {
     setStats(prev => ({
       ...prev,
-      totalUsers: clientes.length,
-      activeResellers: revendas.length,
-      activeClients: clientes.length
+      totalUsers: users.length,
+      activeResellers: resellersData.length,
+      activeClients: users.length
     }));
-  }, [clientes, revendas]);
+  }, [users, resellersData]);
 
   // Dados para atividade recente e usuários online
   const recentActivityUnified = [
@@ -1095,7 +1085,7 @@ const AdminDashboard = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
-                        {(loadingClientes || loadingRevendas) ? (
+                        {(loadingUsers || loadingResellers) ? (
                           <div className="text-gray-400">Carregando atividades...</div>
                         ) : recentActivityUnified.length === 0 ? (
                           <div className="text-gray-400">Nenhuma atividade recente encontrada.</div>
@@ -1118,7 +1108,7 @@ const AdminDashboard = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
-                        {(loadingClientes || loadingRevendas) ? (
+                        {(loadingUsers || loadingResellers) ? (
                           <div className="text-gray-400">Carregando usuários online...</div>
                         ) : onlineUsersUnified.length === 0 ? (
                           <div className="text-gray-400">Nenhum usuário online no momento.</div>
@@ -1149,7 +1139,7 @@ const AdminDashboard = () => {
             )}
             {/* Renderização das outras páginas continua igual */}
             {currentPage === "users" && <AdminUsers />}
-            {currentPage === "resellers" && <AdminResellers />}
+            {currentPage === "resellers" && <AdminResellers resellers={resellersData} onAddReseller={handleAddReseller} />}
             {currentPage === "iptv" && <AdminIPTV />}
             {currentPage === "radio" && <AdminRadio />}
             {currentPage === "ai" && <AdminAI />}

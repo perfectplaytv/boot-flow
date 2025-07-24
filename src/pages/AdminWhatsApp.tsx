@@ -57,18 +57,13 @@ const templatesMock = [
   }
 ];
 
-const initialForm = { id: null, title: '', status: 'Ativo', tag: '', content: '', variables: 1, sent: 0, delivery: 0, read: false };
+const initialForm = { id: null, title: '', status: 'Ativo', tag: '', content: '', variables: 1 };
 
-export const WhatsAppStatusContext = createContext<{
-  isConnected: boolean;
-  connectionStatus: 'disconnected' | 'connecting' | 'connected';
-  setIsConnected: (v: boolean) => void;
-  setConnectionStatus: (v: 'disconnected' | 'connecting' | 'connected') => void;
-}>({
+export const WhatsAppStatusContext = createContext({
   isConnected: false,
   connectionStatus: 'disconnected',
   setIsConnected: (v: boolean) => {},
-  setConnectionStatus: (v: 'disconnected' | 'connecting' | 'connected') => {},
+  setConnectionStatus: (v: string) => {},
 });
 
 export const useWhatsAppStatus = () => useContext(WhatsAppStatusContext);
@@ -121,25 +116,12 @@ const AdminWhatsApp: React.FC = () => {
       return;
     }
     if (editing) {
-      setTemplates((prev) => prev.map((tpl) => tpl.id === form.id ? { 
-        ...form, 
-        sent: form.sent || 0,
-        delivery: form.delivery || 0,
-        read: form.read || false
-      } : tpl));
+      setTemplates((prev) => prev.map((tpl) => tpl.id === form.id ? { ...form } : tpl));
       toast.success('Template atualizado com sucesso!');
     } else {
       setTemplates((prev) => [
         ...prev,
-        { 
-          ...form, 
-          id: Date.now(), 
-          sent: 0, 
-          delivery: 0, 
-          variables: form.variables || 1, 
-          status: 'Ativo', 
-          read: false 
-        }
+        { ...form, id: Date.now(), sent: 0, delivery: 0, variables: form.variables || 1, status: 'Ativo', read: false }
       ]);
       toast.success('Template criado com sucesso!');
     }
