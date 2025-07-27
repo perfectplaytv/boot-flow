@@ -18,7 +18,25 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
-import { useCobrancas, type Cobranca } from '@/hooks/useCobrancas';
+import { useCobrancas } from '@/hooks/useCobrancas';
+
+interface Cobranca {
+  id: number;
+  cliente: string;
+  email: string;
+  descricao: string;
+  valor: number;
+  vencimento: string;
+  status: 'Pendente' | 'Vencida' | 'Paga' | 'Cancelada';
+  tipo: 'Cliente' | 'Revenda';
+  gateway?: string;
+  formaPagamento?: string;
+  tentativas?: number;
+  ultimaTentativa?: string;
+  proximaTentativa?: string;
+  observacoes?: string;
+  tags?: string[];
+}
 
 interface GatewayConfig {
   id: string;

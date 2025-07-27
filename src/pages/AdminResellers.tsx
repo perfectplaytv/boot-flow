@@ -148,51 +148,55 @@ export default function AdminResellers() {
         observations: editingReseller.observations
       });
       
-      // Atualizar Dashboard instantaneamente
-      console.log('📤 Revendas: Disparando evento refresh-dashboard após editar revenda');
-      try {
-        window.dispatchEvent(new CustomEvent('refresh-dashboard', { detail: { source: 'resellers', action: 'update' } }));
-        console.log('✅ Evento disparado com sucesso');
-      } catch (error) {
-        console.error('❌ Erro ao disparar evento:', error);
+      if (success) {
+        // Atualizar Dashboard instantaneamente
+        console.log('📤 Revendas: Disparando evento refresh-dashboard após editar revenda');
+        try {
+          window.dispatchEvent(new CustomEvent('refresh-dashboard', { detail: { source: 'resellers', action: 'update' } }));
+          console.log('✅ Evento disparado com sucesso');
+        } catch (error) {
+          console.error('❌ Erro ao disparar evento:', error);
+        }
+        
+        // Usar localStorage como fallback
+        try {
+          localStorage.setItem('dashboard-refresh', Date.now().toString());
+          console.log('✅ Flag localStorage definida');
+        } catch (error) {
+          console.error('❌ Erro ao definir flag localStorage:', error);
+        }
+        
+        setEditingReseller(null);
+        setIsEditDialogOpen(false);
       }
-      
-      // Usar localStorage como fallback
-      try {
-        localStorage.setItem('dashboard-refresh', Date.now().toString());
-        console.log('✅ Flag localStorage definida');
-      } catch (error) {
-        console.error('❌ Erro ao definir flag localStorage:', error);
-      }
-      
-      setEditingReseller(null);
-      setIsEditDialogOpen(false);
     }
   };
 
   const handleDeleteRevenda = async () => {
     if (deletingReseller) {
-      await deleteRevenda(deletingReseller.id);
+      const success = await deleteRevenda(deletingReseller.id);
       
-      // Atualizar Dashboard instantaneamente
-      console.log('📤 Revendas: Disparando evento refresh-dashboard após deletar revenda');
-      try {
-        window.dispatchEvent(new CustomEvent('refresh-dashboard', { detail: { source: 'resellers', action: 'delete' } }));
-        console.log('✅ Evento disparado com sucesso');
-      } catch (error) {
-        console.error('❌ Erro ao disparar evento:', error);
+      if (success) {
+        // Atualizar Dashboard instantaneamente
+        console.log('📤 Revendas: Disparando evento refresh-dashboard após deletar revenda');
+        try {
+          window.dispatchEvent(new CustomEvent('refresh-dashboard', { detail: { source: 'resellers', action: 'delete' } }));
+          console.log('✅ Evento disparado com sucesso');
+        } catch (error) {
+          console.error('❌ Erro ao disparar evento:', error);
+        }
+        
+        // Usar localStorage como fallback
+        try {
+          localStorage.setItem('dashboard-refresh', Date.now().toString());
+          console.log('✅ Flag localStorage definida');
+        } catch (error) {
+          console.error('❌ Erro ao definir flag localStorage:', error);
+        }
+        
+        setDeletingReseller(null);
+        setIsDeleteDialogOpen(false);
       }
-      
-      // Usar localStorage como fallback
-      try {
-        localStorage.setItem('dashboard-refresh', Date.now().toString());
-        console.log('✅ Flag localStorage definida');
-      } catch (error) {
-        console.error('❌ Erro ao definir flag localStorage:', error);
-      }
-      
-      setDeletingReseller(null);
-      setIsDeleteDialogOpen(false);
     }
   };
 
