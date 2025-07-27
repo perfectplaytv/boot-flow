@@ -294,71 +294,96 @@ const mapSupabaseUserToUser = (supabaseUser: Database['public']['Tables']['users
 ];
 
 export const useUsers = () => {
-  const [users, setUsers] = useState<User[]>(initialUsers);
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Carregar usuários do localStorage se disponível
-  useEffect(() => {
+  const fetchUsers = async () => {
+    setLoading(true);
+    setError(null);
+    
     try {
-      // Forçar limpeza do localStorage para garantir dados atualizados
-      localStorage.removeItem('users');
-      setUsers(initialUsers);
-      localStorage.setItem('users', JSON.stringify(initialUsers));
-    } catch (error) {
-      console.error('Erro ao carregar usuários do localStorage:', error);
-      setUsers(initialUsers);
+      const { data, error } = await db.users.getAll();
+      if (error) {
+        setError(error.message);
+      } else {
+        const mappedUsers = data?.map(mapSupabaseUserToUser) || [];
+        setUsers(mappedUsers);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao carregar usuários');
+    } finally {
+      setLoading(false);
     }
-  }, []);
+  };
 
-  // Salvar usuários no localStorage quando houver mudanças
-  useEffect(() => {
+  const addUser = async (user: Omit<User, 'id'>) => {
+    setError(null);
+    
     try {
-      localStorage.setItem('users', JSON.stringify(users));
-    } catch (error) {
-      console.error('Erro ao salvar usuários no localStorage:', error);
-    }
-  }, [users]);
-
-  const addUser = (user: Omit<User, 'id'>) => {
-    try {
-      console.log('Iniciando adição de usuário:', user);
-      
-      const newUser = {
-        ...user,
-        id: Math.max(...users.map(u => u.id)) + 1
+      const supabaseUser = {
+        name: user.name,
+        email: user.email,
+        observations: user.notes || user.observations,
+        password: user.password,
+        expiration_date: user.expirationDate || user.renewalDate,
+        bouquets: user.bouquets,
+        m3u_url: user.m3uUrl,
       };
-      
-      console.log('Usuário com ID gerado:', newUser);
-      
-      setUsers(prevUsers => {
-        const updatedUsers = [...prevUsers, newUser];
-        console.log('Lista de usuários atualizada:', updatedUsers);
-        
-        // Salvar imediatamente no localStorage
-        try {
-          localStorage.setItem('users', JSON.stringify(updatedUsers));
-          console.log('Usuários salvos no localStorage');
-        } catch (localStorageError) {
-          console.error('Erro ao salvar no localStorage:', localStorageError);
-        }
-        
-        return updatedUsers;
-      });
-      
-      console.log('Usuário adicionado com sucesso:', newUser);
-    } catch (error) {
-      console.error('Erro ao adicionar usuário:', error);
-      throw error;
+
+      const { data, error } = await db.users.create(supabaseUser);
+      if (error) {
+        setError(error.message);
+      } else if (data) {
+        const newUser = mapSupabaseUserToUser(data);
+        setUsers([newUser, ...users]);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao adicionar usuário');
     }
   };
 
-  const updateUser = (id: number, updates: Partial<User>) => {
-    setUsers(users.map(user => 
-      user.id === id ? { ...user, ...updates } : user
-    ));
+  const updateUser = async (id: number, updates: Partial<User>) => {
+    setError(null);
+    
+    try {
+      const supabaseUpdates = {
+        name: updates.name,
+        email: updates.email,
+        observations: updates.notes || updates.observations,
+        password: updates.password,
+        expiration_date: updates.expirationDate || updates.renewalDate,
+        bouquets: updates.bouquets,
+        m3u_url: updates.m3uUrl,
+      };
+
+      const { data, error } = await db.users.update(id, supabaseUpdates);
+      if (error) {
+        setError(error.message);
+      } else if (data) {
+        const updatedUser = mapSupabaseUserToUser(data);
+        setUsers(users.map(user => 
+          user.id === id ? updatedUser : user
+        ));
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao atualizar usuário');
+    }
   };
 
-  const deleteUser = (id: number) => {
-    setUsers(users.filter(user => user.id !== id));
+  const deleteUser = async (id: number) => {
+    setError(null);
+    
+    try {
+      const { error } = await db.users.delete(id);
+      if (error) {
+        setError(error.message);
+      } else {
+        setUsers(users.filter(user => user.id !== id));
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao deletar usuário');
+    }
   };
 
   const getActiveUsers = () => {
@@ -369,12 +394,20 @@ export const useUsers = () => {
     return users.find(user => user.id === id);
   };
 
+  // Carregar usuários na inicialização
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
   return {
     users,
+    loading,
+    error,
     addUser,
     updateUser,
     deleteUser,
     getActiveUsers,
-    getUserById
+    getUserById,
+    fetchUsers
   };
 }; 
