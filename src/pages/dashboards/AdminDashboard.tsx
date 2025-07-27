@@ -934,6 +934,8 @@ const AdminDashboard = () => {
                         </Button>
                       </DialogTrigger>
                       <DialogContent className="bg-[#1f2937] text-white max-w-4xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col max-h-[90vh] overflow-y-auto scrollbar-hide">
+                        <DialogTitle className="sr-only">Gerenciamento de Clientes</DialogTitle>
+                        <DialogDescription className="sr-only">Interface para adicionar e gerenciar clientes</DialogDescription>
                         <div className="p-6 w-full">
                           <AdminUsers />
                         </div>
