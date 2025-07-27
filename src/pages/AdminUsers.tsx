@@ -70,7 +70,7 @@ import React from "react";
 import { useClientes } from "@/hooks/useClientes";
 import { useUsers } from "@/hooks/useUsers";
 
-export default function AdminUsers() {
+function AdminUsers() {
   const {
     clientes: users,
     loading,
@@ -2316,8 +2316,6 @@ export default function AdminUsers() {
   );
 }
 
-export default AdminUsers;
-
 function VencimentoDatePicker() {
   const [open, setOpen] = React.useState(false);
   const [date, setDate] = React.useState<Date | undefined>(undefined);
@@ -2499,3 +2497,5 @@ function VencimentoDatePickerEdit({
     </Popover>
   );
 }
+
+export default AdminUsers;
