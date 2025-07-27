@@ -1412,10 +1412,10 @@ export default function AdminUsers() {
                     {user.telegram || "-"}
                   </TableCell>
                   <TableCell className="hidden lg:table-cell text-gray-300 text-xs sm:text-sm">
-                    {user.expirationDate || "-"}
+                    <span>{user.expiration_date || "-"}</span>
                   </TableCell>
                   <TableCell className="hidden lg:table-cell text-gray-400 text-xs sm:text-sm">
-                    {user.createdAt}
+                    <span>{user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}</span>
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-1 sm:gap-2">

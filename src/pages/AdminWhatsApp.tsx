@@ -116,7 +116,7 @@ const AdminWhatsApp: React.FC = () => {
       return;
     }
     if (editing) {
-      setTemplates((prev) => prev.map((tpl) => tpl.id === form.id ? { ...form } : tpl));
+      setTemplates((prev) => prev.map((tpl) => tpl.id === form.id ? { ...form, sent: tpl.sent, delivery: tpl.delivery, read: tpl.read } : tpl));
       toast.success('Template atualizado com sucesso!');
     } else {
       setTemplates((prev) => [
@@ -416,7 +416,7 @@ const AdminWhatsApp: React.FC = () => {
   }, [isConnected]);
 
   return (
-    <WhatsAppStatusContext.Provider value={{ isConnected, connectionStatus, setIsConnected, setConnectionStatus }}>
+    <WhatsAppStatusContext.Provider value={{ isConnected, connectionStatus: connectionStatus as any, setIsConnected, setConnectionStatus: setConnectionStatus as any }}>
     <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-2">
