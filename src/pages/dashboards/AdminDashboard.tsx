@@ -476,20 +476,11 @@ const AdminDashboard = () => {
                 <p className="text-gray-400 text-sm sm:text-base">Visão geral do sistema</p>
               </div>
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:space-x-2">
-                <Dialog open={activeModal === 'add_user'} onOpenChange={() => setActiveModal(activeModal === 'add_user' ? null : 'add_user')}>
-                  <DialogTrigger asChild>
-                    <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white h-10 sm:h-auto"> 
-                      <UserPlus className="w-4 h-4 sm:mr-2" />
-                      <span className="hidden sm:inline">Novo Cliente</span>
-                      <span className="sm:hidden">Cliente</span>
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="bg-[#1f2937] text-white max-w-4xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col max-h-[90vh] overflow-y-auto scrollbar-hide">
-                    <div className="p-6 w-full">
-                      <AdminUsers />
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white h-10 sm:h-auto" onClick={() => handlePageChange("users")}> 
+                  <UserPlus className="w-4 h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Novo Cliente</span>
+                  <span className="sm:hidden">Cliente</span>
+                </Button>
                 
                 <Dialog open={activeModal === 'add_reseller'} onOpenChange={() => setActiveModal(activeModal === 'add_reseller' ? null : 'add_reseller')}>
                   <DialogTrigger asChild>
