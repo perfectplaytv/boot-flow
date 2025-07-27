@@ -19,6 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 import { useCobrancas } from '@/hooks/useCobrancas';
+import { RLSErrorBannerCobrancas } from '@/components/RLSErrorBannerCobrancas';
 
 interface Cobranca {
   id: number;
