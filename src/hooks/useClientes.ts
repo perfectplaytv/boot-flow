@@ -30,32 +30,130 @@ export function useClientes() {
   const [error, setError] = useState<string | null>(null);
 
   async function fetchClientes() {
-    setLoading(true);
-    const { data, error } = await supabase.from('users').select('*');
-    if (error) setError(error.message);
-    else setClientes(data || []);
-    setLoading(false);
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const { data, error } = await supabase.from('users').select('*');
+      
+      if (error) {
+        console.error('Erro ao buscar clientes:', error);
+        
+        // Verificar se é erro de RLS
+        if (error.message.includes('row-level security policy')) {
+          setError('Erro de permissão: As políticas de segurança estão bloqueando o acesso. Execute o script SQL para corrigir as políticas RLS.');
+        } else {
+          setError(`Erro ao buscar clientes: ${error.message}`);
+        }
+        return;
+      }
+      
+      setClientes(data || []);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
+      setError(`Erro inesperado: ${errorMessage}`);
+      console.error('Erro ao buscar clientes:', err);
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function addCliente(cliente: Omit<Cliente, 'id'>) {
-    const { error } = await supabase.from('users').insert([cliente]);
-    if (error) setError(error.message);
-    else await fetchClientes();
+    try {
+      setError(null);
+      
+      const { data, error } = await supabase.from('users').insert([cliente]).select();
+      
+      if (error) {
+        console.error('Erro ao adicionar cliente:', error);
+        
+        // Verificar se é erro de RLS
+        if (error.message.includes('row-level security policy')) {
+          setError('Erro de permissão: As políticas de segurança estão bloqueando a inserção. Execute o script SQL para corrigir as políticas RLS.');
+        } else {
+          setError(`Erro ao adicionar cliente: ${error.message}`);
+        }
+        return false;
+      }
+      
+      await fetchClientes();
+      return true;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
+      setError(`Erro inesperado ao adicionar cliente: ${errorMessage}`);
+      console.error('Erro ao adicionar cliente:', err);
+      return false;
+    }
   }
 
   async function updateCliente(id: number, updates: Partial<Cliente>) {
-    const { error } = await supabase.from('users').update(updates).eq('id', id);
-    if (error) setError(error.message);
-    else await fetchClientes();
+    try {
+      setError(null);
+      
+      const { data, error } = await supabase.from('users').update(updates).eq('id', id).select();
+      
+      if (error) {
+        console.error('Erro ao atualizar cliente:', error);
+        
+        // Verificar se é erro de RLS
+        if (error.message.includes('row-level security policy')) {
+          setError('Erro de permissão: As políticas de segurança estão bloqueando a atualização. Execute o script SQL para corrigir as políticas RLS.');
+        } else {
+          setError(`Erro ao atualizar cliente: ${error.message}`);
+        }
+        return false;
+      }
+      
+      await fetchClientes();
+      return true;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
+      setError(`Erro inesperado ao atualizar cliente: ${errorMessage}`);
+      console.error('Erro ao atualizar cliente:', err);
+      return false;
+    }
   }
 
   async function deleteCliente(id: number) {
-    const { error } = await supabase.from('users').delete().eq('id', id);
-    if (error) setError(error.message);
-    else await fetchClientes();
+    try {
+      setError(null);
+      
+      const { error } = await supabase.from('users').delete().eq('id', id);
+      
+      if (error) {
+        console.error('Erro ao deletar cliente:', error);
+        
+        // Verificar se é erro de RLS
+        if (error.message.includes('row-level security policy')) {
+          setError('Erro de permissão: As políticas de segurança estão bloqueando a exclusão. Execute o script SQL para corrigir as políticas RLS.');
+        } else {
+          setError(`Erro ao deletar cliente: ${error.message}`);
+        }
+        return false;
+      }
+      
+      await fetchClientes();
+      return true;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
+      setError(`Erro inesperado ao deletar cliente: ${errorMessage}`);
+      console.error('Erro ao deletar cliente:', err);
+      return false;
+    }
   }
 
-  useEffect(() => { fetchClientes(); }, []);
+  useEffect(() => { 
+    fetchClientes(); 
+  }, []);
 
-  return { clientes, loading, error, addCliente, updateCliente, deleteCliente, fetchClientes };
+  return { 
+    clientes, 
+    loading, 
+    error, 
+    addCliente, 
+    updateCliente, 
+    deleteCliente, 
+    fetchClientes,
+    clearError: () => setError(null)
+  };
 } 
