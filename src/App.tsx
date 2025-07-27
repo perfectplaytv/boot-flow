@@ -5,8 +5,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-import { Auth } from "./pages/Auth";
-import { ProtectedRoute } from "./components/ProtectedRoute";
 
 // Dashboards
 import AdminDashboard from "./pages/dashboards/AdminDashboard";
@@ -50,105 +48,31 @@ const App = () => {
           <WhatsAppStatusContext.Provider value={{ isConnected, connectionStatus, setIsConnected, setConnectionStatus }}>
             <BrowserRouter>
               <Routes>
-                {/* Public Routes */}
                 <Route path="/" element={<Index />} />
-                <Route path="/auth" element={<Auth />} />
                 
-                {/* Protected Routes */}
-                <Route path="/dashboard/admin" element={
-                  <ProtectedRoute requiredRole="admin">
-                    <AdminDashboard />
-                  </ProtectedRoute>
-                } />
-                <Route path="/dashboard/reseller" element={
-                  <ProtectedRoute requiredRole="reseller">
-                    <ResellerDashboard />
-                  </ProtectedRoute>
-                } />
-                <Route path="/dashboard/client" element={
-                  <ProtectedRoute>
-                    <ClientDashboard />
-                  </ProtectedRoute>
-                } />
+                {/* Dashboards */}
+                <Route path="/dashboard/admin" element={<AdminDashboard />} />
+                <Route path="/dashboard/reseller" element={<ResellerDashboard />} />
+                <Route path="/dashboard/client" element={<ClientDashboard />} />
                 
-                {/* Internal Pages - Protected */}
-                <Route path="/profile" element={
-                  <ProtectedRoute>
-                    <Profile />
-                  </ProtectedRoute>
-                } />
-                <Route path="/settings" element={
-                  <ProtectedRoute>
-                    <Settings />
-                  </ProtectedRoute>
-                } />
-                <Route path="/payments" element={
-                  <ProtectedRoute>
-                    <Payments />
-                  </ProtectedRoute>
-                } />
-                <Route path="/notifications" element={
-                  <ProtectedRoute>
-                    <Notifications />
-                  </ProtectedRoute>
-                } />
-                <Route path="/help" element={
-                  <ProtectedRoute>
-                    <HelpCenter />
-                  </ProtectedRoute>
-                } />
+                {/* Internal Pages */}
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/payments" element={<Payments />} />
+                <Route path="/notifications" element={<Notifications />} />
+                <Route path="/help" element={<HelpCenter />} />
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/privacy" element={<Privacy />} />
-                <Route path="/products" element={
-                  <ProtectedRoute>
-                    <Products />
-                  </ProtectedRoute>
-                } />
-                <Route path="/gamification" element={
-                  <ProtectedRoute>
-                    <Gamification />
-                  </ProtectedRoute>
-                } />
-                <Route path="/scheduling" element={
-                  <ProtectedRoute>
-                    <Scheduling />
-                  </ProtectedRoute>
-                } />
-                <Route path="/statistics" element={
-                  <ProtectedRoute>
-                    <Statistics />
-                  </ProtectedRoute>
-                } />
-                <Route path="/ecommerce" element={
-                  <ProtectedRoute>
-                    <Ecommerce />
-                  </ProtectedRoute>
-                } />
-                <Route path="/channels" element={
-                  <ProtectedRoute>
-                    <Channels />
-                  </ProtectedRoute>
-                } />
-                <Route path="/voice-campaigns" element={
-                  <ProtectedRoute>
-                    <VoiceCampaigns />
-                  </ProtectedRoute>
-                } />
-                <Route path="/export" element={
-                  <ProtectedRoute>
-                    <Export />
-                  </ProtectedRoute>
-                } />
-                <Route path="/ai-config" element={
-                  <ProtectedRoute requiredRole="admin">
-                    <AIConfiguration />
-                  </ProtectedRoute>
-                } />
-                <Route path="/admin/resellers" element={
-                  <ProtectedRoute requiredRole="admin">
-                    <AdminResellers />
-                  </ProtectedRoute>
-                } />
+                <Route path="/products" element={<Products />} />
+                <Route path="/gamification" element={<Gamification />} />
+                <Route path="/scheduling" element={<Scheduling />} />
+                <Route path="/statistics" element={<Statistics />} />
+                <Route path="/ecommerce" element={<Ecommerce />} />
+                <Route path="/channels" element={<Channels />} />
+                <Route path="/voice-campaigns" element={<VoiceCampaigns />} />
+                <Route path="/export" element={<Export />} />
+                <Route path="/ai-config" element={<AIConfiguration />} />
+                <Route path="/admin/resellers" element={<AdminResellers />} />
                 
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
