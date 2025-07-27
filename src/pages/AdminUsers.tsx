@@ -830,6 +830,10 @@ export default function AdminUsers() {
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-lg w-full bg-background border border-gray-800 shadow-2xl p-0 rounded-lg overflow-hidden">
+              <DialogTitle>Adicionar Cliente</DialogTitle>
+              <DialogDescription>
+                Preencha os dados do novo cliente para adicioná-lo à base de dados.
+              </DialogDescription>
               <div className="relative">
                 <button
                   type="button"
@@ -841,7 +845,10 @@ export default function AdminUsers() {
                 </button>
                 <div className="px-6 pt-6 pb-2 border-b border-gray-800 bg-[#18181b]">
                   <h2 className="text-lg font-semibold leading-none tracking-tight text-white flex items-center gap-2">
-                    <Users className="w-6 h-6 text-green-500" />
+                    {/* Avatar local padrão */}
+                    <span className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-600 to-fuchsia-400 flex items-center justify-center">
+                      <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="white"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-7 8-7s8 3 8 7"/></svg>
+                    </span>
                     Adicionar Cliente
                     <span className="ml-2 px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 text-xs font-semibold">Novo</span>
                   </h2>
@@ -884,28 +891,7 @@ export default function AdminUsers() {
                         >
                           <option>IPTV 2</option>
                         </select>
-                        <div className="bg-yellow-900/40 border border-yellow-700 text-yellow-400 text-xs rounded mt-2 p-2 sm:text-xs text-[13px] leading-relaxed flex items-center gap-2">
-                          <svg
-                            className="w-4 h-4 flex-shrink-0"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M13 16h-1v-4h-1m1-4h.01M12 8v.01"
-                            />
-                            <circle cx="12" cy="12" r="10" />
-                          </svg>
-                          <span className="block">
-                            O <b>servidor não pode ser alterado aqui</b>.
-                            <br className="sm:hidden" /> Para mudar o servidor,
-                            utilize o ícone <b>Migrar Servidor</b> no painel de
-                            ações.
-                          </span>
-                        </div>
+
                       </div>
                       {/* Plano */}
                       <div className="col-span-1">
@@ -1844,28 +1830,7 @@ export default function AdminUsers() {
                       >
                         <option>IPTV 2</option>
                       </select>
-                      <div className="bg-yellow-900/40 border border-yellow-700 text-yellow-400 text-xs rounded mt-2 p-2 sm:text-xs text-[13px] leading-relaxed flex items-center gap-2">
-                        <svg
-                          className="w-4 h-4 flex-shrink-0"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M13 16h-1v-4h-1m1-4h.01M12 8v.01"
-                          />
-                          <circle cx="12" cy="12" r="10" />
-                        </svg>
-                        <span className="block">
-                          O <b>servidor não pode ser alterado aqui</b>.
-                          <br className="sm:hidden" /> Para mudar o servidor,
-                          utilize o ícone <b>Migrar Servidor</b> no painel de
-                          ações.
-                        </span>
-                      </div>
+
                     </div>
                     {/* Plano */}
                     <div className="col-span-1">
@@ -1886,28 +1851,7 @@ export default function AdminUsers() {
                         <option value="Premium">🟦 PREMIUM - COMPLETO</option>
                         <option value="Basic">🟩 BÁSICO</option>
                       </select>
-                      <div className="bg-yellow-900/40 border border-yellow-700 text-yellow-400 text-xs rounded mt-2 p-2 sm:text-xs text-[13px] leading-relaxed flex items-center gap-2">
-                        <svg
-                          className="w-4 h-4 flex-shrink-0"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M13 16h-1v-4h-1m1-4h.01M12 8v.01"
-                          />
-                          <circle cx="12" cy="12" r="10" />
-                        </svg>
-                        <span className="block">
-                          O <b>plano não pode ser alterado aqui</b>.
-                          <br className="sm:hidden" /> Para alterar o plano,
-                          selecione Ações na lista de clientes e escolha Alterar
-                          Plano.
-                        </span>
-                      </div>
+
                     </div>
                     {/* Usuário */}
                     <div className="col-span-1">
