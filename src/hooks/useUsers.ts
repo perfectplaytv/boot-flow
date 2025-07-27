@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { db } from '@/lib/supabase';
+import type { Database } from '@/integrations/supabase/types';
 
 export interface User {
   id: number;
@@ -20,8 +22,20 @@ export interface User {
   bouquets?: string;
 }
 
-// Dados mockados dos usuários (em produção viria de uma API)
-const initialUsers: User[] = [
+// Mapear dados do Supabase para interface User
+const mapSupabaseUserToUser = (supabaseUser: Database['public']['Tables']['users']['Row']): User => ({
+  id: supabaseUser.id,
+  name: supabaseUser.name,
+  email: supabaseUser.email,
+  plan: 'Cliente', // Valor padrão
+  status: 'Ativo', // Valor padrão
+  createdAt: supabaseUser.created_at || new Date().toISOString(),
+  observations: supabaseUser.observations || undefined,
+  password: supabaseUser.password || undefined,
+  expirationDate: supabaseUser.expiration_date || undefined,
+  bouquets: supabaseUser.bouquets || undefined,
+  m3uUrl: supabaseUser.m3u_url || undefined,
+});
   { 
     id: 1, 
     name: "Isa 22", 
