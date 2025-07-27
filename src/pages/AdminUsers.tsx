@@ -69,6 +69,7 @@ import {
 import React from "react";
 import { useClientes } from "@/hooks/useClientes";
 import { useUsers } from "@/hooks/useUsers";
+import { RLSErrorBanner } from "@/components/RLSErrorBanner";
 
 export default function AdminUsers() {
   const {
