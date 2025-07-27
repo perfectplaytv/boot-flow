@@ -10,162 +10,123 @@ export type Database = {
   // Allows to automatically instanciate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "12.2.12 (cd3cf9e)"
+    PostgrestVersion: "12.2.3 (519615d)"
   }
   public: {
     Tables: {
       cobrancas: {
         Row: {
-          cliente: string
-          created_at: string
-          created_by: string | null
-          descricao: string
-          email: string
-          forma_pagamento: string | null
+          cliente: string | null
+          descricao: string | null
+          email: string | null
+          formapagamento: string | null
           gateway: string | null
           id: number
           observacoes: string | null
-          proxima_tentativa: string | null
+          proximatentativa: string | null
           status: string | null
           tags: string[] | null
           tentativas: number | null
-          tipo: string
-          ultima_tentativa: string | null
-          updated_at: string
-          valor: number
-          vencimento: string
+          tipo: string | null
+          ultimatentativa: string | null
+          valor: number | null
+          vencimento: string | null
         }
         Insert: {
-          cliente: string
-          created_at?: string
-          created_by?: string | null
-          descricao: string
-          email: string
-          forma_pagamento?: string | null
+          cliente?: string | null
+          descricao?: string | null
+          email?: string | null
+          formapagamento?: string | null
           gateway?: string | null
-          id?: never
+          id?: number
           observacoes?: string | null
-          proxima_tentativa?: string | null
+          proximatentativa?: string | null
           status?: string | null
           tags?: string[] | null
           tentativas?: number | null
-          tipo: string
-          ultima_tentativa?: string | null
-          updated_at?: string
-          valor: number
-          vencimento: string
+          tipo?: string | null
+          ultimatentativa?: string | null
+          valor?: number | null
+          vencimento?: string | null
         }
         Update: {
-          cliente?: string
-          created_at?: string
-          created_by?: string | null
-          descricao?: string
-          email?: string
-          forma_pagamento?: string | null
+          cliente?: string | null
+          descricao?: string | null
+          email?: string | null
+          formapagamento?: string | null
           gateway?: string | null
-          id?: never
+          id?: number
           observacoes?: string | null
-          proxima_tentativa?: string | null
+          proximatentativa?: string | null
           status?: string | null
           tags?: string[] | null
           tentativas?: number | null
-          tipo?: string
-          ultima_tentativa?: string | null
-          updated_at?: string
-          valor?: number
-          vencimento?: string
-        }
-        Relationships: []
-      }
-      profiles: {
-        Row: {
-          avatar_url: string | null
-          created_at: string
-          full_name: string | null
-          id: string
-          role: string | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          avatar_url?: string | null
-          created_at?: string
-          full_name?: string | null
-          id?: string
-          role?: string | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          avatar_url?: string | null
-          created_at?: string
-          full_name?: string | null
-          id?: string
-          role?: string | null
-          updated_at?: string
-          user_id?: string
+          tipo?: string | null
+          ultimatentativa?: string | null
+          valor?: number | null
+          vencimento?: string | null
         }
         Relationships: []
       }
       resellers: {
         Row: {
-          created_at: string
-          created_by: string | null
+          created_at: string | null
           credits: number | null
           disable_login_days: number | null
-          email: string
+          email: string | null
           force_password_change: string | null
           id: number
           master_reseller: string | null
           monthly_reseller: boolean | null
           observations: string | null
+          password: string | null
           permission: string | null
           personal_name: string | null
           servers: string | null
           status: string | null
           telegram: string | null
-          updated_at: string
-          username: string
+          updated_at: string | null
+          username: string | null
           whatsapp: string | null
         }
         Insert: {
-          created_at?: string
-          created_by?: string | null
+          created_at?: string | null
           credits?: number | null
           disable_login_days?: number | null
-          email: string
+          email?: string | null
           force_password_change?: string | null
-          id?: never
+          id?: number
           master_reseller?: string | null
           monthly_reseller?: boolean | null
           observations?: string | null
+          password?: string | null
           permission?: string | null
           personal_name?: string | null
           servers?: string | null
           status?: string | null
           telegram?: string | null
-          updated_at?: string
-          username: string
+          updated_at?: string | null
+          username?: string | null
           whatsapp?: string | null
         }
         Update: {
-          created_at?: string
-          created_by?: string | null
+          created_at?: string | null
           credits?: number | null
           disable_login_days?: number | null
-          email?: string
+          email?: string | null
           force_password_change?: string | null
-          id?: never
+          id?: number
           master_reseller?: string | null
           monthly_reseller?: boolean | null
           observations?: string | null
+          password?: string | null
           permission?: string | null
           personal_name?: string | null
           servers?: string | null
           status?: string | null
           telegram?: string | null
-          updated_at?: string
-          username?: string
+          updated_at?: string | null
+          username?: string | null
           whatsapp?: string | null
         }
         Relationships: []
@@ -173,66 +134,39 @@ export type Database = {
       users: {
         Row: {
           bouquets: string | null
-          created_at: string
-          created_by: string | null
-          credits: number | null
-          devices: number | null
+          created_at: string | null
           email: string
           expiration_date: string | null
           id: number
           m3u_url: string | null
           name: string
-          notes: string | null
           observations: string | null
-          phone: string | null
-          plan: string | null
-          real_name: string | null
-          status: string | null
-          telegram: string | null
-          updated_at: string
-          whatsapp: string | null
+          password: string | null
+          updated_at: string | null
         }
         Insert: {
           bouquets?: string | null
-          created_at?: string
-          created_by?: string | null
-          credits?: number | null
-          devices?: number | null
-          email: string
+          created_at?: string | null
+          email?: string
           expiration_date?: string | null
-          id?: never
+          id?: number
           m3u_url?: string | null
           name: string
-          notes?: string | null
           observations?: string | null
-          phone?: string | null
-          plan?: string | null
-          real_name?: string | null
-          status?: string | null
-          telegram?: string | null
-          updated_at?: string
-          whatsapp?: string | null
+          password?: string | null
+          updated_at?: string | null
         }
         Update: {
           bouquets?: string | null
-          created_at?: string
-          created_by?: string | null
-          credits?: number | null
-          devices?: number | null
+          created_at?: string | null
           email?: string
           expiration_date?: string | null
-          id?: never
+          id?: number
           m3u_url?: string | null
           name?: string
-          notes?: string | null
           observations?: string | null
-          phone?: string | null
-          plan?: string | null
-          real_name?: string | null
-          status?: string | null
-          telegram?: string | null
-          updated_at?: string
-          whatsapp?: string | null
+          password?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }

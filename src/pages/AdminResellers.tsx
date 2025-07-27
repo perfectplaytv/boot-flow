@@ -60,7 +60,7 @@ export default function AdminResellers() {
       try {
         const success = await addRevenda({
           username: newReseller.username,
-          // password: newReseller.password, // Removed - not in interface
+          password: newReseller.password,
           force_password_change: newReseller.force_password_change?.toString(),
           permission: newReseller.permission as 'admin' | 'reseller' | 'subreseller',
           credits: newReseller.credits,
@@ -133,7 +133,7 @@ export default function AdminResellers() {
     if (editingReseller) {
       const success = await updateRevenda(editingReseller.id, {
         username: editingReseller.username,
-        // password: editingReseller.password, // Removed - not in interface
+        password: editingReseller.password,
         force_password_change: editingReseller.force_password_change,
         permission: editingReseller.permission,
         credits: editingReseller.credits,
