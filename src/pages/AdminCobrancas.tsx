@@ -612,11 +612,11 @@ export default function AdminCobrancas() {
                   <TableCell className="text-white text-xs sm:text-sm">{c.tipo}</TableCell>
                   <TableCell>
                     <div className="flex gap-2">
-                      <Button size="icon" variant="ghost" onClick={() => setModalVisualizar(c)}><Eye className="w-4 h-4 text-blue-400" /></Button>
-                      <Button size="icon" variant="ghost" onClick={() => openEditModal(c)}><Edit className="w-4 h-4 text-yellow-400" /></Button>
-                      <Button size="icon" variant="ghost" onClick={() => setModalWhats(c)}><MessageSquare className="w-4 h-4 text-green-500" /></Button>
-                      <Button size="icon" variant="ghost" onClick={() => setModalEmail(c)}><Mail className="w-4 h-4 text-blue-500" /></Button>
-                      <Button size="icon" variant="ghost" onClick={() => setModalExcluir(c)}><Trash2 className="w-4 h-4 text-red-400" /></Button>
+                       <Button size="icon" variant="ghost" onClick={() => setModalVisualizar(c as any)}><Eye className="w-4 h-4 text-blue-400" /></Button>
+                       <Button size="icon" variant="ghost" onClick={() => openEditModal(c as any)}><Edit className="w-4 h-4 text-yellow-400" /></Button>
+                       <Button size="icon" variant="ghost" onClick={() => setModalWhats(c as any)}><MessageSquare className="w-4 h-4 text-green-500" /></Button>
+                       <Button size="icon" variant="ghost" onClick={() => setModalEmail(c as any)}><Mail className="w-4 h-4 text-blue-500" /></Button>
+                       <Button size="icon" variant="ghost" onClick={() => setModalExcluir(c as any)}><Trash2 className="w-4 h-4 text-red-400" /></Button>
                     </div>
                   </TableCell>
                 </TableRow>
