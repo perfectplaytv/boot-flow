@@ -177,13 +177,8 @@ type Tables = {
   };
 }
 
-type TablesKey = keyof Tables;
-type TableKey<T extends TablesKey> = T;
-type TableRow<T extends TablesKey> = Tables[T]['Row'];
-type TableInsert<T extends TablesKey> = Tables[T]['Insert'];
-type TableUpdate<T extends TablesKey> = Tables[T]['Update'];
-
-export type { Tables, TablesKey, TableKey, TableRow, TableInsert, TableUpdate };
+// Exportando apenas o tipo Tables, os outros tipos serão exportados mais abaixo
+export type { Tables };
 
 // Tipos de utilitários para mapear as tabelas
 type MapRow<T> = T extends { Row: infer R } ? R : never;
