@@ -102,26 +102,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // Gerenciar mudanças de autenticação
   useEffect(() => {
-    // Obter sessão inicial
-    const initializeAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      await updateSession(session);
-    };
-
-    initializeAuth();
-
-    // Escutar mudanças de autenticação
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('Auth event:', event);
-        await updateSession(session);
+    // Verificar sessão ativa ao montar o componente
+    const checkSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          const userProfile = await fetchUserProfile(session.user.id);
+          setSession(session);
+          setUser(session.user);
+          setProfile(userProfile);
+          setUserRole(userProfile?.role || 'client');
+        }
+      } catch (error) {
+        console.error('Erro ao verificar sessão:', error);
+      } finally {
+        setLoading(false);
       }
-    );
-
-    return () => {
-      subscription.unsubscribe();
     };
-  }, [updateSession]);
+
+    checkSession();
+  }, [fetchUserProfile]);
 
   const signIn = async (email: string, password: string) => {
     try {
@@ -276,15 +276,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
   
-  const refreshSession = async () => {
+  const refreshSession = useCallback(async () => {
     try {
-      const { data, error } = await supabase.auth.getSession();
-      if (error) throw error;
-      await updateSession(data.session);
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const userProfile = await fetchUserProfile(session.user.id);
+        setSession(session);
+        setUser(session.user);
+        setProfile(userProfile);
+        setUserRole(userProfile?.role || 'client');
+      }
     } catch (error) {
       console.error('Erro ao atualizar sessão:', error);
+      throw error;
     }
-  };
+  }, [fetchUserProfile]);
 
   const value = {
     user,
