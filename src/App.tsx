@@ -96,11 +96,11 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <AuthProvider>
-          <Toaster />
-          <Sonner />
-          <WhatsAppStatusContext.Provider value={{ isConnected, connectionStatus, setIsConnected, setConnectionStatus }}>
-            <BrowserRouter>
+        <WhatsAppStatusContext.Provider value={{ isConnected, connectionStatus, setIsConnected, setConnectionStatus }}>
+  <BrowserRouter>
+    <AuthProvider>
+      <Toaster />
+      <Sonner />
               <Routes>
                 {/* Rotas Públicas */}
                 <Route path="/" element={<Index />} />
@@ -177,9 +177,9 @@ const App = () => {
                 {/* Rota de página não encontrada */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
-            </BrowserRouter>
-          </WhatsAppStatusContext.Provider>
-        </AuthProvider>
+            </AuthProvider>
+          </BrowserRouter>
+        </WhatsAppStatusContext.Provider>
       </TooltipProvider>
     </QueryClientProvider>
   );
