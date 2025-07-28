@@ -4,11 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { CheckCircle, MessageSquare, Clock, FileText, Zap, Settings, Trash2, Edit, Plus, Eye, Download, Upload, Users } from 'lucide-react';
+import { CheckCircle, MessageSquare, Clock, FileText, Zap, Settings, Trash2, Edit, Plus, Eye, EyeOff, Download, Upload, Users, Loader2 } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const templatesMock = [
   {
@@ -69,6 +71,18 @@ export const WhatsAppStatusContext = createContext({
 export const useWhatsAppStatus = () => useContext(WhatsAppStatusContext);
 
 const AdminWhatsApp: React.FC = () => {
+  // Estados para a API Brasil
+  const [apiBrasilConfig, setApiBrasilConfig] = useState({
+    bearerToken: '',
+    profileId: '',
+    phoneNumber: '',
+    isConfigured: false,
+    isConnected: false,
+    isLoading: false,
+    error: '',
+    showToken: false,
+  });
+
   const [autoReply, setAutoReply] = useState(false);
   const [templates, setTemplates] = useState(templatesMock);
   const [modalOpen, setModalOpen] = useState(false);
@@ -79,14 +93,12 @@ const AdminWhatsApp: React.FC = () => {
   const [configModalOpen, setConfigModalOpen] = useState(false);
   const [configTab, setConfigTab] = useState('geral');
   const [config, setConfig] = useState({
-    provider: 'Meta Cloud API',
-    number: '',
-    webhook: '',
-    autoReply: false,
+    provider: 'whatsapp-web',
     apiToken: '',
     apiEndpoint: '',
+    autoReply: false,
     logsDetalhados: false,
-    modoProducao: false
+    modoProducao: false,
   });
 
   // Estados para conexão WhatsApp
@@ -94,6 +106,155 @@ const AdminWhatsApp: React.FC = () => {
   const [qrCodeData, setQrCodeData] = useState<string | null>(null);
   const [isLoadingQR, setIsLoadingQR] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'disconnected' | 'connecting' | 'connected'>('disconnected');
+
+  // Função para enviar mensagem via API Brasil
+  const sendWhatsAppMessage = async (phoneNumber: string, message: string) => {
+    if (!apiBrasilConfig.bearerToken || !apiBrasilConfig.profileId) {
+      toast.error('Configuração da API Brasil incompleta');
+      return { success: false, error: 'Configuração incompleta' };
+    }
+
+    setApiBrasilConfig(prev => ({ ...prev, isLoading: true }));
+    
+    try {
+      const response = await fetch('https://gateway.apibrasil.io/api/v2/whatsapp/send-message', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiBrasilConfig.bearerToken}`,
+        },
+        body: JSON.stringify({
+          profileId: apiBrasilConfig.profileId,
+          phoneNumber: phoneNumber,
+          message: message
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Erro ao enviar mensagem');
+      }
+
+      toast.success('Mensagem enviada com sucesso!');
+      return { success: true, data };
+    } catch (error: any) {
+      console.error('Erro ao enviar mensagem:', error);
+      toast.error(`Erro ao enviar mensagem: ${error.message}`);
+      return { success: false, error: error.message };
+    } finally {
+      setApiBrasilConfig(prev => ({ ...prev, isLoading: false }));
+    }
+  };
+
+  // Função para testar o envio de mensagem
+  const handleTestMessage = async () => {
+    if (!apiBrasilConfig.phoneNumber) {
+      toast.error('Informe um número de telefone para teste');
+      return;
+    }
+
+    const testMessage = "🚀 *Teste de Mensagem*\n\nEsta é uma mensagem de teste enviada através da integração com a API Brasil.\n\n✅ Conexão funcionando perfeitamente!";
+    
+    toast.promise(
+      sendWhatsAppMessage(apiBrasilConfig.phoneNumber, testMessage),
+      {
+        loading: 'Enviando mensagem de teste...',
+        success: (data) => {
+          if (data.success) {
+            return 'Mensagem de teste enviada com sucesso!';
+          } else {
+            throw new Error(data.error || 'Erro ao enviar mensagem de teste');
+          }
+        },
+        error: (error) => `Erro: ${error.message || 'Falha ao enviar mensagem de teste'}`
+      }
+    );
+  };
+
+  // Função para testar a conexão com a API Brasil
+  const testApiBrasilConnection = async () => {
+    if (!apiBrasilConfig.bearerToken || !apiBrasilConfig.profileId) {
+      toast.error('Preencha o Token e o Profile ID da API Brasil');
+      return;
+    }
+
+    setApiBrasilConfig(prev => ({ ...prev, isLoading: true, error: '' }));
+    
+    try {
+      const response = await fetch('https://gateway.apibrasil.io/api/v2/whatsapp/status', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${apiBrasilConfig.bearerToken}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Erro ao verificar status');
+      }
+
+      setApiBrasilConfig(prev => ({
+        ...prev,
+        isConnected: data.connected || false,
+        isConfigured: true,
+        isLoading: false
+      }));
+
+      if (data.connected) {
+        setIsConnected(true);
+        setConnectionStatus('connected');
+        toast.success('Conexão com API Brasil estabelecida com sucesso!');
+      } else {
+        toast.warning('API Brasil conectada mas o WhatsApp não está ativo');
+      }
+
+      return data;
+    } catch (error: any) {
+      console.error('Erro ao testar conexão com API Brasil:', error);
+      setApiBrasilConfig(prev => ({
+        ...prev,
+        error: error.message,
+        isConnected: false,
+        isLoading: false
+      }));
+      toast.error(`Erro na conexão: ${error.message}`);
+      setIsConnected(false);
+      setConnectionStatus('disconnected');
+      return { success: false, error: error.message };
+    }
+  };
+
+  // Carregar configurações salvas no localStorage ao iniciar
+  React.useEffect(() => {
+    const savedConfig = localStorage.getItem('apiBrasilConfig');
+    if (savedConfig) {
+      try {
+        const parsedConfig = JSON.parse(savedConfig);
+        setApiBrasilConfig(prev => ({
+          ...prev,
+          ...parsedConfig,
+          isLoading: false
+        }));
+        
+        // Se tiver token e profileId, testa a conexão
+        if (parsedConfig.bearerToken && parsedConfig.profileId) {
+          testApiBrasilConnection();
+        }
+      } catch (error) {
+        console.error('Erro ao carregar configurações:', error);
+      }
+    }
+  }, []);
+
+  // Salvar configurações quando houver alterações
+  React.useEffect(() => {
+    if (apiBrasilConfig.bearerToken || apiBrasilConfig.profileId) {
+      const { isLoading, ...configToSave } = apiBrasilConfig;
+      localStorage.setItem('apiBrasilConfig', JSON.stringify(configToSave));
+    }
+  }, [apiBrasilConfig]);
 
   // Abrir modal para novo template
   const handleNewTemplate = () => {
@@ -371,6 +532,10 @@ const AdminWhatsApp: React.FC = () => {
   };
 
   const handleTestConnection = async () => {
+    if (config.provider === 'API Brasil') {
+      return testApiBrasilConnection();
+    }
+    
     try {
       setConnectionStatus('connecting');
       // Simular teste de conexão
@@ -556,30 +721,157 @@ const AdminWhatsApp: React.FC = () => {
                   className="bg-[#23272f] border border-gray-600 text-white placeholder-gray-400 focus:border-green-500" 
                 />
             </div>
+              {/* Seção de Configuração da API Brasil */}
+              <div className="bg-[#23272f] border border-gray-700 rounded-lg p-4 mb-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="block text-white font-semibold">API Brasil WhatsApp</span>
+                  <span className="px-2 py-1 text-xs rounded-full bg-blue-500/20 text-blue-400">Recomendado</span>
+                </div>
+                
+                <div className="mb-4">
+                  <label className="block text-gray-300 text-sm font-medium mb-1">Bearer Token</label>
+                  <div className="relative">
+                    <Input
+                      type={apiBrasilConfig.showToken ? 'text' : 'password'}
+                      value={apiBrasilConfig.bearerToken || ''}
+                      onChange={(e) => setApiBrasilConfig(prev => ({ ...prev, bearerToken: e.target.value }))}
+                      placeholder="Insira seu Bearer Token"
+                      className="bg-[#1e2430] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setApiBrasilConfig(prev => ({ ...prev, showToken: !prev.showToken }))}
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300"
+                    >
+                      {apiBrasilConfig.showToken ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1">Token de autenticação da API Brasil</p>
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-gray-300 text-sm font-medium mb-1">Profile ID</label>
+                  <Input
+                    value={apiBrasilConfig.profileId || ''}
+                    onChange={(e) => setApiBrasilConfig(prev => ({ ...prev, profileId: e.target.value }))}
+                    placeholder="Insira o Profile ID"
+                    className="bg-[#1e2430] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
+                  />
+                  <p className="text-xs text-gray-400 mt-1">ID do perfil na plataforma API Brasil</p>
+                </div>
+
+                <div className="mb-3">
+                  <label className="block text-gray-300 text-sm font-medium mb-1">Número de Telefone</label>
+                  <div className="flex">
+                    <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-600 bg-gray-700 text-gray-300 text-sm">
+                      +55
+                    </span>
+                    <Input
+                      type="tel"
+                      value={apiBrasilConfig.phoneNumber || ''}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, '');
+                        setApiBrasilConfig(prev => ({ ...prev, phoneNumber: value }));
+                      }}
+                      placeholder="11999999999"
+                      className="bg-[#1e2430] border-l-0 rounded-l-none border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
+                    />
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1">Número de telefone com DDD (apenas números)</p>
+                </div>
+
+                {apiBrasilConfig.error && (
+                  <div className="mb-3 p-2 text-sm text-red-400 bg-red-900/30 rounded border border-red-800">
+                    {apiBrasilConfig.error}
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="block text-sm text-gray-300">Status da API</span>
+                    <div className="flex items-center gap-1">
+                      <div className={`w-2 h-2 rounded-full ${apiBrasilConfig.isConnected ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                      <span className="text-xs text-gray-400">
+                        {apiBrasilConfig.isConnected ? 'Conectado' : 'Desconectado'}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <Button 
+                      type="button"
+                      onClick={testApiBrasilConnection}
+                      disabled={apiBrasilConfig.isLoading || !apiBrasilConfig.bearerToken || !apiBrasilConfig.profileId}
+                      variant="outline"
+                      className="border-blue-500 text-blue-400 hover:bg-blue-900/30 hover:text-blue-300 px-4 py-1 text-sm rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {apiBrasilConfig.isLoading ? (
+                        <div className="flex items-center gap-2">
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                          Testando...
+                        </div>
+                      ) : 'Testar Conexão'}
+                    </Button>
+                    
+                    <Button 
+                      type="button"
+                      onClick={handleTestMessage}
+                      disabled={!apiBrasilConfig.isConnected || !apiBrasilConfig.phoneNumber}
+                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-1 text-sm rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Enviar Teste
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Seção de Configurações Avançadas */}
               <div className="bg-[#23272f] border border-gray-700 rounded-lg p-4 mb-6">
                 <span className="block text-white font-semibold mb-3">Configurações Avançadas</span>
-              <div className="flex items-center justify-between mb-3">
-                <div>
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <span className="block text-gray-300 font-medium">Provedor de WhatsApp</span>
+                    <span className="block text-xs text-gray-400">Selecione o serviço de WhatsApp</span>
+                  </div>
+                  <Select 
+                    value={config.provider || 'whatsapp-web'}
+                    onValueChange={(value) => setConfig({ ...config, provider: value })}
+                  >
+                    <SelectTrigger className="w-[180px] bg-[#1e2430] border-gray-600 text-white">
+                      <SelectValue placeholder="Selecione o provedor" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#1e2430] border-gray-600 text-white">
+                      <SelectItem value="whatsapp-web">WhatsApp Web</SelectItem>
+                      <SelectItem value="API Brasil">API Brasil</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-center justify-between mb-3">
+                  <div>
                     <span className="block text-gray-300 font-medium">Auto-resposta</span>
                     <span className="block text-xs text-gray-400">Respostas automáticas quando offline</span>
+                  </div>
+                  <Switch checked={config.autoReply} onCheckedChange={v => setConfig({ ...config, autoReply: v })} />
                 </div>
-                <Switch checked={config.autoReply} onCheckedChange={v => setConfig({ ...config, autoReply: v })} />
-              </div>
-              <div className="flex items-center justify-between mb-3">
-                <div>
+                <div className="flex items-center justify-between mb-3">
+                  <div>
                     <span className="block text-gray-300 font-medium">Logs detalhados</span>
                     <span className="block text-xs text-gray-400">Registrar todas as interações</span>
+                  </div>
+                  <Switch checked={config.logsDetalhados || false} onCheckedChange={v => setConfig({ ...config, logsDetalhados: v })} />
                 </div>
-                <Switch checked={config.logsDetalhados || false} onCheckedChange={v => setConfig({ ...config, logsDetalhados: v })} />
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
+                <div className="flex items-center justify-between">
+                  <div>
                     <span className="block text-gray-300 font-medium">Modo de produção</span>
                     <span className="block text-xs text-gray-400">Usar configurações de produção</span>
+                  </div>
+                  <Switch checked={config.modoProducao || false} onCheckedChange={v => setConfig({ ...config, modoProducao: v })} />
                 </div>
-                <Switch checked={config.modoProducao || false} onCheckedChange={v => setConfig({ ...config, modoProducao: v })} />
               </div>
-            </div>
             <div className="flex justify-end gap-2 mt-6">
                 <Button 
                   variant="outline" 
