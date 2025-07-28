@@ -338,16 +338,46 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   
   const refreshSession = useCallback(async () => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error) {
+        console.error('Erro ao obter sessão:', error);
+        throw error;
+      }
+      
       if (session?.user) {
         const userProfile = await fetchUserProfile(session.user.id);
+        const role = userProfile?.role || 'client';
+        
+        // Atualiza o estado com os dados mais recentes
         setSession(session);
         setUser(session.user);
         setProfile(userProfile);
-        setUserRole(userProfile?.role || 'client');
+        setUserRole(role);
+        
+        // Retorna os dados atualizados para uso imediato, se necessário
+        return {
+          session,
+          user: session.user,
+          profile: userProfile,
+          role
+        };
+      } else {
+        // Se não houver sessão, limpa o estado
+        setSession(null);
+        setUser(null);
+        setProfile(null);
+        setUserRole(null);
       }
+      
+      return null;
     } catch (error) {
       console.error('Erro ao atualizar sessão:', error);
+      // Em caso de erro, limpa o estado para garantir consistência
+      setSession(null);
+      setUser(null);
+      setProfile(null);
+      setUserRole(null);
       throw error;
     }
   }, [fetchUserProfile]);
