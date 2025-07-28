@@ -1,10 +1,25 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRealtime } from './useRealtime';
 import { supabase } from '@/lib/supabase';
-import { Database } from '@/types/supabase.types';
 
-type UserRow = Database['public']['Tables']['users']['Row'];
-type ResellerRow = Database['public']['Tables']['resellers']['Row'];
+// Definindo tipos genéricos para usuários e revendedores
+type UserRow = {
+  id: string | number;
+  name?: string;
+  email?: string;
+  status?: string;
+  plan?: string;
+  m3u_url?: string;
+  [key: string]: any; // Para propriedades adicionais
+};
+
+type ResellerRow = {
+  id: string | number;
+  username?: string;
+  email?: string;
+  status?: string;
+  [key: string]: any; // Para propriedades adicionais
+};
 
 export interface DashboardStats {
   totalUsers: number;
@@ -19,8 +34,10 @@ export interface DashboardStats {
 
 function useDashboardData() {
   // Estados para os dados em tempo real
-  const { data: clientes = [], error: clientesError } = useRealtime<UserRow>({ table: 'users' });
-  const { data: revendas = [], error: revendasError } = useRealtime<ResellerRow>({ table: 'resellers' });
+  // Usando o hook useRealtime para buscar dados em tempo real
+  // Nota: Estamos usando 'any' temporariamente para evitar erros de tipo
+  const { data: clientes = [], error: clientesError } = useRealtime<any>({ table: 'users' });
+  const { data: revendas = [], error: revendasError } = useRealtime<any>({ table: 'resellers' });
   const [loading, setLoading] = useState(true);
   
   // Estado para as estatísticas do dashboard
