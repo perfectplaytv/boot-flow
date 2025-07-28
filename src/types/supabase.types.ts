@@ -60,6 +60,141 @@ export interface Database extends GeneratedDatabase {
           role?: 'admin' | 'reseller' | 'client' | null;
         };
       };
+      cobrancas: {
+        Row: {
+          id: string;
+          created_at?: string | null;
+          updated_at?: string | null;
+          cliente_id: string;
+          valor: number;
+          data_vencimento: string;
+          status: 'pendente' | 'pago' | 'atrasado' | 'cancelado';
+          descricao?: string | null;
+        };
+        Insert: {
+          id?: string;
+          created_at?: string | null;
+          updated_at?: string | null;
+          cliente_id: string;
+          valor: number;
+          data_vencimento: string;
+          status: 'pendente' | 'pago' | 'atrasado' | 'cancelado';
+          descricao?: string | null;
+        };
+        Update: {
+          id?: string;
+          created_at?: string | null;
+          updated_at?: string | null;
+          cliente_id?: string;
+          valor?: number;
+          data_vencimento?: string;
+          status?: 'pendente' | 'pago' | 'atrasado' | 'cancelado';
+          descricao?: string | null;
+        };
+      };
+      clientes: {
+        Row: {
+          id: string;
+          created_at?: string | null;
+          updated_at?: string | null;
+          nome: string;
+          email?: string | null;
+          telefone?: string | null;
+          endereco?: string | null;
+          cidade?: string | null;
+          estado?: string | null;
+          cep?: string | null;
+          data_nascimento?: string | null;
+          status: 'ativo' | 'inativo' | 'suspenso';
+          plano_id?: string | null;
+          revendedor_id?: string | null;
+        };
+        Insert: {
+          id?: string;
+          created_at?: string | null;
+          updated_at?: string | null;
+          nome: string;
+          email?: string | null;
+          telefone?: string | null;
+          endereco?: string | null;
+          cidade?: string | null;
+          estado?: string | null;
+          cep?: string | null;
+          data_nascimento?: string | null;
+          status: 'ativo' | 'inativo' | 'suspenso';
+          plano_id?: string | null;
+          revendedor_id?: string | null;
+        };
+        Update: {
+          id?: string;
+          created_at?: string | null;
+          updated_at?: string | null;
+          nome?: string;
+          email?: string | null;
+          telefone?: string | null;
+          endereco?: string | null;
+          cidade?: string | null;
+          estado?: string | null;
+          cep?: string | null;
+          data_nascimento?: string | null;
+          status?: 'ativo' | 'inativo' | 'suspenso';
+          plano_id?: string | null;
+          revendedor_id?: string | null;
+        };
+      };
+      revendas: {
+        Row: {
+          id: string;
+          created_at?: string | null;
+          updated_at?: string | null;
+          nome: string;
+          email: string;
+          telefone?: string | null;
+          endereco?: string | null;
+          cidade?: string | null;
+          estado?: string | null;
+          cep?: string | null;
+          status: 'ativo' | 'inativo' | 'suspenso';
+          comissao?: number;
+          limite_clientes?: number | null;
+        };
+        Insert: {
+          id?: string;
+          created_at?: string | null;
+          updated_at?: string | null;
+          nome: string;
+          email: string;
+          telefone?: string | null;
+          endereco?: string | null;
+          cidade?: string | null;
+          estado?: string | null;
+          cep?: string | null;
+          status: 'ativo' | 'inativo' | 'suspenso';
+          comissao?: number;
+          limite_clientes?: number | null;
+        };
+        Update: {
+          id?: string;
+          created_at?: string | null;
+          updated_at?: string | null;
+          nome?: string;
+          email?: string;
+          telefone?: string | null;
+          endereco?: string | null;
+          cidade?: string | null;
+          estado?: string | null;
+          cep?: string | null;
+          status?: 'ativo' | 'inativo' | 'suspenso';
+          comissao?: number;
+          limite_clientes?: number | null;
+        };
+      };
+          full_name?: string | null;
+          avatar_url?: string | null;
+          website?: string | null;
+          role?: 'admin' | 'reseller' | 'client' | null;
+        };
+      };
       // Adicione outras tabelas conforme necessário
     };
     // Adicionando as propriedades necessárias
