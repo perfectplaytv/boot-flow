@@ -19,7 +19,7 @@ export interface DashboardStats {
   aiInteractions: number;
 }
 
-export function useDashboardData() {
+function useDashboardData() {
   // Estados para os dados em tempo real
   const { data: clientes = [], error: clientesError } = useRealtimeClientes();
   const { data: revendas = [], error: revendasError } = useRealtimeRevendas();
