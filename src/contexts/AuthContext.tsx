@@ -142,9 +142,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       setLoading(true);
       
-      // Limpa qualquer estado de erro anterior
-      setError(null);
-      
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -174,7 +171,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.error('Erro no login:', error);
       const errorMessage = error.message || 'Erro ao fazer login. Verifique suas credenciais.';
       toast.error(errorMessage);
-      return { error: new Error(errorMessage) };
+      return { error };
     } finally {
       setLoading(false);
     }
