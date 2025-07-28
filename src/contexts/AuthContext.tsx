@@ -221,20 +221,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       setLoading(true);
       const { error } = await supabase.auth.signOut();
-      
       if (error) throw error;
-      
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error);
+      toast.error('Erro ao sair da conta. Tente novamente.');
+      throw error;
+    } finally {
+      // Limpa o estado independentemente do resultado do logout
       setUser(null);
       setSession(null);
       setProfile(null);
       setUserRole(null);
       
-      toast.success('Você saiu da sua conta com sucesso!');
+      // Redireciona para a página de login
       navigate('/login');
-    } catch (error: any) {
-      console.error('Erro ao sair:', error);
-      toast.error(error.message || 'Erro ao sair da conta. Tente novamente.');
-    } finally {
+      
+      // Exibe mensagem de sucesso após o redirecionamento
+      setTimeout(() => {
+        toast.success('Você saiu da sua conta com sucesso!');
+      }, 100);
+      
       setLoading(false);
     }
   };
