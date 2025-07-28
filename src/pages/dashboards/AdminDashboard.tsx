@@ -4,9 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useClientes } from '@/hooks/useClientes';
-import { useRevendas } from '@/hooks/useRevendas';
-import { useRealtimeClientes, useRealtimeRevendas } from '@/hooks/useRealtime';
+import { useRealtime } from '@/hooks/useRealtime';
+import type { User } from '@/types/supabase.types';
+
+// Definindo tipos para clientes e revendedores
+type Cliente = User & { /* adicione campos específicos do cliente aqui */ };
+type Revenda = User & { /* adicione campos específicos da revenda aqui */ };
 import useDashboardData from '@/hooks/useDashboardData';
 import { toast } from 'sonner';
 import { 
