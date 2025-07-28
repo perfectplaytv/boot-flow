@@ -28,6 +28,8 @@ export interface Database extends GeneratedDatabase {
       profiles: {
         Row: {
           id: string;
+          email?: string | null;
+          created_at?: string | null;
           updated_at?: string | null;
           username?: string | null;
           full_name?: string | null;
@@ -37,6 +39,8 @@ export interface Database extends GeneratedDatabase {
         };
         Insert: {
           id: string;
+          email?: string | null;
+          created_at?: string | null;
           updated_at?: string | null;
           username?: string | null;
           full_name?: string | null;
@@ -46,6 +50,8 @@ export interface Database extends GeneratedDatabase {
         };
         Update: {
           id?: string;
+          email?: string | null;
+          created_at?: string | null;
           updated_at?: string | null;
           username?: string | null;
           full_name?: string | null;
