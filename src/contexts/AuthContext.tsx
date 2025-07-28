@@ -181,36 +181,68 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       setLoading(true);
       
-      // Cria o usuário
+      // Validação do e-mail
+      if (!email || !/\S+@\S+\.\S+/.test(email)) {
+        throw new Error('Por favor, insira um endereço de e-mail válido.');
+      }
+      
+      // Validação da senha
+      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+      if (!passwordRegex.test(password)) {
+        throw new Error(
+          'A senha deve conter pelo menos 8 caracteres, incluindo letras maiúsculas, minúsculas, números e caracteres especiais.'
+        );
+      }
+      
+      // Validação do nome completo
+      if (!userData.full_name || userData.full_name.trim().length < 3) {
+        throw new Error('Por favor, insira um nome completo válido (mínimo 3 caracteres).');
+      }
+      
+      // Cria o usuário no Supabase Auth
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
+        email: email.trim(),
+        password: password.trim(),
         options: {
           data: {
-            full_name: userData.full_name,
+            full_name: userData.full_name.trim(),
+            role: userData.role || 'client',
           },
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
         },
       });
 
       if (signUpError) throw signUpError;
-      if (!authData.user) throw new Error('Erro ao criar usuário');
-
-      // Cria o perfil do usuário
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({
-          role: userData.role || 'client',
-          full_name: userData.full_name,
-        })
-        .eq('id', authData.user.id);
-
-      if (profileError) throw profileError;
-
-      toast.success('Cadastro realizado com sucesso! Verifique seu e-mail para confirmar sua conta.');
+      
+      // Cria o perfil do usuário na tabela profiles
+      if (authData.user) {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert([
+            {
+              id: authData.user.id,
+              email: email.trim().toLowerCase(),
+              full_name: userData.full_name.trim(),
+              role: userData.role || 'client',
+            },
+          ]);
+          
+        if (profileError) {
+          // Se houver erro ao criar o perfil, tenta excluir o usuário criado
+          await supabase.auth.admin.deleteUser(authData.user.id).catch(console.error);
+          throw profileError;
+        }
+      }
+      
+      toast.success('Conta criada com sucesso! Verifique seu e-mail para confirmar sua conta.');
       return { error: null };
     } catch (error: any) {
-      console.error('Erro no cadastro:', error);
-      toast.error(error.message || 'Erro ao criar conta. Tente novamente.');
+      console.error('Erro ao criar conta:', error);
+      const errorMessage = error.message.includes('already registered')
+        ? 'Este e-mail já está cadastrado. Tente fazer login ou recuperar sua senha.'
+        : error.message || 'Erro ao criar conta. Tente novamente.';
+      
+      toast.error(errorMessage);
       return { error };
     } finally {
       setLoading(false);
