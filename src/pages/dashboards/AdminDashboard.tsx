@@ -63,6 +63,7 @@ const AdminDashboard = () => {
   const [activeModal, setActiveModal] = useState<string | null>(null);
   const [clientModal, setClientModal] = useState(false);
   const [resellerModal, setResellerModal] = useState(false);
+  const [brandingModal, setBrandingModal] = useState(false);
   const [currentPage, setCurrentPage] = useState<string>("dashboard");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
