@@ -38,21 +38,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const isAuthenticated = !!user;
   const navigate = useNavigate();
 
+  // Função segura para navegar
+  const safeNavigate = useCallback((path: string) => {
+    if (window.location.pathname !== path) {
+      console.log(`[AuthContext] Navegando para: ${path}`);
+      navigate(path);
+    } else {
+      console.log(`[AuthContext] Já está em: ${path}, não navega.`);
+    }
+  }, [navigate]);
+
   // Função para redirecionar com base no papel do usuário
   const redirectBasedOnRole = useCallback((role: 'admin' | 'reseller' | 'client') => {
+    console.log(`[AuthContext] Redirecionando com role:`, role);
     switch (role) {
       case 'admin':
-        navigate('/dashboard/admin');
+        safeNavigate('/dashboard/admin');
         break;
       case 'reseller':
-        navigate('/dashboard/reseller');
+        safeNavigate('/dashboard/reseller');
         break;
       case 'client':
       default:
-        navigate('/dashboard/client');
+        safeNavigate('/dashboard/client');
         break;
     }
-  }, [navigate]);
+  }, [safeNavigate]);
 
   // Função para buscar o perfil do usuário
   const fetchUserProfile = useCallback(async (userId: string): Promise<UserProfile | null> => {
@@ -85,7 +96,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         
         // Redireciona para a dashboard apropriada se estiver na página de login
         if (window.location.pathname === '/login') {
-          redirectBasedOnRole(role);
+          if (role === 'admin' || role === 'reseller' || role === 'client') {
+            redirectBasedOnRole(role);
+          } else {
+            console.warn('[AuthContext] Role inválida, redirecionando para /dashboard/client');
+            safeNavigate('/dashboard/client');
+          }
         }
       } else {
         setProfile(null);
