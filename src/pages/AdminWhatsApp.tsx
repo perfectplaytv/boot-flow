@@ -174,8 +174,20 @@ const AdminWhatsApp: React.FC = () => {
 
   // Função para testar a conexão com a API Brasil
   const testApiBrasilConnection = async () => {
-    if (!apiBrasilConfig.bearerToken || !apiBrasilConfig.profileId) {
-      toast.error('Preencha o Token e o Profile ID da API Brasil');
+    // Validação dos campos obrigatórios
+    if (!apiBrasilConfig.bearerToken?.trim()) {
+      toast.error('O Bearer Token da API Brasil é obrigatório');
+      return;
+    }
+    
+    if (!apiBrasilConfig.profileId?.trim()) {
+      toast.error('O Profile ID da API Brasil é obrigatório');
+      return;
+    }
+
+    // Validação básica do formato do token (deve começar com 'ey' para JWT)
+    if (!apiBrasilConfig.bearerToken.startsWith('ey')) {
+      toast.error('Formato de token inválido. O token deve começar com "ey"');
       return;
     }
 
@@ -185,29 +197,48 @@ const AdminWhatsApp: React.FC = () => {
       const response = await fetch('https://gateway.apibrasil.io/api/v2/whatsapp/status', {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${apiBrasilConfig.bearerToken}`,
+          'Authorization': `Bearer ${apiBrasilConfig.bearerToken.trim()}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
       });
 
-      const data = await response.json();
+      // Verifica se a resposta é JSON válido
+      let data;
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        console.error('Erro ao processar resposta JSON:', jsonError);
+        throw new Error('Resposta inválida do servidor');
+      }
 
       if (!response.ok) {
-        throw new Error(data.message || 'Erro ao verificar status');
+        console.error('Erro na resposta da API:', data);
+        throw new Error(data.message || data.error || `Erro HTTP ${response.status}`);
       }
 
       setApiBrasilConfig(prev => ({
         ...prev,
         isConnected: data.connected || false,
         isConfigured: true,
-        isLoading: false
+        isLoading: false,
+        error: ''
       }));
 
       if (data.connected) {
         setIsConnected(true);
         setConnectionStatus('connected');
         toast.success('Conexão com API Brasil estabelecida com sucesso!');
+        
+        // Salva a configuração no localStorage
+        localStorage.setItem('apiBrasilConfig', JSON.stringify({
+          bearerToken: apiBrasilConfig.bearerToken,
+          profileId: apiBrasilConfig.profileId,
+          phoneNumber: apiBrasilConfig.phoneNumber
+        }));
       } else {
-        toast.warning('API Brasil conectada mas o WhatsApp não está ativo');
+        setConnectionStatus('disconnected');
+        toast.warning('API Brasil conectada, mas o WhatsApp não está ativo');
       }
 
       return data;
