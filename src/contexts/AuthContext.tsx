@@ -104,14 +104,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     // Verificar sessão ativa ao montar o componente
     const checkSession = async () => {
+      setLoading(true);
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Erro ao obter sessão:', error);
+          return;
+        }
+        
+        if (session?.user) {
           const userProfile = await fetchUserProfile(session.user.id);
+          const role = userProfile?.role || 'client';
+          
+          // Atualiza o estado com os dados do usuário e perfil
           setSession(session);
           setUser(session.user);
           setProfile(userProfile);
-          setUserRole(userProfile?.role || 'client');
+          setUserRole(role);
+          
+          // Redireciona para a dashboard apropriada se estiver na página de login
+          if (window.location.pathname === '/login') {
+            redirectBasedOnRole(role);
+          }
         }
       } catch (error) {
         console.error('Erro ao verificar sessão:', error);
@@ -121,7 +136,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     checkSession();
-  }, [fetchUserProfile]);
+  }, [fetchUserProfile, redirectBasedOnRole]);
 
   const signIn = async (email: string, password: string) => {
     try {
