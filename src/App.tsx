@@ -18,6 +18,7 @@ import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import Cadastro from "./pages/Cadastro";
 import RecuperarSenha from "./pages/RecuperarSenha";
+import ResetPassword from "./pages/ResetPassword";
 
 // Dashboards
 import AdminDashboard from "./pages/dashboards/AdminDashboard";
@@ -109,6 +110,7 @@ const App = () => {
                 <Route path="/login" element={<Login />} />
 <Route path="/cadastro" element={<Cadastro />} />
 <Route path="/recuperar-senha" element={<RecuperarSenha />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/privacy" element={<Privacy />} />
                 
