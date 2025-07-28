@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
+import { Database } from '@/types/supabase.types';
 
 type Table = 'profiles' | 'cobrancas' | 'clientes' | 'revendas';
 type EventType = 'INSERT' | 'UPDATE' | 'DELETE' | '*';
