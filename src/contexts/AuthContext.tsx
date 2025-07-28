@@ -316,6 +316,101 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Validações básicas
       if (updates.email && !/\S+@\S+\.\S+/.test(updates.email)) {
         throw new Error('Por favor, insira um endereço de e-mail válido.');
+      }
+      
+      // Prepara os dados para atualização
+      const updateData: Partial<UserProfile> = { ...updates };
+      
+      // Remove campos que não devem ser atualizados diretamente
+      delete updateData.id;
+      delete updateData.created_at;
+      delete updateData.updated_at;
+      
+      // Atualiza o perfil no banco de dados
+      const { data, error } = await supabase
+        .from('profiles')
+        .update(updateData)
+        .eq('id', user.id)
+        .select()
+        .single();
+        
+      if (error) throw error;
+      
+      // Atualiza o estado local
+      if (data) {
+        const updatedProfile = { ...profile, ...data };
+        setProfile(updatedProfile);
+        
+        // Se o papel foi atualizado, atualiza o redirecionamento
+        if (updates.role) {
+          setUserRole(updates.role);
+          // Não redireciona automaticamente para evitar problemas de UX
+          // O usuário pode querer continuar editando
+          toast.success('Perfil atualizado com sucesso! Atualizando permissões...');
+          // Pequeno atraso para o usuário ver a mensagem
+          setTimeout(() => redirectBasedOnRole(updates.role!), 1000);
+        } else {
+          toast.success('Perfil atualizado com sucesso!');
+        }
+      }
+      
+      return { error: null };
+    } catch (error: any) {
+      console.error('Erro ao atualizar perfil:', error);
+      const errorMessage = error.message.includes('unique')
+        ? 'Este e-mail já está em uso por outra conta.'
+        : error.message || 'Erro ao atualizar perfil. Tente novamente.';
+      
+      toast.error(errorMessage);
+      return { error };
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // Função para atualizar a sessão manualmente
+  const refreshSession = useCallback(async (): Promise<void> => {
+    try {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error) {
+        console.error('Erro ao obter sessão:', error);
+        throw error;
+      }
+      
+      if (session?.user) {
+        const userProfile = await fetchUserProfile(session.user.id);
+        const role = userProfile?.role || 'client';
+        
+        // Atualiza o estado com os dados mais recentes
+        setSession(session);
+        setUser(session.user);
+        setProfile(userProfile);
+        setUserRole(role);
+      } else {
+        // Se não houver sessão, limpa o estado
+        setSession(null);
+        setUser(null);
+        setProfile(null);
+        setUserRole(null);
+      }
+    } catch (error) {
+      console.error('Erro ao atualizar sessão:', error);
+      // Em caso de erro, limpa o estado para garantir consistência
+      setSession(null);
+      setUser(null);
+      setProfile(null);
+      setUserRole(null);
+      throw error;
+    }
+  }, [fetchUserProfile]);
+
+  // Valor do contexto
+  const value: AuthContextType = {
+    user,
+    session,
+    profile,
+    loading,
     isAuthenticated: !!user,
     userRole: profile?.role || null,
     signIn,
