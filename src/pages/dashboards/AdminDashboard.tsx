@@ -601,10 +601,7 @@ const AdminDashboard = () => {
     setDrawerOpen(false); // Fecha o Drawer no mobile
   };
 
-  const handleAddReseller = (reseller: any) => {
-    toast.success("Revendedor adicionado com sucesso!");
-    // Os dados serão atualizados automaticamente pelo hook
-  };
+
 
   // Funções auxiliares para renderização
   const getActivityIcon = (type: string) => {
