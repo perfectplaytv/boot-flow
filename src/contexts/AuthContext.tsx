@@ -1,17 +1,8 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode, useCallback } from 'react';
-import { User, Session, AuthError, UserResponse } from '@supabase/supabase-js';
+import { User, Session, AuthError } from '@supabase/supabase-js';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { supabase } from '@/lib/supabaseClient';
-
-interface UserProfile {
-  id: string;
-  email: string;
-  role: 'admin' | 'reseller' | 'client';
-  full_name?: string;
-  avatar_url?: string;
-  created_at: string;
-}
+import { supabase, UserProfile } from '@/lib/supabase';
 
 interface AuthContextType {
   user: User | null;
@@ -21,7 +12,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   userRole: 'admin' | 'reseller' | 'client' | null;
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
-  signUp: (email: string, password: string, userData: Partial<UserProfile>) => Promise<{ error: AuthError | null }>;
+  signUp: (email: string, password: string, userData: { full_name: string; role?: 'admin' | 'reseller' | 'client' }) => Promise<{ error: AuthError | null }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: AuthError | null }>;
   updateProfile: (updates: Partial<UserProfile>) => Promise<{ error: Error | null }>;
@@ -128,7 +119,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const signUp = async (email: string, password: string, userData: Partial<UserProfile>) => {
+  const signUp = async (email: string, password: string, userData: { full_name: string; role?: 'admin' | 'reseller' | 'client' }) => {
     try {
       setLoading(true);
       
@@ -139,7 +130,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         options: {
           data: {
             full_name: userData.full_name,
-            role: userData.role || 'client',
           },
         },
       });
@@ -150,15 +140,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Cria o perfil do usuário
       const { error: profileError } = await supabase
         .from('profiles')
-        .insert([
-          {
-            id: authData.user.id,
-            email,
-            role: userData.role || 'client',
-            full_name: userData.full_name,
-            created_at: new Date().toISOString(),
-          },
-        ]);
+        .update({
+          role: userData.role || 'client',
+          full_name: userData.full_name,
+        })
+        .eq('id', authData.user.id);
 
       if (profileError) throw profileError;
 
