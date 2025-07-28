@@ -104,7 +104,8 @@ export function useDashboardData() {
       }).length;
 
       // Atualiza as estatísticas
-      setStats({
+      setStats(prevStats => ({
+        ...prevStats,
         totalUsers,
         totalRevenue,
         activeResellers,
@@ -113,7 +114,7 @@ export function useDashboardData() {
         iptvUsers,
         radioListeners,
         aiInteractions: 0 // Implementar contagem de interações com IA se necessário
-      });
+      }));
 
     } catch (err) {
       console.error('Erro ao calcular estatísticas do dashboard:', err);
@@ -121,7 +122,7 @@ export function useDashboardData() {
     } finally {
       setLoading(false);
     }
-  }, [clientes, revendas]);
+  }, [clientes, revendas, setError, setLoading, setStats]);
 
   // Atualiza as estatísticas quando os dados mudam
   useEffect(() => {
