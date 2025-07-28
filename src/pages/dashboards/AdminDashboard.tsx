@@ -1242,25 +1242,337 @@ const AdminDashboard = () => {
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="bg-[#1f2937] text-white max-w-4xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col max-h-[90vh] overflow-y-auto scrollbar-hide">
-                    <DialogTitle className="sr-only">Gerenciamento de Revendedores</DialogTitle>
-                    <DialogDescription className="sr-only">Interface para adicionar e gerenciar revendedores</DialogDescription>
-                    <div className="p-6 w-full">
-                      <AdminResellers />
+                    <div className="p-6 w-full flex flex-col">
+                      <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-2xl font-bold">Adicionar um Revenda</h2>
+                        <div className="flex items-center gap-2">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="text-gray-400 hover:text-white"
+                            onClick={() => setResellerModal(false)}
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      <form onSubmit={handleAddReseller} className="space-y-6 flex-1 overflow-y-auto">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium text-white">
+                              Usuário <span className="text-red-500">*</span>
+                            </Label>
+                            <Input
+                              className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
+                              placeholder="Obrigatório"
+                              value={newReseller.username}
+                              onChange={(e) => setNewReseller({...newReseller, username: e.target.value})}
+                              required
+                            />
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2 text-blue-400 text-xs">
+                                <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
+                                <span>O campo usuário só pode conter letras, números e traços.</span>
+                              </div>
+                              <div className="flex items-center gap-2 text-blue-400 text-xs">
+                                <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
+                                <span>O usuário precisa ter no mínimo 6 caracteres.</span>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium text-white">
+                              Senha <span className="text-red-500">*</span>
+                            </Label>
+                            <div className="flex gap-2">
+                              <Input
+                                type="password"
+                                className="bg-[#23272f] border-gray-600 text-white flex-1 placeholder-gray-400 focus:border-blue-500"
+                                placeholder="Digite a senha"
+                                value={newReseller.password}
+                                onChange={(e) => setNewReseller({...newReseller, password: e.target.value})}
+                                required
+                              />
+                              <Button type="button" variant="outline" size="sm" className="border-gray-600 text-gray-400 hover:text-white">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                              </Button>
+                            </div>
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2 text-blue-400 text-xs">
+                                <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
+                                <span>A senha precisa ter no mínimo 8 caracteres.</span>
+                              </div>
+                              <div className="flex items-center gap-2 text-blue-400 text-xs">
+                                <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
+                                <span>Pelo menos 8 caracteres de comprimento, mas 14 ou mais é melhor.</span>
+                              </div>
+                              <div className="flex items-center gap-2 text-blue-400 text-xs">
+                                <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
+                                <span>Uma combinação de letras maiúsculas, letras minúsculas, números e símbolos.</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            id="forcePasswordChange"
+                            className="rounded border-gray-600 bg-[#23272f] text-blue-500 focus:ring-blue-500"
+                            checked={newReseller.force_password_change}
+                            onChange={(e) => setNewReseller({...newReseller, force_password_change: e.target.checked})}
+                          />
+                          <Label htmlFor="forcePasswordChange" className="text-sm text-gray-300">
+                            Forçar revenda a mudar a senha no próximo login
+                          </Label>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium text-white">
+                              Permissão <span className="text-red-500">*</span>
+                            </Label>
+                            <select 
+                              className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+                              value={newReseller.permission}
+                              onChange={(e) => setNewReseller({...newReseller, permission: e.target.value})}
+                              required
+                            >
+                              <option value="">Selecione</option>
+                              <option value="admin">Administrador</option>
+                              <option value="reseller">Revendedor</option>
+                              <option value="subreseller">Sub-Revendedor</option>
+                            </select>
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium text-white">
+                              Créditos <span className="text-red-500">*</span>
+                            </Label>
+                            <div className="flex items-center gap-2">
+                              <Button 
+                                type="button" 
+                                variant="outline" 
+                                size="sm" 
+                                className="border-gray-600 text-gray-400 hover:text-white"
+                                onClick={() => setNewReseller({...newReseller, credits: Math.max(0, newReseller.credits - 1)})}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                                </svg>
+                              </Button>
+                              <Input
+                                type="number"
+                                className="bg-[#23272f] border-gray-600 text-white text-center placeholder-gray-400 focus:border-blue-500"
+                                placeholder="0"
+                                value={newReseller.credits}
+                                onChange={(e) => setNewReseller({...newReseller, credits: parseInt(e.target.value) || 0})}
+                                min="10"
+                              />
+                              <Button 
+                                type="button" 
+                                variant="outline" 
+                                size="sm" 
+                                className="border-gray-600 text-gray-400 hover:text-white"
+                                onClick={() => setNewReseller({...newReseller, credits: newReseller.credits + 1})}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                </svg>
+                              </Button>
+                            </div>
+                            <div className="text-blue-400 text-xs">Mínimo de 10 créditos</div>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium text-white">Servidores (Opcional)</Label>
+                          <select 
+                            className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+                            value={newReseller.servers}
+                            onChange={(e) => setNewReseller({...newReseller, servers: e.target.value})}
+                          >
+                            <option value="">Opcional</option>
+                            <option value="none">Opcional</option>
+                            <option value="server1">Servidor 1</option>
+                            <option value="server2">Servidor 2</option>
+                            <option value="server3">Servidor 3</option>
+                          </select>
+                          <div className="text-blue-400 text-xs">
+                            Selecione os servidores que esse revenda pode ter acesso. Deixe em branco para permitir todos os servidores. Essa configuração afeta tanto a revenda quanto as subrevendas.
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium text-white">Revenda Master</Label>
+                            <Input
+                              className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
+                              placeholder="Nome da revenda master"
+                              value={newReseller.master_reseller}
+                              onChange={(e) => setNewReseller({...newReseller, master_reseller: e.target.value})}
+                            />
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium text-white">
+                              Desativar login se não recarregar - em dias
+                            </Label>
+                            <div className="flex items-center gap-2">
+                              <Button 
+                                type="button" 
+                                variant="outline" 
+                                size="sm" 
+                                className="border-gray-600 text-gray-400 hover:text-white"
+                                onClick={() => setNewReseller({...newReseller, disable_login_days: Math.max(0, newReseller.disable_login_days - 1)})}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                                </svg>
+                              </Button>
+                              <Input
+                                type="number"
+                                className="bg-[#23272f] border-gray-600 text-white text-center placeholder-gray-400 focus:border-blue-500"
+                                placeholder="0"
+                                value={newReseller.disable_login_days}
+                                onChange={(e) => setNewReseller({...newReseller, disable_login_days: parseInt(e.target.value) || 0})}
+                                min="0"
+                              />
+                              <Button 
+                                type="button" 
+                                variant="outline" 
+                                size="sm" 
+                                className="border-gray-600 text-gray-400 hover:text-white"
+                                onClick={() => setNewReseller({...newReseller, disable_login_days: newReseller.disable_login_days + 1})}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                </svg>
+                              </Button>
+                            </div>
+                            <div className="text-blue-400 text-xs">Deixe 0 para desativar essa opção</div>
+                          </div>
+                        </div>
+
+                        <div className="space-y-3">
+                          <div className="flex items-center space-x-2">
+                            <input
+                              type="checkbox"
+                              id="monthlyReseller"
+                              className="rounded border-gray-600 bg-[#23272f] text-blue-500 focus:ring-blue-500"
+                              checked={newReseller.monthly_reseller}
+                              onChange={(e) => setNewReseller({...newReseller, monthly_reseller: e.target.checked})}
+                            />
+                            <Label htmlFor="monthlyReseller" className="text-sm text-gray-300">
+                              Configuração de Revenda Mensalista
+                            </Label>
+                          </div>
+                          <div className="bg-green-600/20 border border-green-600/30 rounded-lg p-3">
+                            <div className="text-green-400 text-sm">
+                              Apenas você pode visualizar os detalhes pessoais deste revenda.
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="space-y-4">
+                          <h3 className="text-lg font-semibold text-white">Informações Pessoais (Opcional)</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                              <Label className="text-sm font-medium text-white">Nome</Label>
+                              <Input
+                                className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
+                                placeholder="Nome completo"
+                                value={newReseller.personal_name}
+                                onChange={(e) => setNewReseller({...newReseller, personal_name: e.target.value})}
+                              />
+                            </div>
+                            
+                            <div className="space-y-2">
+                              <Label className="text-sm font-medium text-white">E-mail</Label>
+                              <Input
+                                type="email"
+                                className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
+                                placeholder="email@exemplo.com"
+                                value={newReseller.email}
+                                onChange={(e) => setNewReseller({...newReseller, email: e.target.value})}
+                              />
+                            </div>
+                            
+                            <div className="space-y-2">
+                              <Label className="text-sm font-medium text-white">Telegram</Label>
+                              <Input
+                                className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
+                                placeholder="@usuario"
+                                value={newReseller.telegram}
+                                onChange={(e) => setNewReseller({...newReseller, telegram: e.target.value})}
+                              />
+                            </div>
+                            
+                            <div className="space-y-2">
+                              <Label className="text-sm font-medium text-white">WhatsApp</Label>
+                              <Input
+                                className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
+                                placeholder="55 11 99999 3333"
+                                value={newReseller.whatsapp}
+                                onChange={(e) => setNewReseller({...newReseller, whatsapp: e.target.value})}
+                              />
+                              <div className="text-blue-400 text-xs">
+                                Incluindo o código do país - com ou sem espaço e traços - ex. 55 11 99999 3333
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium text-white">Observações (Opcional)</Label>
+                          <textarea
+                            rows={4}
+                            placeholder="Adicione observações sobre este revendedor..."
+                            className="w-full bg-[#23272f] border border-gray-600 text-white rounded-md px-3 py-2 focus:border-blue-500 focus:outline-none placeholder-gray-400 resize-none"
+                            value={newReseller.observations}
+                            onChange={(e) => setNewReseller({...newReseller, observations: e.target.value})}
+                          />
+                        </div>
+
+                        <div className="flex items-center justify-between pt-6 border-t border-gray-700">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="border-gray-600 text-gray-400 hover:text-white"
+                            onClick={() => setResellerModal(false)}
+                          >
+                            Cancelar
+                          </Button>
+                          <Button
+                            type="submit"
+                            className="bg-blue-600 hover:bg-blue-700 text-white"
+                            disabled={isAddingReseller}
+                          >
+                            {isAddingReseller ? (
+                              <>
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                Salvando...
+                              </>
+                            ) : (
+                              <>
+                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                                </svg>
+                                Salvar
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </form>
                     </div>
                   </DialogContent>
                 </Dialog>
-                
-                <Button 
-                  className="bg-green-600 hover:bg-green-700 text-white h-10 sm:h-auto" 
-                  onClick={() => {
-                    console.log('🔄 Teste manual: Atualizando dados...');
-                    setRefreshTrigger(prev => prev + 1);
-                  }}
-                > 
-                  <RefreshCw className="w-4 h-4 sm:mr-2" />
-                  <span className="hidden sm:inline">Atualizar</span>
-                  <span className="sm:hidden">Refresh</span>
-                </Button>
               </div>
             </div>
 
@@ -1998,10 +2310,334 @@ const AdminDashboard = () => {
                         </Button>
                       </DialogTrigger>
                       <DialogContent className="bg-[#1f2937] text-white max-w-4xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col max-h-[90vh] overflow-y-auto scrollbar-hide">
-                        <DialogTitle className="sr-only">Gerenciamento de Revendedores</DialogTitle>
-                        <DialogDescription className="sr-only">Interface para adicionar e gerenciar revendedores</DialogDescription>
-                        <div className="p-6 w-full">
-                          <AdminResellers />
+                        <div className="p-6 w-full flex flex-col">
+                          <div className="flex items-center justify-between mb-6">
+                            <h2 className="text-2xl font-bold">Adicionar um Revenda</h2>
+                            <div className="flex items-center gap-2">
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="text-gray-400 hover:text-white"
+                                onClick={() => setResellerModal(false)}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                              </Button>
+                            </div>
+                          </div>
+                          
+                          <form onSubmit={handleAddReseller} className="space-y-6 flex-1 overflow-y-auto">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              <div className="space-y-2">
+                                <Label className="text-sm font-medium text-white">
+                                  Usuário <span className="text-red-500">*</span>
+                                </Label>
+                                <Input
+                                  className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
+                                  placeholder="Obrigatório"
+                                  value={newReseller.username}
+                                  onChange={(e) => setNewReseller({...newReseller, username: e.target.value})}
+                                  required
+                                />
+                                <div className="space-y-1">
+                                  <div className="flex items-center gap-2 text-blue-400 text-xs">
+                                    <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
+                                    <span>O campo usuário só pode conter letras, números e traços.</span>
+                                  </div>
+                                  <div className="flex items-center gap-2 text-blue-400 text-xs">
+                                    <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
+                                    <span>O usuário precisa ter no mínimo 6 caracteres.</span>
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              <div className="space-y-2">
+                                <Label className="text-sm font-medium text-white">
+                                  Senha <span className="text-red-500">*</span>
+                                </Label>
+                                <div className="flex gap-2">
+                                  <Input
+                                    type="password"
+                                    className="bg-[#23272f] border-gray-600 text-white flex-1 placeholder-gray-400 focus:border-blue-500"
+                                    placeholder="Digite a senha"
+                                    value={newReseller.password}
+                                    onChange={(e) => setNewReseller({...newReseller, password: e.target.value})}
+                                    required
+                                  />
+                                  <Button type="button" variant="outline" size="sm" className="border-gray-600 text-gray-400 hover:text-white">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                    </svg>
+                                  </Button>
+                                </div>
+                                <div className="space-y-1">
+                                  <div className="flex items-center gap-2 text-blue-400 text-xs">
+                                    <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
+                                    <span>A senha precisa ter no mínimo 8 caracteres.</span>
+                                  </div>
+                                  <div className="flex items-center gap-2 text-blue-400 text-xs">
+                                    <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
+                                    <span>Pelo menos 8 caracteres de comprimento, mas 14 ou mais é melhor.</span>
+                                  </div>
+                                  <div className="flex items-center gap-2 text-blue-400 text-xs">
+                                    <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
+                                    <span>Uma combinação de letras maiúsculas, letras minúsculas, números e símbolos.</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center space-x-2">
+                              <input
+                                type="checkbox"
+                                id="forcePasswordChange"
+                                className="rounded border-gray-600 bg-[#23272f] text-blue-500 focus:ring-blue-500"
+                                checked={newReseller.force_password_change}
+                                onChange={(e) => setNewReseller({...newReseller, force_password_change: e.target.checked})}
+                              />
+                              <Label htmlFor="forcePasswordChange" className="text-sm text-gray-300">
+                                Forçar revenda a mudar a senha no próximo login
+                              </Label>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              <div className="space-y-2">
+                                <Label className="text-sm font-medium text-white">
+                                  Permissão <span className="text-red-500">*</span>
+                                </Label>
+                                <select 
+                                  className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+                                  value={newReseller.permission}
+                                  onChange={(e) => setNewReseller({...newReseller, permission: e.target.value})}
+                                  required
+                                >
+                                  <option value="">Selecione</option>
+                                  <option value="admin">Administrador</option>
+                                  <option value="reseller">Revendedor</option>
+                                  <option value="subreseller">Sub-Revendedor</option>
+                                </select>
+                              </div>
+                              
+                              <div className="space-y-2">
+                                <Label className="text-sm font-medium text-white">
+                                  Créditos <span className="text-red-500">*</span>
+                                </Label>
+                                <div className="flex items-center gap-2">
+                                  <Button 
+                                    type="button" 
+                                    variant="outline" 
+                                    size="sm" 
+                                    className="border-gray-600 text-gray-400 hover:text-white"
+                                    onClick={() => setNewReseller({...newReseller, credits: Math.max(0, newReseller.credits - 1)})}
+                                  >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                                    </svg>
+                                  </Button>
+                                  <Input
+                                    type="number"
+                                    className="bg-[#23272f] border-gray-600 text-white text-center placeholder-gray-400 focus:border-blue-500"
+                                    placeholder="0"
+                                    value={newReseller.credits}
+                                    onChange={(e) => setNewReseller({...newReseller, credits: parseInt(e.target.value) || 0})}
+                                    min="10"
+                                  />
+                                  <Button 
+                                    type="button" 
+                                    variant="outline" 
+                                    size="sm" 
+                                    className="border-gray-600 text-gray-400 hover:text-white"
+                                    onClick={() => setNewReseller({...newReseller, credits: newReseller.credits + 1})}
+                                  >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                    </svg>
+                                  </Button>
+                                </div>
+                                <div className="text-blue-400 text-xs">Mínimo de 10 créditos</div>
+                              </div>
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label className="text-sm font-medium text-white">Servidores (Opcional)</Label>
+                              <select 
+                                className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+                                value={newReseller.servers}
+                                onChange={(e) => setNewReseller({...newReseller, servers: e.target.value})}
+                              >
+                                <option value="">Opcional</option>
+                                <option value="none">Opcional</option>
+                                <option value="server1">Servidor 1</option>
+                                <option value="server2">Servidor 2</option>
+                                <option value="server3">Servidor 3</option>
+                              </select>
+                              <div className="text-blue-400 text-xs">
+                                Selecione os servidores que esse revenda pode ter acesso. Deixe em branco para permitir todos os servidores. Essa configuração afeta tanto a revenda quanto as subrevendas.
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              <div className="space-y-2">
+                                <Label className="text-sm font-medium text-white">Revenda Master</Label>
+                                <Input
+                                  className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
+                                  placeholder="Nome da revenda master"
+                                  value={newReseller.master_reseller}
+                                  onChange={(e) => setNewReseller({...newReseller, master_reseller: e.target.value})}
+                                />
+                              </div>
+                              
+                              <div className="space-y-2">
+                                <Label className="text-sm font-medium text-white">
+                                  Desativar login se não recarregar - em dias
+                                </Label>
+                                <div className="flex items-center gap-2">
+                                  <Button 
+                                    type="button" 
+                                    variant="outline" 
+                                    size="sm" 
+                                    className="border-gray-600 text-gray-400 hover:text-white"
+                                    onClick={() => setNewReseller({...newReseller, disable_login_days: Math.max(0, newReseller.disable_login_days - 1)})}
+                                  >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                                    </svg>
+                                  </Button>
+                                  <Input
+                                    type="number"
+                                    className="bg-[#23272f] border-gray-600 text-white text-center placeholder-gray-400 focus:border-blue-500"
+                                    placeholder="0"
+                                    value={newReseller.disable_login_days}
+                                    onChange={(e) => setNewReseller({...newReseller, disable_login_days: parseInt(e.target.value) || 0})}
+                                    min="0"
+                                  />
+                                  <Button 
+                                    type="button" 
+                                    variant="outline" 
+                                    size="sm" 
+                                    className="border-gray-600 text-gray-400 hover:text-white"
+                                    onClick={() => setNewReseller({...newReseller, disable_login_days: newReseller.disable_login_days + 1})}
+                                  >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                    </svg>
+                                  </Button>
+                                </div>
+                                <div className="text-blue-400 text-xs">Deixe 0 para desativar essa opção</div>
+                              </div>
+                            </div>
+
+                            <div className="space-y-3">
+                              <div className="flex items-center space-x-2">
+                                <input
+                                  type="checkbox"
+                                  id="monthlyReseller"
+                                  className="rounded border-gray-600 bg-[#23272f] text-blue-500 focus:ring-blue-500"
+                                  checked={newReseller.monthly_reseller}
+                                  onChange={(e) => setNewReseller({...newReseller, monthly_reseller: e.target.checked})}
+                                />
+                                <Label htmlFor="monthlyReseller" className="text-sm text-gray-300">
+                                  Configuração de Revenda Mensalista
+                                </Label>
+                              </div>
+                              <div className="bg-green-600/20 border border-green-600/30 rounded-lg p-3">
+                                <div className="text-green-400 text-sm">
+                                  Apenas você pode visualizar os detalhes pessoais deste revenda.
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="space-y-4">
+                              <h3 className="text-lg font-semibold text-white">Informações Pessoais (Opcional)</h3>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                  <Label className="text-sm font-medium text-white">Nome</Label>
+                                  <Input
+                                    className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
+                                    placeholder="Nome completo"
+                                    value={newReseller.personal_name}
+                                    onChange={(e) => setNewReseller({...newReseller, personal_name: e.target.value})}
+                                  />
+                                </div>
+                                
+                                <div className="space-y-2">
+                                  <Label className="text-sm font-medium text-white">E-mail</Label>
+                                  <Input
+                                    type="email"
+                                    className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
+                                    placeholder="email@exemplo.com"
+                                    value={newReseller.email}
+                                    onChange={(e) => setNewReseller({...newReseller, email: e.target.value})}
+                                  />
+                                </div>
+                                
+                                <div className="space-y-2">
+                                  <Label className="text-sm font-medium text-white">Telegram</Label>
+                                  <Input
+                                    className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
+                                    placeholder="@usuario"
+                                    value={newReseller.telegram}
+                                    onChange={(e) => setNewReseller({...newReseller, telegram: e.target.value})}
+                                  />
+                                </div>
+                                
+                                <div className="space-y-2">
+                                  <Label className="text-sm font-medium text-white">WhatsApp</Label>
+                                  <Input
+                                    className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
+                                    placeholder="55 11 99999 3333"
+                                    value={newReseller.whatsapp}
+                                    onChange={(e) => setNewReseller({...newReseller, whatsapp: e.target.value})}
+                                  />
+                                  <div className="text-blue-400 text-xs">
+                                    Incluindo o código do país - com ou sem espaço e traços - ex. 55 11 99999 3333
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label className="text-sm font-medium text-white">Observações (Opcional)</Label>
+                              <textarea
+                                rows={4}
+                                placeholder="Adicione observações sobre este revendedor..."
+                                className="w-full bg-[#23272f] border border-gray-600 text-white rounded-md px-3 py-2 focus:border-blue-500 focus:outline-none placeholder-gray-400 resize-none"
+                                value={newReseller.observations}
+                                onChange={(e) => setNewReseller({...newReseller, observations: e.target.value})}
+                              />
+                            </div>
+
+                            <div className="flex items-center justify-between pt-6 border-t border-gray-700">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                className="border-gray-600 text-gray-400 hover:text-white"
+                                onClick={() => setResellerModal(false)}
+                              >
+                                Cancelar
+                              </Button>
+                              <Button
+                                type="submit"
+                                className="bg-blue-600 hover:bg-blue-700 text-white"
+                                disabled={isAddingReseller}
+                              >
+                                {isAddingReseller ? (
+                                  <>
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                    Salvando...
+                                  </>
+                                ) : (
+                                  <>
+                                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                                    </svg>
+                                    Salvar
+                                  </>
+                                )}
+                              </Button>
+                            </div>
+                          </form>
                         </div>
                       </DialogContent>
                     </Dialog>
