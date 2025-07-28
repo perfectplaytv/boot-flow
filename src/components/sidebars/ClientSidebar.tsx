@@ -40,19 +40,19 @@ import { AvatarSelectionModal } from "@/components/modals/AvatarSelectionModal";
 import { useState } from 'react';
 
 const menuItems = [
-  { title: "Dashboard", url: "/dashboard/client", icon: Home },
-  { title: "Clientes", url: "/dashboard/client/clients", icon: User },
-  { title: "Revendas", url: "/dashboard/client/resellers", icon: User },
-  { title: "Cobranças", url: "/dashboard/client/billing", icon: BarChart3 },
-  { title: "Notificações", url: "/dashboard/client/notifications", icon: Bell },
-  { title: "WhatsApp", url: "/dashboard/client/whatsapp", icon: MessageSquare },
-  { title: "Gateways", url: "/dashboard/client/gateways", icon: BarChart3 },
-  { title: "Customizar Marca", url: "/dashboard/client/branding", icon: BarChart3 },
-  { title: "E-commerce", url: "/dashboard/client/shop", icon: ShoppingBag },
-  { title: "IA + Voz", url: "/dashboard/client/ai", icon: Brain },
-  { title: "Gamificação", url: "/dashboard/client/games", icon: Gamepad2 },
-  { title: "Análises", url: "/dashboard/client/analytics", icon: BarChart3 },
-  { title: "Configurações", url: "/dashboard/client/settings", icon: Settings },
+  { title: "Dashboard", url: "/client", icon: Home },
+  { title: "Clientes", url: "/client/clients", icon: User },
+  { title: "Revendas", url: "/client/resellers", icon: User },
+  { title: "Cobranças", url: "/client/billing", icon: BarChart3 },
+  { title: "Notificações", url: "/client/notifications", icon: Bell },
+  { title: "WhatsApp", url: "/client/whatsapp", icon: MessageSquare },
+  { title: "Gateways", url: "/client/gateways", icon: BarChart3 },
+  { title: "Customizar Marca", url: "/client/branding", icon: BarChart3 },
+  { title: "E-commerce", url: "/client/shop", icon: ShoppingBag },
+  { title: "IA + Voz", url: "/client/ai", icon: Brain },
+  { title: "Gamificação", url: "/client/games", icon: Gamepad2 },
+  { title: "Análises", url: "/client/analytics", icon: BarChart3 },
+  { title: "Configurações", url: "/client/settings", icon: Settings },
 ];
 
 export function ClientSidebar() {
