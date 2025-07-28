@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import type { Database } from '@/types/database.types';
+import type { Database } from '@/types/supabase.types';
 
 // Configuração do cliente Supabase
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://tgffflpfilsxikqhnkuj.supabase.co';

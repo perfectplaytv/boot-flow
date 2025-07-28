@@ -42,14 +42,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const redirectBasedOnRole = useCallback((role: 'admin' | 'reseller' | 'client') => {
     switch (role) {
       case 'admin':
-        navigate('/admin/dashboard');
+        navigate('/dashboard/admin');
         break;
       case 'reseller':
-        navigate('/reseller/dashboard');
+        navigate('/dashboard/reseller');
         break;
       case 'client':
       default:
-        navigate('/dashboard');
+        navigate('/dashboard/client');
         break;
     }
   }, [navigate]);
