@@ -854,13 +854,8 @@ const AdminDashboard = () => {
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:space-x-2">
                 <Dialog open={clientModal} onOpenChange={setClientModal}>
                   <DialogTrigger asChild>
-                    <Button className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 px-4 py-2 bg-[#7e22ce] hover:bg-[#6d1bb7] text-white h-10 sm:h-auto" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="radix-:r3k:" data-state="closed">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-user-plus w-4 h-4 sm:mr-2">
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="9" cy="7" r="4"></circle>
-                        <line x1="19" x2="19" y1="8" y2="14"></line>
-                        <line x1="22" x2="16" y1="11" y2="11"></line>
-                      </svg>
+                    <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white h-10 sm:h-auto">
+                      <UserPlus className="w-4 h-4 sm:mr-2" />
                       <span className="hidden sm:inline">Novo Cliente</span>
                       <span className="sm:hidden">Cliente</span>
                     </Button>
@@ -948,65 +943,44 @@ const AdminDashboard = () => {
                                 }
                               >
                                 <option value="">Selecione um plano</option>
-                                <option value="Trial">🟧 TESTE - COMPLETO</option>
-                                <option value="Premium">🟦 PREMIUM - COMPLETO</option>
-                                <option value="Basic">🟩 BÁSICO</option>
+                                <option value="Mensal">Mensal</option>
+                                <option value="Trimestral">Trimestral</option>
+                                <option value="Semestral">Semestral</option>
+                                <option value="Anual">Anual</option>
                               </select>
                             </div>
-                            {/* Usuário */}
+                            {/* Nome */}
                             <div className="col-span-1">
                               <label className="block text-gray-300 mb-1 font-medium">
-                                Usuário *
+                                Nome *
                               </label>
-                              <div className="relative flex items-center">
-                                <input
-                                  placeholder="Usuário"
-                                  className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 pr-8"
-                                  value={newUser.name}
-                                  onChange={(e) =>
-                                    setNewUser({ ...newUser, name: e.target.value })
-                                  }
-                                />
-                                <span className="absolute right-2 text-gray-500 cursor-pointer">
-                                  <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                    <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
-                                    <polyline points="7 9 12 4 17 9" />
-                                    <line x1="12" x2="12" y1="4" y2="16" />
-                                  </svg>
-                                </span>
-                              </div>
+                              <Input
+                                placeholder="Nome completo do cliente"
+                                className="bg-[#23272f] border border-gray-700 text-white"
+                                value={newUser.name}
+                                onChange={(e) =>
+                                  setNewUser({ ...newUser, name: e.target.value })
+                                }
+                              />
                             </div>
-                            {/* Senha */}
+                            {/* Email */}
                             <div className="col-span-1">
                               <label className="block text-gray-300 mb-1 font-medium">
-                                Senha
+                                Email *
                               </label>
-                              <div className="relative flex items-center">
-                                <input
-                                  type="text"
-                                  placeholder="Senha"
-                                  className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 pr-8"
-                                  value={newUser.password}
-                                  onChange={(e) =>
-                                    setNewUser({ ...newUser, password: e.target.value })
-                                  }
-                                />
-                                <span className="absolute right-2 text-gray-500 cursor-pointer">
-                                  <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                    <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
-                                    <polyline points="7 9 12 4 17 9" />
-                                    <line x1="12" x2="12" y1="4" y2="16" />
-                                  </svg>
-                                </span>
-                              </div>
-                              <div className="bg-blue-900/40 border border-blue-700 text-blue-300 text-xs rounded mt-2 p-2 space-y-1">
-                                <div>Senha extraída automaticamente da URL M3U</div>
-                              </div>
+                              <Input
+                                placeholder="email@exemplo.com"
+                                className="bg-[#23272f] border border-gray-700 text-white"
+                                value={newUser.email}
+                                onChange={(e) =>
+                                  setNewUser({ ...newUser, email: e.target.value })
+                                }
+                              />
                             </div>
                             {/* Status */}
                             <div className="col-span-1">
                               <label className="block text-gray-300 mb-1 font-medium">
-                                Status
+                                Status *
                               </label>
                               <select
                                 className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
@@ -1015,120 +989,23 @@ const AdminDashboard = () => {
                                   setNewUser({ ...newUser, status: e.target.value })
                                 }
                               >
-                                <option value="Ativo">🟢 Ativo</option>
-                                <option value="Inativo">🔴 Inativo</option>
-                                <option value="Pendente">🟡 Pendente</option>
+                                <option value="Ativo">Ativo</option>
+                                <option value="Inativo">Inativo</option>
+                                <option value="Suspenso">Suspenso</option>
+                                <option value="Pendente">Pendente</option>
                               </select>
                             </div>
-                            {/* Vencimento */}
+                            {/* Data de Expiração */}
                             <div className="col-span-1">
                               <label className="block text-gray-300 mb-1 font-medium">
-                                Vencimento (Opcional)
+                                Data de Expiração *
                               </label>
-                              <input
+                              <Input
                                 type="date"
-                                className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+                                className="bg-[#23272f] border border-gray-700 text-white"
                                 value={newUser.expirationDate}
                                 onChange={(e) =>
-                                  setNewUser({
-                                    ...newUser,
-                                    expirationDate: e.target.value,
-                                  })
-                                }
-                              />
-                            </div>
-                            {/* Bouquets */}
-                            <div className="col-span-2">
-                              <label className="block text-gray-300 mb-1 font-medium">
-                                Bouquets
-                              </label>
-                              <input
-                                placeholder="Bouquets extraídos automaticamente"
-                                className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                                value={newUser.bouquets}
-                                onChange={(e) =>
-                                  setNewUser({ ...newUser, bouquets: e.target.value })
-                                }
-                              />
-                              <div className="bg-green-900/40 border border-green-700 text-green-400 text-xs rounded mt-2 p-2">
-                                Bouquets extraídos automaticamente da conta IPTV
-                              </div>
-                            </div>
-                            {/* Nome */}
-                            <div className="col-span-1">
-                              <label className="block text-gray-300 mb-1 font-medium">
-                                Nome *
-                              </label>
-                              <input
-                                placeholder="Digite o nome completo"
-                                className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                                value={newUser.realName}
-                                onChange={(e) =>
-                                  setNewUser({ ...newUser, realName: e.target.value })
-                                }
-                                required
-                              />
-                            </div>
-                            {/* E-mail */}
-                            <div className="col-span-1">
-                              <label className="block text-gray-300 mb-1 font-medium">
-                                E-mail
-                              </label>
-                              <input
-                                placeholder="Opcional"
-                                className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                                value={newUser.email}
-                                onChange={(e) =>
-                                  setNewUser({ ...newUser, email: e.target.value })
-                                }
-                              />
-                            </div>
-                            {/* Telegram */}
-                            <div className="col-span-1">
-                              <label className="block text-gray-300 mb-1 font-medium">
-                                Telegram
-                              </label>
-                              <input
-                                placeholder="Opcional"
-                                className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                                value={newUser.telegram}
-                                onChange={(e) =>
-                                  setNewUser({ ...newUser, telegram: e.target.value })
-                                }
-                              />
-                            </div>
-                            {/* WhatsApp */}
-                            <div className="col-span-1">
-                              <label className="block text-gray-300 mb-1 font-medium">
-                                WhatsApp
-                              </label>
-                              <input
-                                placeholder="Opcional"
-                                className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                                value={newUser.whatsapp}
-                                onChange={(e) =>
-                                  setNewUser({ ...newUser, whatsapp: e.target.value })
-                                }
-                              />
-                              <span className="text-xs text-gray-400 mt-1 block">
-                                Incluindo o código do país - com ou sem espaço e traços
-                                - ex. 55 11 99999 3333
-                              </span>
-                            </div>
-                            {/* Observações */}
-                            <div className="col-span-2">
-                              <label className="block text-gray-300 mb-1 font-medium">
-                                Observações
-                              </label>
-                              <textarea
-                                placeholder="Opcional"
-                                className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 min-h-[60px]"
-                                value={newUser.observations}
-                                onChange={(e) =>
-                                  setNewUser({
-                                    ...newUser,
-                                    observations: e.target.value,
-                                  })
+                                  setNewUser({ ...newUser, expirationDate: e.target.value })
                                 }
                               />
                             </div>
@@ -1137,162 +1014,165 @@ const AdminDashboard = () => {
                         
                         {/* Configuração de Serviço */}
                         <div className="bg-[#23272f] border border-gray-700 rounded-lg p-4 mb-6">
-                          <span className="block text-purple-400 font-semibold mb-4">Configuração de Serviço</span>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
-                            {/* Classe de Serviço */}
-                            <div>
+                          <span className="block text-white font-semibold mb-4">Configuração de Serviço</span>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Dispositivos */}
+                            <div className="col-span-1">
                               <label className="block text-gray-300 mb-1 font-medium">
-                                Classe de Serviço
+                                Dispositivos
                               </label>
-                              <select className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2">
-                                <option value="">Selecione</option>
-                                <option value="basico">Básico</option>
-                                <option value="premium">Premium</option>
-                              </select>
-                            </div>
-                            {/* Plano */}
-                            <div>
-                              <label className="block text-gray-300 mb-1 font-medium">
-                                Plano
-                              </label>
-                              <select className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2">
-                                <option value="mensal">Mensal</option>
-                                <option value="anual">Anual</option>
-                              </select>
-                            </div>
-                            {/* Status */}
-                            <div>
-                              <label className="block text-gray-300 mb-1 font-medium">
-                                Status
-                              </label>
-                              <select
-                                value={newUser.status}
-                                onChange={(e) =>
-                                  setNewUser({ ...newUser, status: e.target.value })
-                                }
-                                className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                              >
-                                <option value="Ativo">Ativo</option>
-                                <option value="Inativo">Inativo</option>
-                                <option value="Pendente">Pendente</option>
-                              </select>
-                            </div>
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
-                            {/* Data de Renovação */}
-                            <div>
-                              <label className="block text-gray-300 mb-1 font-medium">
-                                Data de Renovação
-                              </label>
-                              <input
-                                type="date"
-                                className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                              />
-                            </div>
-                            {/* Número de Dispositivos */}
-                            <div>
-                              <label className="block text-gray-300 mb-1 font-medium">
-                                Número de Dispositivos
-                              </label>
-                              <input
+                              <Input
                                 type="number"
-                                min={1}
-                                value={newUser.devices || 0}
+                                placeholder="0"
+                                className="bg-[#23272f] border border-gray-700 text-white"
+                                value={newUser.devices}
                                 onChange={(e) =>
-                                  setNewUser({
-                                    ...newUser,
-                                    devices: parseInt(e.target.value) || 0,
-                                  })
+                                  setNewUser({ ...newUser, devices: parseInt(e.target.value) || 0 })
                                 }
-                                className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                               />
                             </div>
                             {/* Créditos */}
-                            <div>
+                            <div className="col-span-1">
                               <label className="block text-gray-300 mb-1 font-medium">
                                 Créditos
                               </label>
-                              <div className="flex items-center gap-2">
-                                <button
-                                  type="button"
-                                  className="bg-[#23272f] text-white px-2 py-1 rounded border border-gray-700"
-                                >
-                                  -
-                                </button>
-                                <input
-                                  type="number"
-                                  min={0}
-                                  value={newUser.credits || 0}
-                                  onChange={(e) =>
-                                    setNewUser({
-                                      ...newUser,
-                                      credits: parseInt(e.target.value) || 0,
-                                    })
-                                  }
-                                  className="w-16 bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                                />
-                                <button
-                                  type="button"
-                                  className="bg-[#23272f] text-white px-2 py-1 rounded border border-gray-700"
-                                >
-                                  +
-                                </button>
-                                <span className="text-xs text-gray-400 ml-2">
-                                  valor
-                                  <br />
-                                  entre 0<br />e 500€
-                                </span>
-                              </div>
+                              <Input
+                                type="number"
+                                placeholder="0"
+                                className="bg-[#23272f] border border-gray-700 text-white"
+                                value={newUser.credits}
+                                onChange={(e) =>
+                                  setNewUser({ ...newUser, credits: parseInt(e.target.value) || 0 })
+                                }
+                              />
+                            </div>
+                            {/* Senha */}
+                            <div className="col-span-1">
+                              <label className="block text-gray-300 mb-1 font-medium">
+                                Senha
+                              </label>
+                              <Input
+                                placeholder="Senha do cliente"
+                                className="bg-[#23272f] border border-gray-700 text-white"
+                                value={newUser.password}
+                                onChange={(e) =>
+                                  setNewUser({ ...newUser, password: e.target.value })
+                                }
+                              />
+                            </div>
+                            {/* Bouquets */}
+                            <div className="col-span-1">
+                              <label className="block text-gray-300 mb-1 font-medium">
+                                Bouquets
+                              </label>
+                              <Input
+                                placeholder="Bouquets disponíveis"
+                                className="bg-[#23272f] border border-gray-700 text-white"
+                                value={newUser.bouquets}
+                                onChange={(e) =>
+                                  setNewUser({ ...newUser, bouquets: e.target.value })
+                                }
+                              />
                             </div>
                           </div>
                         </div>
                         
                         {/* Informações Adicionais */}
                         <div className="bg-[#23272f] border border-gray-700 rounded-lg p-4 mb-6">
-                          <span className="block text-white font-semibold mb-2">Informações Adicionais</span>
-                          <div className="flex items-center gap-2 mb-2">
-                            <input type="checkbox" className="accent-purple-600" />
-                            <span className="text-gray-300">Notificações via WhatsApp</span>
+                          <span className="block text-white font-semibold mb-4">Informações Adicionais</span>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Nome Real */}
+                            <div className="col-span-1">
+                              <label className="block text-gray-300 mb-1 font-medium">
+                                Nome Real
+                              </label>
+                              <Input
+                                placeholder="Nome real do cliente"
+                                className="bg-[#23272f] border border-gray-700 text-white"
+                                value={newUser.realName}
+                                onChange={(e) =>
+                                  setNewUser({ ...newUser, realName: e.target.value })
+                                }
+                              />
+                            </div>
+                            {/* WhatsApp */}
+                            <div className="col-span-1">
+                              <label className="block text-gray-300 mb-1 font-medium">
+                                WhatsApp
+                              </label>
+                              <Input
+                                placeholder="+55 (11) 99999-9999"
+                                className="bg-[#23272f] border border-gray-700 text-white"
+                                value={newUser.whatsapp}
+                                onChange={(e) =>
+                                  setNewUser({ ...newUser, whatsapp: e.target.value })
+                                }
+                              />
+                            </div>
+                            {/* Telegram */}
+                            <div className="col-span-1">
+                              <label className="block text-gray-300 mb-1 font-medium">
+                                Telegram
+                              </label>
+                              <Input
+                                placeholder="@username"
+                                className="bg-[#23272f] border border-gray-700 text-white"
+                                value={newUser.telegram}
+                                onChange={(e) =>
+                                  setNewUser({ ...newUser, telegram: e.target.value })
+                                }
+                              />
+                            </div>
+                            {/* Observações */}
+                            <div className="col-span-1">
+                              <label className="block text-gray-300 mb-1 font-medium">
+                                Observações
+                              </label>
+                              <Input
+                                placeholder="Observações sobre o cliente"
+                                className="bg-[#23272f] border border-gray-700 text-white"
+                                value={newUser.observations}
+                                onChange={(e) =>
+                                  setNewUser({ ...newUser, observations: e.target.value })
+                                }
+                              />
+                            </div>
+                            {/* Notas */}
+                            <div className="col-span-2">
+                              <label className="block text-gray-300 mb-1 font-medium">
+                                Notas
+                              </label>
+                              <textarea
+                                placeholder="Notas adicionais sobre o cliente..."
+                                className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 min-h-[80px] resize-none"
+                                value={newUser.notes}
+                                onChange={(e) =>
+                                  setNewUser({ ...newUser, notes: e.target.value })
+                                }
+                              />
+                            </div>
                           </div>
-                          <label className="block text-gray-300 mb-1 font-medium">Anotações</label>
-                          <textarea placeholder="Anotações..." className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 min-h-[60px]" />
                         </div>
                         
-                        <div className="flex items-center justify-between pt-6 border-t border-gray-700">
+                        {/* Botões de Ação */}
+                        <div className="flex justify-end gap-3 pt-4 border-t border-gray-700">
                           <Button
                             type="button"
                             variant="outline"
-                            className="border-gray-600 text-gray-400 hover:text-white"
                             onClick={() => setClientModal(false)}
+                            className="border-gray-600 text-gray-300 hover:bg-gray-700"
                           >
                             Cancelar
                           </Button>
                           <Button
                             type="submit"
-                            className="bg-blue-600 hover:bg-blue-700 text-white"
                             disabled={isAddingUser}
+                            className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white"
                           >
-                            {isAddingUser ? (
-                              <>
-                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                                Salvando...
-                              </>
-                            ) : (
-                              <>
-                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-                                </svg>
-                                Salvar
-                              </>
-                            )}
+                            {isAddingUser ? "Adicionando..." : "Adicionar Cliente"}
                           </Button>
                         </div>
                       </form>
-
-                      <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-700 text-xs text-gray-500 flex-shrink-0">
-                        <span>2025© ALLEZCONECCT v3.50</span>
-                        <span>Powered by Sigma | Notificações</span>
-                      </div>
                     </div>
                   </DialogContent>
                 </Dialog>
@@ -1736,7 +1616,321 @@ const AdminDashboard = () => {
                           <span className="sm:hidden">Cliente</span>
                         </Button>
                       </DialogTrigger>
-
+                      <DialogContent className="bg-[#1f2937] text-white max-w-4xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col max-h-[90vh] overflow-y-auto scrollbar-hide">
+                        <div className="p-6 w-full flex flex-col">
+                          <div className="flex items-center justify-between mb-6">
+                            <h2 className="text-2xl font-bold">Adicionar um Cliente</h2>
+                            <div className="flex items-center gap-2">
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="text-gray-400 hover:text-white"
+                                onClick={() => setClientModal(false)}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                              </Button>
+                            </div>
+                          </div>
+                          
+                          <form onSubmit={(e) => { e.preventDefault(); handleAddUser(); }} className="space-y-6 flex-1 overflow-y-auto">
+                            <div className="flex items-center gap-2 mb-4">
+                              <span className="text-green-400 text-xs font-medium">• Campos obrigatórios marcados com *</span>
+                              <span className="text-blue-400 text-xs font-medium">• Dados serão sincronizados automaticamente</span>
+                            </div>
+                            
+                            {/* Extração M3U */}
+                            <div className="bg-blue-900/30 border border-blue-800 rounded-lg p-4 mb-6">
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="text-blue-300 font-medium">Extração M3U</span>
+                                <div className="flex gap-2">
+                                  <Button type="button" className="bg-blue-600 text-white hover:bg-blue-700 px-4 py-1 rounded text-sm" onClick={extractM3UData} disabled={isExtracting}>Extrair</Button>
+                                </div>
+                              </div>
+                              <p className="text-xs text-blue-300 mb-2">Serve para importar dados automaticamente a partir de uma URL.</p>
+                              <Input placeholder="Insira a URL do M3U para extrair automaticamente os dados do cliente..." className="bg-[#1f2937] border border-blue-800 text-white mb-2" value={m3uUrl} onChange={e => setM3uUrl(e.target.value)} />
+                              {extractionError && (
+                                <div className="bg-red-900/40 border border-red-700 text-red-300 text-xs rounded p-2 mb-2">❌ {extractionError}</div>
+                              )}
+                              {extractionResult && !extractionError && (
+                                <div className="bg-green-900/40 border border-green-700 text-green-300 text-xs rounded p-2 mb-2">✅ {extractionResult.message}</div>
+                              )}
+                            </div>
+                            
+                            {/* Informações Básicas */}
+                            <div className="bg-[#23272f] border border-gray-700 rounded-lg p-4 mb-6">
+                              <span className="block text-white font-semibold mb-4">Informações Básicas</span>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {/* Servidor */}
+                                <div className="col-span-1">
+                                  <label className="block text-gray-300 mb-1 font-medium">
+                                    Servidor *
+                                  </label>
+                                  <select
+                                    disabled
+                                    className="w-full bg-[#23272f] border border-gray-700 text-gray-400 rounded px-3 py-2"
+                                  >
+                                    <option>IPTV 2</option>
+                                  </select>
+                                  <div className="bg-yellow-900/40 border border-yellow-700 text-yellow-400 text-xs rounded mt-2 p-2 sm:text-xs text-[13px] leading-relaxed flex items-center gap-2">
+                                    <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 8v.01" />
+                                      <circle cx="12" cy="12" r="10" />
+                                    </svg>
+                                    <span className="block">
+                                      O <b>servidor não pode ser alterado aqui</b>.
+                                      <br className="sm:hidden" /> Para mudar o servidor,
+                                      utilize o ícone <b>Migrar Servidor</b> no painel de
+                                      ações.
+                                    </span>
+                                  </div>
+                                </div>
+                                {/* Plano */}
+                                <div className="col-span-1">
+                                  <label className="block text-gray-300 mb-1 font-medium">
+                                    Plano *
+                                  </label>
+                                  <select
+                                    className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+                                    value={newUser.plan}
+                                    onChange={(e) =>
+                                      setNewUser({ ...newUser, plan: e.target.value })
+                                    }
+                                  >
+                                    <option value="">Selecione um plano</option>
+                                    <option value="Mensal">Mensal</option>
+                                    <option value="Trimestral">Trimestral</option>
+                                    <option value="Semestral">Semestral</option>
+                                    <option value="Anual">Anual</option>
+                                  </select>
+                                </div>
+                                {/* Nome */}
+                                <div className="col-span-1">
+                                  <label className="block text-gray-300 mb-1 font-medium">
+                                    Nome *
+                                  </label>
+                                  <Input
+                                    placeholder="Nome completo do cliente"
+                                    className="bg-[#23272f] border border-gray-700 text-white"
+                                    value={newUser.name}
+                                    onChange={(e) =>
+                                      setNewUser({ ...newUser, name: e.target.value })
+                                    }
+                                  />
+                                </div>
+                                {/* Email */}
+                                <div className="col-span-1">
+                                  <label className="block text-gray-300 mb-1 font-medium">
+                                    Email *
+                                  </label>
+                                  <Input
+                                    placeholder="email@exemplo.com"
+                                    className="bg-[#23272f] border border-gray-700 text-white"
+                                    value={newUser.email}
+                                    onChange={(e) =>
+                                      setNewUser({ ...newUser, email: e.target.value })
+                                    }
+                                  />
+                                </div>
+                                {/* Status */}
+                                <div className="col-span-1">
+                                  <label className="block text-gray-300 mb-1 font-medium">
+                                    Status *
+                                  </label>
+                                  <select
+                                    className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+                                    value={newUser.status}
+                                    onChange={(e) =>
+                                      setNewUser({ ...newUser, status: e.target.value })
+                                    }
+                                  >
+                                    <option value="Ativo">Ativo</option>
+                                    <option value="Inativo">Inativo</option>
+                                    <option value="Suspenso">Suspenso</option>
+                                    <option value="Pendente">Pendente</option>
+                                  </select>
+                                </div>
+                                {/* Data de Expiração */}
+                                <div className="col-span-1">
+                                  <label className="block text-gray-300 mb-1 font-medium">
+                                    Data de Expiração *
+                                  </label>
+                                  <Input
+                                    type="date"
+                                    className="bg-[#23272f] border border-gray-700 text-white"
+                                    value={newUser.expirationDate}
+                                    onChange={(e) =>
+                                      setNewUser({ ...newUser, expirationDate: e.target.value })
+                                    }
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                            
+                            {/* Configuração de Serviço */}
+                            <div className="bg-[#23272f] border border-gray-700 rounded-lg p-4 mb-6">
+                              <span className="block text-white font-semibold mb-4">Configuração de Serviço</span>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {/* Dispositivos */}
+                                <div className="col-span-1">
+                                  <label className="block text-gray-300 mb-1 font-medium">
+                                    Dispositivos
+                                  </label>
+                                  <Input
+                                    type="number"
+                                    placeholder="0"
+                                    className="bg-[#23272f] border border-gray-700 text-white"
+                                    value={newUser.devices}
+                                    onChange={(e) =>
+                                      setNewUser({ ...newUser, devices: parseInt(e.target.value) || 0 })
+                                    }
+                                  />
+                                </div>
+                                {/* Créditos */}
+                                <div className="col-span-1">
+                                  <label className="block text-gray-300 mb-1 font-medium">
+                                    Créditos
+                                  </label>
+                                  <Input
+                                    type="number"
+                                    placeholder="0"
+                                    className="bg-[#23272f] border border-gray-700 text-white"
+                                    value={newUser.credits}
+                                    onChange={(e) =>
+                                      setNewUser({ ...newUser, credits: parseInt(e.target.value) || 0 })
+                                    }
+                                  />
+                                </div>
+                                {/* Senha */}
+                                <div className="col-span-1">
+                                  <label className="block text-gray-300 mb-1 font-medium">
+                                    Senha
+                                  </label>
+                                  <Input
+                                    placeholder="Senha do cliente"
+                                    className="bg-[#23272f] border border-gray-700 text-white"
+                                    value={newUser.password}
+                                    onChange={(e) =>
+                                      setNewUser({ ...newUser, password: e.target.value })
+                                    }
+                                  />
+                                </div>
+                                {/* Bouquets */}
+                                <div className="col-span-1">
+                                  <label className="block text-gray-300 mb-1 font-medium">
+                                    Bouquets
+                                  </label>
+                                  <Input
+                                    placeholder="Bouquets disponíveis"
+                                    className="bg-[#23272f] border border-gray-700 text-white"
+                                    value={newUser.bouquets}
+                                    onChange={(e) =>
+                                      setNewUser({ ...newUser, bouquets: e.target.value })
+                                    }
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                            
+                            {/* Informações Adicionais */}
+                            <div className="bg-[#23272f] border border-gray-700 rounded-lg p-4 mb-6">
+                              <span className="block text-white font-semibold mb-4">Informações Adicionais</span>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {/* Nome Real */}
+                                <div className="col-span-1">
+                                  <label className="block text-gray-300 mb-1 font-medium">
+                                    Nome Real
+                                  </label>
+                                  <Input
+                                    placeholder="Nome real do cliente"
+                                    className="bg-[#23272f] border border-gray-700 text-white"
+                                    value={newUser.realName}
+                                    onChange={(e) =>
+                                      setNewUser({ ...newUser, realName: e.target.value })
+                                    }
+                                  />
+                                </div>
+                                {/* WhatsApp */}
+                                <div className="col-span-1">
+                                  <label className="block text-gray-300 mb-1 font-medium">
+                                    WhatsApp
+                                  </label>
+                                  <Input
+                                    placeholder="+55 (11) 99999-9999"
+                                    className="bg-[#23272f] border border-gray-700 text-white"
+                                    value={newUser.whatsapp}
+                                    onChange={(e) =>
+                                      setNewUser({ ...newUser, whatsapp: e.target.value })
+                                    }
+                                  />
+                                </div>
+                                {/* Telegram */}
+                                <div className="col-span-1">
+                                  <label className="block text-gray-300 mb-1 font-medium">
+                                    Telegram
+                                  </label>
+                                  <Input
+                                    placeholder="@username"
+                                    className="bg-[#23272f] border border-gray-700 text-white"
+                                    value={newUser.telegram}
+                                    onChange={(e) =>
+                                      setNewUser({ ...newUser, telegram: e.target.value })
+                                    }
+                                  />
+                                </div>
+                                {/* Observações */}
+                                <div className="col-span-1">
+                                  <label className="block text-gray-300 mb-1 font-medium">
+                                    Observações
+                                  </label>
+                                  <Input
+                                    placeholder="Observações sobre o cliente"
+                                    className="bg-[#23272f] border border-gray-700 text-white"
+                                    value={newUser.observations}
+                                    onChange={(e) =>
+                                      setNewUser({ ...newUser, observations: e.target.value })
+                                    }
+                                  />
+                                </div>
+                                {/* Notas */}
+                                <div className="col-span-2">
+                                  <label className="block text-gray-300 mb-1 font-medium">
+                                    Notas
+                                  </label>
+                                  <textarea
+                                    placeholder="Notas adicionais sobre o cliente..."
+                                    className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 min-h-[80px] resize-none"
+                                    value={newUser.notes}
+                                    onChange={(e) =>
+                                      setNewUser({ ...newUser, notes: e.target.value })
+                                    }
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                            
+                            {/* Botões de Ação */}
+                            <div className="flex justify-end gap-3 pt-4 border-t border-gray-700">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setClientModal(false)}
+                                className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                              >
+                                Cancelar
+                              </Button>
+                              <Button
+                                type="submit"
+                                disabled={isAddingUser}
+                                className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white"
+                              >
+                                {isAddingUser ? "Adicionando..." : "Adicionar Cliente"}
+                              </Button>
+                            </div>
+                          </form>
+                        </div>
+                      </DialogContent>
                     </Dialog>
                     
                     <Dialog open={resellerModal} onOpenChange={setResellerModal}>
