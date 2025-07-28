@@ -51,18 +51,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Função para redirecionar com base no papel do usuário
   const redirectBasedOnRole = useCallback((role: 'admin' | 'reseller' | 'client') => {
     console.log(`[AuthContext] Redirecionando com role:`, role);
-    switch (role) {
-      case 'admin':
-        safeNavigate('/dashboard/admin');
-        break;
-      case 'reseller':
-        safeNavigate('/dashboard/reseller');
-        break;
-      case 'client':
-      default:
-        safeNavigate('/dashboard/client');
-        break;
-    }
+    // Redireciona para a rota base, já que agora todas as rotas são acessíveis sem autenticação
+    safeNavigate('/');
   }, [safeNavigate]);
 
   // Função para buscar o perfil do usuário

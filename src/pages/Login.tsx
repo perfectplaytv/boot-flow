@@ -24,9 +24,8 @@ export default function Login() {
       const { error } = await signIn(email, password);
       if (error) throw error;
       
-      // Redireciona para o dashboard apropriado baseado no perfil do usuário
-      // Por enquanto, redireciona para o dashboard admin
-      navigate("/dashboard/admin");
+      // Redireciona para o dashboard admin
+      navigate("/admin");
     } catch (error: any) {
       setError(error.message || "Erro ao fazer login. Verifique suas credenciais.");
     } finally {
