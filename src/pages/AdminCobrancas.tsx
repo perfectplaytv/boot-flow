@@ -563,44 +563,6 @@ export default function AdminCobrancas() {
             </div>
           )}
         </div>
-
-        {/* Gráficos e Métricas */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="bg-[#1f2937] border border-purple-700/40">
-            <CardHeader>
-              <CardTitle className="text-white">Taxa de Conversão</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center">
-                <div className="text-4xl font-bold text-green-400 mb-2">{taxaConversao.toFixed(1)}%</div>
-                <Progress value={taxaConversao} className="h-3" />
-                <p className="text-gray-400 text-sm mt-2">{cobrancasPagas} de {totalCobrancas} cobranças pagas</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-[#1f2937] border border-purple-700/40">
-            <CardHeader>
-              <CardTitle className="text-white">Performance por Gateway</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {gateways.filter(g => g.configurado).map(gateway => (
-                  <div key={gateway.id} className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className={`w-3 h-3 rounded-full ${gateway.status === 'Ativo' ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                      <span className="text-gray-300">{gateway.nome}</span>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-sm font-semibold text-white">{gateway.taxa}</div>
-                      <div className="text-xs text-gray-400">{gateway.limite}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
       </TabsContent>
 
       <TabsContent value="cobrancas" className="space-y-6">
