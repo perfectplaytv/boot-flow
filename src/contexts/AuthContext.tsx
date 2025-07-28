@@ -243,28 +243,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       setLoading(false);
     }
-  };
-
-  const resetPassword = async (email: string) => {
-    try {
-      setLoading(true);
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
-      });
-
-      if (error) throw error;
-      
-      toast.success('E-mail de redefinição de senha enviado com sucesso!');
-      return { error: null };
-    } catch (error: any) {
-      console.error('Erro ao redefinir senha:', error);
-      toast.error(error.message || 'Erro ao enviar e-mail de redefinição de senha.');
-      return { error };
-    } finally {
-      setLoading(false);
-    }
-  };
+    
+    setLoading(false);
+  });
   
+  return () => {
+    subscription.unsubscribe();
   const updateProfile = async (updates: Partial<UserProfile>) => {
     try {
       if (!user) throw new Error('Usuário não autenticado');
