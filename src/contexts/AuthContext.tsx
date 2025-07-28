@@ -38,6 +38,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const isAuthenticated = !!user;
   const navigate = useNavigate();
 
+  // Função para redirecionar com base no papel do usuário
+  const redirectBasedOnRole = useCallback((role: 'admin' | 'reseller' | 'client') => {
+    switch (role) {
+      case 'admin':
+        navigate('/admin/dashboard');
+        break;
+      case 'reseller':
+        navigate('/reseller/dashboard');
+        break;
+      case 'client':
+      default:
+        navigate('/dashboard');
+        break;
+    }
+  }, [navigate]);
+
   // Função para buscar o perfil do usuário
   const fetchUserProfile = useCallback(async (userId: string): Promise<UserProfile | null> => {
     try {
@@ -55,27 +71,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  // Atualizar sessão e perfil do usuário
-  const updateSession = useCallback(async (session: Session | null) => {
-    setSession(session);
-    setUser(session?.user ?? null);
-    
-    if (session?.user) {
-      const userProfile = await fetchUserProfile(session.user.id);
-      setProfile(userProfile);
+  useEffect(() => {
+    // Verifica se há uma sessão ativa ao carregar o componente
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setSession(session);
+      setUser(session?.user ?? null);
       
-      // Redireciona com base no perfil do usuário após login
-      if (userProfile) {
-        const redirectPath = sessionStorage.getItem('redirectAfterLogin') || `dashboard/${userProfile.role}`;
-        navigate(redirectPath);
-        sessionStorage.removeItem('redirectAfterLogin');
+      if (session?.user) {
+        const userProfile = await fetchUserProfile(session.user.id);
+        setProfile(userProfile);
+        const role = userProfile?.role || 'client';
+        setUserRole(role);
+        
+        // Redireciona para a dashboard apropriada se estiver na página de login
+        if (window.location.pathname === '/login') {
+          redirectBasedOnRole(role);
+        }
+      } else {
+        setProfile(null);
+        setUserRole(null);
       }
-    } else {
-      setProfile(null);
-    }
+      
+      setLoading(false);
+    });
     
-    setLoading(false);
-  }, [fetchUserProfile, navigate]);
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navigate, redirectBasedOnRole]);
 
   // Gerenciar mudanças de autenticação
   useEffect(() => {
