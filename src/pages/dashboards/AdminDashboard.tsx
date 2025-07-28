@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useClientes } from '@/hooks/useClientes';
 import { useRevendas } from '@/hooks/useRevendas';
 import { useRealtimeClientes, useRealtimeRevendas } from '@/hooks/useRealtime';
+import useDashboardData from '@/hooks/useDashboardData';
 import { toast } from 'sonner';
 import { 
   Brain, 
@@ -37,7 +38,6 @@ import {
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/sidebars/AdminSidebar";
 import { AIModalManager } from "@/components/modals/AIModalManager";
-import { toast } from "sonner";
 import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { DndContext, closestCenter } from '@dnd-kit/core';
 import { arrayMove, SortableContext, useSortable, rectSortingStrategy } from '@dnd-kit/sortable';
@@ -71,16 +71,8 @@ const AdminDashboard = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [viewMode, setViewMode] = useState<'grid' | 'kanban'>('grid');
-  const [stats, setStats] = useState({
-    totalUsers: 0,
-    totalRevenue: 487230,
-    activeResellers: 0,
-    activeClients: 0,
-    monthlyGrowth: 12.5,
-    iptvUsers: 8934,
-    radioListeners: 12456,
-    aiInteractions: 45678
-  });
+  // Usando o hook personalizado para gerenciar os dados do dashboard
+  const { stats, loading: loadingStats, error: statsError, refresh: refreshStats } = useDashboardData();
 
   // Estados para o modal de cliente
   const [newUser, setNewUser] = useState({
@@ -268,6 +260,14 @@ const AdminDashboard = () => {
       activeClients: clientes.length
     }));
   }, [clientes, revendas]);
+
+  // Efeito para lidar com erros nas estatísticas
+  useEffect(() => {
+    if (statsError) {
+      console.error('Erro ao carregar estatísticas:', statsError);
+      toast.error('Erro ao carregar dados do dashboard');
+    }
+  }, [statsError]);
 
   // Sistema de Proxy CORS Multi-Fallback (apenas HTTPS para evitar Mixed Content)
   const corsProxies = [
