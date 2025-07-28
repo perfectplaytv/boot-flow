@@ -172,13 +172,13 @@ const Index = () => {
           </nav>
 
           <div className="flex items-center space-x-2">
-            <Button variant="outline" onClick={() => handleLogin('admin')}>
+            <Button variant="outline" onClick={() => navigate('/admin')}>
               Admin
             </Button>
-            <Button variant="outline" onClick={() => handleLogin('reseller')}>
+            <Button variant="outline" onClick={() => navigate('/')}>
               Revendedor
             </Button>
-            <Button onClick={() => handleLogin('client')}>
+            <Button onClick={() => navigate('/')}>
               Cliente
             </Button>
           </div>
