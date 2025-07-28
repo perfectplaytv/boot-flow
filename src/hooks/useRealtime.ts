@@ -3,7 +3,7 @@ import { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { Database } from '@/types/supabase.types';
 
-type Table = 'profiles' | 'cobrancas' | 'clientes' | 'revendas';
+type Table = 'profiles' | 'cobrancas' | 'users' | 'resellers';
 type EventType = 'INSERT' | 'UPDATE' | 'DELETE' | '*';
 
 interface UseRealtimeOptions<T> {
