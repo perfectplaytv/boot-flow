@@ -336,7 +336,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
   
-  const refreshSession = useCallback(async () => {
+  const refreshSession = useCallback(async (): Promise<void> => {
     try {
       const { data: { session }, error } = await supabase.auth.getSession();
       
@@ -354,14 +354,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(session.user);
         setProfile(userProfile);
         setUserRole(role);
-        
-        // Retorna os dados atualizados para uso imediato, se necessário
-        return {
-          session,
-          user: session.user,
-          profile: userProfile,
-          role
-        };
       } else {
         // Se não houver sessão, limpa o estado
         setSession(null);
@@ -369,8 +361,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setProfile(null);
         setUserRole(null);
       }
-      
-      return null;
     } catch (error) {
       console.error('Erro ao atualizar sessão:', error);
       // Em caso de erro, limpa o estado para garantir consistência
