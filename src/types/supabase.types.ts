@@ -7,8 +7,8 @@ type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
+// Tipos utilitários
 type StringKeyOf<T> = Extract<keyof T, string>;
-type Values<T> = T[keyof T];
 
 type Tables = {
   profiles: {
@@ -177,10 +177,10 @@ type Tables = {
   };
 }
 
-// Exportando apenas o tipo Tables, os outros tipos serão exportados mais abaixo
+// Exportando o tipo Tables
 export type { Tables };
 
-// Tipos de utilitários para mapear as tabelas
+// Tipos de mapeamento para as tabelas
 type MapRow<T> = T extends { Row: infer R } ? R : never;
 type MapInsert<T> = T extends { Insert: infer I } ? I : never;
 type MapUpdate<T> = T extends { Update: infer U } ? U : never;
@@ -216,6 +216,20 @@ export interface Database {
 // Tipos auxiliares para consultas
 export type TablesKey = keyof Database['public']['Tables'];
 export type TableKey<T extends TablesKey> = T;
+
 export type TableRow<T extends TablesKey> = Database['public']['Tables'][T]['Row'];
 export type TableInsert<T extends TablesKey> = Database['public']['Tables'][T]['Insert'];
 export type TableUpdate<T extends TablesKey> = Database['public']['Tables'][T]['Update'];
+
+// Tipos úteis para queries
+export type TableName = keyof Database['public']['Tables'];
+export type TableType<T extends TableName> = Database['public']['Tables'][T];
+
+// Tipos para realtime updates
+export type RealtimePayload<T extends TableName> = {
+  event: 'INSERT' | 'UPDATE' | 'DELETE';
+  schema: string;
+  table: string;
+  record: TableRow<T> | null;
+  old_record: TableRow<T> | null;
+};
