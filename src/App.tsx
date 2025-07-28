@@ -62,15 +62,6 @@ const App = () => {
               {/* Rota 404 */}
               <Route path="*" element={<NotFound />} />
             </Routes>
-                      </Button>
-                    </div>
-                  </div>
-                } />
-                
-                {/* Rota de página não encontrada */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </AuthProvider>
           </BrowserRouter>
         </WhatsAppStatusContext.Provider>
       </TooltipProvider>
