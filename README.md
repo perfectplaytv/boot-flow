@@ -1,73 +1,94 @@
-# Welcome to your Lovable project
+# 🚀 Bootflow
 
-## Project info
+Uma aplicação web moderna desenvolvida com React, TypeScript e Vite, utilizando shadcn-ui e Tailwind CSS para uma experiência de usuário incrível.
 
-**URL**: https://lovable.dev/projects/8caeb49e-f688-40cd-b0d8-9bc7c524cf88
+## 🛠️ Tecnologias
 
-## How can I edit this code?
+- ⚡ [Vite](https://vitejs.dev/) - Build tool e servidor de desenvolvimento
+- ⚛️ [React](https://reactjs.org/) - Biblioteca JavaScript para interfaces de usuário
+- 💅 [Tailwind CSS](https://tailwindcss.com/) - Framework CSS utilitário
+- 🎨 [shadcn/ui](https://ui.shadcn.com/) - Componentes UI acessíveis e personalizáveis
+- 🔄 [TypeScript](https://www.typescriptlang.org/) - JavaScript tipado
+- 🌐 [React Router](https://reactrouter.com/) - Roteamento na aplicação
+- 📦 [npm](https://www.npmjs.com/) - Gerenciador de pacotes
 
-There are several ways of editing your application.
+## 🚀 Começando
 
-**Use Lovable**
+### Pré-requisitos
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/8caeb49e-f688-40cd-b0d8-9bc7c524cf88) and start prompting.
+- Node.js (versão 16 ou superior)
+- npm (geralmente vem com o Node.js)
 
-Changes made via Lovable will be committed automatically to this repo.
+### Instalação
 
-**Use your preferred IDE**
+1. **Clone o repositório**
+   ```bash
+   git clone https://github.com/seu-usuario/bootflow.git
+   cd bootflow
+   ```
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+2. **Instale as dependências**
+   ```bash
+   npm install
+   ```
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+3. **Inicie o servidor de desenvolvimento**
+   ```bash
+   npm run dev
+   ```
 
-Follow these steps:
+4. **Acesse a aplicação**
+   Abra [http://localhost:5173](http://localhost:5173) no seu navegador.
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## 🏗️ Estrutura do Projeto
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+bootflow/
+├── public/             # Arquivos estáticos
+├── src/
+│   ├── components/     # Componentes reutilizáveis
+│   ├── pages/          # Páginas da aplicação
+│   ├── styles/         # Estilos globais
+│   ├── App.tsx         # Componente raiz
+│   └── main.tsx        # Ponto de entrada
+├── .gitignore
+├── index.html
+├── package.json
+├── tsconfig.json
+└── vite.config.ts
 ```
 
-**Edit a file directly in GitHub**
+## 📦 Scripts Disponíveis
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- `npm run dev` - Inicia o servidor de desenvolvimento
+- `npm run build` - Gera uma versão de produção
+- `npm run preview` - Previsualiza a versão de produção localmente
+- `npm run lint` - Executa o ESLint
+- `npm run type-check` - Verifica os tipos TypeScript
 
-**Use GitHub Codespaces**
+## 🌐 Deploy
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Este projeto está configurado para deploy na Vercel. Qualquer push para a branch `main` irá disparar um novo deploy automaticamente.
 
-## What technologies are used for this project?
+### Domínio Personalizado
 
-This project is built with:
+O projeto está configurado para ser acessado através de:
+- [https://bootflow.com.br](https://bootflow.com.br) (em configuração)
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 🤝 Contribuição
 
-## How can I deploy this project?
+Contribuições são bem-vindas! Sinta-se à vontade para abrir uma issue ou enviar um pull request.
 
-Simply open [Lovable](https://lovable.dev/projects/8caeb49e-f688-40cd-b0d8-9bc7c524cf88) and click on Share -> Publish.
+1. Faça um fork do projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Dê push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
 
-## Can I connect a custom domain to my Lovable project?
+## 📄 Licença
 
-Yes, you can!
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## ✉️ Contato
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+Seu Nome - [@seu_twitter](https://twitter.com/seu_twitter) - seu.email@exemplo.com
