@@ -97,6 +97,26 @@ const AdminDashboard = () => {
     notes: "",
   });
 
+  // Estados para o modal de revendedor
+  const [newReseller, setNewReseller] = useState({
+    username: "",
+    password: "",
+    force_password_change: false,
+    permission: "",
+    credits: 10,
+    servers: "",
+    master_reseller: "",
+    disable_login_days: 0,
+    monthly_reseller: false,
+    personal_name: "",
+    email: "",
+    telegram: "",
+    whatsapp: "",
+    observations: ""
+  });
+
+  const [isAddingReseller, setIsAddingReseller] = useState(false);
+
   // Estados para a extração M3U
   const [m3uUrl, setM3uUrl] = useState("");
   const [isExtracting, setIsExtracting] = useState(false);
@@ -106,7 +126,7 @@ const AdminDashboard = () => {
 
   // Hooks para dados de usuários e revendedores
   const { clientes, loading: loadingClientes, fetchClientes, addCliente } = useClientes();
-  const { revendas, loading: loadingRevendas, fetchRevendas } = useRevendas();
+  const { revendas, loading: loadingRevendas, fetchRevendas, addRevenda } = useRevendas();
 
   // Dados de atividade e usuários online
   const recentActivityUnified = [
