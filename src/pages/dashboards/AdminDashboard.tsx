@@ -1254,7 +1254,7 @@ const AdminDashboard = () => {
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                             </svg>
                           </Button>
-                        </div>
+                    </div>
                       </div>
                       
                       <form onSubmit={handleAddReseller} className="space-y-6 flex-1 overflow-y-auto">
@@ -1354,7 +1354,7 @@ const AdminDashboard = () => {
                               Créditos <span className="text-red-500">*</span>
                             </Label>
                             <div className="flex items-center gap-2">
-                              <Button 
+                <Button 
                                 type="button" 
                                 variant="outline" 
                                 size="sm" 
@@ -1383,7 +1383,7 @@ const AdminDashboard = () => {
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                                 </svg>
-                              </Button>
+                </Button>
                             </div>
                             <div className="text-blue-400 text-xs">Mínimo de 10 créditos</div>
                           </div>
