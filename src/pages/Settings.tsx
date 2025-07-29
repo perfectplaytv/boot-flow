@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { DialogFooter } from '@/components/ui/dialog';
+import { DialogWrapper } from '@/components/ui/DialogWrapper';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { User, Bell, Link, CreditCard, Shield } from 'lucide-react';
 
@@ -242,20 +243,40 @@ const IntegracoesContent = ({ integracoes, setIntegracoes, modalIntegracao, setM
           <Button size="sm" className={integracoes.zapier ? 'bg-green-600' : 'bg-[#1f2937] text-white'} onClick={() => setModalIntegracao('zapier')}>{integracoes.zapier ? 'Desconectar' : 'Conectar'}</Button>
         </div>
       </div>
-      <Dialog open={!!modalIntegracao} onOpenChange={() => setModalIntegracao(null)}>
-        <DialogContent className="bg-[#1f2937] border border-purple-700 text-white max-w-md">
-          <DialogHeader>
-            <DialogTitle>Configurar Integração</DialogTitle>
-          </DialogHeader>
-          <div className="py-4">
-            <Input placeholder="Token/API Key" className="bg-[#1f2937] border border-gray-700 text-white" />
-          </div>
-          <DialogFooter>
-            <Button className="bg-[#1f2937] text-white" onClick={() => setModalIntegracao(null)}>Cancelar</Button>
-            <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white" onClick={() => { setIntegracoes(i => ({ ...i, [modalIntegracao!]: !i[modalIntegracao!] })); setModalIntegracao(null); }}>{integracoes[modalIntegracao!] ? 'Desconectar' : 'Conectar'}</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <DialogWrapper 
+        title="Configurar Integração"
+        description="Insira as credenciais necessárias para a integração"
+        className="bg-[#1f2937] border border-purple-700 text-white max-w-md"
+        open={!!modalIntegracao}
+        onOpenChange={(open) => !open && setModalIntegracao(null)}
+      >
+        <div className="py-4">
+          <Input 
+            placeholder="Token/API Key" 
+            className="bg-[#1f2937] border border-gray-700 text-white" 
+            aria-label="Token ou chave de API para a integração"
+          />
+        </div>
+        <DialogFooter>
+          <Button 
+            className="bg-[#1f2937] text-white hover:bg-gray-600" 
+            onClick={() => setModalIntegracao(null)}
+            aria-label="Cancelar e fechar o diálogo"
+          >
+            Cancelar
+          </Button>
+          <Button 
+            className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white" 
+            onClick={() => { 
+              setIntegracoes(i => ({ ...i, [modalIntegracao!]: !i[modalIntegracao!] })); 
+              setModalIntegracao(null); 
+            }}
+            aria-label={`${integracoes[modalIntegracao!] ? 'Desconectar' : 'Conectar'} a integração`}
+          >
+            {integracoes[modalIntegracao!] ? 'Desconectar' : 'Conectar'}
+          </Button>
+        </DialogFooter>
+      </DialogWrapper>
     </div>
   );
 };
