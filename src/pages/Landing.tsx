@@ -417,10 +417,54 @@ const Landing = () => {
             <div>
               <h4 className="font-semibold mb-4">Produto</h4>
               <ul className="space-y-2 text-muted-foreground">
-                <li><a href="#" className="hover:text-foreground transition-colors">Funcionalidades</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">Preços</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">API</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">Integrações</a></li>
+                <li>
+                  <a 
+                    href="/#funcionalidades" 
+                    className="hover:text-foreground transition-colors"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      document.getElementById('funcionalidades')?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                  >
+                    Funcionalidades
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="/precos" 
+                    className="hover:text-foreground transition-colors"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigate('/precos');
+                    }}
+                  >
+                    Preços
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="/api" 
+                    className="hover:text-foreground transition-colors"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      window.open('https://api.bootflow.com.br/docs', '_blank');
+                    }}
+                  >
+                    API
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="/integracoes" 
+                    className="hover:text-foreground transition-colors"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigate('/integracoes');
+                    }}
+                  >
+                    Integrações
+                  </a>
+                </li>
               </ul>
             </div>
 
