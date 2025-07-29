@@ -202,6 +202,8 @@ export default function Notifications() {
         open={modal.type === 'novo'}
         onOpenChange={(open) => !open && setModal({ type: null })}
       >
+        {renderNovoTemplateModal()}
+      </DialogWrapper>
         <div className="space-y-4 py-2">
           <div>
             <label htmlFor="template-name" className="sr-only">Nome do Template</label>
