@@ -1372,8 +1372,7 @@ const AdminWhatsApp: React.FC = () => {
             <Button onClick={confirmDeleteTemplate} className="bg-red-600 hover:bg-red-700">Excluir</Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
-    </div>
+      </Dialog> 
   </WhatsAppStatusContext.Provider>
 );
 
