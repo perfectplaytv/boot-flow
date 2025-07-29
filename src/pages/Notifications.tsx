@@ -116,7 +116,7 @@ type FormData = {
 };
 
 type Destinatario = {
-  id: string;
+  id: string | number;
   nome: string;
   telefone: string;
   tipo?: 'cliente' | 'revenda';
@@ -124,7 +124,7 @@ type Destinatario = {
 
 // Definindo tipos para cliente e revenda para melhor tipagem
 interface Cliente {
-  id: string;
+  id: string | number;
   name: string;
   real_name?: string;
   email?: string;
@@ -132,7 +132,7 @@ interface Cliente {
 }
 
 interface Revenda {
-  id: string;
+  id: string | number;
   username: string;
   personal_name?: string;
   status?: string;
@@ -748,7 +748,7 @@ export default function Notifications() {
                 <div className="font-semibold text-purple-300 mb-1">Mensagem:</div>
                 <div className="whitespace-pre-line">
                   {Object.entries(selectedDest).reduce(
-                    (text, [key, value]) => text.replace(new RegExp(`\\{${key}\\}`, 'g'), value || ''), 
+                    (text, [key, value]) => text.replace(new RegExp(`\\{${key}\\}`, 'g'), String(value || '')), 
                     selectedTemplate.texto
                   )}
                 </div>
