@@ -806,24 +806,24 @@ const AdminWhatsApp: React.FC = () => {
 
   return (
     <WhatsAppStatusContext.Provider value={{ isConnected, connectionStatus, setIsConnected, setConnectionStatus }}>
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-2">
-        <div>
-          <div className="flex items-center space-x-3">
-            <MessageSquare className="w-8 h-8 text-green-500" />
-            <h1 className="text-3xl font-bold text-green-400">WhatsApp <span className="text-white">Business</span></h1>
+      <div className="p-6 space-y-6">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-2">
+          <div>
+            <div className="flex items-center space-x-3">
+              <MessageSquare className="w-8 h-8 text-green-500" />
+              <h1 className="text-3xl font-bold text-green-400">WhatsApp <span className="text-white">Business</span></h1>
+            </div>
+            <p className="text-gray-400 mt-1">Gerencie integrações, templates e automações do WhatsApp</p>
           </div>
-          <p className="text-gray-400 mt-1">Gerencie integrações, templates e automações do WhatsApp</p>
+          <div className="flex gap-2">
+            <Button variant="outline" className="border-gray-600 text-white hover:bg-gray-700" onClick={() => setConfigModalOpen(true)}><Settings className="w-4 h-4 mr-2" />Configurar</Button>
+            <Button className="bg-green-600 hover:bg-green-700" onClick={handleNewTemplate}><Plus className="w-4 h-4 mr-2" />Novo Template</Button>
+          </div>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" className="border-gray-600 text-white hover:bg-gray-700" onClick={() => setConfigModalOpen(true)}><Settings className="w-4 h-4 mr-2" />Configurar</Button>
-          <Button className="bg-green-600 hover:bg-green-700" onClick={handleNewTemplate}><Plus className="w-4 h-4 mr-2" />Novo Template</Button>
-        </div>
-      </div>
 
-      {/* Modal de Configuração */}
-      <Dialog open={configModalOpen} onOpenChange={setConfigModalOpen}>
+        {/* Modal de Configuração */}
+        <Dialog open={configModalOpen} onOpenChange={setConfigModalOpen}>
   <DialogContent className="bg-[#1f2937] text-white max-w-2xl w-full p-0 rounded-xl shadow-xl border border-gray-700">
     <div className="p-6 max-h-[90vh] overflow-y-auto scrollbar-hide">
       <div className="flex items-center gap-2 mb-1">
@@ -1376,6 +1376,6 @@ const AdminWhatsApp: React.FC = () => {
       </Dialog>
     </div>
   </WhatsAppStatusContext.Provider>
-};
+);
 
 export default AdminWhatsApp;
