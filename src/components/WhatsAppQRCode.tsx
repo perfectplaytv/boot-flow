@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { RefreshCw, Check, X, Loader2 } from 'lucide-react';
+import { RefreshCw, Check, X, Loader2, MessageSquare } from 'lucide-react';
 import { toast } from 'sonner';
 import { generateQRCode, checkConnectionStatus, disconnectWhatsApp } from '@/services/apiBrasilService';
 
