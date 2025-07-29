@@ -1375,8 +1375,7 @@ const AdminWhatsApp: React.FC = () => {
         </DialogContent>
       </Dialog>
     </div>
-    </WhatsAppStatusContext.Provider>
-  );
+  </WhatsAppStatusContext.Provider>
 };
 
-export default AdminWhatsApp; 
+export default AdminWhatsApp;
