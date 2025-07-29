@@ -1191,7 +1191,7 @@ const AdminWhatsApp: React.FC = () => {
           </Card>
         </div>
 
-        {/* Coluna lateral: Status, Ações, Informações */}
+        </div>
         <div className="space-y-6">
           {/* Status da Conexão */}
           <Card className="border-gray-700" style={{ backgroundColor: '#1F2937' }}>
