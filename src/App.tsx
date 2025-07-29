@@ -32,7 +32,6 @@ import VoiceCampaigns from "./pages/VoiceCampaigns";
 import AIConfiguration from "./pages/AIConfiguration";
 import AdminResellers from "./pages/AdminResellers";
 import { WhatsAppStatusContext } from './pages/AdminWhatsApp';
-import { AuthProvider } from '@/contexts/AuthContext';
 
 const queryClient = new QueryClient();
 
@@ -53,31 +52,31 @@ const App = () => {
           <AuthProviderWithNavigation>
             <WhatsAppStatusContext.Provider value={{ isConnected, setIsConnected, connectionStatus, setConnectionStatus }}>
               <Routes>
-              {/* Rotas públicas */}
-              <Route path="/" element={<Landing />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/cadastro" element={<Signup />} />
-              <Route path="/termos" element={<Terms />} />
-              <Route path="/privacidade" element={<Privacy />} />
-              <Route path="/ajuda" element={<HelpCenter />} />
+                {/* Rotas públicas */}
+                <Route path="/" element={<Landing />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/cadastro" element={<Signup />} />
+                <Route path="/termos" element={<Terms />} />
+                <Route path="/privacidade" element={<Privacy />} />
+                <Route path="/ajuda" element={<HelpCenter />} />
 
-              {/* Dashboard Admin - Acesso direto */}
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/admin/revendedores" element={<AdminResellers />} />
-              
-              {/* Outras rotas */}
-              <Route path="/configuracoes" element={<Settings />} />
-              <Route path="/produtos" element={<Products />} />
-              <Route path="/estatisticas" element={<Statistics />} />
-              <Route path="/ecommerce" element={<Ecommerce />} />
-              <Route path="/canais" element={<Channels />} />
-              <Route path="/campanhas-voz" element={<VoiceCampaigns />} />
-              <Route path="/ia-config" element={<AIConfiguration />} />
+                {/* Dashboard Admin - Acesso direto */}
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/admin/revendedores" element={<AdminResellers />} />
+                
+                {/* Outras rotas */}
+                <Route path="/configuracoes" element={<Settings />} />
+                <Route path="/produtos" element={<Products />} />
+                <Route path="/estatisticas" element={<Statistics />} />
+                <Route path="/ecommerce" element={<Ecommerce />} />
+                <Route path="/canais" element={<Channels />} />
+                <Route path="/campanhas-voz" element={<VoiceCampaigns />} />
+                <Route path="/ia-config" element={<AIConfiguration />} />
 
-              {/* Rota 404 */}
-              <Route path="*" element={<NotFound />} />
+                {/* Rota 404 */}
+                <Route path="*" element={<NotFound />} />
               </Routes>
-          </WhatsAppStatusContext.Provider>
+            </WhatsAppStatusContext.Provider>
           </AuthProviderWithNavigation>
         </BrowserRouter>
       </TooltipProvider>
