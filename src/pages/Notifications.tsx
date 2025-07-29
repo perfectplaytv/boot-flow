@@ -272,22 +272,65 @@ export default function Notifications() {
 
   // Funções dos modais
   const handleNovo = () => {
-    setTemplates([...templates, { id: templates.length + 1, nome: form.nome, texto: form.texto, variaveis: form.variaveis.split(','), status: form.status, envios: 0, taxa: 0 }]);
-    setForm({ nome: '', texto: '', variaveis: '', status: 'Ativo' });
-    setModal({ type: null });
+    if (form.nome && form.texto) {
+      const newTemplate: Template = {
+        id: templates.length + 1,
+        nome: form.nome,
+        texto: form.texto,
+        variaveis: Array.from(new Set((form.texto.match(/\{(.*?)\}/g) || []).map(v => v.replace(/[{}]/g, '')))),
+        status: form.status,
+        envios: 0,
+        taxa: 0
+      };
+      setTemplates([...templates, newTemplate]);
+      setForm({ nome: '', texto: '', status: 'Ativo', variaveis: '' });
+      setModal({ type: null });
+      toast.success('Template criado com sucesso!');
+    } else {
+      toast.error('Preencha todos os campos obrigatórios');
+    }
   };
+
   const handleEditar = () => {
-    setTemplates(templates.map(t => t.id === modal.template.id ? { ...t, ...form, variaveis: form.variaveis.split(',') } : t));
-    setModal({ type: null });
+    if (modal.template && form.nome && form.texto) {
+      setTemplates(templates.map(t => 
+        t.id === modal.template?.id 
+          ? { 
+              ...t, 
+              nome: form.nome,
+              texto: form.texto,
+              variaveis: Array.from(new Set((form.texto.match(/\{(.*?)\}/g) || []).map(v => v.replace(/[{}]/g, '')))),
+              status: form.status
+            } 
+          : t
+      ));
+      setModal({ type: null });
+      toast.success('Template atualizado com sucesso!');
+    } else {
+      toast.error('Preencha todos os campos obrigatórios');
+    }
   };
+
   const handleEnviar = () => {
-    setHistorico([{ id: historico.length + 1, nome: 'Cliente Exemplo', template: modal.template.nome, status: 'Entregue', data: new Date().toLocaleString('pt-BR') }, ...historico]);
-    setModal({ type: null });
+    if (modal.template && selectedDest) {
+      setHistorico([
+        { 
+          id: historico.length + 1, 
+          nome: selectedDest.nome, 
+          template: modal.template.nome, 
+          status: 'Entregue', 
+          data: new Date().toLocaleString('pt-BR') 
+        }, 
+        ...historico
+      ]);
+      setModal({ type: null });
+      toast.success('Mensagem enviada com sucesso!');
+    } else {
+      toast.error('Selecione um destinatário');
+    }
   };
 
-  const variaveisSugeridas = ['nome', 'servico', 'data', 'hora', 'valor', 'pix', 'promocao', 'desconto', 'validade'];
-
-  const searchValue = typeof selectedDest === 'string' ? selectedDest : '';
+  const searchDest = typeof selectedDest === 'string' ? selectedDest : '';
 
   return (
     <div className="p-6 min-h-screen bg-[#09090b]">
