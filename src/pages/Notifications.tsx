@@ -476,69 +476,6 @@ export default function Notifications() {
             </DialogDescription>
           </DialogHeader>
           {renderNovoTemplateModal()}
-                        textarea.focus();
-                        textarea.selectionStart = textarea.selectionEnd = start + insert.length;
-                      }, 0);
-                    } else {
-                      setForm({ ...form, texto: form.texto + ` {${v}}` });
-                    }
-                  }}
-                  aria-label={`Inserir variável ${v}`}
-                >
-                  {'{'}{v}{'}'}
-                </button>
-              ))}
-            </div>
-            
-            <label htmlFor="template-textarea" className="sr-only">Texto da Mensagem</label>
-            <textarea 
-              id="template-textarea" 
-              placeholder="Digite o texto da mensagem. Use {variaveis} para personalização." 
-              rows={3} 
-              className="bg-gray-900 border border-gray-700 text-white rounded-lg w-full p-2" 
-              value={form.texto} 
-              onChange={e => setForm({ ...form, texto: e.target.value })}
-              aria-label="Texto da Mensagem"
-            />
-            
-            <div className="mt-2">
-              <span className="text-xs text-gray-400">Variáveis detectadas: </span>
-              {Array.from(new Set((form.texto.match(/\{(.*?)\}/g) || []).map(v => v.replace(/[{}]/g, '')))).length > 0 ? (
-                <div className="flex flex-wrap gap-2 mt-1">
-                  {Array.from(new Set((form.texto.match(/\{(.*?)\}/g) || []).map(v => v.replace(/[{}]/g, '')))).map(v => (
-                    <span key={v} className="bg-purple-900/60 text-purple-200 rounded-full px-3 py-1 text-xs font-semibold border border-purple-700">
-                      {'{'}{v}{'}'}
-                    </span>
-                  ))}
-                </div>
-              ) : (
-                <span className="text-xs text-gray-500">Nenhuma variável detectada. Use {'{nome}'} por exemplo.</span>
-              )}
-            </div>
-          </div>
-          
-          <div className="bg-[#181825] border border-purple-800 rounded-lg p-3 text-sm text-gray-200">
-            <div className="font-semibold text-purple-300 mb-1">Visualização:</div>
-            <div className="whitespace-pre-line">{form.texto || 'Sua mensagem aparecerá aqui...'}</div>
-          </div>
-          
-          <div>
-            <label htmlFor="template-status" className="block text-sm font-medium text-gray-300 mb-1">Status do Template</label>
-            <select 
-              id="template-status"
-              className="bg-gray-900 border border-gray-700 text-white rounded px-3 py-2 w-full" 
-              value={form.status} 
-              onChange={e => setForm({ ...form, status: e.target.value as TemplateStatus })}
-              aria-label="Status do Template"
-            >
-              <option value={TEMPLATE_STATUS.ATIVO}>Ativo</option>
-              <option value={TEMPLATE_STATUS.INATIVO}>Inativo</option>
-            </select>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setModal({ type: null })} className="bg-gray-700 text-white">Cancelar</Button>
-            <Button className="bg-purple-600 hover:bg-purple-700 text-white" onClick={handleNovo}>Salvar</Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
       
