@@ -11,6 +11,24 @@ import { useRevendas } from '@/hooks/useRevendas';
 import { toast } from 'sonner';
 import { useWhatsAppStatus } from './AdminWhatsApp';
 
+type Template = {
+  id: number;
+  nome: string;
+  texto: string;
+  variaveis: string[];
+  status: string;
+  envios: number;
+  taxa: number;
+};
+
+type HistoricoItem = {
+  id: number;
+  nome: string;
+  template: string;
+  status: 'Entregue' | 'Lido' | 'Falha';
+  data: string;
+};
+
 const templatesMock = [
   { id: 1, nome: 'Confirmação de Agendamento', texto: 'Olá {nome}, seu agendamento para {servico} foi confirmado para {data} às {hora}. Aguardamos você!', variaveis: ['nome', 'servico', 'data', 'hora'], status: 'Ativo', envios: 1247, taxa: 98.5 },
   { id: 2, nome: 'Lembrete de Agendamento', texto: 'Oi {nome}! Lembrete: você tem um agendamento amanhã às {hora} para {servico}. Confirme sua presença!', variaveis: ['nome', 'servico', 'hora'], status: 'Ativo', envios: 892, taxa: 97.2 },
@@ -27,15 +45,23 @@ const historicoMock = [
 ];
 
 export default function Notifications() {
-  const [templates, setTemplates] = useState(templatesMock);
-  const [historico, setHistorico] = useState(historicoMock);
-  const [modal, setModal] = useState<{ type: null | 'novo' | 'editar' | 'enviar', template?: any }>({ type: null });
-  const [form, setForm] = useState({ nome: '', texto: '', variaveis: '', status: 'Ativo' });
-  const { clientes } = useClientes();
-  const { revendas } = useRevendas();
-  const [selectedDest, setSelectedDest] = useState<any>(null);
-  const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
+  const [templates, setTemplates] = useState<Template[]>(templatesMock);
+  const [historico, setHistorico] = useState<HistoricoItem[]>(historicoMock);
+  const [modal, setModal] = useState<{ type: null | 'novo' | 'editar' | 'enviar', template?: Template }>({ type: null });
+  const [form, setForm] = useState({ 
+    nome: '', 
+    texto: '', 
+    status: 'Ativo' as const,
+    variaveis: '' 
+  });
+  const [searchValue, setSearchValue] = useState('');
+  const { clientes = [] } = useClientes();
+  const { revendas = [] } = useRevendas();
+  const [selectedDest, setSelectedDest] = useState<{id: string; nome: string; telefone: string} | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const { isConnected, connectionStatus } = useWhatsAppStatus();
+  
+  const variaveisSugeridas = ['nome', 'servico', 'data', 'hora', 'valor', 'desconto', 'validade', 'pix', 'promocao'];
 
   // Cards resumo
   const enviados = historico.length;
@@ -170,12 +196,7 @@ export default function Notifications() {
       </div>
       {/* Modal Novo Template */}
       <DialogWrapper
-        title={
-          <div className="flex items-center gap-2">
-            <MessageSquare className="w-6 h-6 text-purple-400" />
-            <span>Novo Template</span>
-          </div>
-        }
+        title="Novo Template"
         description="Crie um novo template de mensagem para notificações. Use variáveis como {nome} para personalização."
         className="bg-gradient-to-br from-[#232a36] to-[#1f1930] border border-purple-700 text-white max-w-lg shadow-2xl rounded-2xl"
         open={modal.type === 'novo'}
