@@ -122,6 +122,140 @@ export default function Notifications() {
   
   const variaveisSugeridas = ['nome', 'servico', 'data', 'hora', 'valor', 'desconto', 'validade', 'pix', 'promocao'] as const;
 
+  // Função para renderizar o modal de novo template
+  const renderNovoTemplateModal = () => (
+    <div className="space-y-4 py-2">
+      <div>
+        <label htmlFor="template-name" className="sr-only">Nome do Template</label>
+        <Input 
+          id="template-name"
+          placeholder="Nome do Template" 
+          className="bg-gray-900 border border-gray-700 text-white rounded-lg w-full mb-3" 
+          value={form.nome} 
+          onChange={(e) => setForm({ ...form, nome: e.target.value })}
+          aria-label="Nome do Template"
+        />
+      </div>
+      
+      <div>
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-sm text-gray-300">Variáveis disponíveis:</span>
+          <span className="text-xs text-gray-500">Clique para inserir</span>
+        </div>
+        <div className="flex flex-wrap gap-2 mb-2">
+          {variaveisSugeridas.map((v) => (
+            <button
+              key={v}
+              type="button"
+              className="bg-purple-900/60 text-purple-200 rounded-full px-3 py-1 text-xs font-semibold border border-purple-700 hover:bg-purple-800 hover:text-white transition"
+              onClick={() => {
+                const textarea = document.getElementById('template-textarea') as HTMLTextAreaElement;
+                if (textarea) {
+                  const start = textarea.selectionStart;
+                  const end = textarea.selectionEnd;
+                  const before = form.texto.substring(0, start);
+                  const after = form.texto.substring(end);
+                  const insert = `{${v}}`;
+                  setForm({ ...form, texto: before + insert + after });
+                  setTimeout(() => {
+                    textarea.focus();
+                    textarea.selectionStart = textarea.selectionEnd = start + insert.length;
+                  }, 0);
+                } else {
+                  setForm({ ...form, texto: form.texto + ` {${v}}` });
+                }
+              }}
+              aria-label={`Inserir variável ${v}`}
+            >
+              {'{'}{v}{'}'}
+            </button>
+          ))}
+        </div>
+        
+        <label htmlFor="template-textarea" className="sr-only">Texto da Mensagem</label>
+        <textarea 
+          id="template-textarea" 
+          placeholder="Digite o texto da mensagem. Use {variaveis} para personalização." 
+          rows={3} 
+          className="bg-gray-900 border border-gray-700 text-white rounded-lg w-full p-2" 
+          value={form.texto} 
+          onChange={(e) => setForm({ ...form, texto: e.target.value })}
+          aria-label="Texto da Mensagem"
+        />
+        
+        <div className="mt-2">
+          <span className="text-xs text-gray-400">Variáveis detectadas: </span>
+          {Array.from(new Set((form.texto.match(/\{(.*?)\}/g) || []).map(v => v.replace(/[{}]/g, '')))).length > 0 ? (
+            <div className="flex flex-wrap gap-2 mt-1">
+              {Array.from(new Set((form.texto.match(/\{(.*?)\}/g) || []).map(v => v.replace(/[{}]/g, '')))).map((v) => (
+                <span key={v} className="bg-purple-900/60 text-purple-200 rounded-full px-3 py-1 text-xs font-semibold border border-purple-700">
+                  {'{'}{v}{'}'}
+                </span>
+              ))}
+            </div>
+          ) : (
+            <span className="text-xs text-gray-500">Nenhuma variável detectada. Use {'{nome}'} por exemplo.</span>
+          )}
+        </div>
+      </div>
+      
+      <div className="bg-[#181825] border border-purple-800 rounded-lg p-3 text-sm text-gray-200">
+        <div className="font-semibold text-purple-300 mb-1">Visualização:</div>
+        <div className="whitespace-pre-line">{form.texto || 'Sua mensagem aparecerá aqui...'}</div>
+      </div>
+      
+      <div>
+        <label htmlFor="template-status" className="block text-sm font-medium text-gray-300 mb-1">Status do Template</label>
+        <select 
+          id="template-status"
+          className="bg-gray-900 border border-gray-700 text-white rounded px-3 py-2 w-full" 
+          value={form.status} 
+          onChange={(e) => setForm({ ...form, status: e.target.value as TemplateStatus })}
+          aria-label="Status do Template"
+        >
+          <option value="Ativo">Ativo</option>
+          <option value="Inativo">Inativo</option>
+        </select>
+      </div>
+      
+      <DialogFooter className="mt-4">
+        <Button 
+          type="button" 
+          variant="outline" 
+          onClick={() => setModal({ type: null })}
+          className="text-white border-gray-600 hover:bg-gray-700"
+        >
+          Cancelar
+        </Button>
+        <Button 
+          type="button" 
+          onClick={() => {
+            if (form.nome && form.texto) {
+              const newTemplate: Template = {
+                id: templates.length + 1,
+                nome: form.nome,
+                texto: form.texto,
+                variaveis: Array.from(new Set((form.texto.match(/\{(.*?)\}/g) || []).map(v => v.replace(/[{}]/g, '')))),
+                status: form.status,
+                envios: 0,
+                taxa: 0
+              };
+              setTemplates([...templates, newTemplate]);
+              setForm({ nome: '', texto: '', status: 'Ativo', variaveis: '' });
+              setModal({ type: null });
+              toast.success('Template criado com sucesso!');
+            } else {
+              toast.error('Preencha todos os campos obrigatórios');
+            }
+          }}
+          className="bg-purple-600 hover:bg-purple-700 text-white"
+        >
+          Salvar Template
+        </Button>
+      </DialogFooter>
+    </div>
+  );
+
   // Cards resumo
   const enviados = historico.length;
   const entregues = historico.filter(h => h.status === 'Entregue').length;
