@@ -11,6 +11,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { CheckCircle, MessageSquare, Clock, FileText, Zap, Settings, Trash2, Edit, Plus, Eye, EyeOff, Download, Upload, Users, Loader2 } from 'lucide-react';
 import { WhatsAppQRCode } from '@/components/WhatsAppQRCode';
+import { WhatsAppConfigForm } from '@/components/WhatsAppConfigForm';
 import { SendWhatsAppMessage } from '@/components/SendWhatsAppMessage';
 import { checkConnectionStatus } from '@/services/apiBrasilService';
 
@@ -75,14 +76,14 @@ export const useWhatsAppStatus = () => useContext(WhatsAppStatusContext);
 const AdminWhatsApp: React.FC = () => {
   // Estados para a API Brasil
   const [apiBrasilConfig, setApiBrasilConfig] = useState({
-    bearerToken: '',
-    profileId: '',
-    phoneNumber: '',
-    isConfigured: false,
+    bearerToken: localStorage.getItem('whatsapp_bearer_token') || '',
+    channelName: localStorage.getItem('whatsapp_channel_name') || '',
+    autoReply: localStorage.getItem('whatsapp_auto_reply') === 'true' || false,
+    modoProducao: localStorage.getItem('whatsapp_modo_producao') === 'true' || false,
+    isConfigured: Boolean(localStorage.getItem('whatsapp_configured')),
     isConnected: false,
     isLoading: false,
     error: '',
-    showToken: false,
   });
 
   const [autoReply, setAutoReply] = useState(false);
@@ -94,20 +95,50 @@ const AdminWhatsApp: React.FC = () => {
   const [templateToDelete, setTemplateToDelete] = useState<any>(null);
   const [configModalOpen, setConfigModalOpen] = useState(false);
   const [configTab, setConfigTab] = useState('geral');
-  const [config, setConfig] = useState({
-    provider: 'whatsapp-web',
-    apiToken: '',
-    apiEndpoint: '',
-    autoReply: false,
-    logsDetalhados: false,
-    modoProducao: false,
-  });
+  const [activeTab, setActiveTab] = useState('config');
+  const [isSaving, setIsSaving] = useState(false);
 
   // Estados para conexão WhatsApp
   const [isConnected, setIsConnected] = useState(false);
-  const [qrCodeData, setQrCodeData] = useState<string | null>(null);
-  const [isLoadingQR, setIsLoadingQR] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'disconnected' | 'connecting' | 'connected'>('disconnected');
+
+  // Salvar configurações
+  const handleSaveConfig = async (config: {
+    bearerToken: string;
+    channelName: string;
+    autoReply: boolean;
+    modoProducao: boolean;
+  }) => {
+    setIsSaving(true);
+    try {
+      // Simulando uma chamada de API para salvar as configurações
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Salva no localStorage
+      localStorage.setItem('whatsapp_bearer_token', config.bearerToken);
+      localStorage.setItem('whatsapp_channel_name', config.channelName);
+      localStorage.setItem('whatsapp_auto_reply', String(config.autoReply));
+      localStorage.setItem('whatsapp_modo_producao', String(config.modoProducao));
+      localStorage.setItem('whatsapp_configured', 'true');
+      
+      // Atualiza o estado
+      setApiBrasilConfig(prev => ({
+        ...prev,
+        bearerToken: config.bearerToken,
+        channelName: config.channelName,
+        autoReply: config.autoReply,
+        modoProducao: config.modoProducao,
+        isConfigured: true,
+      }));
+      
+      toast.success('Configurações salvas com sucesso!');
+    } catch (error) {
+      console.error('Erro ao salvar configurações:', error);
+      toast.error('Erro ao salvar as configurações. Tente novamente.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   // Função para enviar mensagem via API Brasil
   const sendWhatsAppMessage = async (phoneNumber: string, message: string) => {
@@ -118,8 +149,8 @@ const AdminWhatsApp: React.FC = () => {
       return { success: false, error: errorMsg };
     }
 
-    if (!apiBrasilConfig.profileId?.trim()) {
-      const errorMsg = 'Profile ID da API Brasil não configurado';
+    if (!apiBrasilConfig.channelName?.trim()) {
+      const errorMsg = 'Nome do canal da API Brasil não configurado';
       toast.error(errorMsg);
       return { success: false, error: errorMsg };
     }
@@ -147,10 +178,10 @@ const AdminWhatsApp: React.FC = () => {
     
     try {
       const token = apiBrasilConfig.bearerToken.trim();
-      const profileId = apiBrasilConfig.profileId.trim();
+      const channelName = apiBrasilConfig.channelName.trim();
       
       const payload = {
-        profileId,
+        channelName,
         phoneNumber: formattedPhone,
         message: trimmedMessage
       };
@@ -165,7 +196,7 @@ const AdminWhatsApp: React.FC = () => {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
-          'profile-id': profileId,
+          'channel-name': channelName,
           'Accept': 'application/json'
         },
         body: JSON.stringify(payload)
@@ -223,7 +254,7 @@ const AdminWhatsApp: React.FC = () => {
       if (errorMessage.includes('401')) {
         errorMessage = 'Token de acesso inválido ou expirado';
       } else if (errorMessage.includes('404')) {
-        errorMessage = 'Recurso não encontrado. Verifique o Profile ID';
+        errorMessage = 'Recurso não encontrado. Verifique o nome do canal';
       } else if (errorMessage.includes('429')) {
         errorMessage = 'Limite de requisições excedido. Tente novamente mais tarde';
       } else if (errorMessage.includes('500')) {
@@ -267,9 +298,9 @@ const AdminWhatsApp: React.FC = () => {
       return;
     }
 
-    // Verifica se o token e profileId estão configurados
-    if (!apiBrasilConfig.bearerToken?.trim() || !apiBrasilConfig.profileId?.trim()) {
-      toast.error('Configure o Token e o Profile ID antes de testar', {
+    // Verifica se o token e channelName estão configurados
+    if (!apiBrasilConfig.bearerToken?.trim() || !apiBrasilConfig.channelName?.trim()) {
+      toast.error('Configure o Token e o nome do canal antes de testar', {
         action: {
           label: 'Configurar',
           onClick: () => setConfigModalOpen(true)
@@ -353,8 +384,8 @@ const AdminWhatsApp: React.FC = () => {
       throw new Error(errorMsg);
     }
     
-    if (!apiBrasilConfig.profileId?.trim()) {
-      const errorMsg = 'O Profile ID da API Brasil é obrigatório';
+    if (!apiBrasilConfig.channelName?.trim()) {
+      const errorMsg = 'O nome do canal da API Brasil é obrigatório';
       toast.error(errorMsg);
       throw new Error(errorMsg);
     }
@@ -370,15 +401,15 @@ const AdminWhatsApp: React.FC = () => {
     
     try {
       const token = apiBrasilConfig.bearerToken.trim();
-      const profileId = apiBrasilConfig.profileId.trim();
+      const channelName = apiBrasilConfig.channelName.trim();
       
-      console.log('Testando conexão com API Brasil...', { token: token.substring(0, 10) + '...', profileId });
+      console.log('Testando conexão com API Brasil...', { token: token.substring(0, 10) + '...', channelName });
       
       const response = await fetch('https://gateway.apibrasil.io/api/v2/whatsapp/status', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
-          'profile-id': profileId,
+          'channel-name': channelName,
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
@@ -418,7 +449,7 @@ const AdminWhatsApp: React.FC = () => {
         // Salva a configuração no localStorage
         localStorage.setItem('apiBrasilConfig', JSON.stringify({
           bearerToken: token,
-          profileId,
+          channelName,
           phoneNumber: apiBrasilConfig.phoneNumber,
           isConfigured: true,
           isConnected: true
@@ -462,8 +493,8 @@ const AdminWhatsApp: React.FC = () => {
           isLoading: false
         }));
         
-        // Se tiver token e profileId, testa a conexão
-        if (parsedConfig.bearerToken && parsedConfig.profileId) {
+        // Se tiver token e channelName, testa a conexão
+        if (parsedConfig.bearerToken && parsedConfig.channelName) {
           testApiBrasilConnection();
         }
       } catch (error) {
@@ -474,7 +505,7 @@ const AdminWhatsApp: React.FC = () => {
 
   // Salvar configurações quando houver alterações
   React.useEffect(() => {
-    if (apiBrasilConfig.bearerToken || apiBrasilConfig.profileId) {
+    if (apiBrasilConfig.bearerToken || apiBrasilConfig.channelName) {
       const { isLoading, ...configToSave } = apiBrasilConfig;
       localStorage.setItem('apiBrasilConfig', JSON.stringify(configToSave));
     }
@@ -526,493 +557,89 @@ const AdminWhatsApp: React.FC = () => {
     toast.success('Template excluído com sucesso!');
   };
 
-  // Funções para conexão WhatsApp
-  const generateQRCode = async () => {
-    setIsLoadingQR(true);
-    try {
-      // Simular geração de QR Code real
-      // Em produção, isso seria uma chamada para a API do WhatsApp Business
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Gerar um QR Code real usando uma biblioteca como qrcode
-      // Por enquanto, vamos usar um QR Code de exemplo
-      const qrCodeUrl = `data:image/svg+xml;base64,${btoa(`
-        <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
-          <rect width="200" height="200" fill="white"/>
-          <g fill="black">
-            <rect x="20" y="20" width="8" height="8"/>
-            <rect x="32" y="20" width="8" height="8"/>
-            <rect x="44" y="20" width="8" height="8"/>
-            <rect x="56" y="20" width="8" height="8"/>
-            <rect x="68" y="20" width="8" height="8"/>
-            <rect x="80" y="20" width="8" height="8"/>
-            <rect x="92" y="20" width="8" height="8"/>
-            <rect x="104" y="20" width="8" height="8"/>
-            <rect x="116" y="20" width="8" height="8"/>
-            <rect x="128" y="20" width="8" height="8"/>
-            <rect x="140" y="20" width="8" height="8"/>
-            <rect x="152" y="20" width="8" height="8"/>
-            <rect x="164" y="20" width="8" height="8"/>
-            <rect x="176" y="20" width="8" height="8"/>
-            <rect x="20" y="32" width="8" height="8"/>
-            <rect x="32" y="32" width="8" height="8"/>
-            <rect x="44" y="32" width="8" height="8"/>
-            <rect x="56" y="32" width="8" height="8"/>
-            <rect x="68" y="32" width="8" height="8"/>
-            <rect x="80" y="32" width="8" height="8"/>
-            <rect x="92" y="32" width="8" height="8"/>
-            <rect x="104" y="32" width="8" height="8"/>
-            <rect x="116" y="32" width="8" height="8"/>
-            <rect x="128" y="32" width="8" height="8"/>
-            <rect x="140" y="32" width="8" height="8"/>
-            <rect x="152" y="32" width="8" height="8"/>
-            <rect x="164" y="32" width="8" height="8"/>
-            <rect x="176" y="32" width="8" height="8"/>
-            <rect x="20" y="44" width="8" height="8"/>
-            <rect x="32" y="44" width="8" height="8"/>
-            <rect x="44" y="44" width="8" height="8"/>
-            <rect x="56" y="44" width="8" height="8"/>
-            <rect x="68" y="44" width="8" height="8"/>
-            <rect x="80" y="44" width="8" height="8"/>
-            <rect x="92" y="44" width="8" height="8"/>
-            <rect x="104" y="44" width="8" height="8"/>
-            <rect x="116" y="44" width="8" height="8"/>
-            <rect x="128" y="44" width="8" height="8"/>
-            <rect x="140" y="44" width="8" height="8"/>
-            <rect x="152" y="44" width="8" height="8"/>
-            <rect x="164" y="44" width="8" height="8"/>
-            <rect x="176" y="44" width="8" height="8"/>
-            <rect x="20" y="56" width="8" height="8"/>
-            <rect x="32" y="56" width="8" height="8"/>
-            <rect x="44" y="56" width="8" height="8"/>
-            <rect x="56" y="56" width="8" height="8"/>
-            <rect x="68" y="56" width="8" height="8"/>
-            <rect x="80" y="56" width="8" height="8"/>
-            <rect x="92" y="56" width="8" height="8"/>
-            <rect x="104" y="56" width="8" height="8"/>
-            <rect x="116" y="56" width="8" height="8"/>
-            <rect x="128" y="56" width="8" height="8"/>
-            <rect x="140" y="56" width="8" height="8"/>
-            <rect x="152" y="56" width="8" height="8"/>
-            <rect x="164" y="56" width="8" height="8"/>
-            <rect x="176" y="56" width="8" height="8"/>
-            <rect x="20" y="68" width="8" height="8"/>
-            <rect x="32" y="68" width="8" height="8"/>
-            <rect x="44" y="68" width="8" height="8"/>
-            <rect x="56" y="68" width="8" height="8"/>
-            <rect x="68" y="68" width="8" height="8"/>
-            <rect x="80" y="68" width="8" height="8"/>
-            <rect x="92" y="68" width="8" height="8"/>
-            <rect x="104" y="68" width="8" height="8"/>
-            <rect x="116" y="68" width="8" height="8"/>
-            <rect x="128" y="68" width="8" height="8"/>
-            <rect x="140" y="68" width="8" height="8"/>
-            <rect x="152" y="68" width="8" height="8"/>
-            <rect x="164" y="68" width="8" height="8"/>
-            <rect x="176" y="68" width="8" height="8"/>
-            <rect x="20" y="80" width="8" height="8"/>
-            <rect x="32" y="80" width="8" height="8"/>
-            <rect x="44" y="80" width="8" height="8"/>
-            <rect x="56" y="80" width="8" height="8"/>
-            <rect x="68" y="80" width="8" height="8"/>
-            <rect x="80" y="80" width="8" height="8"/>
-            <rect x="92" y="80" width="8" height="8"/>
-            <rect x="104" y="80" width="8" height="8"/>
-            <rect x="116" y="80" width="8" height="8"/>
-            <rect x="128" y="80" width="8" height="8"/>
-            <rect x="140" y="80" width="8" height="8"/>
-            <rect x="152" y="80" width="8" height="8"/>
-            <rect x="164" y="80" width="8" height="8"/>
-            <rect x="176" y="80" width="8" height="8"/>
-            <rect x="20" y="92" width="8" height="8"/>
-            <rect x="32" y="92" width="8" height="8"/>
-            <rect x="44" y="92" width="8" height="8"/>
-            <rect x="56" y="92" width="8" height="8"/>
-            <rect x="68" y="92" width="8" height="8"/>
-            <rect x="80" y="92" width="8" height="8"/>
-            <rect x="92" y="92" width="8" height="8"/>
-            <rect x="104" y="92" width="8" height="8"/>
-            <rect x="116" y="92" width="8" height="8"/>
-            <rect x="128" y="92" width="8" height="8"/>
-            <rect x="140" y="92" width="8" height="8"/>
-            <rect x="152" y="92" width="8" height="8"/>
-            <rect x="164" y="92" width="8" height="8"/>
-            <rect x="176" y="92" width="8" height="8"/>
-            <rect x="20" y="104" width="8" height="8"/>
-            <rect x="32" y="104" width="8" height="8"/>
-            <rect x="44" y="104" width="8" height="8"/>
-            <rect x="56" y="104" width="8" height="8"/>
-            <rect x="68" y="104" width="8" height="8"/>
-            <rect x="80" y="104" width="8" height="8"/>
-            <rect x="92" y="104" width="8" height="8"/>
-            <rect x="104" y="104" width="8" height="8"/>
-            <rect x="116" y="104" width="8" height="8"/>
-            <rect x="128" y="104" width="8" height="8"/>
-            <rect x="140" y="104" width="8" height="8"/>
-            <rect x="152" y="104" width="8" height="8"/>
-            <rect x="164" y="104" width="8" height="8"/>
-            <rect x="176" y="104" width="8" height="8"/>
-            <rect x="20" y="116" width="8" height="8"/>
-            <rect x="32" y="116" width="8" height="8"/>
-            <rect x="44" y="116" width="8" height="8"/>
-            <rect x="56" y="116" width="8" height="8"/>
-            <rect x="68" y="116" width="8" height="8"/>
-            <rect x="80" y="116" width="8" height="8"/>
-            <rect x="92" y="116" width="8" height="8"/>
-            <rect x="104" y="116" width="8" height="8"/>
-            <rect x="116" y="116" width="8" height="8"/>
-            <rect x="128" y="116" width="8" height="8"/>
-            <rect x="140" y="116" width="8" height="8"/>
-            <rect x="152" y="116" width="8" height="8"/>
-            <rect x="164" y="116" width="8" height="8"/>
-            <rect x="176" y="116" width="8" height="8"/>
-            <rect x="20" y="128" width="8" height="8"/>
-            <rect x="32" y="128" width="8" height="8"/>
-            <rect x="44" y="128" width="8" height="8"/>
-            <rect x="56" y="128" width="8" height="8"/>
-            <rect x="68" y="128" width="8" height="8"/>
-            <rect x="80" y="128" width="8" height="8"/>
-            <rect x="92" y="128" width="8" height="8"/>
-            <rect x="104" y="128" width="8" height="8"/>
-            <rect x="116" y="128" width="8" height="8"/>
-            <rect x="128" y="128" width="8" height="8"/>
-            <rect x="140" y="128" width="8" height="8"/>
-            <rect x="152" y="128" width="8" height="8"/>
-            <rect x="164" y="128" width="8" height="8"/>
-            <rect x="176" y="128" width="8" height="8"/>
-            <rect x="20" y="140" width="8" height="8"/>
-            <rect x="32" y="140" width="8" height="8"/>
-            <rect x="44" y="140" width="8" height="8"/>
-            <rect x="56" y="140" width="8" height="8"/>
-            <rect x="68" y="140" width="8" height="8"/>
-            <rect x="80" y="140" width="8" height="8"/>
-            <rect x="92" y="140" width="8" height="8"/>
-            <rect x="104" y="140" width="8" height="8"/>
-            <rect x="116" y="140" width="8" height="8"/>
-            <rect x="128" y="140" width="8" height="8"/>
-            <rect x="140" y="140" width="8" height="8"/>
-            <rect x="152" y="140" width="8" height="8"/>
-            <rect x="164" y="140" width="8" height="8"/>
-            <rect x="176" y="140" width="8" height="8"/>
-            <rect x="20" y="152" width="8" height="8"/>
-            <rect x="32" y="152" width="8" height="8"/>
-            <rect x="44" y="152" width="8" height="8"/>
-            <rect x="56" y="152" width="8" height="8"/>
-            <rect x="68" y="152" width="8" height="8"/>
-            <rect x="80" y="152" width="8" height="8"/>
-            <rect x="92" y="152" width="8" height="8"/>
-            <rect x="104" y="152" width="8" height="8"/>
-            <rect x="116" y="152" width="8" height="8"/>
-            <rect x="128" y="152" width="8" height="8"/>
-            <rect x="140" y="152" width="8" height="8"/>
-            <rect x="152" y="152" width="8" height="8"/>
-            <rect x="164" y="152" width="8" height="8"/>
-            <rect x="176" y="152" width="8" height="8"/>
-            <rect x="20" y="164" width="8" height="8"/>
-            <rect x="32" y="164" width="8" height="8"/>
-            <rect x="44" y="164" width="8" height="8"/>
-            <rect x="56" y="164" width="8" height="8"/>
-            <rect x="68" y="164" width="8" height="8"/>
-            <rect x="80" y="164" width="8" height="8"/>
-            <rect x="92" y="164" width="8" height="8"/>
-            <rect x="104" y="164" width="8" height="8"/>
-            <rect x="116" y="164" width="8" height="8"/>
-            <rect x="128" y="164" width="8" height="8"/>
-            <rect x="140" y="164" width="8" height="8"/>
-            <rect x="152" y="164" width="8" height="8"/>
-            <rect x="164" y="164" width="8" height="8"/>
-            <rect x="176" y="164" width="8" height="8"/>
-            <rect x="20" y="176" width="8" height="8"/>
-            <rect x="32" y="176" width="8" height="8"/>
-            <rect x="44" y="176" width="8" height="8"/>
-            <rect x="56" y="176" width="8" height="8"/>
-            <rect x="68" y="176" width="8" height="8"/>
-            <rect x="80" y="176" width="8" height="8"/>
-            <rect x="92" y="176" width="8" height="8"/>
-            <rect x="104" y="176" width="8" height="8"/>
-            <rect x="116" y="176" width="8" height="8"/>
-            <rect x="128" y="176" width="8" height="8"/>
-            <rect x="140" y="176" width="8" height="8"/>
-            <rect x="152" y="176" width="8" height="8"/>
-            <rect x="164" y="176" width="8" height="8"/>
-            <rect x="176" y="176" width="8" height="8"/>
-          </g>
-        </svg>
-      `)}`;
-      
-      setQrCodeData(qrCodeUrl);
-      setConnectionStatus('connecting');
-      toast.success('QR Code gerado com sucesso!');
-    } catch (error) {
-      toast.error('Erro ao gerar QR Code');
-    } finally {
-      setIsLoadingQR(false);
-    }
-  };
-
-  const handleRefreshQR = () => {
-    setQrCodeData(null);
-    generateQRCode();
-  };
-
-  const handleTestConnection = async () => {
-    if (config.provider === 'API Brasil') {
-      return testApiBrasilConnection();
-    }
-    
-    try {
-      setConnectionStatus('connecting');
-      // Simular teste de conexão
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Simular sucesso/fracasso aleatório
-      const isSuccess = Math.random() > 0.3;
-      
-      if (isSuccess) {
-        setIsConnected(true);
-        setConnectionStatus('connected');
-        setQrCodeData(null);
-        toast.success('Conexão estabelecida com sucesso!');
-      } else {
-        setIsConnected(false);
-        setConnectionStatus('disconnected');
-        toast.error('Falha na conexão. Tente novamente.');
-      }
-    } catch (error) {
-      setConnectionStatus('disconnected');
-      toast.error('Erro ao testar conexão');
-    }
-  };
-
-  // Gerar QR Code quando modal abrir
-  React.useEffect(() => {
-    if (configModalOpen && !isConnected) {
-      generateQRCode();
-    }
-  }, [configModalOpen]);
-
-  // Simular desconexão periódica (para demonstração)
-  React.useEffect(() => {
-    const interval = setInterval(() => {
-      if (isConnected && Math.random() < 0.1) { // 10% chance de desconectar
-        setIsConnected(false);
-        setConnectionStatus('disconnected');
-        toast.warning('WhatsApp desconectado. Reconecte para continuar.');
-      }
-    }, 30000); // Verificar a cada 30 segundos
-
-    return () => clearInterval(interval);
-  }, [isConnected]);
-
   return (
-    <WhatsAppStatusContext.Provider value={{ isConnected, connectionStatus, setIsConnected, setConnectionStatus }}>
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-2">
-        <div>
-          <div className="flex items-center space-x-3">
-            <MessageSquare className="w-8 h-8 text-green-500" />
-            <h1 className="text-3xl font-bold text-green-400">WhatsApp <span className="text-white">Business</span></h1>
+    <div className="container mx-auto p-4">
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">WhatsApp Business</h1>
+            <p className="text-sm text-muted-foreground">
+              Gerencie suas configurações e mensagens do WhatsApp
+            </p>
           </div>
-          <p className="text-gray-400 mt-1">Gerencie integrações, templates e automações do WhatsApp</p>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              onClick={() => setActiveTab(activeTab === 'config' ? 'messages' : 'config')}
+            >
+              {activeTab === 'config' ? 'Ver Mensagens' : 'Configurações'}
+            </Button>
+          </div>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" className="border-gray-600 text-white hover:bg-gray-700" onClick={() => setConfigModalOpen(true)}><Settings className="w-4 h-4 mr-2" />Configurar</Button>
-          <Button className="bg-green-600 hover:bg-green-700" onClick={handleNewTemplate}><Plus className="w-4 h-4 mr-2" />Novo Template</Button>
-        </div>
-      </div>
 
-      {/* Modal de Configuração */}
-      <Dialog open={configModalOpen} onOpenChange={setConfigModalOpen}>
-          <DialogContent className="bg-[#1f2937] text-white max-w-2xl w-full p-0 rounded-xl shadow-xl border border-gray-700">
-            <div className="p-6 max-h-[90vh] overflow-y-auto scrollbar-hide">
-            <div className="flex items-center gap-2 mb-1">
-              <MessageSquare className="w-6 h-6 text-green-500" />
-                <span className="text-lg font-semibold text-white">Configurar WhatsApp Business</span>
-              </div>
-              <p className="text-gray-400 text-sm mb-6">Envio de mensagens via WhatsApp</p>
-              {/* Status da Conexão */}
-              <div className="bg-[#23272f] border border-gray-700 rounded-lg p-4 mb-6">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-gray-300 font-medium">Status da Integração</span>
-                  <Button 
-                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded" 
-                    size="sm"
-                    onClick={handleTestConnection}
-                  >
-                    Testar Conexão
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="config">Configurações</TabsTrigger>
+            <TabsTrigger value="messages" disabled={!apiBrasilConfig.isConfigured}>
+              Mensagens
+            </TabsTrigger>
+            <TabsTrigger value="templates" disabled={!apiBrasilConfig.isConfigured}>
+              Modelos
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="config" className="space-y-4">
+            <WhatsAppConfigForm
+              onSave={handleSaveConfig}
+              initialData={{
+                bearerToken: apiBrasilConfig.bearerToken,
+                channelName: apiBrasilConfig.channelName,
+                autoReply: apiBrasilConfig.autoReply,
+                modoProducao: apiBrasilConfig.modoProducao,
+              }}
+              isSaving={isSaving}
+            />
+          </TabsContent>
+
+          <TabsContent value="messages" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Enviar Mensagem</CardTitle>
+                <CardDescription>
+                  Envie mensagens diretas para seus clientes
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <SendWhatsAppMessage
+                  onSendMessage={sendWhatsAppMessage}
+                  isConnected={isConnected}
+                  isLoading={apiBrasilConfig.isLoading}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="templates" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Modelos de Mensagem</CardTitle>
+                <CardDescription>
+                  Gerencie seus modelos de mensagem para envio rápido
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-12 text-muted-foreground">
+                  <MessageSquare className="mx-auto h-12 w-12 mb-4 opacity-20" />
+                  <p>Nenhum modelo cadastrado</p>
+                  <Button variant="outline" className="mt-4">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Criar Modelo
                   </Button>
                 </div>
-                
-                {isConnected ? (
-                  <div className="space-y-3">
-                    <span className="inline-block px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-xs font-semibold border border-green-500/30">
-                      Conectado
-                    </span>
-                    <div className="flex gap-2">
-                      <Button 
-                        className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs" 
-                        size="sm"
-                        onClick={() => {
-                          setIsConnected(false);
-                          setConnectionStatus('disconnected');
-                          toast.info('WhatsApp desconectado');
-                        }}
-                      >
-                        Desconectar
-                      </Button>
-                      <Button 
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs" 
-                        size="sm"
-                        onClick={handleTestConnection}
-                      >
-                        Verificar Status
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    <div className="bg-orange-500/20 border border-orange-500/30 rounded-lg p-4">
-                      <p className="text-orange-400 text-sm font-medium mb-1">
-                        Desconectado! Seu WhatsApp não está conectado no momento
-                      </p>
-                      <p className="text-orange-300 text-xs">
-                        Clique na imagem abaixo para recarregar o QR Code.
-                      </p>
-                    </div>
-                    
-                    {/* QR Code Area */}
-                    <div className="flex justify-center">
-                      <div className="relative">
-                        <div className="bg-white p-4 rounded-lg shadow-lg">
-                          {qrCodeData ? (
-                            <img 
-                              src={qrCodeData} 
-                              alt="QR Code WhatsApp" 
-                              className="w-48 h-48 cursor-pointer"
-                              onClick={handleRefreshQR}
-                            />
-                          ) : (
-                            <div className="w-48 h-48 bg-gray-100 flex items-center justify-center rounded">
-                              <div className="text-center">
-                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500 mx-auto mb-2"></div>
-                                <p className="text-gray-500 text-xs">Gerando QR Code...</p>
-                              </div>
-                            </div>
-                          )}
-                          <button 
-                            onClick={handleRefreshQR}
-                            className="absolute -bottom-2 -right-2 bg-gray-800 text-white p-1 rounded-full hover:bg-gray-700 transition-colors"
-                          >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                            </svg>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* Help Section */}
-                    <div className="mt-4">
-                      <h4 className="text-gray-300 font-medium mb-3">Ajuda:</h4>
-                      <div className="space-y-2">
-                        <div className="bg-[#1f2937] border-l-4 border-blue-500 p-3 rounded-r-lg cursor-pointer hover:bg-[#374151] transition-colors">
-                          <p className="text-gray-300 text-sm">QR Code não aparece.</p>
-                        </div>
-                        <div className="bg-[#1f2937] border-l-4 border-blue-500 p-3 rounded-r-lg cursor-pointer hover:bg-[#374151] transition-colors">
-                          <p className="text-gray-300 text-sm">WhatsApp não conecta</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-            </div>
-            <div className="mb-4">
-                <label className="block text-gray-300 mb-1 font-medium">Token do WhatsApp Business</label>
-                <Input 
-                  value={config.apiToken || ''} 
-                  onChange={e => setConfig({ ...config, apiToken: e.target.value })} 
-                  placeholder="Insira sua chave/token..." 
-                  className="bg-[#23272f] border border-gray-600 text-white placeholder-gray-400 focus:border-green-500" 
-                />
-            </div>
-            <div className="mb-6">
-                <label className="block text-gray-300 mb-1 font-medium">URL do Webhook</label>
-                <Input 
-                  value={config.apiEndpoint || ''} 
-                  onChange={e => setConfig({ ...config, apiEndpoint: e.target.value })} 
-                  placeholder="https://sua-api.com/webhook" 
-                  className="bg-[#23272f] border border-gray-600 text-white placeholder-gray-400 focus:border-green-500" 
-                />
-            </div>
-              {/* Seção de Configuração da API Brasil */}
-              <div className="mb-6">
-                <WhatsAppQRCode 
-                  token={apiBrasilConfig.bearerToken}
-                  profileId={apiBrasilConfig.profileId}
-                  onConnectionChange={(connected) => {
-                    setApiBrasilConfig(prev => ({
-                      ...prev,
-                      isConnected: connected,
-                      isLoading: false
-                    }));
-                    setIsConnected(connected);
-                    setConnectionStatus(connected ? 'connected' : 'disconnected');
-                  }}
-                />
-                
-                {/* Configurações avançadas da API */}
-                <div className="mt-4 bg-[#23272f] border border-gray-700 rounded-lg p-4">
-                  <h4 className="text-white font-medium mb-3">Configurações da API</h4>
-                  
-                  <div className="mb-4">
-                    <label className="block text-gray-300 text-sm font-medium mb-1">Bearer Token</label>
-                    <div className="relative">
-                      <Input
-                        type={apiBrasilConfig.showToken ? 'text' : 'password'}
-                        value={apiBrasilConfig.bearerToken || ''}
-                        onChange={(e) => setApiBrasilConfig(prev => ({
-                          ...prev, 
-                          bearerToken: e.target.value,
-                          isConnected: false
-                        }))}
-                        placeholder="Insira seu Bearer Token"
-                        className="bg-[#1e2430] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 pr-10"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setApiBrasilConfig(prev => ({ 
-                          ...prev, 
-                          showToken: !prev.showToken 
-                        }))}
-                        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300"
-                      >
-                        {apiBrasilConfig.showToken ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </button>
-                    </div>
-                    <p className="text-xs text-gray-400 mt-1">Token de autenticação da API Brasil</p>
-                  </div>
-
-                  <div className="mb-4">
-                    <label className="block text-gray-300 text-sm font-medium mb-1">Profile ID</label>
-                    <Input
-                      value={apiBrasilConfig.profileId || ''}
-                      onChange={(e) => setApiBrasilConfig(prev => ({
-                        ...prev, 
-                        profileId: e.target.value,
-                        isConnected: false
-                      }))}
-                      placeholder="Insira o Profile ID"
-                      className="bg-[#1e2430] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
-                    />
-                    <p className="text-xs text-gray-400 mt-1">ID do perfil na plataforma API Brasil</p>
-                  </div>
-
-                  <div className="mb-3">
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
                     <label className="block text-gray-300 text-sm font-medium mb-1">Número de Telefone</label>
                     <div className="flex">
                       <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-600 bg-gray-700 text-gray-300 text-sm">
