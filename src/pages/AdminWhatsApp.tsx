@@ -113,47 +113,59 @@ const AdminWhatsApp: React.FC = () => {
   const sendWhatsAppMessage = async (phoneNumber: string, message: string) => {
     // Validação dos campos obrigatórios
     if (!apiBrasilConfig.bearerToken?.trim()) {
-      toast.error('Token de acesso da API Brasil não configurado');
-      return { success: false, error: 'Token de acesso não configurado' };
+      const errorMsg = 'Token de acesso da API Brasil não configurado';
+      toast.error(errorMsg);
+      return { success: false, error: errorMsg };
     }
 
     if (!apiBrasilConfig.profileId?.trim()) {
-      toast.error('Profile ID da API Brasil não configurado');
-      return { success: false, error: 'Profile ID não configurado' };
+      const errorMsg = 'Profile ID da API Brasil não configurado';
+      toast.error(errorMsg);
+      return { success: false, error: errorMsg };
     }
 
     // Validação do número de telefone
     const cleanedPhone = phoneNumber.replace(/\D/g, '');
     if (!cleanedPhone || cleanedPhone.length < 10) {
-      toast.error('Número de telefone inválido');
-      return { success: false, error: 'Número de telefone inválido' };
+      const errorMsg = 'Número de telefone inválido. Use DDD + número (ex: 11999999999)';
+      toast.error(errorMsg);
+      return { success: false, error: errorMsg };
     }
 
+    // Formata o número para o padrão internacional (55 + DDD + número sem o 9º dígito se houver)
+    const formattedPhone = `55${cleanedPhone}`;
+    
     // Validação da mensagem
-    if (!message?.trim()) {
-      toast.error('A mensagem não pode estar vazia');
-      return { success: false, error: 'Mensagem vazia' };
+    const trimmedMessage = message.trim();
+    if (!trimmedMessage) {
+      const errorMsg = 'A mensagem não pode estar vazia';
+      toast.error(errorMsg);
+      return { success: false, error: errorMsg };
     }
 
     setApiBrasilConfig(prev => ({ ...prev, isLoading: true, error: '' }));
     
     try {
+      const token = apiBrasilConfig.bearerToken.trim();
+      const profileId = apiBrasilConfig.profileId.trim();
+      
       const payload = {
-        profileId: apiBrasilConfig.profileId.trim(),
-        phoneNumber: cleanedPhone,
-        message: message.trim()
+        profileId,
+        phoneNumber: formattedPhone,
+        message: trimmedMessage
       };
 
       console.log('Enviando mensagem via API Brasil:', { 
         endpoint: 'https://gateway.apibrasil.io/api/v2/whatsapp/send-message',
-        payload
+        payload: { ...payload, token: token.substring(0, 10) + '...' } // Não logar o token completo
       });
 
       const response = await fetch('https://gateway.apibrasil.io/api/v2/whatsapp/send-message', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiBrasilConfig.bearerToken.trim()}`,
+          'Authorization': `Bearer ${token}`,
+          'profile-id': profileId,
           'Accept': 'application/json'
         },
         body: JSON.stringify(payload)
@@ -162,31 +174,69 @@ const AdminWhatsApp: React.FC = () => {
       let responseData;
       try {
         responseData = await response.json();
+        console.log('Resposta da API Brasil:', responseData);
       } catch (jsonError) {
         console.error('Erro ao processar resposta JSON:', jsonError);
         throw new Error('Resposta inválida do servidor');
       }
 
-      console.log('Resposta da API Brasil:', responseData);
-
       if (!response.ok) {
         const errorMessage = responseData?.message || 
                            responseData?.error?.message || 
+                           responseData?.error ||
                            `Erro HTTP ${response.status}`;
-        console.error('Erro na resposta da API:', { status: response.status, errorMessage });
+        
+        console.error('Erro na resposta da API:', { 
+          status: response.status, 
+          error: errorMessage,
+          response: responseData 
+        });
+        
         throw new Error(errorMessage);
       }
 
-      toast.success('Mensagem enviada com sucesso!');
+      // Se chegou aqui, a mensagem foi enviada com sucesso
+      toast.success('Mensagem enviada com sucesso!', {
+        description: `Para: ${formattedPhone}`,
+        duration: 5000
+      });
+      
       return { 
         success: true, 
         data: responseData,
-        message: 'Mensagem enviada com sucesso'
+        message: 'Mensagem enviada com sucesso',
+        phoneNumber: formattedPhone,
+        timestamp: new Date().toISOString()
       };
+      
     } catch (error: any) {
       console.error('Erro ao enviar mensagem via API Brasil:', error);
-      const errorMessage = error.message || 'Erro ao enviar mensagem';
-      toast.error(`Erro: ${errorMessage}`);
+      
+      let errorMessage = 'Erro ao enviar mensagem';
+      if (error.message) {
+        errorMessage = error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
+      
+      // Tratamento de erros comuns
+      if (errorMessage.includes('401')) {
+        errorMessage = 'Token de acesso inválido ou expirado';
+      } else if (errorMessage.includes('404')) {
+        errorMessage = 'Recurso não encontrado. Verifique o Profile ID';
+      } else if (errorMessage.includes('429')) {
+        errorMessage = 'Limite de requisições excedido. Tente novamente mais tarde';
+      } else if (errorMessage.includes('500')) {
+        errorMessage = 'Erro interno do servidor. Tente novamente mais tarde';
+      }
+      
+      toast.error(`Falha ao enviar mensagem: ${errorMessage}`, {
+        duration: 8000,
+        action: {
+          label: 'Tentar novamente',
+          onClick: () => sendWhatsAppMessage(phoneNumber, message)
+        }
+      });
       
       // Atualiza o estado com a mensagem de erro
       setApiBrasilConfig(prev => ({
@@ -198,7 +248,9 @@ const AdminWhatsApp: React.FC = () => {
       return { 
         success: false, 
         error: errorMessage,
-        message: errorMessage
+        message: errorMessage,
+        phoneNumber: phoneNumber,
+        timestamp: new Date().toISOString()
       };
     } finally {
       setApiBrasilConfig(prev => ({ ...prev, isLoading: false }));
@@ -207,27 +259,89 @@ const AdminWhatsApp: React.FC = () => {
 
   // Função para testar o envio de mensagem
   const handleTestMessage = async () => {
-    if (!apiBrasilConfig.phoneNumber) {
-      toast.error('Informe um número de telefone para teste');
+    // Verifica se o número de telefone foi informado
+    if (!apiBrasilConfig.phoneNumber?.trim()) {
+      toast.error('Informe um número de telefone para teste', {
+        description: 'Exemplo: 11999999999 (com DDD, sem o +55)'
+      });
       return;
     }
 
-    const testMessage = "🚀 *Teste de Mensagem*\n\nEsta é uma mensagem de teste enviada através da integração com a API Brasil.\n\n✅ Conexão funcionando perfeitamente!";
+    // Verifica se o token e profileId estão configurados
+    if (!apiBrasilConfig.bearerToken?.trim() || !apiBrasilConfig.profileId?.trim()) {
+      toast.error('Configure o Token e o Profile ID antes de testar', {
+        action: {
+          label: 'Configurar',
+          onClick: () => setConfigModalOpen(true)
+        }
+      });
+      return;
+    }
+
+    // Mensagem de teste formatada
+    const testMessage = `🚀 *Mensagem de Teste*\n\n` +
+      `Olá! Esta é uma mensagem de teste enviada através da integração com a API Brasil.\n\n` +
+      `📱 *Detalhes:*\n` +
+      `• Data: ${new Date().toLocaleString('pt-BR')}\n` +
+      `• Status: Conexão ativa\n\n` +
+      `✅ Se você recebeu esta mensagem, a integração está funcionando perfeitamente!`;
     
-    toast.promise(
-      sendWhatsAppMessage(apiBrasilConfig.phoneNumber, testMessage),
-      {
-        loading: 'Enviando mensagem de teste...',
-        success: (data) => {
-          if (data.success) {
-            return 'Mensagem de teste enviada com sucesso!';
-          } else {
-            throw new Error(data.error || 'Erro ao enviar mensagem de teste');
-          }
-        },
-        error: (error) => `Erro: ${error.message || 'Falha ao enviar mensagem de teste'}`
+    // Mostra um toast de carregamento
+    const toastId = toast.loading('Enviando mensagem de teste...');
+    
+    try {
+      // Envia a mensagem de teste
+      const result = await sendWhatsAppMessage(apiBrasilConfig.phoneNumber, testMessage);
+      
+      if (result.success) {
+        // Atualiza o toast para sucesso
+        toast.success('Mensagem de teste enviada com sucesso!', {
+          id: toastId,
+          description: `Para: ${apiBrasilConfig.phoneNumber}`,
+          duration: 5000
+        });
+        
+        // Atualiza o status da conexão
+        setApiBrasilConfig(prev => ({
+          ...prev,
+          isConnected: true,
+          error: ''
+        }));
+        setConnectionStatus('connected');
+        setIsConnected(true);
+        
+      } else {
+        // Se houver erro na resposta
+        throw new Error(result.error || 'Falha ao enviar mensagem de teste');
       }
-    );
+      
+      return result;
+      
+    } catch (error: any) {
+      // Tratamento de erros
+      const errorMessage = error.message || 'Erro desconhecido ao enviar mensagem de teste';
+      
+      // Atualiza o toast para erro
+      toast.error(`Falha no teste: ${errorMessage}`, {
+        id: toastId,
+        duration: 8000,
+        action: {
+          label: 'Tentar novamente',
+          onClick: handleTestMessage
+        }
+      });
+      
+      // Atualiza o status de erro
+      setApiBrasilConfig(prev => ({
+        ...prev,
+        isConnected: false,
+        error: errorMessage
+      }));
+      setConnectionStatus('disconnected');
+      setIsConnected(false);
+      
+      return { success: false, error: errorMessage };
+    }
   };
 
   // Função para testar a conexão com a API Brasil

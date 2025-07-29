@@ -25,36 +25,65 @@ export function WhatsAppQRCode({
 
   // Função para verificar o status da conexão
   const checkConnection = useCallback(async () => {
-    if (!token || !profileId) return false;
+    if (!token?.trim() || !profileId?.trim()) {
+      setConnectionStatus('Aguardando configuração...');
+      setConnectionError('Token ou Profile ID não configurados');
+      return false;
+    }
+    
+    setIsLoading(true);
+    setConnectionError(null);
     
     try {
       const { success, data, error } = await checkConnectionStatus(token, profileId);
+      setLastChecked(new Date());
       
       if (success && data) {
-        const connected = data.connected || false;
+        const connected = data.connected === true;
+        const statusMessage = connected ? 'Conectado' : 'Desconectado';
+        
         setIsConnected(connected);
         setStatus(connected ? 'connected' : 'disconnected');
-        setConnectionStatus(connected ? 'Conectado' : 'Desconectado');
+        setConnectionStatus(statusMessage);
         
         if (onConnectionChange) {
           onConnectionChange(connected);
         }
         
+        // Se estiver conectado, limpa o QR Code
+        if (connected) {
+          setQrCode(null);
+          setCountdown(null);
+        }
+        
         return connected;
       } else {
-        throw new Error(error || 'Erro ao verificar conexão');
+        throw new Error(error || 'Erro ao verificar status da conexão');
       }
     } catch (error: any) {
       console.error('Erro ao verificar conexão:', error);
+      
+      const errorMessage = error?.message || 'Falha ao verificar conexão com o servidor';
       setStatus('error');
       setConnectionStatus('Erro de conexão');
+      setConnectionError(errorMessage);
       setIsConnected(false);
       
       if (onConnectionChange) {
         onConnectionChange(false);
       }
       
+      // Mostra notificação de erro apenas se não for o carregamento inicial
+      if (lastChecked) {
+        toast.error('Erro ao verificar conexão', {
+          description: errorMessage,
+          duration: 5000
+        });
+      }
+      
       return false;
+    } finally {
+      setIsLoading(false);
     }
   }, [token, profileId, onConnectionChange]);
 
