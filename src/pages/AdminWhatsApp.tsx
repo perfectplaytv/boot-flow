@@ -83,19 +83,7 @@ const AdminWhatsApp: React.FC = () => {
     isLoading: false,
     error: '',
     showToken: false,
-    lastConnectionCheck: null as Date | null,
   });
-  
-  // Estados para o contexto de status
-  const [connectionState, setConnectionState] = useState({
-    isConnected: false,
-    status: 'disconnected' as 'connected' | 'disconnected' | 'connecting',
-    qrCodeData: null as string | null,
-    isLoadingQR: false,
-  });
-  
-  // Desestruturação para facilitar o uso
-  const { isConnected, status: connectionStatus, qrCodeData, isLoadingQR } = connectionState;
 
   const [autoReply, setAutoReply] = useState(false);
   const [templates, setTemplates] = useState(templatesMock);
@@ -114,6 +102,12 @@ const AdminWhatsApp: React.FC = () => {
     logsDetalhados: false,
     modoProducao: false,
   });
+
+  // Estados para conexão WhatsApp
+  const [isConnected, setIsConnected] = useState(false);
+  const [qrCodeData, setQrCodeData] = useState<string | null>(null);
+  const [isLoadingQR, setIsLoadingQR] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState<'disconnected' | 'connecting' | 'connected'>('disconnected');
 
   // Função para enviar mensagem via API Brasil
   const sendWhatsAppMessage = async (phoneNumber: string, message: string) => {
@@ -372,9 +366,7 @@ const AdminWhatsApp: React.FC = () => {
       throw new Error(errorMsg);
     }
 
-    // Atualiza o estado para carregando
     setApiBrasilConfig(prev => ({ ...prev, isLoading: true, error: '' }));
-    updateConnectionState({ status: 'connecting', isLoadingQR: true });
     
     try {
       const token = apiBrasilConfig.bearerToken.trim();
@@ -409,26 +401,18 @@ const AdminWhatsApp: React.FC = () => {
       }
 
       const isConnected = data.connected === true;
-      const now = new Date();
       
-      // Atualiza o estado da API Brasil
       setApiBrasilConfig(prev => ({
         ...prev,
         isConnected,
         isConfigured: true,
         isLoading: false,
-        error: '',
-        lastConnectionCheck: now
+        error: ''
       }));
 
       if (isConnected) {
-        // Atualiza o estado de conexão unificado
-        updateConnectionState({ 
-          isConnected: true,
-          status: 'connected',
-          isLoadingQR: false
-        });
-        
+        setIsConnected(true);
+        setConnectionStatus('connected');
         toast.success('Conexão com API Brasil estabelecida com sucesso!');
         
         // Salva a configuração no localStorage
@@ -437,16 +421,11 @@ const AdminWhatsApp: React.FC = () => {
           profileId,
           phoneNumber: apiBrasilConfig.phoneNumber,
           isConfigured: true,
-          isConnected: true,
-          lastConnectionCheck: now.toISOString()
+          isConnected: true
         }));
       } else {
-        // Atualiza o estado de conexão unificado para desconectado
-        updateConnectionState({ 
-          isConnected: false, 
-          status: 'disconnected',
-          isLoadingQR: false
-        });
+        setConnectionStatus('disconnected');
+        setIsConnected(false);
         toast.warning('API Brasil conectada, mas o WhatsApp não está ativo');
       }
 
@@ -455,119 +434,389 @@ const AdminWhatsApp: React.FC = () => {
     } catch (error: any) {
       console.error('Erro ao testar conexão com API Brasil:', error);
       const errorMsg = error.message || 'Erro desconhecido ao conectar com a API Brasil';
-      const now = new Date();
       
-      // Atualiza o estado da API Brasil
       setApiBrasilConfig(prev => ({
         ...prev,
         error: errorMsg,
         isConnected: false,
-        isLoading: false,
-        lastConnectionCheck: now
+        isLoading: false
       }));
       
-      // Atualiza o estado de conexão unificado
-      updateConnectionState({ 
-        isConnected: false, 
-        status: 'disconnected',
-        isLoadingQR: false
-      });
-      
       toast.error(`Erro na conexão: ${errorMsg}`);
+      setIsConnected(false);
+      setConnectionStatus('disconnected');
       
       return { success: false, error: errorMsg };
     }
   };
 
-  // Carrega a configuração salva ao iniciar
-  useEffect(() => {
+  // Carregar configurações salvas no localStorage ao iniciar
+  React.useEffect(() => {
     const savedConfig = localStorage.getItem('apiBrasilConfig');
     if (savedConfig) {
       try {
-        const parsed = JSON.parse(savedConfig);
+        const parsedConfig = JSON.parse(savedConfig);
         setApiBrasilConfig(prev => ({
           ...prev,
-          ...parsed,
-          showToken: false, // Por segurança, não mostramos o token ao carregar
+          ...parsedConfig,
           isLoading: false
         }));
         
-        // Atualiza o status de conexão com base nos dados salvos
-        if (parsed.isConnected) {
-          updateConnectionState({ 
-            isConnected: true, 
-            status: 'connected' 
-          });
+        // Se tiver token e profileId, testa a conexão
+        if (parsedConfig.bearerToken && parsedConfig.profileId) {
+          testApiBrasilConnection();
         }
       } catch (error) {
-        console.error('Erro ao carregar configurações salvas:', error);
+        console.error('Erro ao carregar configurações:', error);
       }
     }
   }, []);
-  
-  // Verifica o status da conexão periodicamente quando conectado
-  useEffect(() => {
-    if (!isConnected) return;
+
+  // Salvar configurações quando houver alterações
+  React.useEffect(() => {
+    if (apiBrasilConfig.bearerToken || apiBrasilConfig.profileId) {
+      const { isLoading, ...configToSave } = apiBrasilConfig;
+      localStorage.setItem('apiBrasilConfig', JSON.stringify(configToSave));
+    }
+  }, [apiBrasilConfig]);
+
+  // Abrir modal para novo template
+  const handleNewTemplate = () => {
+    setEditing(false);
+    setForm({ ...initialForm, id: null });
+    setModalOpen(true);
+  };
+
+  // Abrir modal para editar
+  const handleEditTemplate = (tpl: any) => {
+    setEditing(true);
+    setForm({ ...tpl });
+    setModalOpen(true);
+  };
+
+  // Salvar novo ou editar
+  const handleSaveTemplate = () => {
+    if (!form.title.trim() || !form.tag.trim() || !form.content.trim()) {
+      toast.error('Preencha todos os campos obrigatórios!');
+      return;
+    }
+    if (editing) {
+      setTemplates((prev) => prev.map((tpl) => tpl.id === form.id ? { ...form } : tpl));
+      toast.success('Template atualizado com sucesso!');
+    } else {
+      setTemplates((prev) => [
+        ...prev,
+        { ...form, id: Date.now(), sent: 0, delivery: 0, variables: form.variables || 1, status: 'Ativo', read: false }
+      ]);
+      toast.success('Template criado com sucesso!');
+    }
+    setModalOpen(false);
+  };
+
+  // Abrir modal de confirmação de exclusão
+  const handleDeleteTemplate = (tpl: any) => {
+    setTemplateToDelete(tpl);
+    setDeleteModalOpen(true);
+  };
+
+  // Confirmar exclusão
+  const confirmDeleteTemplate = () => {
+    setTemplates((prev) => prev.filter((tpl) => tpl.id !== templateToDelete.id));
+    setDeleteModalOpen(false);
+    toast.success('Template excluído com sucesso!');
+  };
+
+  // Funções para conexão WhatsApp
+  const generateQRCode = async () => {
+    setIsLoadingQR(true);
+    try {
+      // Simular geração de QR Code real
+      // Em produção, isso seria uma chamada para a API do WhatsApp Business
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Gerar um QR Code real usando uma biblioteca como qrcode
+      // Por enquanto, vamos usar um QR Code de exemplo
+      const qrCodeUrl = `data:image/svg+xml;base64,${btoa(`
+        <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+          <rect width="200" height="200" fill="white"/>
+          <g fill="black">
+            <rect x="20" y="20" width="8" height="8"/>
+            <rect x="32" y="20" width="8" height="8"/>
+            <rect x="44" y="20" width="8" height="8"/>
+            <rect x="56" y="20" width="8" height="8"/>
+            <rect x="68" y="20" width="8" height="8"/>
+            <rect x="80" y="20" width="8" height="8"/>
+            <rect x="92" y="20" width="8" height="8"/>
+            <rect x="104" y="20" width="8" height="8"/>
+            <rect x="116" y="20" width="8" height="8"/>
+            <rect x="128" y="20" width="8" height="8"/>
+            <rect x="140" y="20" width="8" height="8"/>
+            <rect x="152" y="20" width="8" height="8"/>
+            <rect x="164" y="20" width="8" height="8"/>
+            <rect x="176" y="20" width="8" height="8"/>
+            <rect x="20" y="32" width="8" height="8"/>
+            <rect x="32" y="32" width="8" height="8"/>
+            <rect x="44" y="32" width="8" height="8"/>
+            <rect x="56" y="32" width="8" height="8"/>
+            <rect x="68" y="32" width="8" height="8"/>
+            <rect x="80" y="32" width="8" height="8"/>
+            <rect x="92" y="32" width="8" height="8"/>
+            <rect x="104" y="32" width="8" height="8"/>
+            <rect x="116" y="32" width="8" height="8"/>
+            <rect x="128" y="32" width="8" height="8"/>
+            <rect x="140" y="32" width="8" height="8"/>
+            <rect x="152" y="32" width="8" height="8"/>
+            <rect x="164" y="32" width="8" height="8"/>
+            <rect x="176" y="32" width="8" height="8"/>
+            <rect x="20" y="44" width="8" height="8"/>
+            <rect x="32" y="44" width="8" height="8"/>
+            <rect x="44" y="44" width="8" height="8"/>
+            <rect x="56" y="44" width="8" height="8"/>
+            <rect x="68" y="44" width="8" height="8"/>
+            <rect x="80" y="44" width="8" height="8"/>
+            <rect x="92" y="44" width="8" height="8"/>
+            <rect x="104" y="44" width="8" height="8"/>
+            <rect x="116" y="44" width="8" height="8"/>
+            <rect x="128" y="44" width="8" height="8"/>
+            <rect x="140" y="44" width="8" height="8"/>
+            <rect x="152" y="44" width="8" height="8"/>
+            <rect x="164" y="44" width="8" height="8"/>
+            <rect x="176" y="44" width="8" height="8"/>
+            <rect x="20" y="56" width="8" height="8"/>
+            <rect x="32" y="56" width="8" height="8"/>
+            <rect x="44" y="56" width="8" height="8"/>
+            <rect x="56" y="56" width="8" height="8"/>
+            <rect x="68" y="56" width="8" height="8"/>
+            <rect x="80" y="56" width="8" height="8"/>
+            <rect x="92" y="56" width="8" height="8"/>
+            <rect x="104" y="56" width="8" height="8"/>
+            <rect x="116" y="56" width="8" height="8"/>
+            <rect x="128" y="56" width="8" height="8"/>
+            <rect x="140" y="56" width="8" height="8"/>
+            <rect x="152" y="56" width="8" height="8"/>
+            <rect x="164" y="56" width="8" height="8"/>
+            <rect x="176" y="56" width="8" height="8"/>
+            <rect x="20" y="68" width="8" height="8"/>
+            <rect x="32" y="68" width="8" height="8"/>
+            <rect x="44" y="68" width="8" height="8"/>
+            <rect x="56" y="68" width="8" height="8"/>
+            <rect x="68" y="68" width="8" height="8"/>
+            <rect x="80" y="68" width="8" height="8"/>
+            <rect x="92" y="68" width="8" height="8"/>
+            <rect x="104" y="68" width="8" height="8"/>
+            <rect x="116" y="68" width="8" height="8"/>
+            <rect x="128" y="68" width="8" height="8"/>
+            <rect x="140" y="68" width="8" height="8"/>
+            <rect x="152" y="68" width="8" height="8"/>
+            <rect x="164" y="68" width="8" height="8"/>
+            <rect x="176" y="68" width="8" height="8"/>
+            <rect x="20" y="80" width="8" height="8"/>
+            <rect x="32" y="80" width="8" height="8"/>
+            <rect x="44" y="80" width="8" height="8"/>
+            <rect x="56" y="80" width="8" height="8"/>
+            <rect x="68" y="80" width="8" height="8"/>
+            <rect x="80" y="80" width="8" height="8"/>
+            <rect x="92" y="80" width="8" height="8"/>
+            <rect x="104" y="80" width="8" height="8"/>
+            <rect x="116" y="80" width="8" height="8"/>
+            <rect x="128" y="80" width="8" height="8"/>
+            <rect x="140" y="80" width="8" height="8"/>
+            <rect x="152" y="80" width="8" height="8"/>
+            <rect x="164" y="80" width="8" height="8"/>
+            <rect x="176" y="80" width="8" height="8"/>
+            <rect x="20" y="92" width="8" height="8"/>
+            <rect x="32" y="92" width="8" height="8"/>
+            <rect x="44" y="92" width="8" height="8"/>
+            <rect x="56" y="92" width="8" height="8"/>
+            <rect x="68" y="92" width="8" height="8"/>
+            <rect x="80" y="92" width="8" height="8"/>
+            <rect x="92" y="92" width="8" height="8"/>
+            <rect x="104" y="92" width="8" height="8"/>
+            <rect x="116" y="92" width="8" height="8"/>
+            <rect x="128" y="92" width="8" height="8"/>
+            <rect x="140" y="92" width="8" height="8"/>
+            <rect x="152" y="92" width="8" height="8"/>
+            <rect x="164" y="92" width="8" height="8"/>
+            <rect x="176" y="92" width="8" height="8"/>
+            <rect x="20" y="104" width="8" height="8"/>
+            <rect x="32" y="104" width="8" height="8"/>
+            <rect x="44" y="104" width="8" height="8"/>
+            <rect x="56" y="104" width="8" height="8"/>
+            <rect x="68" y="104" width="8" height="8"/>
+            <rect x="80" y="104" width="8" height="8"/>
+            <rect x="92" y="104" width="8" height="8"/>
+            <rect x="104" y="104" width="8" height="8"/>
+            <rect x="116" y="104" width="8" height="8"/>
+            <rect x="128" y="104" width="8" height="8"/>
+            <rect x="140" y="104" width="8" height="8"/>
+            <rect x="152" y="104" width="8" height="8"/>
+            <rect x="164" y="104" width="8" height="8"/>
+            <rect x="176" y="104" width="8" height="8"/>
+            <rect x="20" y="116" width="8" height="8"/>
+            <rect x="32" y="116" width="8" height="8"/>
+            <rect x="44" y="116" width="8" height="8"/>
+            <rect x="56" y="116" width="8" height="8"/>
+            <rect x="68" y="116" width="8" height="8"/>
+            <rect x="80" y="116" width="8" height="8"/>
+            <rect x="92" y="116" width="8" height="8"/>
+            <rect x="104" y="116" width="8" height="8"/>
+            <rect x="116" y="116" width="8" height="8"/>
+            <rect x="128" y="116" width="8" height="8"/>
+            <rect x="140" y="116" width="8" height="8"/>
+            <rect x="152" y="116" width="8" height="8"/>
+            <rect x="164" y="116" width="8" height="8"/>
+            <rect x="176" y="116" width="8" height="8"/>
+            <rect x="20" y="128" width="8" height="8"/>
+            <rect x="32" y="128" width="8" height="8"/>
+            <rect x="44" y="128" width="8" height="8"/>
+            <rect x="56" y="128" width="8" height="8"/>
+            <rect x="68" y="128" width="8" height="8"/>
+            <rect x="80" y="128" width="8" height="8"/>
+            <rect x="92" y="128" width="8" height="8"/>
+            <rect x="104" y="128" width="8" height="8"/>
+            <rect x="116" y="128" width="8" height="8"/>
+            <rect x="128" y="128" width="8" height="8"/>
+            <rect x="140" y="128" width="8" height="8"/>
+            <rect x="152" y="128" width="8" height="8"/>
+            <rect x="164" y="128" width="8" height="8"/>
+            <rect x="176" y="128" width="8" height="8"/>
+            <rect x="20" y="140" width="8" height="8"/>
+            <rect x="32" y="140" width="8" height="8"/>
+            <rect x="44" y="140" width="8" height="8"/>
+            <rect x="56" y="140" width="8" height="8"/>
+            <rect x="68" y="140" width="8" height="8"/>
+            <rect x="80" y="140" width="8" height="8"/>
+            <rect x="92" y="140" width="8" height="8"/>
+            <rect x="104" y="140" width="8" height="8"/>
+            <rect x="116" y="140" width="8" height="8"/>
+            <rect x="128" y="140" width="8" height="8"/>
+            <rect x="140" y="140" width="8" height="8"/>
+            <rect x="152" y="140" width="8" height="8"/>
+            <rect x="164" y="140" width="8" height="8"/>
+            <rect x="176" y="140" width="8" height="8"/>
+            <rect x="20" y="152" width="8" height="8"/>
+            <rect x="32" y="152" width="8" height="8"/>
+            <rect x="44" y="152" width="8" height="8"/>
+            <rect x="56" y="152" width="8" height="8"/>
+            <rect x="68" y="152" width="8" height="8"/>
+            <rect x="80" y="152" width="8" height="8"/>
+            <rect x="92" y="152" width="8" height="8"/>
+            <rect x="104" y="152" width="8" height="8"/>
+            <rect x="116" y="152" width="8" height="8"/>
+            <rect x="128" y="152" width="8" height="8"/>
+            <rect x="140" y="152" width="8" height="8"/>
+            <rect x="152" y="152" width="8" height="8"/>
+            <rect x="164" y="152" width="8" height="8"/>
+            <rect x="176" y="152" width="8" height="8"/>
+            <rect x="20" y="164" width="8" height="8"/>
+            <rect x="32" y="164" width="8" height="8"/>
+            <rect x="44" y="164" width="8" height="8"/>
+            <rect x="56" y="164" width="8" height="8"/>
+            <rect x="68" y="164" width="8" height="8"/>
+            <rect x="80" y="164" width="8" height="8"/>
+            <rect x="92" y="164" width="8" height="8"/>
+            <rect x="104" y="164" width="8" height="8"/>
+            <rect x="116" y="164" width="8" height="8"/>
+            <rect x="128" y="164" width="8" height="8"/>
+            <rect x="140" y="164" width="8" height="8"/>
+            <rect x="152" y="164" width="8" height="8"/>
+            <rect x="164" y="164" width="8" height="8"/>
+            <rect x="176" y="164" width="8" height="8"/>
+            <rect x="20" y="176" width="8" height="8"/>
+            <rect x="32" y="176" width="8" height="8"/>
+            <rect x="44" y="176" width="8" height="8"/>
+            <rect x="56" y="176" width="8" height="8"/>
+            <rect x="68" y="176" width="8" height="8"/>
+            <rect x="80" y="176" width="8" height="8"/>
+            <rect x="92" y="176" width="8" height="8"/>
+            <rect x="104" y="176" width="8" height="8"/>
+            <rect x="116" y="176" width="8" height="8"/>
+            <rect x="128" y="176" width="8" height="8"/>
+            <rect x="140" y="176" width="8" height="8"/>
+            <rect x="152" y="176" width="8" height="8"/>
+            <rect x="164" y="176" width="8" height="8"/>
+            <rect x="176" y="176" width="8" height="8"/>
+          </g>
+        </svg>
+      `)}`;
+      
+      setQrCodeData(qrCodeUrl);
+      setConnectionStatus('connecting');
+      toast.success('QR Code gerado com sucesso!');
+    } catch (error) {
+      toast.error('Erro ao gerar QR Code');
+    } finally {
+      setIsLoadingQR(false);
+    }
+  };
+
+  const handleRefreshQR = () => {
+    setQrCodeData(null);
+    generateQRCode();
+  };
+
+  const handleTestConnection = async () => {
+    if (config.provider === 'API Brasil') {
+      return testApiBrasilConnection();
+    }
     
+    try {
+      setConnectionStatus('connecting');
+      // Simular teste de conexão
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Simular sucesso/fracasso aleatório
+      const isSuccess = Math.random() > 0.3;
+      
+      if (isSuccess) {
+        setIsConnected(true);
+        setConnectionStatus('connected');
+        setQrCodeData(null);
+        toast.success('Conexão estabelecida com sucesso!');
+      } else {
+        setIsConnected(false);
+        setConnectionStatus('disconnected');
+        toast.error('Falha na conexão. Tente novamente.');
+      }
+    } catch (error) {
+      setConnectionStatus('disconnected');
+      toast.error('Erro ao testar conexão');
+    }
+  };
+
+  // Gerar QR Code quando modal abrir
+  React.useEffect(() => {
+    if (configModalOpen && !isConnected) {
+      generateQRCode();
+    }
+  }, [configModalOpen]);
+
+  // Simular desconexão periódica (para demonstração)
+  React.useEffect(() => {
     const interval = setInterval(() => {
-      testApiBrasilConnection();
-    }, 300000); // Verifica a cada 5 minutos
-    
+      if (isConnected && Math.random() < 0.1) { // 10% chance de desconectar
+        setIsConnected(false);
+        setConnectionStatus('disconnected');
+        toast.warning('WhatsApp desconectado. Reconecte para continuar.');
+      }
+    }, 30000); // Verificar a cada 30 segundos
+
     return () => clearInterval(interval);
   }, [isConnected]);
 
-  // Atualiza o estado de conexão de forma segura
-  const updateConnectionState = (updates: Partial<typeof connectionState>) => {
-    setConnectionState(prev => {
-      const newState = { ...prev, ...updates };
-      
-      // Atualiza o estado da API Brasil quando houver mudanças relevantes
-      if ('isConnected' in updates) {
-        setApiBrasilConfig(prev => ({
-          ...prev,
-          isConnected: newState.isConnected,
-          lastConnectionCheck: new Date(),
-          error: newState.isConnected ? '' : (prev.error || 'Desconectado')
-        }));
-      }
-      
-      return newState;
-    });
-  };
-
-  // Renderiza o componente dentro do contexto
   return (
-    <WhatsAppStatusContext.Provider 
-      value={{
-        isConnected,
-        connectionStatus,
-        setIsConnected: (value: boolean) => 
-          updateConnectionState({ 
-            isConnected: value, 
-            status: value ? 'connected' : 'disconnected' 
-          }),
-        setConnectionStatus: (status: string) => 
-          updateConnectionState({ 
-            status: status as 'connected' | 'disconnected' | 'connecting',
-            isConnected: status === 'connected' 
-          })
-      }}
-    >
-      <div className="p-6 space-y-6">
-        {/* Cabeçalho */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-2">
-          <div>
-            <div className="flex items-center space-x-3">
-              <MessageSquare className="w-8 h-8 text-green-500" />
-              <h1 className="text-3xl font-bold text-green-400">
-                WhatsApp <span className="text-white">Business</span>
-              </h1>
-            </div>
-            <p className="text-gray-400 mt-1">
-              Gerencie integrações, templates e automações do WhatsApp
-            </p>
+    <WhatsAppStatusContext.Provider value={{ isConnected, connectionStatus, setIsConnected, setConnectionStatus }}>
+    <div className="p-6 space-y-6">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-2">
+        <div>
+          <div className="flex items-center space-x-3">
+            <MessageSquare className="w-8 h-8 text-green-500" />
+            <h1 className="text-3xl font-bold text-green-400">WhatsApp <span className="text-white">Business</span></h1>
           </div>
-          <div className="flex gap-2">
+          <p className="text-gray-400 mt-1">Gerencie integrações, templates e automações do WhatsApp</p>
+        </div>
+        <div className="flex gap-2">
           <Button variant="outline" className="border-gray-600 text-white hover:bg-gray-700" onClick={() => setConfigModalOpen(true)}><Settings className="w-4 h-4 mr-2" />Configurar</Button>
           <Button className="bg-green-600 hover:bg-green-700" onClick={handleNewTemplate}><Plus className="w-4 h-4 mr-2" />Novo Template</Button>
         </div>
@@ -589,7 +838,7 @@ const AdminWhatsApp: React.FC = () => {
                   <Button 
                     className="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded" 
                     size="sm"
-                    onClick={testApiBrasilConnection}
+                    onClick={handleTestConnection}
                   >
                     Testar Conexão
                   </Button>
