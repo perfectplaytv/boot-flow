@@ -18,7 +18,11 @@ import { useRevendas } from '@/hooks/useRevendas';
 import { toast } from 'sonner';
 import { useWhatsAppStatus } from './AdminWhatsApp';
 
+// Definindo o tipo TemplateStatus como um tipo união de strings literais
 type TemplateStatus = 'Ativo' | 'Inativo';
+
+// Definindo o tipo HistoricoStatus como um tipo união de strings literais
+type HistoricoStatus = 'Entregue' | 'Lido' | 'Falha';
 
 type Template = {
   id: number;
@@ -30,7 +34,7 @@ type Template = {
   taxa: number;
 };
 
-type HistoricoStatus = 'Entregue' | 'Lido' | 'Falha';
+// Removendo a declaração duplicada de HistoricoStatus
 
 type HistoricoItem = {
   id: number;
@@ -549,7 +553,7 @@ export default function Notifications() {
               id="template-status"
               className="bg-gray-900 border border-gray-700 text-white rounded px-3 py-2 w-full" 
               value={form.status} 
-              onChange={e => setForm({ ...form, status: e.target.value })}
+              onChange={e => setForm({ ...form, status: e.target.value as TemplateStatus })}
               aria-label="Status do Template"
             >
               <option value="Ativo">Ativo</option>
@@ -572,7 +576,12 @@ export default function Notifications() {
             <Input placeholder="Nome do Template" className="bg-gray-900 border border-gray-700 text-white" value={form.nome} onChange={e => setForm({ ...form, nome: e.target.value })} />
             <Input placeholder="Texto da Mensagem" className="bg-gray-900 border border-gray-700 text-white" value={form.texto} onChange={e => setForm({ ...form, texto: e.target.value })} />
             <Input placeholder="Variáveis (separadas por vírgula)" className="bg-gray-900 border border-gray-700 text-white" value={form.variaveis} onChange={e => setForm({ ...form, variaveis: e.target.value })} />
-            <select className="bg-gray-900 border border-gray-700 text-white rounded px-3 py-2" value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}>
+            <select 
+              className="bg-gray-900 border border-gray-700 text-white rounded px-3 py-2 w-full" 
+              value={form.status} 
+              onChange={e => setForm({ ...form, status: e.target.value as TemplateStatus })}
+              aria-label="Status do Template"
+            >
               <option value="Ativo">Ativo</option>
               <option value="Inativo">Inativo</option>
             </select>
