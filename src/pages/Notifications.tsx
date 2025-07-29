@@ -467,16 +467,15 @@ export default function Notifications() {
         </Card>
       </div>
       {/* Modal Novo Template */}
-      <DialogWrapper
-        title="Novo Template"
-        description="Crie um novo template de mensagem para notificações. Use variáveis como {nome} para personalização."
-        className="bg-gradient-to-br from-[#232a36] to-[#1f1930] border border-purple-700 text-white max-w-lg shadow-2xl rounded-2xl"
-        open={modal.type === 'novo'}
-        onOpenChange={(open) => !open && setModal({ type: null })}
-      >
-        {renderNovoTemplateModal()}
-      </DialogWrapper>
-        <div className="space-y-4 py-2">
+      <Dialog open={modal.type === 'novo'} onOpenChange={(isOpen) => !isOpen && setModal({ type: null })}>
+        <DialogContent className="bg-gradient-to-br from-[#232a36] to-[#1f1930] border border-purple-700 text-white max-w-lg shadow-2xl rounded-2xl">
+          <DialogHeader>
+            <DialogTitle>Novo Template</DialogTitle>
+            <DialogDescription>
+              Crie um novo template de mensagem para notificações. Use variáveis como {'{nome}'} para personalização.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
           <div>
             <label htmlFor="template-name" className="sr-only">Nome do Template</label>
             <Input 
@@ -659,8 +658,7 @@ export default function Notifications() {
               </select>
             </div>
           </div>
-          
-          <DialogFooter className="gap-2 sm:gap-0">
+          <DialogFooter>
             <Button 
               type="button"
               variant="outline" 
