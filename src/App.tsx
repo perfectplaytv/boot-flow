@@ -10,6 +10,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 // Pages
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
 
 // Dashboards
@@ -46,6 +47,7 @@ const App = () => {
               {/* Rotas públicas */}
               <Route path="/" element={<Landing />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/cadastro" element={<Signup />} />
               <Route path="/termos" element={<Terms />} />
               <Route path="/privacidade" element={<Privacy />} />
               <Route path="/ajuda" element={<HelpCenter />} />
