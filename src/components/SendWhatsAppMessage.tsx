@@ -96,13 +96,13 @@ export function SendWhatsAppMessage({
     setIsSending(true);
     
     try {
-      const { success, data, error } = await sendMessage({
+      const { success, data, error } = await sendMessage(
         token,
         profileId,
         phoneNumber,
         message,
         isGroup
-      });
+      );
 
       if (success) {
         toast.success('Mensagem enviada com sucesso!');
@@ -163,14 +163,14 @@ export function SendWhatsAppMessage({
     
     try {
       const params = Object.values(templateParams);
-      const { success, data, error } = await sendTemplateMessage({
+      const { success, data, error } = await sendTemplateMessage(
         token,
         profileId,
         phoneNumber,
-        templateName: selectedTemplate.id,
-        templateParams: params,
+        selectedTemplate.id,
+        params,
         isGroup
-      });
+      );
 
       if (success) {
         toast.success('Template enviado com sucesso!');

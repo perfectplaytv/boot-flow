@@ -811,110 +811,111 @@ const AdminWhatsApp: React.FC = () => {
                 />
             </div>
               {/* Seção de Configuração da API Brasil */}
-              <div className="bg-[#23272f] border border-gray-700 rounded-lg p-4 mb-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="block text-white font-semibold">API Brasil WhatsApp</span>
-                  <span className="px-2 py-1 text-xs rounded-full bg-blue-500/20 text-blue-400">Recomendado</span>
+              <div className="mb-6">
+                <WhatsAppQRCode 
+                  token={apiBrasilConfig.bearerToken}
+                  profileId={apiBrasilConfig.profileId}
+                  onConnectionChange={(connected) => {
+                    setApiBrasilConfig(prev => ({
+                      ...prev,
+                      isConnected: connected,
+                      isLoading: false
+                    }));
+                    setIsConnected(connected);
+                    setConnectionStatus(connected ? 'connected' : 'disconnected');
+                  }}
+                />
+                
+                {/* Configurações avançadas da API */}
+                <div className="mt-4 bg-[#23272f] border border-gray-700 rounded-lg p-4">
+                  <h4 className="text-white font-medium mb-3">Configurações da API</h4>
+                  
+                  <div className="mb-4">
+                    <label className="block text-gray-300 text-sm font-medium mb-1">Bearer Token</label>
+                    <div className="relative">
+                      <Input
+                        type={apiBrasilConfig.showToken ? 'text' : 'password'}
+                        value={apiBrasilConfig.bearerToken || ''}
+                        onChange={(e) => setApiBrasilConfig(prev => ({
+                          ...prev, 
+                          bearerToken: e.target.value,
+                          isConnected: false
+                        }))}
+                        placeholder="Insira seu Bearer Token"
+                        className="bg-[#1e2430] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setApiBrasilConfig(prev => ({ 
+                          ...prev, 
+                          showToken: !prev.showToken 
+                        }))}
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300"
+                      >
+                        {apiBrasilConfig.showToken ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
+                    <p className="text-xs text-gray-400 mt-1">Token de autenticação da API Brasil</p>
+                  </div>
+
+                  <div className="mb-4">
+                    <label className="block text-gray-300 text-sm font-medium mb-1">Profile ID</label>
+                    <Input
+                      value={apiBrasilConfig.profileId || ''}
+                      onChange={(e) => setApiBrasilConfig(prev => ({
+                        ...prev, 
+                        profileId: e.target.value,
+                        isConnected: false
+                      }))}
+                      placeholder="Insira o Profile ID"
+                      className="bg-[#1e2430] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
+                    />
+                    <p className="text-xs text-gray-400 mt-1">ID do perfil na plataforma API Brasil</p>
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="block text-gray-300 text-sm font-medium mb-1">Número de Telefone</label>
+                    <div className="flex">
+                      <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-600 bg-gray-700 text-gray-300 text-sm">
+                        +55
+                      </span>
+                      <Input
+                        type="tel"
+                        value={apiBrasilConfig.phoneNumber || ''}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, '');
+                          setApiBrasilConfig(prev => ({ ...prev, phoneNumber: value }));
+                        }}
+                        placeholder="11999999999"
+                        className="bg-[#1e2430] border-l-0 rounded-l-none border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
+                      />
+                    </div>
+                    <p className="text-xs text-gray-400 mt-1">Número de telefone com DDD (apenas números)</p>
+                  </div>
+
+                  {apiBrasilConfig.error && (
+                    <div className="mb-3 p-2 text-sm text-red-400 bg-red-900/30 rounded border border-red-800">
+                      {apiBrasilConfig.error}
+                    </div>
+                  )}
                 </div>
                 
-                <div className="mb-4">
-                  <label className="block text-gray-300 text-sm font-medium mb-1">Bearer Token</label>
-                  <div className="relative">
-                    <Input
-                      type={apiBrasilConfig.showToken ? 'text' : 'password'}
-                      value={apiBrasilConfig.bearerToken || ''}
-                      onChange={(e) => setApiBrasilConfig(prev => ({ ...prev, bearerToken: e.target.value }))}
-                      placeholder="Insira seu Bearer Token"
-                      className="bg-[#1e2430] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 pr-10"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setApiBrasilConfig(prev => ({ ...prev, showToken: !prev.showToken }))}
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300"
-                    >
-                      {apiBrasilConfig.showToken ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
-                    </button>
-                  </div>
-                  <p className="text-xs text-gray-400 mt-1">Token de autenticação da API Brasil</p>
-                </div>
-
-                <div className="mb-4">
-                  <label className="block text-gray-300 text-sm font-medium mb-1">Profile ID</label>
-                  <Input
-                    value={apiBrasilConfig.profileId || ''}
-                    onChange={(e) => setApiBrasilConfig(prev => ({ ...prev, profileId: e.target.value }))}
-                    placeholder="Insira o Profile ID"
-                    className="bg-[#1e2430] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
+                {/* Área de envio de mensagem de teste */}
+                <div className="mt-4">
+                  <SendWhatsAppMessage 
+                    token={apiBrasilConfig.bearerToken}
+                    profileId={apiBrasilConfig.profileId}
+                    defaultPhoneNumber={apiBrasilConfig.phoneNumber}
+                    onSendSuccess={() => {
+                      toast.success('Mensagem de teste enviada com sucesso!');
+                    }}
+                    compact
+                    showHeader={false}
                   />
-                  <p className="text-xs text-gray-400 mt-1">ID do perfil na plataforma API Brasil</p>
-                </div>
-
-                <div className="mb-3">
-                  <label className="block text-gray-300 text-sm font-medium mb-1">Número de Telefone</label>
-                  <div className="flex">
-                    <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-600 bg-gray-700 text-gray-300 text-sm">
-                      +55
-                    </span>
-                    <Input
-                      type="tel"
-                      value={apiBrasilConfig.phoneNumber || ''}
-                      onChange={(e) => {
-                        const value = e.target.value.replace(/\D/g, '');
-                        setApiBrasilConfig(prev => ({ ...prev, phoneNumber: value }));
-                      }}
-                      placeholder="11999999999"
-                      className="bg-[#1e2430] border-l-0 rounded-l-none border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
-                    />
-                  </div>
-                  <p className="text-xs text-gray-400 mt-1">Número de telefone com DDD (apenas números)</p>
-                </div>
-
-                {apiBrasilConfig.error && (
-                  <div className="mb-3 p-2 text-sm text-red-400 bg-red-900/30 rounded border border-red-800">
-                    {apiBrasilConfig.error}
-                  </div>
-                )}
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <span className="block text-sm text-gray-300">Status da API</span>
-                    <div className="flex items-center gap-1">
-                      <div className={`w-2 h-2 rounded-full ${apiBrasilConfig.isConnected ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                      <span className="text-xs text-gray-400">
-                        {apiBrasilConfig.isConnected ? 'Conectado' : 'Desconectado'}
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex gap-2">
-                    <Button 
-                      type="button"
-                      onClick={testApiBrasilConnection}
-                      disabled={apiBrasilConfig.isLoading || !apiBrasilConfig.bearerToken || !apiBrasilConfig.profileId}
-                      variant="outline"
-                      className="border-blue-500 text-blue-400 hover:bg-blue-900/30 hover:text-blue-300 px-4 py-1 text-sm rounded disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {apiBrasilConfig.isLoading ? (
-                        <div className="flex items-center gap-2">
-                          <Loader2 className="h-3 w-3 animate-spin" />
-                          Testando...
-                        </div>
-                      ) : 'Testar Conexão'}
-                    </Button>
-                    
-                    <Button 
-                      type="button"
-                      onClick={handleTestMessage}
-                      disabled={!apiBrasilConfig.isConnected || !apiBrasilConfig.phoneNumber}
-                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-1 text-sm rounded disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Enviar Teste
-                    </Button>
-                  </div>
                 </div>
               </div>
 
