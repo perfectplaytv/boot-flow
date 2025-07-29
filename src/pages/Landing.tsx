@@ -177,10 +177,10 @@ const Landing = () => {
             </div>
 
             <div className="flex items-center space-x-4">
-              <Button variant="ghost" onClick={() => navigate('/dashboard')}>
+              <Button variant="ghost" onClick={() => navigate('/login')}>
                 Entrar
               </Button>
-              <Button variant="hero" onClick={() => navigate('/dashboard')}>
+              <Button variant="hero" onClick={() => navigate('/cadastro')}>
                 Teste Grátis
               </Button>
             </div>
