@@ -1,6 +1,5 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode, useCallback } from 'react';
-import { User, Session, AuthError, UserResponse } from '@supabase/supabase-js';
-import { useNavigate } from 'react-router-dom';
+import { User, Session, AuthError } from '@supabase/supabase-js';
 import { toast } from 'sonner';
 import { supabase, UserProfile } from '@/lib/supabase';
 
@@ -13,7 +12,7 @@ interface AuthContextType {
   userRole: 'admin' | 'reseller' | 'client' | null;
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
   signUp: (email: string, password: string, userData: { full_name: string; role?: 'admin' | 'reseller' | 'client' }) => Promise<{ error: AuthError | null }>;
-  signOut: () => Promise<void>;
+  signOut: () => Promise<{ error: AuthError | null }>;
   resetPassword: (email: string) => Promise<{ error: AuthError | null }>;
   updateProfile: (updates: Partial<UserProfile>) => Promise<{ error: Error | null }>;
   refreshSession: () => Promise<void>;
@@ -259,30 +258,30 @@ export const AuthProvider = ({ children, navigate }: AuthProviderProps) => {
     }
   };
 
-  const signOut = async () => {
+  const signOut = async (): Promise<{ error: AuthError | null }> => {
     try {
       setLoading(true);
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
-    } catch (error) {
-      console.error('Erro ao fazer logout:', error);
-      toast.error('Erro ao sair da conta. Tente novamente.');
-      throw error;
-    } finally {
-      // Limpa o estado independentemente do resultado do logout
+      
+      // Limpa o estado
       setUser(null);
       setSession(null);
       setProfile(null);
       setUserRole(null);
       
       // Redireciona para a página de login
-      navigate('/login');
+      safeNavigate('/login');
       
-      // Exibe mensagem de sucesso após o redirecionamento
-      setTimeout(() => {
-        toast.success('Você saiu da sua conta com sucesso!');
-      }, 100);
+      // Exibe mensagem de sucesso
+      toast.success('Você saiu da sua conta com sucesso!');
       
+      return { error: null };
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error);
+      toast.error('Erro ao sair da conta. Tente novamente.');
+      return { error: error as AuthError };
+    } finally {
       setLoading(false);
     }
   };
