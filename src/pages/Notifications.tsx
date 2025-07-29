@@ -575,6 +575,7 @@ export default function Notifications() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      
       {/* Modal Editar Template */}
       <Dialog open={modal.type === 'editar'} onOpenChange={(isOpen) => {
         if (!isOpen) {
@@ -679,6 +680,7 @@ export default function Notifications() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      
       {/* Modal Enviar Notificação */}
       <Dialog open={modal.type === 'enviar'} onOpenChange={() => setModal({ type: null })}>
         <DialogContent className="bg-[#232a36] border border-purple-700 text-white max-w-md">
@@ -699,9 +701,9 @@ export default function Notifications() {
                 onChange={e => setSearchDestValue(e.target.value)} 
               />
               <div className="max-h-40 overflow-y-auto rounded border border-gray-700 bg-[#181825] divide-y divide-gray-800">
-                <div className="px-2 py-1 text-xs text-purple-400 font-bold">Clientes Ativos</div>
-                {clientes.filter(c => (c.status || '').toLowerCase() === 'ativo' && (!searchDestValue || (c.real_name || c.name).toLowerCase().includes(searchDestValue.toLowerCase()))).length > 0 ? (
-                  clientes.filter(c => (c.status || '').toLowerCase() === 'ativo' && (!searchDestValue || (c.real_name || c.name).toLowerCase().includes(searchDestValue.toLowerCase()))).map(c => (
+              <div className="px-2 py-1 text-xs text-purple-400 font-bold">Clientes Ativos</div>
+              {clientes.filter(c => (c.status || '').toLowerCase() === 'ativo' && (!searchDestValue || (c.real_name || c.name).toLowerCase().includes(searchDestValue.toLowerCase()))).length > 0 ? (
+                clientes.filter(c => (c.status || '').toLowerCase() === 'ativo' && (!searchDestValue || (c.real_name || c.name).toLowerCase().includes(searchDestValue.toLowerCase()))).map(c => (
                     <div 
                       key={c.id} 
                       className="px-3 py-2 hover:bg-purple-900/30 cursor-pointer flex items-center gap-2" 
