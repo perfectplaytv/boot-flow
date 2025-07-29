@@ -576,28 +576,106 @@ export default function Notifications() {
         </DialogContent>
       </Dialog>
       {/* Modal Editar Template */}
-      <Dialog open={modal.type === 'editar'} onOpenChange={() => setModal({ type: null })}>
+      <Dialog open={modal.type === 'editar'} onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          setModal({ type: null });
+          // Limpa o formulário ao fechar
+          setForm({ 
+            nome: '', 
+            texto: '', 
+            status: TEMPLATE_STATUS.ATIVO,
+            variaveis: '' 
+          });
+        }
+      }}>
         <DialogContent className="bg-[#232a36] border border-purple-700 text-white max-w-lg">
           <DialogHeader>
             <DialogTitle>Editar Template</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
-            <Input placeholder="Nome do Template" className="bg-gray-900 border border-gray-700 text-white" value={form.nome} onChange={e => setForm({ ...form, nome: e.target.value })} />
-            <Input placeholder="Texto da Mensagem" className="bg-gray-900 border border-gray-700 text-white" value={form.texto} onChange={e => setForm({ ...form, texto: e.target.value })} />
-            <Input placeholder="Variáveis (separadas por vírgula)" className="bg-gray-900 border border-gray-700 text-white" value={form.variaveis} onChange={e => setForm({ ...form, variaveis: e.target.value })} />
-            <select 
-              className="bg-gray-900 border border-gray-700 text-white rounded px-3 py-2 w-full" 
-              value={form.status} 
-              onChange={e => setForm({ ...form, status: e.target.value as TemplateStatus })}
-              aria-label="Status do Template"
-            >
-              <option value={TEMPLATE_STATUS.ATIVO}>Ativo</option>
-              <option value={TEMPLATE_STATUS.INATIVO}>Inativo</option>
-            </select>
+            {/* Campo Nome do Template */}
+            <div className="space-y-1">
+              <label htmlFor="edit-nome" className="text-sm font-medium text-gray-300">
+                Nome do Template <span className="text-red-500">*</span>
+              </label>
+              <Input 
+                id="edit-nome"
+                placeholder="Digite o nome do template" 
+                className="bg-gray-900 border border-gray-700 text-white" 
+                value={form.nome} 
+                onChange={e => setForm({ ...form, nome: e.target.value })}
+                aria-required="true"
+              />
+            </div>
+
+            {/* Campo Texto da Mensagem */}
+            <div className="space-y-1">
+              <label htmlFor="edit-texto" className="text-sm font-medium text-gray-300">
+                Texto da Mensagem <span className="text-red-500">*</span>
+              </label>
+              <textarea
+                id="edit-texto"
+                placeholder="Digite o texto da mensagem"
+                className="flex min-h-[80px] w-full rounded-md border border-gray-700 bg-gray-900 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-purple-500"
+                value={form.texto}
+                onChange={e => setForm({ ...form, texto: e.target.value })}
+                aria-required="true"
+                rows={4}
+              />
+            </div>
+
+            {/* Campo Variáveis */}
+            <div className="space-y-1">
+              <label htmlFor="edit-variaveis" className="text-sm font-medium text-gray-300">
+                Variáveis (opcional)
+              </label>
+              <Input 
+                id="edit-variaveis"
+                placeholder="Ex: nome, data, hora" 
+                className="bg-gray-900 border border-gray-700 text-white" 
+                value={form.variaveis} 
+                onChange={e => setForm({ ...form, variaveis: e.target.value })}
+              />
+              <p className="text-xs text-gray-400 mt-1">
+                Separe as variáveis por vírgula. Ex: nome, data, hora
+              </p>
+            </div>
+
+            {/* Campo Status */}
+            <div className="space-y-1">
+              <label htmlFor="edit-status" className="text-sm font-medium text-gray-300">
+                Status do Template
+              </label>
+              <select 
+                id="edit-status"
+                className="flex h-10 w-full rounded-md border border-gray-700 bg-gray-900 px-3 py-2 text-sm text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-purple-500"
+                value={form.status} 
+                onChange={e => setForm({ ...form, status: e.target.value as TemplateStatus })}
+                aria-label="Status do Template"
+              >
+                <option value={TEMPLATE_STATUS.ATIVO}>Ativo</option>
+                <option value={TEMPLATE_STATUS.INATIVO}>Inativo</option>
+              </select>
+            </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setModal({ type: null })} className="bg-gray-700 text-white">Cancelar</Button>
-            <Button className="bg-purple-600 hover:bg-purple-700 text-white" onClick={handleEditar}>Salvar</Button>
+          
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button 
+              type="button"
+              variant="outline" 
+              onClick={() => setModal({ type: null })} 
+              className="bg-gray-700 text-white hover:bg-gray-600"
+            >
+              Cancelar
+            </Button>
+            <Button 
+              type="button"
+              className="bg-purple-600 hover:bg-purple-700 text-white" 
+              onClick={handleEditar}
+              disabled={!form.nome.trim() || !form.texto.trim()}
+            >
+              Salvar Alterações
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
