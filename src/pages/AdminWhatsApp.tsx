@@ -684,7 +684,6 @@ const AdminWhatsApp: React.FC = () => {
               {/* Seção de Configurações Avançadas */}
               <div className="bg-[#23272f] border border-gray-700 rounded-lg p-4 mb-6">
                 <span className="block text-white font-semibold mb-3">Configurações Avançadas</span>
-{{ ... }}
                 <div className="flex items-center justify-between mb-3">
                   <div>
                     <span className="block text-gray-300 font-medium">Provedor de WhatsApp</span>
