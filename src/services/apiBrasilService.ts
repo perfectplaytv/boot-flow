@@ -108,47 +108,45 @@ export async function sendMessage(
  * Gera um novo QR Code para autenticação
  */
 export async function generateQRCode(
-  token: string,
+  token: string = '',
   devicePassword: string = 'ciflnb6w',
   deviceToken: string = 'b87d9e20-6fbd-4eea-95a4-d6d1f9cbbfe1',
   authorization: string = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2dhdGV3YXkuYXBpYnJhc2lsLmlvL2FwaS92Mi9hdXRoL3JlZ2lzdGVyIiwiaWF0IjoxNzQ5MDg2MTQzLCJleHAiOjE3ODA2MjIxNDMsIm5iZiI6MTc0OTA4NjE0MywianRpIjoiclVXZjdDNkxKUmZPV25ldCIsInN1YiI6IjE1NTU2IiwicHJ2IjoiMjNiZDVjODk0OWY2MDBhZGIzOWU3MDFjNDAwODcyZGI3YTU5NzZmNyJ9.0Uj5y56Yr2Cnauz4QDnXoGACZx13aON6pEDIjGV1Jp4'
 ): Promise<ApiBrasilResponse<QRCodeResponse>> {
   try {
     console.log('Gerando QR Code...');
-    try {
-      const response = await fetch(`${API_BRASIL_BASE_URL}/qrcode`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'DeviceToken': deviceToken,
-          'Authorization': authorization,
-        },
-        body: JSON.stringify({
-          device_password: devicePassword
-        }),
-      });
+    
+    const response = await fetch(`${API_BRASIL_BASE_URL}/qrcode`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'DeviceToken': deviceToken,
+        'Authorization': authorization,
+      },
+      body: JSON.stringify({
+        device_password: devicePassword
+      }),
+    });
 
-      const result = await handleApiResponse<QRCodeResponse>(response);
-      
-      // If the response contains a qrcode property, map it to qrCode for consistency
-      if (result.data && 'qrcode' in result.data) {
-        result.data.qrCode = (result.data as any).qrcode;
-        delete (result.data as any).qrcode;
-      }
-      
-      return result;
-    } catch (error) {
-      console.error('Erro ao gerar QR Code:', error);
-      toast.error('Erro ao gerar QR Code. Tente novamente.');
+    const result = await handleApiResponse<QRCodeResponse>(response);
+    
+    // If the response contains a qrcode property, map it to qrCode for consistency
+    if (result.data && 'qrcode' in result.data) {
+      // Create a new object to avoid mutating the original
+      result.data = {
+        ...result.data,
+        qrCode: (result.data as any).qrcode,
       };
+      delete (result.data as any).qrcode;
+    }
+    
+    if (result.success) {
+      console.log('QR Code gerado com sucesso');
+      return result;
     } else {
       console.error('Falha ao gerar QR Code:', result.error);
-      return {
-        success: false,
-        error: result.error,
-        message: result.message,
-        statusCode: result.statusCode
-      };
+      toast.error(result.error || 'Falha ao gerar QR Code');
+      return result;
     }
   } catch (error: any) {
     console.error('Erro ao gerar QR Code:', error);
@@ -156,13 +154,16 @@ export async function generateQRCode(
     
     // Tratamento específico para erros de rede
     if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+      const errorMsg = 'Falha na conexão com o servidor. Verifique sua conexão com a internet.';
+      toast.error(errorMsg);
       return { 
         success: false, 
-        error: 'Falha na conexão com o servidor. Verifique sua conexão com a internet.',
+        error: errorMsg,
         message: 'Erro de rede ao tentar gerar QR Code'
       };
     }
     
+    toast.error(errorMessage);
     return { 
       success: false, 
       error: errorMessage,
