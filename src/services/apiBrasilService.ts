@@ -1,18 +1,58 @@
 import { toast } from 'sonner';
 
-const API_BRASIL_BASE_URL = 'https://gateway.apibrasil.io/api/v2/whatsapp';
+// URL base da API Brasil - Pode ser configurada via variável de ambiente
+const API_BRASIL_BASE_URL = process.env.NEXT_PUBLIC_API_BRASIL_URL || 'https://gateway.apibrasil.io/api/v2/whatsapp';
 
+// Interface para respostas da API
 interface ApiBrasilResponse<T = any> {
   success: boolean;
   data?: T;
   error?: string;
   message?: string;
+  statusCode?: number;
 }
 
+// Interface para a resposta do QR Code
 export interface QRCodeResponse {
   qrCode: string;
   timeout: number;
   message?: string;
+  expiresIn?: number;
+}
+
+// Interface para o status de conexão
+export interface ConnectionStatusResponse {
+  connected: boolean;
+  status?: string;
+  phoneNumber?: string;
+  profileName?: string;
+  lastSeen?: string;
+}
+
+// Função auxiliar para tratamento de erros HTTP
+async function handleApiResponse<T>(response: Response): Promise<ApiBrasilResponse<T>> {
+  const data = await response.json().catch(() => ({}));
+  
+  if (!response.ok) {
+    console.error('Erro na resposta da API:', {
+      status: response.status,
+      statusText: response.statusText,
+      url: response.url,
+      data
+    });
+    
+    const errorMessage = data?.message || data?.error?.message || 
+                        `Erro HTTP ${response.status}: ${response.statusText}`;
+    
+    return {
+      success: false,
+      error: errorMessage,
+      message: errorMessage,
+      statusCode: response.status
+    };
+  }
+  
+  return { success: true, data };
 }
 
 /**
@@ -26,6 +66,8 @@ export async function sendMessage(
   isGroup: boolean = false
 ): Promise<ApiBrasilResponse> {
   try {
+    console.log('Enviando mensagem via WhatsApp...', { profileId, phoneNumber, isGroup });
+    
     const cleanedPhone = phoneNumber.replace(/\D/g, '');
     
     const response = await fetch(`${API_BRASIL_BASE_URL}/send-message`, {
@@ -43,14 +85,15 @@ export async function sendMessage(
       })
     });
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      const errorMessage = data?.message || data?.error?.message || `Erro HTTP ${response.status}`;
-      throw new Error(errorMessage);
+    const result = await handleApiResponse(response);
+    
+    if (result.success) {
+      console.log('Mensagem enviada com sucesso:', result.data);
+      return { success: true, data: result.data };
+    } else {
+      console.error('Falha ao enviar mensagem:', result.error);
+      return result;
     }
-
-    return { success: true, data };
   } catch (error: any) {
     console.error('Erro ao enviar mensagem:', error);
     return { 
@@ -70,6 +113,8 @@ export async function generateQRCode(
   type: 'temporary' | 'permanent' = 'temporary'
 ): Promise<ApiBrasilResponse<QRCodeResponse>> {
   try {
+    console.log('Gerando QR Code...', { profileId, type });
+    
     const response = await fetch(`${API_BRASIL_BASE_URL}/qrcode`, {
       method: 'POST',
       headers: {
@@ -83,27 +128,47 @@ export async function generateQRCode(
       })
     });
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      const errorMessage = data?.message || data?.error?.message || `Erro HTTP ${response.status}`;
-      throw new Error(errorMessage);
+    console.log('Resposta da API (status):', response.status, response.statusText);
+    
+    const result = await handleApiResponse<QRCodeResponse>(response);
+    
+    if (result.success) {
+      console.log('QR Code gerado com sucesso');
+      return { 
+        success: true, 
+        data: {
+          qrCode: result.data?.qrCode || '',
+          timeout: result.data?.timeout || 30000,
+          expiresIn: result.data?.expiresIn,
+          message: result.data?.message
+        } 
+      };
+    } else {
+      console.error('Falha ao gerar QR Code:', result.error);
+      return {
+        success: false,
+        error: result.error,
+        message: result.message,
+        statusCode: result.statusCode
+      };
     }
-
-    return { 
-      success: true, 
-      data: {
-        qrCode: data.qrCode,
-        timeout: data.timeout || 30000,
-        message: data.message
-      } 
-    };
   } catch (error: any) {
     console.error('Erro ao gerar QR Code:', error);
+    const errorMessage = error.message || 'Erro ao gerar QR Code';
+    
+    // Tratamento específico para erros de rede
+    if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+      return { 
+        success: false, 
+        error: 'Falha na conexão com o servidor. Verifique sua conexão com a internet.',
+        message: 'Erro de rede ao tentar gerar QR Code'
+      };
+    }
+    
     return { 
       success: false, 
-      error: error.message || 'Erro ao gerar QR Code',
-      message: error.message
+      error: errorMessage,
+      message: errorMessage
     };
   }
 }
