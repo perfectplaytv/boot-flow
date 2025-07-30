@@ -1,7 +1,7 @@
-import React, { useEffect, useCallback, useRef, useState } from 'react';
+import React, { useEffect, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { Loader2, RefreshCw } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { generateQRCode, checkConnectionStatus } from '@/services/apiBrasilService';
 
 interface APIBrasilRealtimeSectionProps {
@@ -9,7 +9,7 @@ interface APIBrasilRealtimeSectionProps {
   profileId: string;
   isConnected: boolean;
   setIsConnected: (v: boolean) => void;
-  setConnectionStatus: (status: 'connected' | 'disconnected' | 'connecting') => void;
+  setConnectionStatus: (v: string) => void;
   setQrCodeData: (v: string | null) => void;
   qrCodeData: string | null;
   isLoadingQR: boolean;
@@ -28,155 +28,66 @@ export const APIBrasilRealtimeSection: React.FC<APIBrasilRealtimeSectionProps> =
   setIsLoadingQR,
 }) => {
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   // Função para buscar status e QR Code
   const fetchStatusAndQR = useCallback(async () => {
-    console.log('[APIBrasilRealtimeSection] Iniciando fetchStatusAndQR');
-    console.log('[APIBrasilRealtimeSection] Estado atual:', { 
-      apiToken: apiToken ? '***' + apiToken.slice(-4) : 'não definido',
-      profileId: profileId || 'não definido',
-      isConnected,
-      isLoadingQR
-    });
-
-    if (!apiToken || !profileId) {
-      const errorMsg = 'Token ou Profile ID não fornecidos';
-      console.error('[APIBrasilRealtimeSection]', errorMsg);
-      setError(errorMsg);
-      toast.error(errorMsg);
-      return;
-    }
-    
+    if (!apiToken || !profileId) return;
     try {
-      console.log('[APIBrasilRealtimeSection] Verificando status da conexão...');
       const statusRes = await checkConnectionStatus(apiToken, profileId);
-      console.log('[APIBrasilRealtimeSection] Resposta do status:', statusRes);
-      
-      if (statusRes.success && statusRes.data?.connected) {
-        console.log('[APIBrasilRealtimeSection] Dispositivo conectado com sucesso');
+      if (statusRes.success && statusRes.data.connected) {
         setIsConnected(true);
         setConnectionStatus('connected');
         setQrCodeData(null);
-        setError(null);
         return;
-      } else if (!statusRes.success) {
-        console.warn('[APIBrasilRealtimeSection] Erro ao verificar status:', statusRes.error);
+      } else {
+        setIsConnected(false);
+        setConnectionStatus('disconnected');
       }
-      
-      console.log('[APIBrasilRealtimeSection] Dispositivo não conectado, gerando QR Code...');
       setIsLoadingQR(true);
-      setError(null);
-      
-      try {
-        const qrRes = await generateQRCode(apiToken, profileId, 'temporary');
-        console.log('[APIBrasilRealtimeSection] Resposta do QR Code:', { 
-          success: qrRes.success,
-          hasQRCode: !!(qrRes.data?.qrCode),
-          error: qrRes.error
-        });
-        
-        if (qrRes.success && qrRes.data?.qrCode) {
-          console.log('[APIBrasilRealtimeSection] QR Code gerado com sucesso');
-          setQrCodeData(qrRes.data.qrCode);
-          setError(null);
-        } else {
-          const errorMsg = qrRes.error || 'Erro desconhecido ao gerar QR Code';
-          console.error('[APIBrasilRealtimeSection] Erro ao gerar QR Code:', errorMsg);
-          setQrCodeData(null);
-          setError(errorMsg);
-          toast.error('Erro ao gerar QR Code: ' + errorMsg);
-        }
-      } catch (qrError: any) {
-        const errorMsg = qrError?.message || 'Erro ao gerar QR Code';
-        console.error('[APIBrasilRealtimeSection] Exceção ao gerar QR Code:', qrError);
+      const qrRes = await generateQRCode(apiToken, profileId, 'temporary');
+      if (qrRes.success && qrRes.data.qrCode) {
+        setQrCodeData(qrRes.data.qrCode);
+      } else {
         setQrCodeData(null);
-        setError(errorMsg);
-        toast.error('Erro ao gerar QR Code: ' + errorMsg);
-        throw qrError; // Re-throw para ser capturado pelo bloco catch externo
+        toast.error('Erro ao gerar QR Code');
       }
     } catch (err: any) {
-      const errorMsg = err?.message || 'Erro desconhecido ao verificar status/QR Code';
-      console.error('[APIBrasilRealtimeSection] Erro no fetchStatusAndQR:', { 
-        error: err,
-        message: errorMsg 
-      });
-      
       setQrCodeData(null);
-      setError(errorMsg);
-      
-      // Mostrar toast apenas se não for um erro de polling
-      if (!errorMsg.includes('cancelado') && !errorMsg.includes('timeout')) {
-        toast.error('Erro ao verificar status/QR Code: ' + errorMsg);
-      }
+      toast.error('Erro ao buscar status/QR Code: ' + (err?.message || ''));
     } finally {
       setIsLoadingQR(false);
     }
-  }, [apiToken, profileId, isConnected, setIsConnected, setConnectionStatus, setQrCodeData, setIsLoadingQR]);
+  }, [apiToken, profileId, setIsConnected, setConnectionStatus, setQrCodeData, setIsLoadingQR]);
 
   // Polling enquanto desconectado
   useEffect(() => {
-    if (!apiToken || !profileId) {
-      console.log('API Token ou Profile ID ausentes');
-      return;
-    }
-    
+    if (!apiToken || !profileId) return;
     if (!isConnected) {
-      console.log('Iniciando polling para verificar status...');
       fetchStatusAndQR();
-      pollingRef.current = setInterval(fetchStatusAndQR, 15000); // Aumentei para 15 segundos
+      pollingRef.current = setInterval(fetchStatusAndQR, 5000);
     } else {
-      console.log('Dispositivo conectado, parando polling');
       setQrCodeData(null);
     }
-    
     return () => {
-      if (pollingRef.current) {
-        console.log('Limpando intervalo de polling');
-        clearInterval(pollingRef.current);
-        pollingRef.current = null;
-      }
+      if (pollingRef.current) clearInterval(pollingRef.current);
     };
   }, [apiToken, profileId, isConnected, fetchStatusAndQR, setQrCodeData]);
 
   // Handler para recarregar QR Code manualmente
   const handleRefreshQR = async () => {
-    console.log('[APIBrasilRealtimeSection] Recarregando QR Code manualmente...');
     setQrCodeData(null);
-    setError(null);
     setIsLoadingQR(true);
-    
     try {
-      console.log('[APIBrasilRealtimeSection] Gerando novo QR Code...');
       const qrRes = await generateQRCode(apiToken, profileId, 'temporary');
-      console.log('[APIBrasilRealtimeSection] Resposta do QR Code (recarregado):', { 
-        success: qrRes.success,
-        hasQRCode: !!(qrRes.data?.qrCode),
-        error: qrRes.error
-      });
-      
-      if (qrRes.success && qrRes.data?.qrCode) {
-        console.log('[APIBrasilRealtimeSection] Novo QR Code gerado com sucesso');
+      if (qrRes.success && qrRes.data.qrCode) {
         setQrCodeData(qrRes.data.qrCode);
-        setError(null);
-        toast.success('QR Code atualizado com sucesso');
       } else {
-        const errorMsg = qrRes.error || 'Erro desconhecido ao gerar QR Code';
-        console.error('[APIBrasilRealtimeSection] Erro ao recarregar QR Code:', errorMsg);
         setQrCodeData(null);
-        setError(errorMsg);
-        toast.error('Erro ao gerar QR Code: ' + errorMsg);
+        toast.error('Erro ao gerar QR Code');
       }
     } catch (err: any) {
-      const errorMsg = err?.message || 'Erro desconhecido ao recarregar QR Code';
-      console.error('[APIBrasilRealtimeSection] Exceção ao recarregar QR Code:', { 
-        error: err,
-        message: errorMsg 
-      });
-      
       setQrCodeData(null);
-      setError(errorMsg);
-      toast.error('Erro ao recarregar QR Code: ' + errorMsg);
+      toast.error('Erro ao gerar QR Code: ' + (err?.message || ''));
     } finally {
       setIsLoadingQR(false);
     }
@@ -186,42 +97,15 @@ export const APIBrasilRealtimeSection: React.FC<APIBrasilRealtimeSectionProps> =
     <div className="bg-[#23272f] border border-green-700 rounded-xl p-6 mb-6 flex flex-col items-center">
       <div className="w-full flex items-center justify-between mb-6">
         <span className="text-lg font-semibold text-green-400 flex items-center gap-2">
-          {isConnected ? (
-            <>
-              <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              Conectado ao WhatsApp
-            </>
-          ) : (
-            <>
-              <svg className="w-5 h-5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Desconectado
-            </>
-          )}
-          WhatsApp Business
+          <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4" /></svg>
+          Status da Integração
         </span>
-        
-        <Button
-          variant="outline"
+        <Button 
+          className="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded shadow-md" 
           size="sm"
-          onClick={handleRefreshQR}
-          disabled={isLoadingQR}
-          className="flex items-center gap-2"
+          onClick={fetchStatusAndQR}
         >
-          {isLoadingQR ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Carregando...
-            </>
-          ) : (
-            <>
-              <RefreshCw className="h-4 w-4" />
-              Recarregar QR
-            </>
-          )}
+          Testar Conexão
         </Button>
       </div>
       {isConnected ? (
@@ -266,46 +150,20 @@ export const APIBrasilRealtimeSection: React.FC<APIBrasilRealtimeSectionProps> =
           {/* QR Code Area */}
           <div className="relative flex justify-center items-center w-full">
             <div className="bg-white p-3 rounded-2xl shadow-2xl border-4 border-green-400 animate-glow relative flex flex-col items-center">
-              {!isConnected && (
-                <div className="w-full text-center">
-                  {isLoadingQR ? (
-                    <div className="flex flex-col items-center justify-center py-8">
-                      <Loader2 className="h-12 w-12 animate-spin text-blue-500 mb-4" />
-                      <p className="text-gray-300">Gerando QR Code...</p>
-                    </div>
-                  ) : qrCodeData ? (
-                    <div className="flex flex-col items-center">
-                      <img 
-                        src={qrCodeData} 
-                        alt="QR Code para conexão do WhatsApp" 
-                        className="rounded-lg border border-gray-600 max-w-xs w-full"
-                      />
-                      <p className="mt-4 text-sm text-gray-300">
-                        Escaneie este QR Code com o WhatsApp para conectar
-                      </p>
-                      {error && (
-                        <p className="mt-2 text-sm text-red-400">
-                          Erro: {error}
-                        </p>
-                      )}
-                    </div>
-                  ) : error ? (
-                    <div className="text-center py-4">
-                      <p className="text-red-400 mb-2">Erro: {error}</p>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={handleRefreshQR}
-                        className="mt-2"
-                      >
-                        Tentar novamente
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="text-center py-4">
-                      <p className="text-gray-300">Clique em "Recarregar QR" para gerar um novo código</p>
-                    </div>
-                  )}
+              {qrCodeData && !isLoadingQR ? (
+                <img 
+                  src={qrCodeData} 
+                  alt="QR Code WhatsApp" 
+                  className="w-64 h-64 cursor-pointer drop-shadow-lg hover:scale-105 transition-transform"
+                  onClick={handleRefreshQR}
+                  style={{border: '4px solid #22c55e', boxShadow: '0 0 24px 4px #22c55e55'}}
+                />
+              ) : (
+                <div className="w-64 h-64 bg-gray-100 flex items-center justify-center rounded-2xl border-4 border-dashed border-green-400 animate-pulse">
+                  <div className="text-center">
+                    <Loader2 className="animate-spin h-10 w-10 text-green-500 mx-auto mb-2" />
+                    <p className="text-gray-500 text-base">Gerando QR Code...</p>
+                  </div>
                 </div>
               )}
               <button 

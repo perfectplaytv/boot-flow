@@ -133,35 +133,21 @@ const AdminDashboard = () => {
   const { data: realtimeClientes, error: clientesError, isConnected: clientesConnected } = useRealtimeClientes();
   const { data: realtimeRevendas, error: revendasError, isConnected: revendasConnected } = useRealtimeRevendas();
   
-  // Hook para gerenciar clientes
-  const { 
-    clientes, 
-    loading: loadingClientes, 
-    error: clientesError2, 
-    fetchClientes,
-    addCliente: addClienteHook 
-  } = useClientes();
-  
-  // Hook para gerenciar revendas
-  const { 
-    revendas, 
-    loading: loadingRevendas, 
-    error: revendasError2, 
-    fetchRevendas,
-    addRevenda: addRevendaHook 
-  } = useRevendas();
+  // Estados locais para os dados
+  const [clientes, setClientes] = useState<any[]>([]);
+  const [revendas, setRevendas] = useState<any[]>([]);
+  const [loadingClientes, setLoadingClientes] = useState(true);
+  const [loadingRevendas, setLoadingRevendas] = useState(true);
   
   // Atualiza os estados locais quando os dados em tempo real mudam
   useEffect(() => {
     if (realtimeClientes) {
-      // Atualiza os clientes com os dados em tempo real
-      // O estado local de clientes agora é gerenciado pelo hook useClientes
+      setClientes(realtimeClientes);
       setLoadingClientes(false);
     }
     
     if (realtimeRevendas) {
-      // Atualiza as revendas com os dados em tempo real
-      // O estado local de revendas agora é gerenciado pelo hook useRevendas
+      setRevendas(realtimeRevendas);
       setLoadingRevendas(false);
     }
   }, [realtimeClientes, realtimeRevendas]);
@@ -182,38 +168,40 @@ const AdminDashboard = () => {
   // Função para adicionar um novo cliente
   const addCliente = useCallback(async (clienteData: any) => {
     try {
-      const success = await addClienteHook(clienteData);
-      if (!success) {
-        throw new Error('Falha ao adicionar cliente');
-      }
+      const { data, error } = await supabase
+        .from('clientes')
+        .insert([clienteData])
+        .select();
+        
+      if (error) throw error;
       
       toast.success('Cliente adicionado com sucesso!');
-      return { data: null, error: null };
+      return { data, error: null };
     } catch (error) {
       console.error('Erro ao adicionar cliente:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
-      toast.error(`Erro ao adicionar cliente: ${errorMessage}`);
+      toast.error('Erro ao adicionar cliente');
       return { data: null, error };
     }
-  }, [addClienteHook]);
+  }, []);
   
   // Função para adicionar um novo revendedor
   const addRevenda = useCallback(async (revendaData: any) => {
     try {
-      const success = await addRevendaHook(revendaData);
-      if (!success) {
-        throw new Error('Falha ao adicionar revendedor');
-      }
+      const { data, error } = await supabase
+        .from('revendas')
+        .insert([revendaData])
+        .select();
+        
+      if (error) throw error;
       
       toast.success('Revendedor adicionado com sucesso!');
-      return { data: null, error: null };
+      return { data, error: null };
     } catch (error) {
       console.error('Erro ao adicionar revendedor:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
-      toast.error(`Erro ao adicionar revendedor: ${errorMessage}`);
+      toast.error('Erro ao adicionar revendedor');
       return { data: null, error };
     }
-  }, [addRevendaHook]);
+  }, []);
 
   // Função para formatar a data relativa
   const formatTimeAgo = (dateString: string) => {
@@ -284,9 +272,7 @@ const AdminDashboard = () => {
 
   // Função para atualizar clientes
   const refreshUsers = () => {
-    if (fetchClientes) {
-      fetchClientes();
-    }
+    if (fetchClientes) fetchClientes();
   };
   // Função para atualizar revendas
   const refreshResellers = () => {
