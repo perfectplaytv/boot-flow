@@ -136,19 +136,20 @@ const AdminDashboard = () => {
   // Hook para gerenciar clientes
   const { clientes, loading: loadingClientes, error: clientesError2, fetchClientes } = useClientes();
   
-  // Estados locais para os dados
-  const [revendas, setRevendas] = useState<any[]>([]);
-  const [loadingRevendas, setLoadingRevendas] = useState(true);
+  // Hook para gerenciar revendas
+  const { revendas, loading: loadingRevendas, error: revendasError2, fetchRevendas } = useRevendas();
   
   // Atualiza os estados locais quando os dados em tempo real mudam
   useEffect(() => {
     if (realtimeClientes) {
-      setClientes(realtimeClientes);
+      // Atualiza os clientes com os dados em tempo real
+      // O estado local de clientes agora é gerenciado pelo hook useClientes
       setLoadingClientes(false);
     }
     
     if (realtimeRevendas) {
-      setRevendas(realtimeRevendas);
+      // Atualiza as revendas com os dados em tempo real
+      // O estado local de revendas agora é gerenciado pelo hook useRevendas
       setLoadingRevendas(false);
     }
   }, [realtimeClientes, realtimeRevendas]);
