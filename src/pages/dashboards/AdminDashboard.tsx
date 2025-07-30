@@ -3786,5 +3786,6 @@ const AdminDashboard = () => {
       </div>
     </SidebarProvider>
   );
+};
 
 export default AdminDashboard;
