@@ -62,11 +62,13 @@ const templatesMock = [
 
 const initialForm = { id: null, title: '', status: 'Ativo', tag: '', content: '', variables: 1 };
 
+type ConnectionStatus = 'connected' | 'disconnected' | 'connecting';
+
 export const WhatsAppStatusContext = createContext({
   isConnected: false,
-  connectionStatus: 'disconnected',
+  connectionStatus: 'disconnected' as ConnectionStatus,
   setIsConnected: (v: boolean) => {},
-  setConnectionStatus: (v: string) => {},
+  setConnectionStatus: (status: ConnectionStatus) => {},
 });
 
 export const useWhatsAppStatus = () => useContext(WhatsAppStatusContext);
@@ -105,6 +107,8 @@ const AdminWhatsApp: React.FC = () => {
   // Estados para conexão WhatsApp
   const [isConnected, setIsConnected] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'disconnected' | 'connecting' | 'connected'>('disconnected');
+  const [qrCodeData, setQrCodeData] = useState<string | null>(null);
+  const [isLoadingQR, setIsLoadingQR] = useState(false);
 
   // Função para enviar mensagem via API Brasil
   const sendWhatsAppMessage = async (phoneNumber: string, message: string) => {
@@ -608,80 +612,12 @@ const AdminWhatsApp: React.FC = () => {
                 isConnected={isConnected}
                 setIsConnected={setIsConnected}
                 setConnectionStatus={setConnectionStatus}
+                setQrCodeData={setQrCodeData}
+                qrCodeData={qrCodeData}
+                isLoadingQR={isLoadingQR}
+                setIsLoadingQR={setIsLoadingQR}
               />
               
-              {/* Configurações avançadas da API */}
-              <div className="mt-6 bg-[#23272f] border border-gray-700 rounded-lg p-4">
-                <h4 className="text-white font-medium mb-3">Configurações da API</h4>
-                
-                <div className="mb-4">
-                  <label className="block text-gray-300 text-sm font-medium mb-1">Bearer Token</label>
-                  <div className="relative">
-                    <Input
-                      type={apiBrasilConfig.showToken ? 'text' : 'password'}
-                      value={apiBrasilConfig.bearerToken || ''}
-                      onChange={(e) => setApiBrasilConfig(prev => ({
-                        ...prev, 
-                        bearerToken: e.target.value,
-                        isConnected: false
-                      }))}
-                      placeholder="Insira seu Bearer Token"
-                      className="bg-[#1e2430] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 pr-10"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setApiBrasilConfig(prev => ({ 
-                        ...prev, 
-                        showToken: !prev.showToken 
-                      }))}
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300"
-                    >
-                      {apiBrasilConfig.showToken ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
-                    </button>
-                  </div>
-                  <p className="text-xs text-gray-400 mt-1">Token de autenticação da API Brasil</p>
-                </div>
-
-                <div className="mb-4">
-                  <label className="block text-gray-300 text-sm font-medium mb-1">Profile ID</label>
-                  <Input
-                    value={apiBrasilConfig.profileId || ''}
-                    onChange={(e) => setApiBrasilConfig(prev => ({
-                      ...prev, 
-                      profileId: e.target.value,
-                      isConnected: false
-                    }))}
-                    placeholder="Insira o Profile ID"
-                    className="bg-[#1e2430] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
-                  />
-                  <p className="text-xs text-gray-400 mt-1">ID do perfil na plataforma API Brasil</p>
-                </div>
-
-                <div className="mb-3">
-                  <label className="block text-gray-300 text-sm font-medium mb-1">Número de Telefone</label>
-                  <div className="flex">
-                    <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-600 bg-gray-700 text-gray-300 text-sm">
-                      +55
-                    </span>
-                    <Input
-                      type="tel"
-                      value={apiBrasilConfig.phoneNumber || ''}
-                      onChange={(e) => {
-                        const value = e.target.value.replace(/\D/g, '');
-                        setApiBrasilConfig(prev => ({ ...prev, phoneNumber: value }));
-                      }}
-                      placeholder="11999999999"
-                      className="bg-[#1e2430] border-l-0 rounded-l-none border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
-                    />
-                  </div>
-                  <p className="text-xs text-gray-400 mt-1">Número do WhatsApp no formato DDD + número</p>
-                </div>
-              </div>
-
               {/* Botão de salvar configurações */}
               <div className="mt-6 flex justify-end">
                 <Button 

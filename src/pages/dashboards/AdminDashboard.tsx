@@ -133,10 +133,11 @@ const AdminDashboard = () => {
   const { data: realtimeClientes, error: clientesError, isConnected: clientesConnected } = useRealtimeClientes();
   const { data: realtimeRevendas, error: revendasError, isConnected: revendasConnected } = useRealtimeRevendas();
   
+  // Hook para gerenciar clientes
+  const { clientes, loading: loadingClientes, error: clientesError2, fetchClientes } = useClientes();
+  
   // Estados locais para os dados
-  const [clientes, setClientes] = useState<any[]>([]);
   const [revendas, setRevendas] = useState<any[]>([]);
-  const [loadingClientes, setLoadingClientes] = useState(true);
   const [loadingRevendas, setLoadingRevendas] = useState(true);
   
   // Atualiza os estados locais quando os dados em tempo real mudam
@@ -272,7 +273,9 @@ const AdminDashboard = () => {
 
   // Função para atualizar clientes
   const refreshUsers = () => {
-    if (fetchClientes) fetchClientes();
+    if (fetchClientes) {
+      fetchClientes();
+    }
   };
   // Função para atualizar revendas
   const refreshResellers = () => {

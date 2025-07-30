@@ -9,7 +9,7 @@ interface APIBrasilRealtimeSectionProps {
   profileId: string;
   isConnected: boolean;
   setIsConnected: (v: boolean) => void;
-  setConnectionStatus: (v: string) => void;
+  setConnectionStatus: (status: 'connected' | 'disconnected' | 'connecting') => void;
   setQrCodeData: (v: string | null) => void;
   qrCodeData: string | null;
   isLoadingQR: boolean;
@@ -32,52 +32,87 @@ export const APIBrasilRealtimeSection: React.FC<APIBrasilRealtimeSectionProps> =
 
   // Função para buscar status e QR Code
   const fetchStatusAndQR = useCallback(async () => {
-    console.log('Iniciando fetchStatusAndQR');
+    console.log('[APIBrasilRealtimeSection] Iniciando fetchStatusAndQR');
+    console.log('[APIBrasilRealtimeSection] Estado atual:', { 
+      apiToken: apiToken ? '***' + apiToken.slice(-4) : 'não definido',
+      profileId: profileId || 'não definido',
+      isConnected,
+      isLoadingQR
+    });
+
     if (!apiToken || !profileId) {
-      console.error('Token ou Profile ID não fornecidos');
+      const errorMsg = 'Token ou Profile ID não fornecidos';
+      console.error('[APIBrasilRealtimeSection]', errorMsg);
+      setError(errorMsg);
+      toast.error(errorMsg);
       return;
     }
     
     try {
-      console.log('Verificando status da conexão...');
+      console.log('[APIBrasilRealtimeSection] Verificando status da conexão...');
       const statusRes = await checkConnectionStatus(apiToken, profileId);
-      console.log('Resposta do status:', statusRes);
+      console.log('[APIBrasilRealtimeSection] Resposta do status:', statusRes);
       
       if (statusRes.success && statusRes.data?.connected) {
-        console.log('Dispositivo conectado');
+        console.log('[APIBrasilRealtimeSection] Dispositivo conectado com sucesso');
         setIsConnected(true);
         setConnectionStatus('connected');
         setQrCodeData(null);
         setError(null);
         return;
+      } else if (!statusRes.success) {
+        console.warn('[APIBrasilRealtimeSection] Erro ao verificar status:', statusRes.error);
       }
       
-      console.log('Dispositivo não conectado, gerando QR Code...');
+      console.log('[APIBrasilRealtimeSection] Dispositivo não conectado, gerando QR Code...');
       setIsLoadingQR(true);
-      const qrRes = await generateQRCode(apiToken, profileId, 'temporary');
-      console.log('Resposta do QR Code:', qrRes);
+      setError(null);
       
-      if (qrRes.success && qrRes.data?.qrCode) {
-        console.log('QR Code gerado com sucesso');
-        setQrCodeData(qrRes.data.qrCode);
-        setError(null);
-      } else {
-        console.error('Erro ao gerar QR Code:', qrRes.error);
+      try {
+        const qrRes = await generateQRCode(apiToken, profileId, 'temporary');
+        console.log('[APIBrasilRealtimeSection] Resposta do QR Code:', { 
+          success: qrRes.success,
+          hasQRCode: !!(qrRes.data?.qrCode),
+          error: qrRes.error
+        });
+        
+        if (qrRes.success && qrRes.data?.qrCode) {
+          console.log('[APIBrasilRealtimeSection] QR Code gerado com sucesso');
+          setQrCodeData(qrRes.data.qrCode);
+          setError(null);
+        } else {
+          const errorMsg = qrRes.error || 'Erro desconhecido ao gerar QR Code';
+          console.error('[APIBrasilRealtimeSection] Erro ao gerar QR Code:', errorMsg);
+          setQrCodeData(null);
+          setError(errorMsg);
+          toast.error('Erro ao gerar QR Code: ' + errorMsg);
+        }
+      } catch (qrError: any) {
+        const errorMsg = qrError?.message || 'Erro ao gerar QR Code';
+        console.error('[APIBrasilRealtimeSection] Exceção ao gerar QR Code:', qrError);
         setQrCodeData(null);
-        const errorMsg = qrRes.error || 'Erro desconhecido ao gerar QR Code';
         setError(errorMsg);
         toast.error('Erro ao gerar QR Code: ' + errorMsg);
+        throw qrError; // Re-throw para ser capturado pelo bloco catch externo
       }
     } catch (err: any) {
-      console.error('Erro no fetchStatusAndQR:', err);
+      const errorMsg = err?.message || 'Erro desconhecido ao verificar status/QR Code';
+      console.error('[APIBrasilRealtimeSection] Erro no fetchStatusAndQR:', { 
+        error: err,
+        message: errorMsg 
+      });
+      
       setQrCodeData(null);
-      const errorMsg = err?.message || 'Erro desconhecido';
       setError(errorMsg);
-      toast.error('Erro ao verificar status/QR Code: ' + errorMsg);
+      
+      // Mostrar toast apenas se não for um erro de polling
+      if (!errorMsg.includes('cancelado') && !errorMsg.includes('timeout')) {
+        toast.error('Erro ao verificar status/QR Code: ' + errorMsg);
+      }
     } finally {
       setIsLoadingQR(false);
     }
-  }, [apiToken, profileId, setIsConnected, setConnectionStatus, setQrCodeData, setIsLoadingQR]);
+  }, [apiToken, profileId, isConnected, setIsConnected, setConnectionStatus, setQrCodeData, setIsLoadingQR]);
 
   // Polling enquanto desconectado
   useEffect(() => {
@@ -106,26 +141,40 @@ export const APIBrasilRealtimeSection: React.FC<APIBrasilRealtimeSectionProps> =
 
   // Handler para recarregar QR Code manualmente
   const handleRefreshQR = async () => {
-    console.log('Recarregando QR Code manualmente...');
+    console.log('[APIBrasilRealtimeSection] Recarregando QR Code manualmente...');
     setQrCodeData(null);
     setError(null);
     setIsLoadingQR(true);
     
     try {
+      console.log('[APIBrasilRealtimeSection] Gerando novo QR Code...');
       const qrRes = await generateQRCode(apiToken, profileId, 'temporary');
-      console.log('Resposta do QR Code (recarregado):', qrRes);
+      console.log('[APIBrasilRealtimeSection] Resposta do QR Code (recarregado):', { 
+        success: qrRes.success,
+        hasQRCode: !!(qrRes.data?.qrCode),
+        error: qrRes.error
+      });
       
       if (qrRes.success && qrRes.data?.qrCode) {
+        console.log('[APIBrasilRealtimeSection] Novo QR Code gerado com sucesso');
         setQrCodeData(qrRes.data.qrCode);
         setError(null);
+        toast.success('QR Code atualizado com sucesso');
       } else {
         const errorMsg = qrRes.error || 'Erro desconhecido ao gerar QR Code';
+        console.error('[APIBrasilRealtimeSection] Erro ao recarregar QR Code:', errorMsg);
+        setQrCodeData(null);
         setError(errorMsg);
         toast.error('Erro ao gerar QR Code: ' + errorMsg);
       }
     } catch (err: any) {
-      console.error('Erro ao recarregar QR Code:', err);
-      const errorMsg = err?.message || 'Erro desconhecido';
+      const errorMsg = err?.message || 'Erro desconhecido ao recarregar QR Code';
+      console.error('[APIBrasilRealtimeSection] Exceção ao recarregar QR Code:', { 
+        error: err,
+        message: errorMsg 
+      });
+      
+      setQrCodeData(null);
       setError(errorMsg);
       toast.error('Erro ao recarregar QR Code: ' + errorMsg);
     } finally {
