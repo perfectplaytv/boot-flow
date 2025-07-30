@@ -824,6 +824,20 @@ const AdminWhatsApp: React.FC = () => {
 
       {/* Modal de Configuração */}
       <Dialog open={configModalOpen} onOpenChange={setConfigModalOpen}>
+  {/* Integração APIBRASIL: QR Code e Status em tempo real */}
+  {configModalOpen && (
+    <APIBrasilRealtimeSection 
+      apiToken={config.apiToken}
+      profileId={config.profileId}
+      isConnected={isConnected}
+      setIsConnected={setIsConnected}
+      setConnectionStatus={setConnectionStatus}
+      setQrCodeData={setQrCodeData}
+      qrCodeData={qrCodeData}
+      isLoadingQR={isLoadingQR}
+      setIsLoadingQR={setIsLoadingQR}
+    />
+  )}
           <DialogContent className="bg-[#1f2937] text-white max-w-2xl w-full p-0 rounded-xl shadow-xl border border-gray-700">
             <div className="p-6 max-h-[90vh] overflow-y-auto scrollbar-hide">
             <div className="flex items-center gap-2 mb-1">
