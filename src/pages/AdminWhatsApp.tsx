@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { CheckCircle, MessageSquare, Clock, FileText, Zap, Settings, Trash2, Edit, Plus, Eye, EyeOff, Download, Upload, Users, Loader2 } from 'lucide-react';
 import { WhatsAppQRCode } from '@/components/WhatsAppQRCode';
 import { SendWhatsAppMessage } from '@/components/SendWhatsAppMessage';
+import { APIBrasilRealtimeSection } from '@/components/APIBrasilRealtimeSection';
 import { checkConnectionStatus } from '@/services/apiBrasilService';
 
 const templatesMock = [
