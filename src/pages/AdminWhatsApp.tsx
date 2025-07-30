@@ -558,7 +558,8 @@ const AdminWhatsApp: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <WhatsAppStatusContext.Provider value={{ isConnected, connectionStatus, setIsConnected, setConnectionStatus }}>
+      <div className="container mx-auto p-4">
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
@@ -919,8 +920,7 @@ const AdminWhatsApp: React.FC = () => {
         </DialogContent>
       </Dialog>
     </div>
-    </WhatsAppStatusContext.Provider>
-  );
-};
+  </WhatsAppStatusContext.Provider>
+);
 
-export default AdminWhatsApp; 
+export default AdminWhatsApp;
