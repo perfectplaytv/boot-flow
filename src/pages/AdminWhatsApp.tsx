@@ -110,33 +110,6 @@ const AdminWhatsApp: React.FC = () => {
   const [qrCodeData, setQrCodeData] = useState<string | null>(null);
   const [qrStatus, setQrStatus] = useState<'loading' | 'qrcode' | 'connected' | 'expired'>('loading');
 
-  // Conexão socket.io para QR Code APIBRASIL
-  useEffect(() => {
-    if (!qrModalOpen) return;
-    setQrStatus('loading');
-    setQrCodeData(null);
-    const bearer = apiBrasilConfig.bearerToken || 'SEU_BEARER_TOKEN';
-    const channelName = apiBrasilConfig.profileId || 'SEU_CHANNEL_NAME';
-    if (!bearer || !channelName) return;
-    const socket: Socket = io('https://socket.apibrasil.com.br', {
-      query: { bearer, channelName }
-    });
-    socket.on('evolution', (evolution: any) => {
-      if (evolution?.qrcode) {
-        setQrCodeData(evolution.qrcode);
-        setQrStatus('qrcode');
-      }
-      if (evolution?.status === 'CONNECTED') {
-        setQrStatus('connected');
-      }
-      if (evolution?.status === 'QRCODE_EXPIRED') {
-        setQrStatus('expired');
-      }
-    });
-    return () => {
-      socket.disconnect();
-    };
-  }, [qrModalOpen, apiBrasilConfig.bearerToken, apiBrasilConfig.profileId]);
 
   const [isLoadingQR, setIsLoadingQR] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'disconnected' | 'connecting' | 'connected'>('disconnected');
