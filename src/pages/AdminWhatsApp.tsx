@@ -108,30 +108,35 @@ const [qrModalOpen, setQrModalOpen] = useState(false);
   // Estados para conexão WhatsApp
   const [isConnected, setIsConnected] = useState(false);
   const [qrCodeData, setQrCodeData] = useState<string | null>(null);
+const [qrStatus, setQrStatus] = useState<'loading' | 'qrcode' | 'connected' | 'expired'>('loading');
 
-  // Conexão socket.io para QR Code APIBRASIL
-  useEffect(() => {
-    if (!qrModalOpen) return;
-    // Substitua pelos seus dados reais ou variáveis de ambiente
-    const bearer = apiBrasilConfig.bearerToken || 'SEU_BEARER_TOKEN';
-    const channelName = apiBrasilConfig.profileId || 'SEU_CHANNEL_NAME';
-    if (!bearer || !channelName) return;
-    const socket: Socket = io('https://socket.apibrasil.com.br', {
-      query: {
-        bearer,
-        channelName
-      }
-    });
-    socket.on('evolution', (evolution: any) => {
-      // O QR code geralmente vem em evolution.qrcode
-      if (evolution && evolution.qrcode) {
-        setQrCodeData(evolution.qrcode);
-      }
-    });
-    return () => {
-      socket.disconnect();
-    };
-  }, [qrModalOpen, apiBrasilConfig.bearerToken, apiBrasilConfig.profileId]);
+// Conexão socket.io para QR Code APIBRASIL
+useEffect(() => {
+  if (!qrModalOpen) return;
+  setQrStatus('loading');
+  setQrCodeData(null);
+  const bearer = apiBrasilConfig.bearerToken || 'SEU_BEARER_TOKEN';
+  const channelName = apiBrasilConfig.profileId || 'SEU_CHANNEL_NAME';
+  if (!bearer || !channelName) return;
+  const socket: Socket = io('https://socket.apibrasil.com.br', {
+    query: { bearer, channelName }
+  });
+  socket.on('evolution', (evolution: any) => {
+    if (evolution?.qrcode) {
+      setQrCodeData(evolution.qrcode);
+      setQrStatus('qrcode');
+    }
+    if (evolution?.status === 'CONNECTED') {
+      setQrStatus('connected');
+    }
+    if (evolution?.status === 'QRCODE_EXPIRED') {
+      setQrStatus('expired');
+    }
+  });
+  return () => {
+    socket.disconnect();
+  };
+}, [qrModalOpen, apiBrasilConfig.bearerToken, apiBrasilConfig.profileId]);
   const [isLoadingQR, setIsLoadingQR] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'disconnected' | 'connecting' | 'connected'>('disconnected');
 
@@ -850,25 +855,44 @@ const [qrModalOpen, setQrModalOpen] = useState(false);
 
       {/* Modal de QR Code APIBRASIL */}
       <Dialog open={qrModalOpen} onOpenChange={setQrModalOpen}>
-        <DialogContent className="bg-[#1f2937] text-white max-w-md w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col items-center justify-center">
-          <DialogHeader>
-            <DialogTitle>Conectar WhatsApp via APIBRASIL</DialogTitle>
-            <DialogDescription>Escaneie o QR Code abaixo no seu WhatsApp para conectar.</DialogDescription>
-          </DialogHeader>
-          <div className="flex flex-col items-center justify-center p-4">
-            {qrCodeData ? (
-              <img src={qrCodeData} alt="QR Code WhatsApp APIBRASIL" className="w-56 h-56" />
-            ) : (
-              <div className="w-56 h-56 bg-gray-700 flex items-center justify-center rounded">
-                <span className="text-gray-400">QR Code indisponível</span>
-              </div>
-            )}
-          </div>
-          <DialogFooter>
-            <Button onClick={() => setQrModalOpen(false)} className="w-full">Fechar</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+  <DialogContent className="bg-[#1f2937] text-white max-w-md w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col items-center justify-center animate-fade-in">
+    <DialogHeader>
+      <DialogTitle>Conectar WhatsApp via APIBRASIL</DialogTitle>
+      <DialogDescription>
+        {qrStatus === 'loading' && 'Gerando QR Code, aguarde...'}
+        {qrStatus === 'qrcode' && 'Escaneie o QR Code abaixo no seu WhatsApp para conectar.'}
+        {qrStatus === 'connected' && 'WhatsApp conectado com sucesso!'}
+        {qrStatus === 'expired' && 'QR Code expirado. Feche e tente novamente.'}
+      </DialogDescription>
+    </DialogHeader>
+    <div className="flex flex-col items-center justify-center p-4 min-h-[240px]">
+      {qrStatus === 'loading' && (
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="w-14 h-14 text-green-400 animate-spin" />
+          <span className="text-gray-300 mt-2">Aguardando QR Code...</span>
+        </div>
+      )}
+      {qrStatus === 'qrcode' && qrCodeData && (
+        <img src={qrCodeData} alt="QR Code WhatsApp APIBRASIL" className="w-56 h-56 rounded shadow-lg transition-all duration-300 border-2 border-green-500" />
+      )}
+      {qrStatus === 'connected' && (
+        <div className="flex flex-col items-center gap-3">
+          <CheckCircle className="w-14 h-14 text-green-500 animate-pulse" />
+          <span className="text-green-400 font-semibold">Conectado!</span>
+        </div>
+      )}
+      {qrStatus === 'expired' && (
+        <div className="flex flex-col items-center gap-3">
+          <Clock className="w-14 h-14 text-yellow-500 animate-bounce" />
+          <span className="text-yellow-400 font-semibold">QR Code expirado</span>
+        </div>
+      )}
+    </div>
+    <DialogFooter>
+      <Button onClick={() => setQrModalOpen(false)} className="w-full">Fechar</Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
 
       {/* Modal de Configuração */}
       <Dialog open={configModalOpen} onOpenChange={setConfigModalOpen}>
