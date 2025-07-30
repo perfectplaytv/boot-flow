@@ -3786,7 +3786,7 @@ const AdminDashboard = () => {
         </Dialog>
       </div>
     </SidebarProvider>
-  );
-};
+  </>
+);
 
 export default AdminDashboard;
