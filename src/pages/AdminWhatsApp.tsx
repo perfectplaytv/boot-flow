@@ -817,7 +817,7 @@ const AdminWhatsApp: React.FC = () => {
           <p className="text-gray-400 mt-1">Gerencie integrações, templates e automações do WhatsApp</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" className="border-gray-600 text-white hover:bg-gray-700"><Settings className="w-4 h-4 mr-2" />Configurar</Button>
+          <Button variant="outline" className="border-gray-600 text-white hover:bg-gray-700" onClick={() => setConfigModalOpen(true)}><Settings className="w-4 h-4 mr-2" />Configurar</Button>
           <Button className="bg-green-600 hover:bg-green-700" onClick={handleNewTemplate}><Plus className="w-4 h-4 mr-2" />Novo Template</Button>
         </div>
       </div>
