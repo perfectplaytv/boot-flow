@@ -95,7 +95,7 @@ const AdminWhatsApp: React.FC = () => {
   const [form, setForm] = useState(initialForm);
   const [templateToDelete, setTemplateToDelete] = useState<any>(null);
   const [configModalOpen, setConfigModalOpen] = useState(false);
-  const [qrModalOpen, setQrModalOpen] = useState(false);
+  const [qrModalOpen, setQrModalOpen] = useState(false); // Modal para aguardar QR Code
   const [configTab, setConfigTab] = useState('geral');
   const [config, setConfig] = useState({
     provider: 'whatsapp-web',
