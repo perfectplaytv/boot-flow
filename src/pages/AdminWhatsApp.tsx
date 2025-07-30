@@ -95,7 +95,7 @@ const AdminWhatsApp: React.FC = () => {
   const [form, setForm] = useState(initialForm);
   const [templateToDelete, setTemplateToDelete] = useState<any>(null);
   const [configModalOpen, setConfigModalOpen] = useState(false);
-  const [qrModalOpen, setQrModalOpen] = useState(false); // Modal para aguardar QR Code
+
   const [configTab, setConfigTab] = useState('geral');
   const [config, setConfig] = useState({
     provider: 'whatsapp-web',
@@ -1366,43 +1366,7 @@ const AdminWhatsApp: React.FC = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Modal moderno aguardando QR Code */}
-      {qrModalOpen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          className="fixed left-1/2 top-1/2 z-50 translate-x-[-50%] translate-y-[-50%] gap-4 duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg bg-[#1f2937] text-white max-w-md w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col items-center justify-center animate-fade-in"
-          tabIndex={-1}
-          style={{ pointerEvents: 'auto' }}
-        >
-          <div className="flex flex-col space-y-1.5 text-center sm:text-left">
-            <h2 className="text-lg font-semibold leading-none tracking-tight">Conectar WhatsApp via APIBRASIL</h2>
-            <p className="text-sm text-muted-foreground">Gerando QR Code, aguarde...</p>
-          </div>
-          <div className="flex flex-col items-center justify-center p-4 min-h-[240px]">
-            <div className="flex flex-col items-center gap-3">
-              <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-loader-circle w-14 h-14 text-green-400 animate-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>
-              <span className="text-gray-300 mt-2">Aguardando QR Code...</span>
-            </div>
-          </div>
-          <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 w-full px-4 pb-4">
-            <button
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
-              onClick={() => setQrModalOpen(false)}
-            >
-              Fechar
-            </button>
-          </div>
-          <button
-            type="button"
-            className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
-            onClick={() => setQrModalOpen(false)}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-x h-4 w-4"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
-            <span className="sr-only">Close</span>
-          </button>
-        </div>
-      )}
+
 
       </div>
       </WhatsAppStatusContext.Provider>
