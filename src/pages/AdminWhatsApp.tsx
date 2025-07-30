@@ -640,50 +640,51 @@ const AdminWhatsApp: React.FC = () => {
             </Card>
           </TabsContent>
         </Tabs>
-                    <label className="block text-gray-300 text-sm font-medium mb-1">Número de Telefone</label>
-                    <div className="flex">
-                      <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-600 bg-gray-700 text-gray-300 text-sm">
-                        +55
-                      </span>
-                      <Input
-                        type="tel"
-                        value={apiBrasilConfig.phoneNumber || ''}
-                        onChange={(e) => {
-                          const value = e.target.value.replace(/\D/g, '');
-                          setApiBrasilConfig(prev => ({ ...prev, phoneNumber: value }));
-                        }}
-                        placeholder="11999999999"
-                        className="bg-[#1e2430] border-l-0 rounded-l-none border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
-                      />
-                    </div>
-                    <p className="text-xs text-gray-400 mt-1">Número de telefone com DDD (apenas números)</p>
-                  </div>
+        <div>
+          {/* Bloco de inputs e envio de mensagem de teste */}
+          <label className="block text-gray-300 text-sm font-medium mb-1">Número de Telefone</label>
+          <div className="flex">
+            <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-600 bg-gray-700 text-gray-300 text-sm">
+              +55
+            </span>
+            <Input
+              type="tel"
+              value={apiBrasilConfig.phoneNumber || ''}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, '');
+                setApiBrasilConfig(prev => ({ ...prev, phoneNumber: value }));
+              }}
+              placeholder="11999999999"
+              className="bg-[#1e2430] border-l-0 rounded-l-none border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
+            />
+          </div>
+          <p className="text-xs text-gray-400 mt-1">Número de telefone com DDD (apenas números)</p>
 
-                  {apiBrasilConfig.error && (
-                    <div className="mb-3 p-2 text-sm text-red-400 bg-red-900/30 rounded border border-red-800">
-                      {apiBrasilConfig.error}
-                    </div>
-                  )}
-                </div>
-                
-                {/* Área de envio de mensagem de teste */}
-                <div className="mt-4">
-                  <SendWhatsAppMessage 
-                    token={apiBrasilConfig.bearerToken}
-                    profileId={apiBrasilConfig.profileId}
-                    defaultPhoneNumber={apiBrasilConfig.phoneNumber}
-                    onSendSuccess={() => {
-                      toast.success('Mensagem de teste enviada com sucesso!');
-                    }}
-                    compact
-                    showHeader={false}
-                  />
-                </div>
+          {apiBrasilConfig.error && (
+            <div className="mb-3 p-2 text-sm text-red-400 bg-red-900/30 rounded border border-red-800">
+              {apiBrasilConfig.error}
+            </div>
+          )}
+          {/* Área de envio de mensagem de teste */}
+          <div className="mt-4">
+            <SendWhatsAppMessage 
+              token={apiBrasilConfig.bearerToken}
+              profileId={apiBrasilConfig.profileId}
+              defaultPhoneNumber={apiBrasilConfig.phoneNumber}
+              onSendSuccess={() => {
+                toast.success('Mensagem de teste enviada com sucesso!');
+              }}
+              compact
+              showHeader={false}
+            />
+          </div>
+        </div>
               </div>
 
               {/* Seção de Configurações Avançadas */}
               <div className="bg-[#23272f] border border-gray-700 rounded-lg p-4 mb-6">
                 <span className="block text-white font-semibold mb-3">Configurações Avançadas</span>
+{{ ... }}
                 <div className="flex items-center justify-between mb-3">
                   <div>
                     <span className="block text-gray-300 font-medium">Provedor de WhatsApp</span>
