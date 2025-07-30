@@ -992,8 +992,6 @@ const AdminDashboard = () => {
     );
   }
 
-  </Button>
-</DialogTrigger>
                   <DialogContent className="bg-[#1f2937] text-white max-w-4xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col max-h-[90vh] overflow-y-auto scrollbar-hide">
                     <div className="p-6 w-full flex flex-col">
                       <div className="flex items-center justify-between mb-6">
