@@ -166,7 +166,7 @@ enabled = false
 # url = ""
 
 [auth.external.google]
-enabled = true
+enabled = false
 # client_id = ""
 # secret = ""
 # # Overrides the default auth redirectUrl.
