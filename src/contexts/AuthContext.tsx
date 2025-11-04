@@ -5,6 +5,7 @@ import { supabase, UserProfile } from '@/lib/supabase';
 import {
   isDemoMode,
   enableDemoMode,
+  disableDemoMode,
   validateDemoCredentials,
   createDemoSession,
   getDemoSession,
@@ -128,6 +129,12 @@ export const AuthProvider = ({ children, navigate }: AuthProviderProps) => {
       
       // Verifica se o modo demo está habilitado
       const demoModeEnabled = import.meta.env.VITE_DEMO_MODE !== 'false';
+      
+      // Se o modo demo estiver desabilitado, limpa qualquer sessão demo existente
+      if (!demoModeEnabled && hasDemoSession()) {
+        clearDemoSession();
+        disableDemoMode();
+      }
       
       // Verifica primeiro se há sessão demo (apenas se o modo demo estiver habilitado)
       if (demoModeEnabled && hasDemoSession()) {
