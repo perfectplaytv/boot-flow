@@ -149,24 +149,30 @@ export default function AdminUsers() {
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
 
   const handleAddUser = async () => {
+    console.log("🔵 [DEBUG] handleAddUser chamado");
+    console.log("🔵 [DEBUG] Estado newUser:", newUser);
+    
     // Validação completa dos campos obrigatórios
     if (!newUser.name || !newUser.email || !newUser.plan) {
+      console.log("❌ [DEBUG] Validação falhou: campos obrigatórios não preenchidos");
       alert("Por favor, preencha todos os campos obrigatórios: Usuário, Email e Plano.");
       return;
     }
 
     // Validar data de vencimento
     if (!newUser.expirationDate) {
+      console.log("❌ [DEBUG] Validação falhou: data de vencimento não preenchida");
       alert("Por favor, preencha a data de vencimento.");
       return;
     }
 
+    console.log("✅ [DEBUG] Validação passou, iniciando processo...");
     setIsAddingUser(true);
     setAddUserSuccess(false);
 
     try {
       // Debug: mostrar dados que serão adicionados
-      console.log("Dados do usuário a ser adicionado:", newUser);
+      console.log("📤 [DEBUG] Dados do usuário a ser adicionado:", newUser);
 
       // Preparar dados do usuário para o Supabase (snake_case)
       const userData = {
@@ -188,18 +194,23 @@ export default function AdminUsers() {
         server: newUser.server || "",
       };
 
-      console.log("Dados preparados para adicionar:", userData);
+      console.log("📤 [DEBUG] Dados preparados para adicionar:", userData);
 
       // Adicionar usuário usando o hook
+      console.log("🔄 [DEBUG] Chamando addCliente...");
       const success = await addCliente(userData);
+      console.log("🔄 [DEBUG] addCliente retornou:", success);
 
       // Verificar se a operação foi bem-sucedida
       if (!success) {
+        console.error("❌ [DEBUG] addCliente retornou false");
         // Se addCliente retornou false, verificar se há erro no hook
         const errorMessage = error || "Erro ao adicionar cliente. Verifique os dados e tente novamente.";
+        console.error("❌ [DEBUG] Mensagem de erro:", errorMessage);
         throw new Error(errorMessage);
       }
 
+      console.log("✅ [DEBUG] Cliente adicionado com sucesso!");
       setAddUserSuccess(true);
 
         // Atualizar Dashboard instantaneamente
@@ -1277,8 +1288,14 @@ export default function AdminUsers() {
                   <div className="flex justify-end gap-2 mt-6">
                     <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} className="bg-gray-700 text-white px-6 py-2 rounded font-semibold" disabled={isAddingUser}>Fechar</Button>
                     <Button 
+                      type="button"
                       className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed" 
-                      onClick={handleAddUser}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log("🔵 [DEBUG] Botão clicado!");
+                        handleAddUser();
+                      }}
                       disabled={isAddingUser}
                     >
                       {isAddingUser ? "Adicionando..." : "Adicionar Cliente"}

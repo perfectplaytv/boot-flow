@@ -60,21 +60,28 @@ export function useClientes() {
 
   async function addCliente(cliente: Omit<Cliente, 'id'>) {
     try {
+      console.log('🔄 [useClientes] addCliente chamado com:', cliente);
       setError(null);
       
       // Verifica se há sessão válida
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      console.log('🔄 [useClientes] Sessão:', session ? 'Existe' : 'Não existe');
+      
       if (!session) {
         const errorMsg = 'Você precisa estar autenticado para adicionar clientes. Faça login novamente.';
         setError(errorMsg);
-        console.error('Erro ao adicionar cliente:', errorMsg);
+        console.error('❌ [useClientes] Erro de autenticação:', errorMsg);
         return false;
       }
       
+      console.log('🔄 [useClientes] Inserindo cliente no Supabase...');
       const { data, error } = await supabase.from('users').insert([cliente]).select();
       
       if (error) {
-        console.error('Erro ao adicionar cliente:', error);
+        console.error('❌ [useClientes] Erro do Supabase:', error);
+        console.error('❌ [useClientes] Código do erro:', error.code);
+        console.error('❌ [useClientes] Mensagem do erro:', error.message);
+        console.error('❌ [useClientes] Detalhes do erro:', error.details);
         
         // Verificar tipo de erro
         if (error.code === 'PGRST301' || error.message.includes('401') || error.message.includes('Unauthorized')) {
@@ -87,12 +94,13 @@ export function useClientes() {
         return false;
       }
       
+      console.log('✅ [useClientes] Cliente inserido com sucesso:', data);
       await fetchClientes();
       return true;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
+      console.error('❌ [useClientes] Erro inesperado:', err);
       setError(`Erro inesperado ao adicionar cliente: ${errorMessage}`);
-      console.error('Erro ao adicionar cliente:', err);
       return false;
     }
   }
