@@ -351,6 +351,20 @@ export const AuthProvider = ({ children, navigate }: AuthProviderProps) => {
   const signOut = async (): Promise<{ error: AuthError | null }> => {
     try {
       setLoading(true);
+      
+      // Se estiver em modo demo, apenas limpa o estado local
+      if (demoMode || hasDemoSession()) {
+        clearDemoSession();
+        setUser(null);
+        setSession(null);
+        setProfile(null);
+        setUserRole(null);
+        setDemoMode(false);
+        safeNavigate('/login');
+        toast.success('Você saiu da sua conta demo com sucesso!');
+        return { error: null };
+      }
+      
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       
