@@ -1,7 +1,8 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { Database } from '@/types/supabase.types';
+import { isDemoMode } from '@/lib/demoAuth';
 
 type Table = 'profiles' | 'cobrancas' | 'users' | 'resellers';
 type EventType = 'INSERT' | 'UPDATE' | 'DELETE' | '*';
@@ -24,6 +25,8 @@ export function useRealtime<T>({
   const [data, setData] = useState<T[]>([]);
   const [error, setError] = useState<Error | null>(null);
   const [isConnected, setIsConnected] = useState(false);
+  const errorLoggedRef = useRef(false); // Para evitar logs repetidos
+  const isDemo = isDemoMode();
 
   // Função para buscar dados iniciais
   const fetchData = useCallback(async () => {
@@ -35,9 +38,14 @@ export function useRealtime<T>({
       if (queryError) throw queryError;
       
       setData(initialData || []);
+      errorLoggedRef.current = false; // Reset quando bem-sucedido
       return initialData || [];
     } catch (err) {
-      console.error(`Erro ao buscar dados iniciais da tabela ${table}:`, err);
+      // Só loga erro se não estiver em modo demo e não tiver logado ainda
+      if (!isDemo && !errorLoggedRef.current) {
+        console.error(`Erro ao buscar dados iniciais da tabela ${table}:`, err);
+        errorLoggedRef.current = true;
+      }
       setError(err instanceof Error ? err : new Error(String(err)));
       return [];
     }
@@ -86,14 +94,25 @@ export function useRealtime<T>({
         setIsConnected(status === 'SUBSCRIBED');
         
         if (status === 'CHANNEL_ERROR') {
-          console.error('Erro na conexão em tempo real');
+          // Só loga erro se não estiver em modo demo e não tiver logado ainda
+          if (!isDemo && !errorLoggedRef.current) {
+            console.error('Erro na conexão em tempo real');
+            errorLoggedRef.current = true;
+          }
           setError(new Error('Erro na conexão em tempo real'));
         } else if (status === 'TIMED_OUT') {
-          console.error('Conexão em tempo real expirada');
+          if (!isDemo && !errorLoggedRef.current) {
+            console.error('Conexão em tempo real expirada');
+            errorLoggedRef.current = true;
+          }
           setError(new Error('Conexão em tempo real expirada'));
         } else if (status === 'CLOSED') {
-          console.log('Conexão em tempo real fechada');
+          if (!isDemo) {
+            console.log('Conexão em tempo real fechada');
+          }
           setIsConnected(false);
+        } else if (status === 'SUBSCRIBED') {
+          errorLoggedRef.current = false; // Reset quando conectado com sucesso
         }
       });
 
