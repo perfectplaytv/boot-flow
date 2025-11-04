@@ -79,25 +79,27 @@ function useDashboardData() {
       let monthlyGrowth = 0;
       
       try {
+        // Busca todas as cobranças pagas do último mês e soma os valores
         const { data: revenueData } = await supabase
           .from('cobrancas')
           .select('valor')
           .eq('status', 'pago')
-          .gte('data_vencimento', new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString())
-          .single();
+          .gte('data_vencimento', new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString().split('T')[0]);
           
-        totalRevenue = parseFloat(revenueData?.valor) || 0;
+        totalRevenue = revenueData?.reduce((sum, item) => sum + (parseFloat(String(item.valor)) || 0), 0) || 0;
         
         // Cálculo simples de crescimento (pode ser aprimorado)
-        const lastMonthData = await supabase
+        const lastMonthStart = new Date(new Date().setMonth(new Date().getMonth() - 2)).toISOString().split('T')[0];
+        const lastMonthEnd = new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString().split('T')[0];
+        
+        const { data: lastMonthData } = await supabase
           .from('cobrancas')
           .select('valor')
           .eq('status', 'pago')
-          .gte('data_vencimento', new Date(new Date().setMonth(new Date().getMonth() - 2)).toISOString())
-          .lt('data_vencimento', new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString())
-          .single();
+          .gte('data_vencimento', lastMonthStart)
+          .lt('data_vencimento', lastMonthEnd);
           
-        const lastMonthRevenue = parseFloat(lastMonthData.data?.valor) || 0;
+        const lastMonthRevenue = lastMonthData?.reduce((sum, item) => sum + (parseFloat(String(item.valor)) || 0), 0) || 0;
         monthlyGrowth = lastMonthRevenue > 0 
           ? ((totalRevenue - lastMonthRevenue) / lastMonthRevenue) * 100 
           : 0;
