@@ -258,26 +258,36 @@ export const AuthProvider = ({ children, navigate }: AuthProviderProps) => {
       return { error: null };
     } catch (error: any) {
       console.error('Erro no login:', error);
-      
+
       // Tratamento específico para erros de conexão/rede
       let errorMessage = 'Erro ao fazer login. Verifique suas credenciais.';
       let showDemoHint = false;
-      
+      let showCreateUserHint = false;
+
       if (error?.message?.includes('Failed to fetch') || 
           error?.message?.includes('ERR_NAME_NOT_RESOLVED') ||
           error?.message?.includes('NetworkError') ||
           error?.name === 'AuthRetryableFetchError') {
         errorMessage = 'Erro de conexão: Não foi possível conectar ao servidor.';
         showDemoHint = true;
+      } else if (error?.message?.includes('Invalid login credentials') || 
+                 error?.message?.includes('invalid_credentials') ||
+                 error?.code === 'invalid_credentials') {
+        errorMessage = 'Credenciais inválidas. Verifique se o usuário existe no Supabase.';
+        showCreateUserHint = true;
       } else if (error?.message) {
         errorMessage = error.message;
       }
-      
+
       toast.error(errorMessage, {
-        duration: 8000,
-        description: showDemoHint ? '💡 Use as credenciais demo para testar: admin@demo.com / admin123' : undefined,
+        duration: 10000,
+        description: showCreateUserHint 
+          ? '💡 Crie um usuário no Supabase: Authentication > Users > Add User. Veja o arquivo criar_usuario_admin.sql para instruções.' 
+          : showDemoHint 
+            ? '💡 Use as credenciais demo para testar: admin@demo.com / admin123' 
+            : undefined,
       });
-      
+
       if (showDemoHint) {
         console.log('💡 Credenciais demo disponíveis:');
         DEMO_USERS.forEach(user => {
@@ -285,6 +295,15 @@ export const AuthProvider = ({ children, navigate }: AuthProviderProps) => {
         });
       }
       
+      if (showCreateUserHint) {
+        console.log('💡 Para criar um usuário admin no Supabase:');
+        console.log('   1. Acesse: https://app.supabase.com → Seu Projeto → Authentication → Users → Add User');
+        console.log('   2. Preencha email e senha');
+        console.log('   3. Marque "Auto Confirm User"');
+        console.log('   4. Adicione em User Metadata: {"role": "admin", "full_name": "Seu Nome"}');
+        console.log('   5. Veja o arquivo criar_usuario_admin.sql para mais detalhes');
+      }
+
       return { error };
     } finally {
       setLoading(false);
