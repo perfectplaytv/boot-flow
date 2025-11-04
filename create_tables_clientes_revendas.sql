@@ -18,10 +18,10 @@
 -- DROP TABLE IF EXISTS public.users CASCADE;
 
 -- Cria a tabela users (clientes)
--- NOTA: useClientes hook usa 'users', mas alguns hooks usam 'clientes'
+-- Campos baseados no formulário de cadastro de clientes
 CREATE TABLE IF NOT EXISTS public.users (
   id BIGSERIAL PRIMARY KEY,
-  -- Informações Básicas (obrigatórias)
+  -- Informações Básicas (obrigatórias *)
   server VARCHAR(100),
   plan VARCHAR(50) NOT NULL CHECK (plan IN ('Mensal', 'Trimestral', 'Semestral', 'Anual')),
   name VARCHAR(255) NOT NULL,
@@ -39,8 +39,9 @@ CREATE TABLE IF NOT EXISTS public.users (
   telegram VARCHAR(100),
   observations TEXT,
   notes TEXT,
-  -- Extração M3U e outros
+  -- Extração M3U
   m3u_url TEXT,
+  -- Outros campos
   renewal_date DATE,
   phone VARCHAR(20),
   -- Timestamps automáticos
