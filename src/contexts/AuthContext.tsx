@@ -2,6 +2,16 @@ import React, { createContext, useState, useContext, useEffect, ReactNode, useCa
 import { User, Session, AuthError } from '@supabase/supabase-js';
 import { toast } from 'sonner';
 import { supabase, UserProfile } from '@/lib/supabase';
+import {
+  isDemoMode,
+  enableDemoMode,
+  validateDemoCredentials,
+  createDemoSession,
+  getDemoSession,
+  clearDemoSession,
+  hasDemoSession,
+  DEMO_USERS,
+} from '@/lib/demoAuth';
 
 interface AuthContextType {
   user: User | null;
@@ -41,6 +51,7 @@ export const AuthProvider = ({ children, navigate }: AuthProviderProps) => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [userRole, setUserRole] = useState<'admin' | 'reseller' | 'client' | null>(null);
+  const [demoMode, setDemoMode] = useState<boolean>(isDemoMode());
   const isAuthenticated = !!user;
 
   const safeNavigate = useCallback((path: string) => {
@@ -114,11 +125,31 @@ export const AuthProvider = ({ children, navigate }: AuthProviderProps) => {
     // Verificar sessão ativa ao montar o componente
     const checkSession = async () => {
       setLoading(true);
+      
+      // Verifica primeiro se há sessão demo
+      if (hasDemoSession()) {
+        const demoData = getDemoSession();
+        if (demoData) {
+          setSession(demoData.session as Session);
+          setUser(demoData.session.user as User);
+          setProfile(demoData.profile as UserProfile);
+          setUserRole(demoData.profile.role);
+          setDemoMode(true);
+          setLoading(false);
+          return;
+        }
+      }
+      
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
           console.error('Erro ao obter sessão:', error);
+          // Se houver erro de conexão, sugere modo demo
+          if (error.message?.includes('Failed to fetch') || error.message?.includes('ERR_NAME_NOT_RESOLVED')) {
+            console.log('💡 Modo demo disponível. Use as credenciais demo para testar.');
+          }
+          setLoading(false);
           return;
         }
         
@@ -131,6 +162,7 @@ export const AuthProvider = ({ children, navigate }: AuthProviderProps) => {
           setUser(session.user);
           setProfile(userProfile);
           setUserRole(role);
+          setDemoMode(false);
           
           // Redireciona para a dashboard apropriada se estiver na página de login
           if (window.location.pathname === '/login') {
