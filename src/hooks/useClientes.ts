@@ -63,9 +63,11 @@ export function useClientes() {
       console.log('🔄 [useClientes] addCliente chamado com:', cliente);
       setError(null);
       
+      console.log('🔄 [useClientes] Verificando sessão...');
       // Verifica se há sessão válida
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       console.log('🔄 [useClientes] Sessão:', session ? 'Existe' : 'Não existe');
+      console.log('🔄 [useClientes] Erro de sessão:', sessionError);
       
       if (!session) {
         const errorMsg = 'Você precisa estar autenticado para adicionar clientes. Faça login novamente.';
@@ -75,13 +77,20 @@ export function useClientes() {
       }
       
       console.log('🔄 [useClientes] Inserindo cliente no Supabase...');
+      console.log('🔄 [useClientes] Dados que serão inseridos:', JSON.stringify(cliente, null, 2));
+      
       const { data, error } = await supabase.from('users').insert([cliente]).select();
+      
+      console.log('🔄 [useClientes] Resposta do Supabase recebida');
+      console.log('🔄 [useClientes] Data:', data);
+      console.log('🔄 [useClientes] Error:', error);
       
       if (error) {
         console.error('❌ [useClientes] Erro do Supabase:', error);
         console.error('❌ [useClientes] Código do erro:', error.code);
         console.error('❌ [useClientes] Mensagem do erro:', error.message);
         console.error('❌ [useClientes] Detalhes do erro:', error.details);
+        console.error('❌ [useClientes] Hint do erro:', error.hint);
         
         // Verificar tipo de erro
         if (error.code === 'PGRST301' || error.message.includes('401') || error.message.includes('Unauthorized')) {
@@ -95,11 +104,14 @@ export function useClientes() {
       }
       
       console.log('✅ [useClientes] Cliente inserido com sucesso:', data);
+      console.log('🔄 [useClientes] Atualizando lista de clientes...');
       await fetchClientes();
+      console.log('✅ [useClientes] Lista atualizada!');
       return true;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
       console.error('❌ [useClientes] Erro inesperado:', err);
+      console.error('❌ [useClientes] Stack trace:', err instanceof Error ? err.stack : 'N/A');
       setError(`Erro inesperado ao adicionar cliente: ${errorMessage}`);
       return false;
     }
