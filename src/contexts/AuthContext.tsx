@@ -126,8 +126,11 @@ export const AuthProvider = ({ children, navigate }: AuthProviderProps) => {
     const checkSession = async () => {
       setLoading(true);
       
-      // Verifica primeiro se há sessão demo
-      if (hasDemoSession()) {
+      // Verifica se o modo demo está habilitado
+      const demoModeEnabled = import.meta.env.VITE_DEMO_MODE !== 'false';
+      
+      // Verifica primeiro se há sessão demo (apenas se o modo demo estiver habilitado)
+      if (demoModeEnabled && hasDemoSession()) {
         const demoData = getDemoSession();
         if (demoData) {
           setSession(demoData.session as Session);
@@ -183,35 +186,40 @@ export const AuthProvider = ({ children, navigate }: AuthProviderProps) => {
     try {
       setLoading(true);
       
-      // Primeiro tenta autenticação demo se as credenciais corresponderem
-      const demoUser = validateDemoCredentials(email, password);
-      if (demoUser) {
-        console.log('🎭 Usando modo demo para login');
-        enableDemoMode();
-        setDemoMode(true);
-        
-        const demoSession = createDemoSession(demoUser);
-        const demoProfile: UserProfile = {
-          id: demoUser.id,
-          email: demoUser.email,
-          full_name: demoUser.full_name,
-          role: demoUser.role,
-          avatar_url: demoUser.avatar_url,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        };
-        
-        setSession(demoSession as Session);
-        setUser(demoSession.user as User);
-        setProfile(demoProfile);
-        setUserRole(demoUser.role);
-        
-        toast.success(`Login demo realizado com sucesso! Bem-vindo, ${demoUser.full_name}!`, {
-          duration: 5000,
-        });
-        
-        redirectBasedOnRole(demoUser.role);
-        return { error: null };
+      // Verifica se o modo demo está habilitado via variável de ambiente
+      const demoModeEnabled = import.meta.env.VITE_DEMO_MODE !== 'false';
+      
+      // Primeiro tenta autenticação demo se as credenciais corresponderem E o modo demo estiver habilitado
+      if (demoModeEnabled) {
+        const demoUser = validateDemoCredentials(email, password);
+        if (demoUser) {
+          console.log('🎭 Usando modo demo para login');
+          enableDemoMode();
+          setDemoMode(true);
+          
+          const demoSession = createDemoSession(demoUser);
+          const demoProfile: UserProfile = {
+            id: demoUser.id,
+            email: demoUser.email,
+            full_name: demoUser.full_name,
+            role: demoUser.role,
+            avatar_url: demoUser.avatar_url,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          };
+          
+          setSession(demoSession as Session);
+          setUser(demoSession.user as User);
+          setProfile(demoProfile);
+          setUserRole(demoUser.role);
+          
+          toast.success(`Login demo realizado com sucesso! Bem-vindo, ${demoUser.full_name}!`, {
+            duration: 5000,
+          });
+          
+          redirectBasedOnRole(demoUser.role);
+          return { error: null };
+        }
       }
       
       // Tenta autenticação Supabase normal
