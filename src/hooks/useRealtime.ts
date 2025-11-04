@@ -120,7 +120,7 @@ export function useRealtime<T>({
     return () => {
       subscription.unsubscribe();
     };
-  }, [table, filter, event, schema, onPayload, fetchData]);
+  }, [table, filter, event, schema, onPayload, fetchData, isDemo]);
 
   // Função para forçar uma atualização dos dados
   const refresh = useCallback(async () => {
