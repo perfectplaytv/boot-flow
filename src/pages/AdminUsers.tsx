@@ -170,6 +170,14 @@ export default function AdminUsers() {
     setIsAddingUser(true);
     setAddUserSuccess(false);
 
+    // Timeout de segurança para evitar travamento infinito (30 segundos)
+    let timeoutId: NodeJS.Timeout | null = null;
+    timeoutId = setTimeout(() => {
+      console.error("⏰ [DEBUG] Timeout: processo demorou mais de 30 segundos");
+      setIsAddingUser(false);
+      alert("⏰ O processo está demorando muito. Verifique sua conexão e tente novamente.");
+    }, 30000);
+
     try {
       // Debug: mostrar dados que serão adicionados
       console.log("📤 [DEBUG] Dados do usuário a ser adicionado:", newUser);
@@ -267,7 +275,7 @@ export default function AdminUsers() {
           setAddUserSuccess(false);
         }, 1000);
       } catch (error: any) {
-        console.error("Erro ao adicionar usuário:", error);
+        console.error("❌ [DEBUG] Erro ao adicionar usuário:", error);
         const errorMessage = error?.message || error || "Erro desconhecido ao adicionar usuário.";
         
         // Mensagens específicas para diferentes tipos de erro
@@ -283,6 +291,10 @@ export default function AdminUsers() {
           alert(`❌ Erro ao adicionar usuário: ${errorMessage}`);
         }
       } finally {
+        console.log("🔄 [DEBUG] Finalizando processo (finally)...");
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
         setIsAddingUser(false);
       }
   };
@@ -1290,11 +1302,16 @@ export default function AdminUsers() {
                     <Button 
                       type="button"
                       className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed" 
-                      onClick={(e) => {
+                      onClick={async (e) => {
                         e.preventDefault();
                         e.stopPropagation();
                         console.log("🔵 [DEBUG] Botão clicado!");
-                        handleAddUser();
+                        try {
+                          await handleAddUser();
+                        } catch (error) {
+                          console.error("❌ [DEBUG] Erro capturado no onClick:", error);
+                          setIsAddingUser(false);
+                        }
                       }}
                       disabled={isAddingUser}
                     >
