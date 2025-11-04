@@ -210,6 +210,15 @@ COMMENT ON COLUMN public.resellers.master_reseller IS 'Revendedor master associa
 COMMENT ON COLUMN public.resellers.monthly_reseller IS 'Indica se é um revendedor mensal';
 
 -- ============================================
+-- OPCIONAL: Criar tabela 'clientes' separada
+-- ============================================
+-- Se o código também precisa da tabela 'clientes' separada (usada por useRealtimeClientes),
+-- execute também o script: create_table_clientes.sql
+-- 
+-- Ou crie uma VIEW que aponta para 'users':
+-- CREATE OR REPLACE VIEW public.clientes AS SELECT * FROM public.users;
+
+-- ============================================
 -- FIM DO SCRIPT
 -- ============================================
 
