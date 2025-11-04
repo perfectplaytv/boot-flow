@@ -63,20 +63,9 @@ export function useClientes() {
       console.log('🔄 [useClientes] addCliente chamado com:', cliente);
       setError(null);
       
-      console.log('🔄 [useClientes] Verificando sessão...');
-      // Verifica se há sessão válida
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      console.log('🔄 [useClientes] Sessão:', session ? 'Existe' : 'Não existe');
-      console.log('🔄 [useClientes] Erro de sessão:', sessionError);
-      
-      if (!session) {
-        const errorMsg = 'Você precisa estar autenticado para adicionar clientes. Faça login novamente.';
-        setError(errorMsg);
-        console.error('❌ [useClientes] Erro de autenticação:', errorMsg);
-        return false;
-      }
-      
-      console.log('🔄 [useClientes] Inserindo cliente no Supabase...');
+      // Pular verificação de sessão - tentar inserir diretamente
+      // Se não houver sessão, o Supabase retornará erro de autenticação
+      console.log('🔄 [useClientes] Inserindo cliente diretamente no Supabase...');
       console.log('🔄 [useClientes] Dados que serão inseridos:', JSON.stringify(cliente, null, 2));
       
       const { data, error } = await supabase.from('users').insert([cliente]).select();
