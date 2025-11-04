@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from '@/lib/supabase';
 
 export interface Cliente {
   id: number;
@@ -63,46 +63,126 @@ export function useClientes() {
       console.log('🔄 [useClientes] addCliente chamado com:', cliente);
       setError(null);
       
-      // Pular verificação de sessão - tentar inserir diretamente
-      // Se não houver sessão, o Supabase retornará erro de autenticação
-      console.log('🔄 [useClientes] Inserindo cliente diretamente no Supabase...');
+      // Usar fetch direto ao invés do cliente Supabase para evitar travamentos
+      console.log('🔄 [useClientes] Inserindo cliente usando fetch direto...');
       console.log('🔄 [useClientes] Dados que serão inseridos:', JSON.stringify(cliente, null, 2));
       
-      // Adicionar timeout na inserção (30 segundos)
-      const insertPromise = supabase.from('users').insert([cliente]).select();
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Timeout: A inserção demorou mais de 30 segundos')), 30000)
-      );
+      // Obter token de autenticação do localStorage
+      // O Supabase armazena a sessão em uma chave específica
+      let authToken = '';
       
-      let result;
       try {
-        result = await Promise.race([insertPromise, timeoutPromise]) as any;
-      } catch (timeoutError: any) {
-        console.error('⏰ [useClientes] Timeout na inserção:', timeoutError);
-        setError('Erro de conexão: A operação está demorando muito. Verifique sua conexão com a internet.');
-        return false;
+        // Buscar todas as chaves do localStorage que começam com 'sb-'
+        const allKeys = Object.keys(localStorage);
+        const supabaseKeys = allKeys.filter(key => key.startsWith('sb-') && key.includes('auth-token'));
+        
+        for (const key of supabaseKeys) {
+          try {
+            const authData = localStorage.getItem(key);
+            if (authData) {
+              const parsed = JSON.parse(authData);
+              if (parsed?.access_token) {
+                authToken = parsed.access_token;
+                console.log('🔄 [useClientes] Token encontrado no localStorage');
+                break;
+              }
+            }
+          } catch (e) {
+            // Continuar procurando
+          }
+        }
+        
+        if (!authToken) {
+          console.log('🔄 [useClientes] Token não encontrado, usando apenas apikey');
+        }
+      } catch (e) {
+        console.log('🔄 [useClientes] Erro ao buscar token:', e);
       }
       
-      const { data, error } = result;
+      // Preparar headers
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_ANON_KEY,
+        'Prefer': 'return=representation',
+      };
       
-      console.log('🔄 [useClientes] Resposta do Supabase recebida');
-      console.log('🔄 [useClientes] Data:', data);
-      console.log('🔄 [useClientes] Error:', error);
+      // Adicionar token de autenticação se disponível
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`;
+      }
       
-      if (error) {
-        console.error('❌ [useClientes] Erro do Supabase:', error);
-        console.error('❌ [useClientes] Código do erro:', error.code);
-        console.error('❌ [useClientes] Mensagem do erro:', error.message);
-        console.error('❌ [useClientes] Detalhes do erro:', error.details);
-        console.error('❌ [useClientes] Hint do erro:', error.hint);
+      // URL da API do Supabase
+      const insertUrl = `${SUPABASE_URL}/rest/v1/users`;
+      
+      console.log('🔄 [useClientes] URL:', insertUrl);
+      console.log('🔄 [useClientes] Headers:', { ...headers, Authorization: authToken ? 'Bearer ***' : 'Não fornecido' });
+      
+      // Timeout de 15 segundos
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+      
+      let response: Response;
+      try {
+        response = await fetch(insertUrl, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(cliente),
+          signal: controller.signal,
+        });
+        
+        clearTimeout(timeoutId);
+      } catch (fetchError: any) {
+        clearTimeout(timeoutId);
+        
+        if (fetchError.name === 'AbortError') {
+          console.error('⏰ [useClientes] Timeout na inserção (15 segundos)');
+          setError('Erro de conexão: A operação está demorando muito. Verifique sua conexão com a internet.');
+          return false;
+        }
+        
+        throw fetchError;
+      }
+      
+      console.log('🔄 [useClientes] Resposta recebida:', response.status, response.statusText);
+      
+      const responseText = await response.text();
+      console.log('🔄 [useClientes] Resposta completa:', responseText);
+      
+      let data;
+      let error: any = null;
+      
+      try {
+        data = responseText ? JSON.parse(responseText) : null;
+      } catch (parseError) {
+        console.error('❌ [useClientes] Erro ao fazer parse da resposta:', parseError);
+        if (!response.ok) {
+          error = {
+            code: response.status.toString(),
+            message: response.statusText || 'Erro desconhecido',
+            details: responseText,
+          };
+        }
+      }
+      
+      if (!response.ok || error) {
+        const errorObj = error || data || {
+          code: response.status.toString(),
+          message: response.statusText || 'Erro desconhecido',
+          details: responseText,
+        };
+        
+        console.error('❌ [useClientes] Erro do Supabase:', errorObj);
+        console.error('❌ [useClientes] Status:', response.status);
         
         // Verificar tipo de erro
-        if (error.code === 'PGRST301' || error.message.includes('401') || error.message.includes('Unauthorized')) {
+        if (response.status === 401 || errorObj.message?.includes('401') || errorObj.message?.includes('Unauthorized')) {
           setError('Erro de autenticação: Sua sessão expirou. Por favor, faça login novamente.');
-        } else if (error.message.includes('row-level security policy') || error.message.includes('new row violates row-level security')) {
+        } else if (errorObj.message?.includes('row-level security policy') || errorObj.message?.includes('new row violates row-level security')) {
           setError('Erro de permissão: As políticas de segurança estão bloqueando a inserção. Verifique se você está autenticado e se as políticas RLS estão configuradas corretamente.');
+        } else if (response.status === 409 || errorObj.message?.includes('duplicate key')) {
+          setError('Erro: Já existe um cliente com este e-mail ou dados duplicados.');
         } else {
-          setError(`Erro ao adicionar cliente: ${error.message} (Código: ${error.code || 'N/A'})`);
+          setError(`Erro ao adicionar cliente: ${errorObj.message || errorObj.details || 'Erro desconhecido'} (Status: ${response.status})`);
         }
         return false;
       }
