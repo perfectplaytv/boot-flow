@@ -70,7 +70,21 @@ export const AuthProvider = ({ children, navigate }: AuthProviderProps) => {
 
   const redirectBasedOnRole = useCallback((role: 'admin' | 'reseller' | 'client') => {
     console.log(`[AuthContext] Redirecionando com role:`, role);
-    safeNavigate('/');
+    
+    switch (role) {
+      case 'admin':
+        safeNavigate('/admin');
+        break;
+      case 'reseller':
+        safeNavigate('/reseller');
+        break;
+      case 'client':
+        safeNavigate('/client');
+        break;
+      default:
+        safeNavigate('/');
+        break;
+    }
   }, [safeNavigate]);
 
   const fetchUserProfile = useCallback(async (userId: string): Promise<UserProfile | null> => {
