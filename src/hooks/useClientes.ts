@@ -68,7 +68,22 @@ export function useClientes() {
       console.log('🔄 [useClientes] Inserindo cliente diretamente no Supabase...');
       console.log('🔄 [useClientes] Dados que serão inseridos:', JSON.stringify(cliente, null, 2));
       
-      const { data, error } = await supabase.from('users').insert([cliente]).select();
+      // Adicionar timeout na inserção (30 segundos)
+      const insertPromise = supabase.from('users').insert([cliente]).select();
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Timeout: A inserção demorou mais de 30 segundos')), 30000)
+      );
+      
+      let result;
+      try {
+        result = await Promise.race([insertPromise, timeoutPromise]) as any;
+      } catch (timeoutError: any) {
+        console.error('⏰ [useClientes] Timeout na inserção:', timeoutError);
+        setError('Erro de conexão: A operação está demorando muito. Verifique sua conexão com a internet.');
+        return false;
+      }
+      
+      const { data, error } = result;
       
       console.log('🔄 [useClientes] Resposta do Supabase recebida');
       console.log('🔄 [useClientes] Data:', data);
