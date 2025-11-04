@@ -98,6 +98,8 @@ export default function AdminUsers() {
     devices: 0, // Campo dispositivos
     credits: 0, // Campo créditos
     notes: "", // Campo anotações
+    server: "", // Campo servidor
+    m3u_url: "", // Campo URL M3U
   });
 
   // Estados para a extração M3U
@@ -239,6 +241,8 @@ export default function AdminUsers() {
           devices: 0,
           credits: 0,
           notes: "",
+          server: "",
+          m3u_url: "",
         });
 
         // Limpar dados de extração
@@ -1039,10 +1043,11 @@ export default function AdminUsers() {
                       {/* Vencimento */}
                       <div className="col-span-1">
                         <label className="block text-gray-300 mb-1 font-medium">
-                          Vencimento (Opcional)
+                          Vencimento *
                         </label>
                         <input
                           type="date"
+                          required
                           className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                           value={newUser.expirationDate}
                           onChange={(e) =>
@@ -1269,9 +1274,25 @@ export default function AdminUsers() {
                     <textarea placeholder="Anotações..." className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 min-h-[60px]" />
                   </div>
                   <div className="flex justify-end gap-2 mt-6">
-                    <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} className="bg-gray-700 text-white px-6 py-2 rounded font-semibold">Fechar</Button>
-                    <Button className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded font-semibold transition-all duration-300" onClick={handleAddUser}>Adicionar Cliente</Button>
+                    <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} className="bg-gray-700 text-white px-6 py-2 rounded font-semibold" disabled={isAddingUser}>Fechar</Button>
+                    <Button 
+                      className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed" 
+                      onClick={handleAddUser}
+                      disabled={isAddingUser}
+                    >
+                      {isAddingUser ? "Adicionando..." : "Adicionar Cliente"}
+                    </Button>
                   </div>
+                  {error && (
+                    <div className="mt-4 p-3 bg-red-900/40 border border-red-700 text-red-300 text-sm rounded">
+                      ❌ {error}
+                    </div>
+                  )}
+                  {addUserSuccess && (
+                    <div className="mt-4 p-3 bg-green-900/40 border border-green-700 text-green-300 text-sm rounded">
+                      ✅ Cliente adicionado com sucesso!
+                    </div>
+                  )}
                 </div>
               </div>
             </DialogContent>
