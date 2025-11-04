@@ -175,6 +175,13 @@ const AdminDashboard = () => {
   // Função para adicionar um novo cliente (usa o hook useClientes)
   const addCliente = useCallback(async (clienteData: any) => {
     try {
+      // Verifica se está em modo demo
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error('Você precisa estar autenticado no Supabase para adicionar clientes. O modo demo não salva dados no banco.', { duration: 7000 });
+        return { data: null, error: new Error('Não autenticado') };
+      }
+      
       // Converte os nomes dos campos para corresponder ao banco de dados
       const dataToInsert = {
         name: clienteData.name,
@@ -203,7 +210,10 @@ const AdminDashboard = () => {
         toast.success('Cliente adicionado com sucesso!');
         return { data: null, error: null };
       } else {
-        toast.error('Erro ao adicionar cliente. Verifique o console para detalhes.');
+        // Mostra mensagem de erro mais específica
+        const errorMsg = 'Não foi possível adicionar o cliente. Verifique se você está autenticado e se todos os campos obrigatórios estão preenchidos.';
+        toast.error(errorMsg, { duration: 5000 });
+        console.error('Erro ao adicionar cliente - verifique o console para detalhes');
         return { data: null, error: new Error('Falha ao adicionar cliente') };
       }
     } catch (error) {

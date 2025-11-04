@@ -62,16 +62,27 @@ export function useClientes() {
     try {
       setError(null);
       
+      // Verifica se há sessão válida
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        const errorMsg = 'Você precisa estar autenticado para adicionar clientes. Faça login novamente.';
+        setError(errorMsg);
+        console.error('Erro ao adicionar cliente:', errorMsg);
+        return false;
+      }
+      
       const { data, error } = await supabase.from('users').insert([cliente]).select();
       
       if (error) {
         console.error('Erro ao adicionar cliente:', error);
         
-        // Verificar se é erro de RLS
-        if (error.message.includes('row-level security policy')) {
-          setError('Erro de permissão: As políticas de segurança estão bloqueando a inserção. Execute o script SQL para corrigir as políticas RLS.');
+        // Verificar tipo de erro
+        if (error.code === 'PGRST301' || error.message.includes('401') || error.message.includes('Unauthorized')) {
+          setError('Erro de autenticação: Sua sessão expirou. Por favor, faça login novamente.');
+        } else if (error.message.includes('row-level security policy') || error.message.includes('new row violates row-level security')) {
+          setError('Erro de permissão: As políticas de segurança estão bloqueando a inserção. Verifique se você está autenticado e se as políticas RLS estão configuradas corretamente.');
         } else {
-          setError(`Erro ao adicionar cliente: ${error.message}`);
+          setError(`Erro ao adicionar cliente: ${error.message} (Código: ${error.code || 'N/A'})`);
         }
         return false;
       }
