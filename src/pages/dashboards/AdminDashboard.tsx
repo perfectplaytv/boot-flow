@@ -101,6 +101,8 @@ const AdminDashboard = () => {
     devices: 0,
     credits: 0,
     notes: "",
+    server: "",
+    m3u_url: "",
   });
 
   // Estados para o modal de revendedor
@@ -135,7 +137,7 @@ const AdminDashboard = () => {
   const { data: realtimeRevendas, error: revendasError, isConnected: revendasConnected } = useRealtimeRevendas();
   
   // Hooks para funções de atualização
-  const { fetchClientes } = useClientes();
+  const { fetchClientes, addCliente: addClienteHook } = useClientes();
   const { fetchRevendas } = useRevendas();
   
   // Estados locais para os dados
@@ -170,24 +172,46 @@ const AdminDashboard = () => {
     }
   }, [clientesError, revendasError]);
   
-  // Função para adicionar um novo cliente
+  // Função para adicionar um novo cliente (usa o hook useClientes)
   const addCliente = useCallback(async (clienteData: any) => {
     try {
-      const { data, error } = await supabase
-        .from('clientes')
-        .insert([clienteData])
-        .select();
-        
-      if (error) throw error;
+      // Converte os nomes dos campos para corresponder ao banco de dados
+      const dataToInsert = {
+        name: clienteData.name,
+        email: clienteData.email,
+        plan: clienteData.plan,
+        status: clienteData.status,
+        expiration_date: clienteData.expirationDate || clienteData.expiration_date,
+        password: clienteData.password,
+        bouquets: clienteData.bouquets,
+        real_name: clienteData.realName || clienteData.real_name,
+        whatsapp: clienteData.whatsapp,
+        telegram: clienteData.telegram,
+        observations: clienteData.observations,
+        notes: clienteData.notes,
+        devices: clienteData.devices || 0,
+        credits: clienteData.credits || 0,
+        m3u_url: clienteData.m3u_url,
+        server: clienteData.server,
+        renewal_date: clienteData.renewalDate || clienteData.renewal_date,
+        phone: clienteData.phone,
+      };
       
-      toast.success('Cliente adicionado com sucesso!');
-      return { data, error: null };
+      const success = await addClienteHook(dataToInsert);
+      
+      if (success) {
+        toast.success('Cliente adicionado com sucesso!');
+        return { data: null, error: null };
+      } else {
+        toast.error('Erro ao adicionar cliente. Verifique o console para detalhes.');
+        return { data: null, error: new Error('Falha ao adicionar cliente') };
+      }
     } catch (error) {
       console.error('Erro ao adicionar cliente:', error);
       toast.error('Erro ao adicionar cliente');
       return { data: null, error };
     }
-  }, []);
+  }, [addClienteHook]);
   
   // Função para adicionar um novo revendedor
   const addRevenda = useCallback(async (revendaData: any) => {
@@ -585,7 +609,7 @@ const AdminDashboard = () => {
 
     setIsAddingUser(true);
     try {
-      const success = await addCliente({
+      const result = await addCliente({
         name: newUser.name,
         email: newUser.email,
         plan: newUser.plan,
@@ -600,9 +624,10 @@ const AdminDashboard = () => {
         devices: newUser.devices,
         credits: newUser.credits,
         notes: newUser.notes,
+        server: newUser.server, // Adiciona campo server se existir
       });
 
-      if (success) {
+      if (result && !result.error) {
         // Limpar formulário
         setNewUser({
           name: "",
@@ -619,6 +644,8 @@ const AdminDashboard = () => {
           devices: 0,
           credits: 0,
           notes: "",
+          server: "",
+          m3u_url: "",
         });
         
         // Fechar modal
