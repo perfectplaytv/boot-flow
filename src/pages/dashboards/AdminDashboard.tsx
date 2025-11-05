@@ -189,7 +189,7 @@ const AdminDashboard = () => {
     }
   }, [realtimeClientes, realtimeRevendas, clientesFromHook, revendasFromHook]);
   
-  // Buscar dados iniciais ao montar o componente
+  // Buscar dados iniciais ao montar o componente (apenas uma vez)
   useEffect(() => {
     if (fetchClientes) {
       fetchClientes();
@@ -197,7 +197,8 @@ const AdminDashboard = () => {
     if (fetchRevendas) {
       fetchRevendas();
     }
-  }, [fetchClientes, fetchRevendas]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Executar apenas uma vez ao montar
 
   // Calcular total de usuários diretamente dos dados atualizados (usando estados locais que são atualizados em tempo real)
   const totalUsersCount = useMemo(() => {
@@ -1903,9 +1904,10 @@ const AdminDashboard = () => {
     const interval = setInterval(() => {
       refreshUsers();
       if (refreshResellers) refreshResellers();
-    }, 10000); // 10 segundos
+    }, 30000); // 30 segundos (aumentado para reduzir carga)
     return () => clearInterval(interval);
-  }, [refreshUsers, refreshResellers]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Não depender de refreshUsers/refreshResellers para evitar loops
 
   // Forçar atualização quando refreshTrigger muda (com debounce)
   const lastRefreshTriggerRef = useRef(0);
@@ -1916,7 +1918,8 @@ const AdminDashboard = () => {
       refreshUsers();
       if (refreshResellers) refreshResellers();
     }
-  }, [refreshTrigger, refreshUsers, refreshResellers]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refreshTrigger]); // Apenas depender de refreshTrigger
 
   // Listener para atualização instantânea
   useEffect(() => {
@@ -1940,7 +1943,8 @@ const AdminDashboard = () => {
     };
     window.addEventListener('refresh-dashboard', handleRefresh as EventListener);
     return () => window.removeEventListener('refresh-dashboard', handleRefresh as EventListener);
-  }, [refreshUsers, refreshResellers]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Não depender de refreshUsers/refreshResellers para evitar loops
 
   // Listener para localStorage (comunicação entre páginas)
   useEffect(() => {
@@ -1970,7 +1974,8 @@ const AdminDashboard = () => {
     return () => {
       window.removeEventListener('storage', handleStorageChange);
     };
-  }, [refreshUsers, refreshResellers]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Não depender de refreshUsers/refreshResellers para evitar loops
 
   return (
     <SidebarProvider>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from '@/lib/supabase';
 
 export interface Cliente {
@@ -28,8 +28,22 @@ export function useClientes() {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const isFetchingRef = useRef(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
-  async function fetchClientes() {
+  const fetchClientes = useCallback(async () => {
+    // Proteção contra múltiplas chamadas simultâneas
+    if (isFetchingRef.current) {
+      console.log('🔄 [useClientes] fetchClientes já em execução, ignorando chamada');
+      return;
+    }
+
+    // Cancelar requisição anterior se existir
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    isFetchingRef.current = true;
+    
     try {
       console.log('🔄 [useClientes] fetchClientes chamado');
       setLoading(true);
@@ -67,6 +81,7 @@ export function useClientes() {
       const fetchUrl = `${SUPABASE_URL}/rest/v1/users?select=*`;
       
       const controller = new AbortController();
+      abortControllerRef.current = controller;
       const timeoutId = setTimeout(() => controller.abort(), 10000);
       
       try {
@@ -87,6 +102,11 @@ export function useClientes() {
         setClientes(data || []);
       } catch (fetchError: any) {
         clearTimeout(timeoutId);
+        // Ignorar erros de abort
+        if (fetchError.name === 'AbortError') {
+          console.log('🔄 [useClientes] Requisição abortada (nova requisição iniciada)');
+          return;
+        }
         throw fetchError;
       }
     } catch (err) {
@@ -95,8 +115,10 @@ export function useClientes() {
       console.error('Erro ao buscar clientes:', err);
     } finally {
       setLoading(false);
+      isFetchingRef.current = false;
+      abortControllerRef.current = null;
     }
-  }
+  }, []);
 
   async function addCliente(cliente: Omit<Cliente, 'id'>) {
     try {
