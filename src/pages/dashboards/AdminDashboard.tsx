@@ -63,19 +63,26 @@ import Notifications from "../Notifications";
 import Profile from "../Profile";
 
 // Wrapper para AdminResellers que aceita callback quando um revendedor é criado
-const AdminResellersWrapper = ({ onResellerCreated }: { onResellerCreated: () => void }) => {
+const AdminResellersWrapper = ({ onResellerCreated, onCloseModal }: { onResellerCreated: () => void; onCloseModal: () => void }) => {
   useEffect(() => {
     const handleResellerCreated = () => {
       onResellerCreated();
     };
     
+    const handleCloseModal = () => {
+      onCloseModal();
+    };
+    
     // Escutar evento de revendedor criado
     window.addEventListener('reseller-created', handleResellerCreated);
+    // Escutar evento para fechar modal
+    window.addEventListener('close-reseller-modal', handleCloseModal);
     
     return () => {
       window.removeEventListener('reseller-created', handleResellerCreated);
+      window.removeEventListener('close-reseller-modal', handleCloseModal);
     };
-  }, [onResellerCreated]);
+  }, [onResellerCreated, onCloseModal]);
   
   return <AdminResellers autoOpenForm={true} />;
 };
@@ -1562,16 +1569,21 @@ const AdminDashboard = () => {
                       
                       {/* Usar componente AdminResellers dentro do modal */}
                       <div className="flex-1 overflow-y-auto">
-                        <AdminResellersWrapper onResellerCreated={() => {
-                          // Fechar modal após criar revendedor com sucesso
-                          setTimeout(() => {
+                        <AdminResellersWrapper 
+                          onResellerCreated={() => {
+                            // Fechar modal após criar revendedor com sucesso
+                            setTimeout(() => {
+                              setResellerModal(false);
+                              // Forçar atualização dos dados
+                              if (fetchRevendas) fetchRevendas();
+                              if (refreshResellers) refreshResellers();
+                              if (refreshStats) refreshStats();
+                            }, 1000);
+                          }}
+                          onCloseModal={() => {
                             setResellerModal(false);
-                            // Forçar atualização dos dados
-                            if (fetchRevendas) fetchRevendas();
-                            if (refreshResellers) refreshResellers();
-                            if (refreshStats) refreshStats();
-                          }, 1000);
-                        }} />
+                          }}
+                        />
                       </div>
                     </div>
                   </DialogContent>
