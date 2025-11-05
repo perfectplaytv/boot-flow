@@ -546,7 +546,7 @@ const Landing = () => {
       {showScrollButton && (
         <Button
           onClick={scrollToTop}
-          className="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-all duration-300 flex items-center gap-2 z-50 px-6 py-3"
+          className="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-primary text-primary-foreground dark:bg-[#7e22ce] dark:text-white shadow-lg hover:bg-primary/90 dark:hover:bg-[#6d1bb7] transition-all duration-300 flex items-center gap-2 z-50 px-6 py-3"
           aria-label="Voltar ao topo"
         >
           <ArrowUp className="w-5 h-5" />
