@@ -444,7 +444,7 @@ const Landing = () => {
                     </ul>
 
                     {/* Highlight Quote */}
-                    <div className="border-t border-border/50 pt-2">
+                    <div className="border-t border-border/50 pt-2 pb-1">
                       <p className="text-xs text-muted-foreground italic text-center leading-relaxed">
                         "{plan.highlight}"
                       </p>
@@ -452,7 +452,7 @@ const Landing = () => {
                   </div>
 
                   {/* CTA Button */}
-                  <div className="px-6 pb-6 pt-2">
+                  <div className="px-6 pb-6 pt-1">
                     <Button
                       variant={isPopular ? "hero" : isFree ? "default" : "outline"}
                       className={`w-full h-12 text-base font-semibold transition-all duration-300 ${
