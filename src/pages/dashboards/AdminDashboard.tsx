@@ -898,6 +898,7 @@ const AdminDashboard = () => {
         <CardContent className="bg-[#1f2937] rounded-b-lg">
           <p className="text-gray-300 mb-4">Gerencie todos os seus clientes cadastrados</p>
           <div className="space-y-2">
+            <div className="flex justify-between"><span className="text-sm text-gray-400">Total de Clientes:</span><span className="text-sm font-semibold text-white">{(clientes?.length || 0).toLocaleString()}</span></div>
             <div className="flex justify-between"><span className="text-sm text-gray-400">Clientes Ativos:</span><span className="text-sm font-semibold text-white">{stats.activeClients.toLocaleString()}</span></div>
             <div className="flex justify-between"><span className="text-sm text-gray-400">Novos este mês:</span><span className="text-sm font-semibold text-green-400">+{stats.monthlyGrowth}%</span></div>
           </div>
@@ -1038,6 +1039,38 @@ const AdminDashboard = () => {
   // Legacy kanban cards for backward compatibility
   const initialKanbanCards = Object.values(kanbanColumns).flatMap(column => column.cards);
   const [kanbanCards, setKanbanCards] = useState(initialKanbanCards);
+
+  // Atualizar o card de clientes quando a quantidade mudar
+  useEffect(() => {
+    setKanbanColumns(prevColumns => {
+      const updatedColumns = { ...prevColumns };
+      const servicosColumn = updatedColumns['servicos'];
+      if (servicosColumn) {
+        const clientesCardIndex = servicosColumn.cards.findIndex(card => card.id === 'clientes');
+        if (clientesCardIndex !== -1) {
+          const updatedCards = [...servicosColumn.cards];
+          updatedCards[clientesCardIndex] = {
+            ...updatedCards[clientesCardIndex],
+            body: (
+              <CardContent className="bg-[#1f2937] rounded-b-lg">
+                <p className="text-gray-300 mb-4">Gerencie todos os seus clientes cadastrados</p>
+                <div className="space-y-2">
+                  <div className="flex justify-between"><span className="text-sm text-gray-400">Total de Clientes:</span><span className="text-sm font-semibold text-white">{(clientes?.length || 0).toLocaleString()}</span></div>
+                  <div className="flex justify-between"><span className="text-sm text-gray-400">Clientes Ativos:</span><span className="text-sm font-semibold text-white">{stats.activeClients.toLocaleString()}</span></div>
+                  <div className="flex justify-between"><span className="text-sm text-gray-400">Novos este mês:</span><span className="text-sm font-semibold text-green-400">+{stats.monthlyGrowth}%</span></div>
+                </div>
+              </CardContent>
+            )
+          };
+          updatedColumns['servicos'] = {
+            ...servicosColumn,
+            cards: updatedCards
+          };
+        }
+      }
+      return updatedColumns;
+    });
+  }, [clientes, stats.activeClients, stats.monthlyGrowth]);
 
   // Componente SortableCard
   function SortableCard({ id, content, body, onClick }: any) {
