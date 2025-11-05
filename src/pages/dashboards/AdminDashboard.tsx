@@ -62,6 +62,24 @@ import AdminCobrancas from "../AdminCobrancas";
 import Notifications from "../Notifications";
 import Profile from "../Profile";
 
+// Wrapper para AdminResellers que aceita callback quando um revendedor é criado
+const AdminResellersWrapper = ({ onResellerCreated }: { onResellerCreated: () => void }) => {
+  useEffect(() => {
+    const handleResellerCreated = () => {
+      onResellerCreated();
+    };
+    
+    // Escutar evento de revendedor criado
+    window.addEventListener('reseller-created', handleResellerCreated);
+    
+    return () => {
+      window.removeEventListener('reseller-created', handleResellerCreated);
+    };
+  }, [onResellerCreated]);
+  
+  return <AdminResellers />;
+};
+
 
 
 const AdminDashboard = () => {
@@ -1539,15 +1557,28 @@ const AdminDashboard = () => {
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                             </svg>
                           </Button>
-                    </div>
+                        </div>
                       </div>
                       
-                      <form onSubmit={handleAddReseller} className="space-y-6 flex-1 overflow-y-auto">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <div className="space-y-2">
-                            <Label className="text-sm font-medium text-white">
-                              Usuário <span className="text-red-500">*</span>
-                            </Label>
+                      {/* Usar componente AdminResellers dentro do modal */}
+                      <div className="flex-1 overflow-y-auto">
+                        <AdminResellersWrapper onResellerCreated={() => {
+                          // Fechar modal após criar revendedor com sucesso
+                          setTimeout(() => {
+                            setResellerModal(false);
+                            // Forçar atualização dos dados
+                            if (fetchRevendas) fetchRevendas();
+                            if (refreshResellers) refreshResellers();
+                            if (refreshStats) refreshStats();
+                          }, 1000);
+                        }} />
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
+            </div>
+          </div>
                             <Input
                               className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
                               placeholder="Obrigatório"
