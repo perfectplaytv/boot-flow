@@ -897,25 +897,30 @@ export default function AdminUsers() {
                 <span className="sm:hidden">Novo</span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-lg w-full bg-background border border-gray-800 shadow-2xl p-0 rounded-lg overflow-hidden">
-              <div className="relative">
-                <button
-                  type="button"
-                  className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                  onClick={() => setIsAddDialogOpen(false)}
-                  aria-label="Fechar"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-x h-4 w-4"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
-                </button>
-                <div className="px-6 pt-6 pb-2 border-b border-gray-800 bg-[#18181b]">
-                  <h2 className="text-lg font-semibold leading-none tracking-tight text-white flex items-center gap-2">
-                    <Users className="w-6 h-6 text-green-500" />
-                    Adicionar Cliente
-                    <span className="ml-2 px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 text-xs font-semibold">Novo</span>
-                  </h2>
-                  <p className="text-sm text-muted-foreground mt-1">Preencha os dados do novo cliente para adicioná-lo à base de dados.</p>
+            <DialogContent className="bg-[#1f2937] text-white max-w-4xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col max-h-[90vh] overflow-y-auto scrollbar-hide">
+              <div className="p-6 w-full flex flex-col">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold">Adicionar um Cliente</h2>
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="text-gray-400 hover:text-white"
+                      onClick={() => setIsAddDialogOpen(false)}
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </Button>
+                  </div>
                 </div>
-                <div className="p-4 sm:p-6 max-h-[70vh] overflow-y-auto scrollbar-hide bg-[#18181b]">
+                
+                <form onSubmit={async (e) => { 
+                  e.preventDefault(); 
+                  e.stopPropagation();
+                  console.log("🔵 [AdminUsers] Form submit disparado!");
+                  await handleAddUser(); 
+                }} className="space-y-6 flex-1 overflow-y-auto">
                   <div className="flex items-center gap-2 mb-4">
                     <span className="text-green-400 text-xs font-medium">• Campos obrigatórios marcados com *</span>
                     <span className="text-blue-400 text-xs font-medium">• Dados serão sincronizados automaticamente</span>
@@ -1192,139 +1197,159 @@ export default function AdminUsers() {
                   </div>
                   {/* Configuração de Serviço */}
                   <div className="bg-[#23272f] border border-gray-700 rounded-lg p-4 mb-6">
-                    <span className="block text-purple-400 font-semibold mb-4">Configuração de Serviço</span>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
-                      {/* Classe de Serviço */}
-                      <div>
+                    <span className="block text-white font-semibold mb-4">Configuração de Serviço</span>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Dispositivos */}
+                      <div className="col-span-1">
                         <label className="block text-gray-300 mb-1 font-medium">
-                          Classe de Serviço
+                          Dispositivos
                         </label>
-                        <select className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2">
-                          <option value="">Selecione</option>
-                          <option value="basico">Básico</option>
-                          <option value="premium">Premium</option>
-                        </select>
-                      </div>
-                      {/* Plano */}
-                      <div>
-                        <label className="block text-gray-300 mb-1 font-medium">
-                          Plano
-                        </label>
-                        <select className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2">
-                          <option value="mensal">Mensal</option>
-                          <option value="anual">Anual</option>
-                        </select>
-                      </div>
-                      {/* Status */}
-                      <div>
-                        <label className="block text-gray-300 mb-1 font-medium">
-                          Status
-                        </label>
-                        <select
-                          value={newUser.status}
-                          onChange={(e) =>
-                            setNewUser({ ...newUser, status: e.target.value })
-                          }
-                          className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                        >
-                          <option value="Ativo">Ativo</option>
-                          <option value="Inativo">Inativo</option>
-                          <option value="Pendente">Pendente</option>
-                        </select>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
-                      {/* Data de Renovação */}
-                      <div>
-                        <label className="block text-gray-300 mb-1 font-medium">
-                          Data de Renovação
-                        </label>
-                        <RenovacaoDatePicker />
-                      </div>
-                      {/* Número de Dispositivos */}
-                      <div>
-                        <label className="block text-gray-300 mb-1 font-medium">
-                          Número de Dispositivos
-                        </label>
-                        <input
+                        <Input
                           type="number"
-                          min={1}
-                          value={newUser.devices || 0}
+                          placeholder="0"
+                          className="bg-[#23272f] border border-gray-700 text-white"
+                          value={newUser.devices}
                           onChange={(e) =>
-                            setNewUser({
-                              ...newUser,
-                              devices: parseInt(e.target.value) || 0,
-                            })
+                            setNewUser({ ...newUser, devices: parseInt(e.target.value) || 0 })
                           }
-                          className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                         />
                       </div>
                       {/* Créditos */}
-                      <div>
+                      <div className="col-span-1">
                         <label className="block text-gray-300 mb-1 font-medium">
                           Créditos
                         </label>
-                        <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            className="bg-[#23272f] text-white px-2 py-1 rounded border border-gray-700"
-                          >
-                            -
-                          </button>
-                          <input
-                            type="number"
-                            min={0}
-                            value={newUser.credits || 0}
-                            onChange={(e) =>
-                              setNewUser({
-                                ...newUser,
-                                credits: parseInt(e.target.value) || 0,
-                              })
-                            }
-                            className="w-16 bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                          />
-                          <button
-                            type="button"
-                            className="bg-[#23272f] text-white px-2 py-1 rounded border border-gray-700"
-                          >
-                            +
-                          </button>
-                          <span className="text-xs text-gray-400 ml-2">
-                            valor
-                            <br />
-                            entre 0<br />e 500€
-                          </span>
-                        </div>
+                        <Input
+                          type="number"
+                          placeholder="0"
+                          className="bg-[#23272f] border border-gray-700 text-white"
+                          value={newUser.credits}
+                          onChange={(e) =>
+                            setNewUser({ ...newUser, credits: parseInt(e.target.value) || 0 })
+                          }
+                        />
+                      </div>
+                      {/* Senha */}
+                      <div className="col-span-1">
+                        <label className="block text-gray-300 mb-1 font-medium">
+                          Senha
+                        </label>
+                        <Input
+                          placeholder="Senha do cliente"
+                          className="bg-[#23272f] border border-gray-700 text-white"
+                          value={newUser.password}
+                          onChange={(e) =>
+                            setNewUser({ ...newUser, password: e.target.value })
+                          }
+                        />
+                      </div>
+                      {/* Bouquets */}
+                      <div className="col-span-1">
+                        <label className="block text-gray-300 mb-1 font-medium">
+                          Bouquets
+                        </label>
+                        <Input
+                          placeholder="Bouquets disponíveis"
+                          className="bg-[#23272f] border border-gray-700 text-white"
+                          value={newUser.bouquets}
+                          onChange={(e) =>
+                            setNewUser({ ...newUser, bouquets: e.target.value })
+                          }
+                        />
                       </div>
                     </div>
                   </div>
                   {/* Informações Adicionais */}
                   <div className="bg-[#23272f] border border-gray-700 rounded-lg p-4 mb-6">
-                    <span className="block text-white font-semibold mb-2">Informações Adicionais</span>
-                    <div className="flex items-center gap-2 mb-2">
-                      <input type="checkbox" className="accent-purple-600" />
-                      <span className="text-gray-300">Notificações via WhatsApp</span>
+                    <span className="block text-white font-semibold mb-4">Informações Adicionais</span>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Nome Real */}
+                      <div className="col-span-1">
+                        <label className="block text-gray-300 mb-1 font-medium">
+                          Nome Real
+                        </label>
+                        <Input
+                          placeholder="Nome real do cliente"
+                          className="bg-[#23272f] border border-gray-700 text-white"
+                          value={newUser.realName}
+                          onChange={(e) =>
+                            setNewUser({ ...newUser, realName: e.target.value })
+                          }
+                        />
+                      </div>
+                      {/* WhatsApp */}
+                      <div className="col-span-1">
+                        <label className="block text-gray-300 mb-1 font-medium">
+                          WhatsApp
+                        </label>
+                        <Input
+                          placeholder="+55 (11) 99999-9999"
+                          className="bg-[#23272f] border border-gray-700 text-white"
+                          value={newUser.whatsapp}
+                          onChange={(e) =>
+                            setNewUser({ ...newUser, whatsapp: e.target.value })
+                          }
+                        />
+                      </div>
+                      {/* Telegram */}
+                      <div className="col-span-1">
+                        <label className="block text-gray-300 mb-1 font-medium">
+                          Telegram
+                        </label>
+                        <Input
+                          placeholder="@username"
+                          className="bg-[#23272f] border border-gray-700 text-white"
+                          value={newUser.telegram}
+                          onChange={(e) =>
+                            setNewUser({ ...newUser, telegram: e.target.value })
+                          }
+                        />
+                      </div>
+                      {/* Observações */}
+                      <div className="col-span-1">
+                        <label className="block text-gray-300 mb-1 font-medium">
+                          Observações
+                        </label>
+                        <Input
+                          placeholder="Observações sobre o cliente"
+                          className="bg-[#23272f] border border-gray-700 text-white"
+                          value={newUser.observations}
+                          onChange={(e) =>
+                            setNewUser({ ...newUser, observations: e.target.value })
+                          }
+                        />
+                      </div>
+                      {/* Notas */}
+                      <div className="col-span-2">
+                        <label className="block text-gray-300 mb-1 font-medium">
+                          Notas
+                        </label>
+                        <textarea
+                          placeholder="Notas adicionais sobre o cliente..."
+                          className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 min-h-[80px] resize-none"
+                          value={newUser.notes}
+                          onChange={(e) =>
+                            setNewUser({ ...newUser, notes: e.target.value })
+                          }
+                        />
+                      </div>
                     </div>
-                    <label className="block text-gray-300 mb-1 font-medium">Anotações</label>
-                    <textarea placeholder="Anotações..." className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 min-h-[60px]" />
                   </div>
-                  <div className="flex justify-end gap-2 mt-6">
-                    <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} className="bg-gray-700 text-white px-6 py-2 rounded font-semibold" disabled={isAddingUser}>Fechar</Button>
-                    <Button 
+                  
+                  {/* Botões de Ação */}
+                  <div className="flex justify-end gap-3 pt-4 border-t border-gray-700">
+                    <Button
                       type="button"
-                      className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed" 
-                      onClick={async (e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        console.log("🔵 [DEBUG] Botão clicado!");
-                        try {
-                          await handleAddUser();
-                        } catch (error) {
-                          console.error("❌ [DEBUG] Erro capturado no onClick:", error);
-                          setIsAddingUser(false);
-                        }
-                      }}
+                      variant="outline"
+                      onClick={() => setIsAddDialogOpen(false)}
+                      className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                    >
+                      Cancelar
+                    </Button>
+                    <Button
+                      type="submit"
                       disabled={isAddingUser}
+                      className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white"
                     >
                       {isAddingUser ? "Adicionando..." : "Adicionar Cliente"}
                     </Button>
@@ -1339,7 +1364,7 @@ export default function AdminUsers() {
                       ✅ Cliente adicionado com sucesso!
                     </div>
                   )}
-                </div>
+                </form>
               </div>
             </DialogContent>
           </Dialog>
