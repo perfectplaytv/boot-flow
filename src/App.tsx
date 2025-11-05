@@ -9,6 +9,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 
 // Contexts
 import { AuthProvider } from '@/contexts/AuthContext';
+import { ThemeProvider } from '@/components/theme-provider';
 
 // Pages
 import Landing from "./pages/Landing";
@@ -49,11 +50,12 @@ const App = () => {
   
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <BrowserRouter>
-          <AuthProviderWithNavigation>
-            <WhatsAppStatusContext.Provider value={{ isConnected, setIsConnected, connectionStatus, setConnectionStatus }}>
-              <Routes>
+      <ThemeProvider defaultTheme="system" storageKey="bootflow-ui-theme">
+        <TooltipProvider>
+          <BrowserRouter>
+            <AuthProviderWithNavigation>
+              <WhatsAppStatusContext.Provider value={{ isConnected, setIsConnected, connectionStatus, setConnectionStatus }}>
+                <Routes>
                 {/* Rotas públicas */}
                 <Route path="/" element={<Landing />} />
                 <Route path="/login" element={<Login />} />
@@ -84,6 +86,7 @@ const App = () => {
           </AuthProviderWithNavigation>
         </BrowserRouter>
       </TooltipProvider>
+    </ThemeProvider>
     </QueryClientProvider>
   );
 };

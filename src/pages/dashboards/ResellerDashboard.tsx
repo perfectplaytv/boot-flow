@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { ResellerSidebar } from "@/components/sidebars/ResellerSidebar";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -243,7 +244,9 @@ const ResellerDashboard = () => {
                 <h1 className="text-3xl font-bold text-white">Dashboard Revendedor</h1>
                 <p className="text-gray-400">Gerencie seus clientes e vendas</p>
               </div>
-              <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+              <div className="flex items-center gap-2">
+                <ThemeToggle />
+                <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
                 <DialogTrigger asChild>
                   <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white">
                     <Plus className="w-4 h-4 mr-2" />

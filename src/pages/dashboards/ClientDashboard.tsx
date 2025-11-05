@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { ClientSidebar } from "@/components/sidebars/ClientSidebar";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const ClientDashboard = () => {
   const [stats] = useState({
@@ -37,10 +38,13 @@ const ClientDashboard = () => {
                 <h1 className="text-3xl font-bold text-white">Minha Central</h1>
                 <p className="text-gray-400">Seus serviços e entretenimento</p>
               </div>
-              <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white">
-                <MessageSquare className="w-4 h-4 mr-2" />
-                Chat IA
-              </Button>
+              <div className="flex items-center gap-2">
+                <ThemeToggle />
+                <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white">
+                  <MessageSquare className="w-4 h-4 mr-2" />
+                  Chat IA
+                </Button>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
