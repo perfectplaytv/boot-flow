@@ -149,9 +149,9 @@ const AdminDashboard = () => {
   const { data: realtimeClientes, error: clientesError, isConnected: clientesConnected } = useRealtimeClientes();
   const { data: realtimeRevendas, error: revendasError, isConnected: revendasConnected } = useRealtimeRevendas();
   
-  // Hooks para funções de atualização
-  const { fetchClientes, addCliente: addClienteHook } = useClientes();
-  const { fetchRevendas } = useRevendas();
+  // Hooks para funções de atualização e dados
+  const { clientes: clientesFromHook, fetchClientes, addCliente: addClienteHook } = useClientes();
+  const { revendas: revendasFromHook, fetchRevendas } = useRevendas();
   
   // Estados locais para os dados
   const [clientes, setClientes] = useState<any[]>([]);
@@ -159,18 +159,22 @@ const AdminDashboard = () => {
   const [loadingClientes, setLoadingClientes] = useState(true);
   const [loadingRevendas, setLoadingRevendas] = useState(true);
   
-  // Atualiza os estados locais quando os dados em tempo real mudam
+  // Atualiza os estados locais quando os dados em tempo real mudam OU quando os dados dos hooks mudam
   useEffect(() => {
-    if (realtimeClientes) {
-      setClientes(realtimeClientes);
+    // Priorizar dados do hook se disponíveis, caso contrário usar dados em tempo real
+    const clientesToUse = clientesFromHook && clientesFromHook.length > 0 ? clientesFromHook : realtimeClientes;
+    const revendasToUse = revendasFromHook && revendasFromHook.length > 0 ? revendasFromHook : realtimeRevendas;
+    
+    if (clientesToUse) {
+      setClientes(clientesToUse);
       setLoadingClientes(false);
     }
     
-    if (realtimeRevendas) {
-      setRevendas(realtimeRevendas);
+    if (revendasToUse) {
+      setRevendas(revendasToUse);
       setLoadingRevendas(false);
     }
-  }, [realtimeClientes, realtimeRevendas]);
+  }, [realtimeClientes, realtimeRevendas, clientesFromHook, revendasFromHook]);
   
   // Exibe notificações de erro
   useEffect(() => {
