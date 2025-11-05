@@ -85,14 +85,18 @@ const AdminDashboard = () => {
   // Usando o hook personalizado para gerenciar os dados do dashboard
   const { stats, loading: loadingStats, error: statsError, refresh: refreshStats } = useDashboardData();
 
-  // Buscar dados de clientes e revendas diretamente para garantir que estão atualizados
-  const { clientes: clientesFromHook } = useClientes();
-  const { revendas: revendasFromHook } = useRevendas();
-  
-  // Calcular total de usuários diretamente dos dados atualizados
+  // Calcular total de usuários diretamente dos dados atualizados (usando estados locais que são atualizados em tempo real)
   const totalUsersCount = useMemo(() => {
-    return (clientesFromHook?.length || 0) + (revendasFromHook?.length || 0);
-  }, [clientesFromHook, revendasFromHook]);
+    const count = (clientes?.length || 0) + (revendas?.length || 0);
+    console.log('🔄 [AdminDashboard] Total de usuários calculado:', {
+      clientes: clientes?.length || 0,
+      revendas: revendas?.length || 0,
+      total: count,
+      clientesArray: clientes,
+      revendasArray: revendas
+    });
+    return count;
+  }, [clientes, revendas]);
 
   // Estados para o modal de cliente
   const [newUser, setNewUser] = useState({
