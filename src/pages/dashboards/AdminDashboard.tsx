@@ -1151,7 +1151,12 @@ const AdminDashboard = () => {
                         </div>
                       </div>
                       
-                      <form onSubmit={(e) => { e.preventDefault(); handleAddUser(); }} className="space-y-6 flex-1 overflow-y-auto">
+                      <form onSubmit={async (e) => { 
+                        e.preventDefault(); 
+                        e.stopPropagation();
+                        console.log("🔵 [AdminDashboard] Form submit disparado!");
+                        await handleAddUser(); 
+                      }} className="space-y-6 flex-1 overflow-y-auto">
                         <div className="flex items-center gap-2 mb-4">
                           <span className="text-green-400 text-xs font-medium">• Campos obrigatórios marcados com *</span>
                           <span className="text-blue-400 text-xs font-medium">• Dados serão sincronizados automaticamente</span>
@@ -2222,7 +2227,12 @@ const AdminDashboard = () => {
                             </div>
                           </div>
                           
-                          <form onSubmit={(e) => { e.preventDefault(); handleAddUser(); }} className="space-y-6 flex-1 overflow-y-auto">
+                          <form onSubmit={async (e) => { 
+                        e.preventDefault(); 
+                        e.stopPropagation();
+                        console.log("🔵 [AdminDashboard] Form submit disparado!");
+                        await handleAddUser(); 
+                      }} className="space-y-6 flex-1 overflow-y-auto">
                             <div className="flex items-center gap-2 mb-4">
                               <span className="text-green-400 text-xs font-medium">• Campos obrigatórios marcados com *</span>
                               <span className="text-blue-400 text-xs font-medium">• Dados serão sincronizados automaticamente</span>
