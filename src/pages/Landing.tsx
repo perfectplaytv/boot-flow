@@ -548,11 +548,11 @@ const Landing = () => {
                 </li>
                 <li>
                   <a 
-                    href="/privacy" 
+                    href="/privacidade" 
                     className="hover:text-foreground transition-colors cursor-pointer"
                     onClick={(e) => {
                       e.preventDefault();
-                      navigate('/privacy');
+                      navigate('/privacidade');
                     }}
                   >
                     Privacidade
@@ -560,11 +560,11 @@ const Landing = () => {
                 </li>
                 <li>
                   <a 
-                    href="/terms" 
+                    href="/termos" 
                     className="hover:text-foreground transition-colors cursor-pointer"
                     onClick={(e) => {
                       e.preventDefault();
-                      navigate('/terms');
+                      navigate('/termos');
                     }}
                   >
                     Termos
