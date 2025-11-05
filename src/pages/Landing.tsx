@@ -32,7 +32,11 @@ import {
   Crown,
   Headphones,
   ArrowRightCircle,
-  BarChart
+  BarChart,
+  Bell,
+  AlertCircle,
+  Info,
+  Calendar
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -118,27 +122,27 @@ const Landing = () => {
     }
   ];
 
-  const testimonials = [
+  const avisos = [
     {
-      name: "Carlos Oliveira",
-      company: "TechSales Pro",
-      avatar: "CO",
-      rating: 5,
-      text: "O BootFlow revolucionou nosso atendimento! 300% de aumento nas conversões com IA emocional."
+      type: "info",
+      title: "Nova Funcionalidade: Integração com Mercado Pago",
+      date: "15 de Janeiro, 2024",
+      description: "Agora você pode receber pagamentos diretamente pelo BootFlow com integração completa ao Mercado Pago. Configure em minutos e comece a faturar!",
+      icon: Bell
     },
     {
-      name: "Marina Silva",
-      company: "Digital Marketing Co",
-      avatar: "MS", 
-      rating: 5,
-      text: "Automatizamos todo o WhatsApp da empresa. Economia de 80% no tempo de resposta!"
+      type: "update",
+      title: "Atualização do Sistema",
+      date: "10 de Janeiro, 2024",
+      description: "Melhorias de performance e novas funcionalidades de automação foram adicionadas. Sua experiência está mais rápida e eficiente.",
+      icon: Zap
     },
     {
-      name: "Roberto Santos",
-      company: "E-commerce Plus",
-      avatar: "RS",
-      rating: 5,
-      text: "A voz emocional da IA é incrível! Clientes nem percebem que não é humano."
+      type: "important",
+      title: "Manutenção Programada",
+      date: "25 de Janeiro, 2024",
+      description: "Sistema ficará temporariamente indisponível das 02h às 04h para atualizações importantes. Obrigado pela compreensão.",
+      icon: AlertCircle
     }
   ];
 
@@ -238,8 +242,8 @@ const Landing = () => {
               <a href="#features" className="text-muted-foreground hover:text-foreground transition-colors">
                 Funcionalidades
               </a>
-              <a href="#testimonials" className="text-muted-foreground hover:text-foreground transition-colors">
-                Depoimentos
+              <a href="#avisos" className="text-muted-foreground hover:text-foreground transition-colors">
+                Avisos
               </a>
               <a 
                 href="/preco" 
@@ -343,45 +347,50 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      <section id="testimonials" className="py-20 px-4 bg-muted/20">
+      {/* Avisos Section */}
+      <section id="avisos" className="py-20 px-4 bg-muted/20">
         <div className="container mx-auto">
           <div className="text-center mb-16">
             <Badge variant="glass" className="mb-4">
-              Depoimentos
+              Avisos
             </Badge>
             <h2 className="text-4xl md:text-5xl font-bold mb-6 gradient-text">
-              Clientes Satisfeitos
+              Fique por Dentro
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Veja o que nossos clientes estão dizendo sobre os resultados obtidos
+              Acompanhe as últimas atualizações, novidades e avisos importantes da plataforma
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            {testimonials.map((testimonial, index) => (
-              <Card key={index} className="glass border-border/20 hover:border-primary/20 transition-all duration-300 hover-scale">
-                <CardHeader>
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-gradient-primary rounded-full flex items-center justify-center text-white font-semibold">
-                      {testimonial.avatar}
+          <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            {avisos.map((aviso, index) => {
+              const IconComponent = aviso.icon;
+              const typeColors = {
+                info: "bg-blue-500/10 text-blue-500 border-blue-500/20",
+                update: "bg-green-500/10 text-green-500 border-green-500/20",
+                important: "bg-orange-500/10 text-orange-500 border-orange-500/20"
+              };
+              
+              return (
+                <Card key={index} className="glass border-border/20 hover:border-primary/20 transition-all duration-300 hover-scale hover:shadow-lg">
+                  <CardHeader>
+                    <div className="flex items-start justify-between mb-3">
+                      <div className={`p-2 rounded-lg ${typeColors[aviso.type as keyof typeof typeColors]}`}>
+                        <IconComponent className="w-5 h-5" />
+                      </div>
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Calendar className="w-3 h-3" />
+                        <span>{aviso.date}</span>
+                      </div>
                     </div>
-                    <div>
-                      <CardTitle className="text-lg">{testimonial.name}</CardTitle>
-                      <CardDescription>{testimonial.company}</CardDescription>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="w-4 h-4 fill-primary text-primary" />
-                    ))}
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground italic">"{testimonial.text}"</p>
-                </CardContent>
-              </Card>
-            ))}
+                    <CardTitle className="text-lg mb-2">{aviso.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground leading-relaxed">{aviso.description}</p>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </div>
       </section>
