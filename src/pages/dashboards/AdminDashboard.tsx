@@ -85,6 +85,15 @@ const AdminDashboard = () => {
   // Usando o hook personalizado para gerenciar os dados do dashboard
   const { stats, loading: loadingStats, error: statsError, refresh: refreshStats } = useDashboardData();
 
+  // Buscar dados de clientes e revendas diretamente para garantir que estão atualizados
+  const { clientes: clientesFromHook } = useClientes();
+  const { revendas: revendasFromHook } = useRevendas();
+  
+  // Calcular total de usuários diretamente dos dados atualizados
+  const totalUsersCount = useMemo(() => {
+    return (clientesFromHook?.length || 0) + (revendasFromHook?.length || 0);
+  }, [clientesFromHook, revendasFromHook]);
+
   // Estados para o modal de cliente
   const [newUser, setNewUser] = useState({
     name: "",
@@ -1806,7 +1815,7 @@ const AdminDashboard = () => {
                   <Users className="h-3 w-3 sm:h-4 sm:w-4 text-purple-400" />
                 </CardHeader>
                 <CardContent className="p-3 sm:p-6">
-                  <div className="text-lg sm:text-2xl font-bold text-white">{stats.totalUsers.toLocaleString()}</div>
+                  <div className="text-lg sm:text-2xl font-bold text-white">{totalUsersCount.toLocaleString()}</div>
                   <p className="text-xs text-gray-400 mt-1">+12.5% em relação ao mês passado</p>
                 </CardContent>
               </Card>
