@@ -353,78 +353,143 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section id="pricing" className="py-20 px-4">
-        <div className="container mx-auto">
+      {/* Pricing Section - Modern SaaS Style */}
+      <section id="pricing" className="py-24 px-4 bg-gradient-to-b from-background via-background to-muted/20">
+        <div className="container mx-auto max-w-7xl">
+          {/* Header */}
           <div className="text-center mb-16">
-            <Badge variant="glass" className="mb-4">
-              Preços
+            <Badge variant="glass" className="mb-4 text-sm px-4 py-1.5">
+              Planos e Preços
             </Badge>
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 gradient-text">
-              Estilo Premium Corporativo
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 gradient-text">
+              Escolha o plano ideal para você
             </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Vamos montar sua tabela e deixar ela tinindo pra vender
+            <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
+              Comece gratuitamente e escale conforme sua empresa cresce. Sem compromisso, cancele quando quiser.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-7xl mx-auto">
-            {plans.map((plan, index) => (
-              <Card key={index} className={`glass border-border/20 hover:border-primary/20 transition-all duration-300 relative flex flex-col overflow-hidden group ${plan.popular ? 'ring-2 ring-primary shadow-glow lg:scale-105' : ''} ${plan.price === "R$ 0" ? 'border-green-500/30' : ''}`}>
-                {plan.popular && (
-                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-purple-500 to-primary"></div>
-                )}
-                {plan.price === "R$ 0" && (
-                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-green-400 via-green-500 to-green-400"></div>
-                )}
-                {plan.popular && (
-                  <Badge variant="neon" className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10 animate-pulse-glow shadow-lg text-xs">
-                    ⭐ Mais Popular
-                  </Badge>
-                )}
-                {plan.price === "R$ 0" && (
-                  <Badge className="absolute -top-3 right-4 bg-green-500 hover:bg-green-600 text-white z-10 shadow-lg font-bold text-xs px-2 py-0.5">
-                    GRÁTIS
-                  </Badge>
-                )}
-                <CardHeader className="text-center pb-3 border-b border-border/20 relative px-3 pt-5">
-                  <CardTitle className="text-lg font-bold mb-1">{plan.name}</CardTitle>
-                  <CardDescription className="text-xs mb-2 min-h-[28px] leading-tight">{plan.description}</CardDescription>
-                  <div className="mb-2">
-                    <div className="text-2xl font-bold gradient-text mb-1">
-                      {plan.price}
-                      <span className="text-sm text-muted-foreground">{plan.period}</span>
+          {/* Pricing Cards */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+            {plans.map((plan, index) => {
+              const IconComponent = plan.features[0]?.icon || Check;
+              const isPopular = plan.popular;
+              const isFree = plan.price === "R$ 0";
+              
+              return (
+                <div
+                  key={index}
+                  className={`relative flex flex-col rounded-2xl border transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 ${
+                    isPopular
+                      ? 'lg:scale-105 border-primary/50 bg-gradient-to-br from-primary/5 to-primary/10 shadow-xl ring-2 ring-primary/20'
+                      : 'border-border/50 bg-card/50 backdrop-blur-sm hover:border-primary/30'
+                  } ${isFree ? 'border-green-500/30' : ''}`}
+                >
+                  {/* Popular Badge */}
+                  {isPopular && (
+                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
+                      <Badge className="bg-gradient-to-r from-primary to-purple-600 text-white px-4 py-1.5 text-xs font-semibold shadow-lg">
+                        ⭐ Recomendado
+                      </Badge>
                     </div>
-                    <div className="text-xs text-primary font-semibold mt-1 bg-primary/10 rounded-full px-2 py-0.5 inline-block">
+                  )}
+
+                  {/* Free Badge */}
+                  {isFree && (
+                    <div className="absolute -top-4 right-4 z-10">
+                      <Badge className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-3 py-1 text-xs font-bold shadow-lg">
+                        GRÁTIS
+                      </Badge>
+                    </div>
+                  )}
+
+                  {/* Card Header */}
+                  <div className="p-6 pb-4 border-b border-border/50">
+                    <div className="mb-4">
+                      <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
+                      <p className="text-sm text-muted-foreground mb-4">{plan.description}</p>
+                    </div>
+                    
+                    <div className="flex items-baseline gap-1 mb-4">
+                      <span className="text-4xl font-bold gradient-text">{plan.price}</span>
+                      <span className="text-base text-muted-foreground">{plan.period}</span>
+                    </div>
+
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-semibold">
+                      <Users className="w-4 h-4" />
                       {plan.clients}
                     </div>
                   </div>
-                </CardHeader>
-                <CardContent className="flex-1 flex flex-col pt-3 px-3 pb-3">
-                  <div className="space-y-1.5 mb-3 flex-1">
-                    {plan.features.map((feature, i) => (
-                      <div key={i} className="flex items-start space-x-2 group-hover:translate-x-0.5 transition-transform">
-                        <Check className="w-3.5 h-3.5 text-primary mt-0.5 flex-shrink-0" />
-                        <span className="text-xs leading-relaxed">{feature}</span>
-                      </div>
-                    ))}
+
+                  {/* Features List */}
+                  <div className="flex-1 p-6 pt-4">
+                    <ul className="space-y-3 mb-6">
+                      {plan.features.map((feature, i) => {
+                        const FeatureIcon = feature.icon || Check;
+                        return (
+                          <li key={i} className="flex items-start gap-3 group/item">
+                            <div className={`mt-0.5 flex-shrink-0 rounded-full p-1 ${
+                              isPopular 
+                                ? 'bg-primary/20 text-primary' 
+                                : 'bg-muted text-muted-foreground group-hover/item:bg-primary/10 group-hover/item:text-primary transition-colors'
+                            }`}>
+                              <FeatureIcon className="w-4 h-4" />
+                            </div>
+                            <span className="text-sm leading-relaxed text-foreground/90 group-hover/item:text-foreground transition-colors">
+                              {feature.text}
+                            </span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+
+                    {/* Highlight Quote */}
+                    <div className="border-t border-border/50 pt-4 mb-6">
+                      <p className="text-xs text-muted-foreground italic text-center leading-relaxed">
+                        "{plan.highlight}"
+                      </p>
+                    </div>
                   </div>
-                  <div className="border-t border-border/20 pt-2 mb-2 bg-muted/30 rounded-lg p-1.5">
-                    <p className="text-xs text-muted-foreground italic text-center leading-relaxed">
-                      "{plan.highlight}"
-                    </p>
+
+                  {/* CTA Button */}
+                  <div className="p-6 pt-0">
+                    <Button
+                      variant={isPopular ? "hero" : isFree ? "default" : "outline"}
+                      className={`w-full h-12 text-base font-semibold transition-all duration-300 ${
+                        isPopular 
+                          ? 'shadow-lg hover:shadow-xl hover:scale-105' 
+                          : 'hover:bg-primary hover:text-primary-foreground hover:border-primary'
+                      }`}
+                      onClick={() => navigate('/cadastro')}
+                    >
+                      {isFree ? "Começar Agora" : "Assinar Agora"}
+                      <ArrowRight className={`w-4 h-4 ml-2 transition-transform group-hover:translate-x-1`} />
+                    </Button>
                   </div>
-                  <Button 
-                    variant={plan.popular ? "hero" : plan.price === "R$ 0" ? "default" : "glass"} 
-                    className={`w-full font-semibold text-xs h-8 transition-all duration-300 ${plan.popular ? 'hover:scale-105 shadow-lg' : ''}`}
-                    onClick={() => navigate('/cadastro')}
-                  >
-                    {plan.price === "R$ 0" ? "Começar Grátis" : "Assinar Agora"}
-                    <ArrowRight className="w-3 h-3 ml-1.5" />
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Additional Info */}
+          <div className="mt-16 text-center">
+            <p className="text-sm text-muted-foreground mb-4">
+              Todos os planos incluem suporte técnico e atualizações gratuitas
+            </p>
+            <div className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-primary" />
+                <span>Sem taxas de setup</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-primary" />
+                <span>Cancelamento a qualquer momento</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-primary" />
+                <span>Suporte 24/7</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
