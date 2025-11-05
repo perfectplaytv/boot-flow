@@ -31,24 +31,64 @@ export function useClientes() {
 
   async function fetchClientes() {
     try {
+      console.log('🔄 [useClientes] fetchClientes chamado');
       setLoading(true);
       setError(null);
       
-      const { data, error } = await supabase.from('users').select('*');
+      // Usar fetch direto para evitar travamentos
+      const allKeys = Object.keys(localStorage);
+      const supabaseKeys = allKeys.filter(key => key.startsWith('sb-') && key.includes('auth-token'));
+      let authToken = '';
       
-      if (error) {
-        console.error('Erro ao buscar clientes:', error);
-        
-        // Verificar se é erro de RLS
-        if (error.message.includes('row-level security policy')) {
-          setError('Erro de permissão: As políticas de segurança estão bloqueando o acesso. Execute o script SQL para corrigir as políticas RLS.');
-        } else {
-          setError(`Erro ao buscar clientes: ${error.message}`);
+      for (const key of supabaseKeys) {
+        try {
+          const authData = localStorage.getItem(key);
+          if (authData) {
+            const parsed = JSON.parse(authData);
+            if (parsed?.access_token) {
+              authToken = parsed.access_token;
+              break;
+            }
+          }
+        } catch (e) {
+          // Continuar procurando
         }
-        return;
       }
       
-      setClientes(data || []);
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_ANON_KEY,
+      };
+      
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`;
+      }
+      
+      const fetchUrl = `${SUPABASE_URL}/rest/v1/users?select=*`;
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      
+      try {
+        const response = await fetch(fetchUrl, {
+          method: 'GET',
+          headers,
+          signal: controller.signal,
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        console.log('✅ [useClientes] Clientes buscados:', data.length);
+        setClientes(data || []);
+      } catch (fetchError: any) {
+        clearTimeout(timeoutId);
+        throw fetchError;
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
       setError(`Erro inesperado: ${errorMessage}`);
@@ -188,8 +228,17 @@ export function useClientes() {
       }
       
       console.log('✅ [useClientes] Cliente inserido com sucesso:', data);
-      console.log('🔄 [useClientes] Atualizando lista de clientes...');
-      await fetchClientes();
+      
+      // Adicionar o cliente diretamente ao estado ao invés de buscar novamente
+      if (data && Array.isArray(data) && data.length > 0) {
+        const newCliente = data[0] as Cliente;
+        setClientes(prevClientes => [...prevClientes, newCliente]);
+        console.log('✅ [useClientes] Cliente adicionado ao estado local');
+      } else {
+        // Se não conseguiu adicionar ao estado, buscar novamente
+        console.log('🔄 [useClientes] Atualizando lista de clientes...');
+        await fetchClientes();
+      }
       console.log('✅ [useClientes] Lista atualizada!');
       return true;
     } catch (err) {
