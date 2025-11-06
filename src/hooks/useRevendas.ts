@@ -38,13 +38,23 @@ export function useRevendas() {
     isFetchingRef.current = true;
 
     try {
+      console.log('🔄 [useRevendas] Iniciando busca de revendedores...');
       setLoading(true);
       setError(null);
       
+      console.log('🔄 [useRevendas] Chamando supabase.from("resellers").select("*")...');
       const { data, error } = await supabase.from('resellers').select('*');
       
+      console.log('🔄 [useRevendas] Resposta recebida do Supabase');
+      
       if (error) {
-        console.error('Erro ao buscar revendedores:', error);
+        console.error('❌ [useRevendas] Erro ao buscar revendedores:', error);
+        console.error('❌ [useRevendas] Detalhes do erro:', {
+          message: error.message,
+          code: error.code,
+          details: error.details,
+          hint: error.hint
+        });
         
         // Verificar se é erro de RLS
         if (error.message.includes('row-level security policy')) {
@@ -55,14 +65,16 @@ export function useRevendas() {
         return;
       }
       
+      console.log('✅ [useRevendas] Revendedores buscados com sucesso:', data?.length || 0, 'revendedores');
       setRevendas(data || []);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
+      console.error('❌ [useRevendas] Erro inesperado ao buscar revendedores:', err);
       setError(`Erro inesperado: ${errorMessage}`);
-      console.error('Erro ao buscar revendedores:', err);
     } finally {
       setLoading(false);
       isFetchingRef.current = false;
+      console.log('✅ [useRevendas] Busca finalizada');
     }
   }, []);
 
@@ -94,8 +106,12 @@ export function useRevendas() {
       if (revenda.observations) revendaData.observations = revenda.observations;
       
       console.log('🔄 [useRevendas] Tentando adicionar revendedor:', revendaData);
+      console.log('🔄 [useRevendas] JSON serializado:', JSON.stringify(revendaData, null, 2));
       
+      console.log('🔄 [useRevendas] Chamando supabase.from("resellers").insert()...');
       const { data, error } = await supabase.from('resellers').insert([revendaData]).select();
+      
+      console.log('🔄 [useRevendas] Resposta recebida do Supabase');
       
       if (error) {
         console.error('❌ [useRevendas] Erro ao adicionar revendedor:', error);
@@ -118,11 +134,14 @@ export function useRevendas() {
       console.log('✅ [useRevendas] Revendedor adicionado com sucesso:', data);
       
       // Buscar novamente para atualizar a lista
+      console.log('🔄 [useRevendas] Atualizando lista de revendedores...');
       await fetchRevendas();
+      console.log('✅ [useRevendas] Lista atualizada!');
       return true;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
       console.error('❌ [useRevendas] Erro inesperado ao adicionar revendedor:', err);
+      console.error('❌ [useRevendas] Stack trace:', err instanceof Error ? err.stack : 'N/A');
       setError(`Erro inesperado ao adicionar revendedor: ${errorMessage}`);
       return false;
     }
