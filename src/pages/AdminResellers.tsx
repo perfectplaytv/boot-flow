@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,7 +13,7 @@ import { useRevendas } from '@/hooks/useRevendas';
 import { RLSErrorBannerResellers } from '@/components/RLSErrorBannerResellers';
 
 export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?: boolean }) {
-  const { revendas, loading, error, addRevenda, updateRevenda, deleteRevenda, clearError } = useRevendas();
+  const { revendas, loading, error, addRevenda, updateRevenda, deleteRevenda, fetchRevendas, clearError } = useRevendas();
 
   const [newReseller, setNewReseller] = useState({
     username: "",
