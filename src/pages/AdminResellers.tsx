@@ -113,7 +113,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
         const success = await addRevenda({
           username: newReseller.username,
           password: newReseller.password,
-          force_password_change: newReseller.force_password_change?.toString(),
+          force_password_change: newReseller.force_password_change || false,
           permission: newReseller.permission as 'admin' | 'reseller' | 'subreseller',
           credits: newReseller.credits,
           servers: newReseller.servers || undefined,
@@ -127,6 +127,12 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
           observations: newReseller.observations || undefined,
           status: 'Ativo' // Garantir que o revendedor seja criado como Ativo
         });
+        
+        if (!success) {
+          console.error('❌ [AdminResellers] Falha ao adicionar revendedor. Verifique o console para detalhes.');
+          setIsAddingReseller(false);
+          return;
+        }
         
         try {
           setAddResellerSuccess(true);
@@ -178,7 +184,8 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
           console.error('Success handling error:', error);
         }
       } catch (error) {
-        console.error('Erro ao adicionar revendedor:', error);
+        console.error('❌ [AdminResellers] Erro ao adicionar revendedor:', error);
+        setIsAddingReseller(false);
       } finally {
         setIsAddingReseller(false);
       }

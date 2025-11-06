@@ -70,10 +70,41 @@ export function useRevendas() {
     try {
       setError(null);
       
-      const { data, error } = await supabase.from('resellers').insert([revenda]).select();
+      // Preparar dados para inserção, garantindo tipos corretos
+      const revendaData: any = {
+        username: revenda.username,
+        email: revenda.email,
+        password: revenda.password,
+        permission: revenda.permission,
+        credits: revenda.credits ?? 10,
+        personal_name: revenda.personal_name,
+        status: revenda.status || 'Ativo',
+        force_password_change: typeof revenda.force_password_change === 'string' 
+          ? revenda.force_password_change === 'true' 
+          : revenda.force_password_change ?? false,
+        monthly_reseller: revenda.monthly_reseller ?? false,
+        disable_login_days: revenda.disable_login_days ?? 0,
+      };
+      
+      // Adicionar campos opcionais apenas se tiverem valor
+      if (revenda.servers) revendaData.servers = revenda.servers;
+      if (revenda.master_reseller) revendaData.master_reseller = revenda.master_reseller;
+      if (revenda.telegram) revendaData.telegram = revenda.telegram;
+      if (revenda.whatsapp) revendaData.whatsapp = revenda.whatsapp;
+      if (revenda.observations) revendaData.observations = revenda.observations;
+      
+      console.log('🔄 [useRevendas] Tentando adicionar revendedor:', revendaData);
+      
+      const { data, error } = await supabase.from('resellers').insert([revendaData]).select();
       
       if (error) {
-        console.error('Erro ao adicionar revendedor:', error);
+        console.error('❌ [useRevendas] Erro ao adicionar revendedor:', error);
+        console.error('❌ [useRevendas] Detalhes do erro:', {
+          message: error.message,
+          code: error.code,
+          details: error.details,
+          hint: error.hint
+        });
         
         // Verificar se é erro de RLS
         if (error.message.includes('row-level security policy')) {
@@ -84,12 +115,15 @@ export function useRevendas() {
         return false;
       }
       
+      console.log('✅ [useRevendas] Revendedor adicionado com sucesso:', data);
+      
+      // Buscar novamente para atualizar a lista
       await fetchRevendas();
       return true;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
+      console.error('❌ [useRevendas] Erro inesperado ao adicionar revendedor:', err);
       setError(`Erro inesperado ao adicionar revendedor: ${errorMessage}`);
-      console.error('Erro ao adicionar revendedor:', err);
       return false;
     }
   }
