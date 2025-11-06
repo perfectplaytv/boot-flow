@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Paintbrush, UploadCloud, X, Check, GripVertical, Plus, Edit, Trash2, Palette, Code, Sliders, Star } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { toast } from 'sonner';
 
 const initialBrand = {
   name: 'Sua Empresa Ltda',
@@ -31,6 +33,8 @@ const initialDashboards = [
 const AdminBranding: React.FC = () => {
   const [tab, setTab] = useState('marca');
   const [brand, setBrand] = useState(initialBrand);
+  const [originalBrand, setOriginalBrand] = useState(initialBrand);
+  const [hasChanges, setHasChanges] = useState(false);
   const [logoModal, setLogoModal] = useState(false);
   const [faviconModal, setFaviconModal] = useState(false);
   const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -47,19 +51,136 @@ const AdminBranding: React.FC = () => {
     color: '#7c3aed',
   });
 
-  // Função para simular upload
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setLogoFile(e.target.files[0]);
-      setBrand({ ...brand, logo: URL.createObjectURL(e.target.files[0]) });
-      setLogoModal(false);
+  // Carregar dados salvos do localStorage ao montar o componente
+  useEffect(() => {
+    const savedBrand = localStorage.getItem('brand-config');
+    if (savedBrand) {
+      try {
+        const parsedBrand = JSON.parse(savedBrand);
+        setBrand(parsedBrand);
+        setOriginalBrand(parsedBrand);
+      } catch (error) {
+        console.error('Erro ao carregar configuração de marca:', error);
+      }
+    }
+  }, []);
+
+  // Verificar mudanças
+  useEffect(() => {
+    const changed = JSON.stringify(brand) !== JSON.stringify(originalBrand);
+    setHasChanges(changed);
+  }, [brand, originalBrand]);
+
+  // Função para validar campos obrigatórios
+  const validateBrand = () => {
+    if (!brand.name.trim()) {
+      toast.error('O nome da empresa é obrigatório');
+      return false;
+    }
+    if (!brand.website.trim()) {
+      toast.error('O website é obrigatório');
+      return false;
+    }
+    if (!brand.email.trim()) {
+      toast.error('O e-mail é obrigatório');
+      return false;
+    }
+    if (!brand.phone.trim()) {
+      toast.error('O telefone é obrigatório');
+      return false;
+    }
+    // Validar formato de e-mail
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(brand.email)) {
+      toast.error('E-mail inválido');
+      return false;
+    }
+    // Validar formato de website
+    const websiteRegex = /^https?:\/\/.+/;
+    if (!websiteRegex.test(brand.website)) {
+      toast.error('Website deve começar com http:// ou https://');
+      return false;
+    }
+    return true;
+  };
+
+  // Função para salvar configuração
+  const handleSave = () => {
+    if (!validateBrand()) {
+      return;
+    }
+    
+    try {
+      localStorage.setItem('brand-config', JSON.stringify(brand));
+      setOriginalBrand(brand);
+      setHasChanges(false);
+      toast.success('Configurações salvas com sucesso!');
+    } catch (error) {
+      console.error('Erro ao salvar configuração:', error);
+      toast.error('Erro ao salvar configurações');
     }
   };
+
+  // Função para cancelar mudanças
+  const handleCancel = () => {
+    setBrand(originalBrand);
+    setHasChanges(false);
+    toast.info('Alterações descartadas');
+  };
+
+  // Função para upload de logo
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      
+      // Validar tamanho (1MB máximo)
+      if (file.size > 1024 * 1024) {
+        toast.error('O arquivo deve ter no máximo 1MB');
+        return;
+      }
+      
+      // Validar tipo
+      if (!file.type.match(/image\/(png|jpeg|jpg)/)) {
+        toast.error('Apenas arquivos PNG ou JPG são permitidos');
+        return;
+      }
+      
+      setLogoFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setBrand({ ...brand, logo: reader.result as string });
+        setLogoModal(false);
+        toast.success('Logo carregado com sucesso!');
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Função para upload de favicon
   const handleFaviconUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFaviconFile(e.target.files[0]);
-      setBrand({ ...brand, favicon: URL.createObjectURL(e.target.files[0]) });
-      setFaviconModal(false);
+      const file = e.target.files[0];
+      
+      // Validar tamanho (1MB máximo)
+      if (file.size > 1024 * 1024) {
+        toast.error('O arquivo deve ter no máximo 1MB');
+        return;
+      }
+      
+      // Validar tipo
+      if (!file.type.match(/image\/(png|x-icon|vnd.microsoft.icon)/)) {
+        toast.error('Apenas arquivos PNG ou ICO são permitidos');
+        return;
+      }
+      
+      setFaviconFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setBrand({ ...brand, favicon: reader.result as string });
+        setFaviconModal(false);
+        toast.success('Favicon carregado com sucesso!');
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -199,63 +320,171 @@ const AdminBranding: React.FC = () => {
             {/* Coluna principal */}
             <div className="lg:col-span-2 space-y-6">
               {/* Informações da Empresa */}
-              <div className="rounded-2xl border border-purple-700/40 bg-gradient-to-br from-purple-900/50 to-purple-800/30 p-6 shadow-lg">
-                <span className="block text-purple-300 font-semibold mb-4 text-lg">Informações da Empresa</span>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <label className="block text-gray-300 mb-1 font-medium">Nome da Empresa *</label>
-                    <Input value={brand.name} onChange={e => setBrand({ ...brand, name: e.target.value })} className="bg-gray-900 border border-gray-700 text-white" />
+              <Card className="rounded-2xl border border-purple-700/40 bg-gradient-to-br from-purple-900/50 to-purple-800/30 shadow-lg">
+                <CardHeader>
+                  <CardTitle className="text-purple-300 font-semibold text-lg">Informações da Empresa</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="company-name" className="text-gray-300 font-medium">
+                        Nome da Empresa <span className="text-red-400">*</span>
+                      </Label>
+                      <Input 
+                        id="company-name"
+                        value={brand.name} 
+                        onChange={e => setBrand({ ...brand, name: e.target.value })} 
+                        className="bg-gray-900 border border-gray-700 text-white focus:border-purple-500" 
+                        placeholder="Digite o nome da empresa"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="slogan" className="text-gray-300 font-medium">
+                        Slogan
+                      </Label>
+                      <Input 
+                        id="slogan"
+                        value={brand.slogan} 
+                        onChange={e => setBrand({ ...brand, slogan: e.target.value })} 
+                        className="bg-gray-900 border border-gray-700 text-white focus:border-purple-500" 
+                        placeholder="Digite o slogan da empresa"
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-gray-300 mb-1 font-medium">Slogan</label>
-                    <Input value={brand.slogan} onChange={e => setBrand({ ...brand, slogan: e.target.value })} className="bg-gray-900 border border-gray-700 text-white" />
+                  <div className="space-y-2">
+                    <Label htmlFor="description" className="text-gray-300 font-medium">
+                      Descrição
+                    </Label>
+                    <textarea 
+                      id="description"
+                      value={brand.description} 
+                      onChange={e => setBrand({ ...brand, description: e.target.value })} 
+                      className="w-full bg-gray-900 border border-gray-700 text-white rounded-md p-2 min-h-[80px] focus:border-purple-500 focus:outline-none resize-y" 
+                      placeholder="Descreva sua empresa..."
+                    />
                   </div>
-                </div>
-                <div className="mb-4">
-                  <label className="block text-gray-300 mb-1 font-medium">Descrição</label>
-                  <textarea value={brand.description} onChange={e => setBrand({ ...brand, description: e.target.value })} className="w-full bg-gray-900 border border-gray-700 text-white rounded p-2 min-h-[60px]" placeholder="Descreva sua empresa..."></textarea>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-gray-300 mb-1 font-medium">Website *</label>
-                    <Input value={brand.website} onChange={e => setBrand({ ...brand, website: e.target.value })} className="bg-gray-900 border border-gray-700 text-white" />
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="website" className="text-gray-300 font-medium">
+                        Website <span className="text-red-400">*</span>
+                      </Label>
+                      <Input 
+                        id="website"
+                        type="url"
+                        value={brand.website} 
+                        onChange={e => setBrand({ ...brand, website: e.target.value })} 
+                        className="bg-gray-900 border border-gray-700 text-white focus:border-purple-500" 
+                        placeholder="https://exemplo.com"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email" className="text-gray-300 font-medium">
+                        E-mail <span className="text-red-400">*</span>
+                      </Label>
+                      <Input 
+                        id="email"
+                        type="email"
+                        value={brand.email} 
+                        onChange={e => setBrand({ ...brand, email: e.target.value })} 
+                        className="bg-gray-900 border border-gray-700 text-white focus:border-purple-500" 
+                        placeholder="contato@exemplo.com"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="phone" className="text-gray-300 font-medium">
+                        Telefone <span className="text-red-400">*</span>
+                      </Label>
+                      <Input 
+                        id="phone"
+                        value={brand.phone} 
+                        onChange={e => setBrand({ ...brand, phone: e.target.value })} 
+                        className="bg-gray-900 border border-gray-700 text-white focus:border-purple-500" 
+                        placeholder="(00) 00000-0000"
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-gray-300 mb-1 font-medium">E-mail *</label>
-                    <Input value={brand.email} onChange={e => setBrand({ ...brand, email: e.target.value })} className="bg-gray-900 border border-gray-700 text-white" />
-                  </div>
-                  <div>
-                    <label className="block text-gray-300 mb-1 font-medium">Telefone *</label>
-                    <Input value={brand.phone} onChange={e => setBrand({ ...brand, phone: e.target.value })} className="bg-gray-900 border border-gray-700 text-white" />
-                  </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
               {/* Logos e Ícones */}
-              <div className="rounded-2xl border border-purple-700/40 bg-gradient-to-br from-purple-900/50 to-purple-800/30 p-6 shadow-lg">
-                <span className="block text-purple-300 font-semibold mb-4 text-lg">Logos e Ícones</span>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Logo */}
-                  <div className="flex flex-col items-center justify-center border-2 border-dashed border-purple-500/40 rounded-xl p-6 bg-[#181e29]">
-                    {brand.logo ? (
-                      <img src={brand.logo} alt="Logo" className="h-16 mb-2" />
-                    ) : (
-                      <UploadCloud className="w-10 h-10 text-purple-400 mb-2" />
-                    )}
-                    <p className="text-gray-400 text-xs mb-2">Clique para fazer upload<br />PNG, JPG até 1MB</p>
-                    <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white" onClick={() => setLogoModal(true)}>Selecionar Logo</Button>
+              <Card className="rounded-2xl border border-purple-700/40 bg-gradient-to-br from-purple-900/50 to-purple-800/30 shadow-lg">
+                <CardHeader>
+                  <CardTitle className="text-purple-300 font-semibold text-lg">Logos e Ícones</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Logo */}
+                    <div className="flex flex-col items-center justify-center border-2 border-dashed border-purple-500/40 rounded-xl p-6 bg-[#181e29] hover:border-purple-500 transition-colors">
+                      {brand.logo ? (
+                        <div className="mb-4">
+                          <img src={brand.logo} alt="Logo" className="h-20 max-w-full object-contain mb-2 rounded" />
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="bg-red-600 hover:bg-red-700 text-white border-0 mt-2"
+                            onClick={() => {
+                              setBrand({ ...brand, logo: '' });
+                              setLogoFile(null);
+                              toast.info('Logo removido');
+                            }}
+                          >
+                            <X className="w-4 h-4 mr-1" />
+                            Remover
+                          </Button>
+                        </div>
+                      ) : (
+                        <>
+                          <UploadCloud className="w-12 h-12 text-purple-400 mb-3" />
+                          <p className="text-gray-400 text-xs mb-4 text-center">
+                            Clique para fazer upload<br />
+                            PNG, JPG até 1MB
+                          </p>
+                        </>
+                      )}
+                      <Button 
+                        className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white w-full" 
+                        onClick={() => setLogoModal(true)}
+                      >
+                        {brand.logo ? 'Alterar Logo' : 'Selecionar Logo'}
+                      </Button>
+                    </div>
+                    {/* Favicon */}
+                    <div className="flex flex-col items-center justify-center border-2 border-dashed border-purple-500/40 rounded-xl p-6 bg-[#181e29] hover:border-purple-500 transition-colors">
+                      {brand.favicon ? (
+                        <div className="mb-4">
+                          <img src={brand.favicon} alt="Favicon" className="h-12 w-12 mb-2 rounded" />
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="bg-red-600 hover:bg-red-700 text-white border-0 mt-2"
+                            onClick={() => {
+                              setBrand({ ...brand, favicon: '' });
+                              setFaviconFile(null);
+                              toast.info('Favicon removido');
+                            }}
+                          >
+                            <X className="w-4 h-4 mr-1" />
+                            Remover
+                          </Button>
+                        </div>
+                      ) : (
+                        <>
+                          <UploadCloud className="w-12 h-12 text-purple-400 mb-3" />
+                          <p className="text-gray-400 text-xs mb-4 text-center">
+                            Clique para fazer upload<br />
+                            ICO, PNG até 1MB
+                          </p>
+                        </>
+                      )}
+                      <Button 
+                        className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white w-full" 
+                        onClick={() => setFaviconModal(true)}
+                      >
+                        {brand.favicon ? 'Alterar Favicon' : 'Selecionar Favicon'}
+                      </Button>
+                    </div>
                   </div>
-                  {/* Favicon */}
-                  <div className="flex flex-col items-center justify-center border-2 border-dashed border-purple-500/40 rounded-xl p-6 bg-[#181e29]">
-                    {brand.favicon ? (
-                      <img src={brand.favicon} alt="Favicon" className="h-10 mb-2" />
-                    ) : (
-                      <UploadCloud className="w-10 h-10 text-purple-400 mb-2" />
-                    )}
-                    <p className="text-gray-400 text-xs mb-2">Clique para fazer upload<br />ICO, PNG até 1MB</p>
-                    <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white" onClick={() => setFaviconModal(true)}>Selecionar Favicon</Button>
-                  </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             </div>
             {/* Coluna Preview */}
             <div className="space-y-6">
