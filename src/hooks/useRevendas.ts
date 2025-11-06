@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 
 export interface Revenda {
@@ -26,8 +26,17 @@ export function useRevendas() {
   const [revendas, setRevendas] = useState<Revenda[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const isFetchingRef = useRef(false);
 
-  async function fetchRevendas() {
+  const fetchRevendas = useCallback(async () => {
+    // Proteção contra múltiplas chamadas simultâneas
+    if (isFetchingRef.current) {
+      console.log('🔄 [useRevendas] fetchRevendas já em execução, ignorando chamada');
+      return;
+    }
+
+    isFetchingRef.current = true;
+
     try {
       setLoading(true);
       setError(null);
@@ -53,8 +62,9 @@ export function useRevendas() {
       console.error('Erro ao buscar revendedores:', err);
     } finally {
       setLoading(false);
+      isFetchingRef.current = false;
     }
-  }
+  }, []);
 
   async function addRevenda(revenda: Omit<Revenda, 'id'>) {
     try {
