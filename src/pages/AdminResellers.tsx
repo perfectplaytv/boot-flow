@@ -155,62 +155,57 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
         setIsAddingReseller(false);
         return;
       }
-        
-        try {
-          setAddResellerSuccess(true);
-          
-          // Disparar evento para notificar que um revendedor foi criado
-          window.dispatchEvent(new CustomEvent('reseller-created'));
-          
-          // Atualizar Dashboard instantaneamente
-          console.log('📤 Revendas: Disparando evento refresh-dashboard após criar revenda');
-          try {
-            window.dispatchEvent(new CustomEvent('refresh-dashboard', { detail: { source: 'resellers', action: 'create' } }));
-            console.log('✅ Evento disparado com sucesso');
-          } catch (error) {
-            console.error('❌ Erro ao disparar evento:', error);
-          }
-          
-          // Usar localStorage como fallback
-          try {
-            localStorage.setItem('dashboard-refresh', Date.now().toString());
-            console.log('✅ Flag localStorage definida');
-          } catch (error) {
-            console.error('❌ Erro ao definir flag localStorage:', error);
-          }
-          
-          // Limpar formulário
-          setNewReseller({
-            username: "",
-            password: "",
-            force_password_change: false,
-            permission: "",
-            credits: 10,
-            servers: "",
-            master_reseller: "",
-            disable_login_days: 0,
-            monthly_reseller: false,
-            personal_name: "",
-            email: "",
-            telegram: "",
-            whatsapp: "",
-            observations: ""
-          });
-          
-          // Fechar modal após 1 segundo
-          setTimeout(() => {
-            setIsAddDialogOpen(false);
-            setAddResellerSuccess(false);
-          }, 1000);
-        } catch (error) {
-          console.error('Success handling error:', error);
-        }
+      
+      setAddResellerSuccess(true);
+      
+      // Disparar evento para notificar que um revendedor foi criado
+      window.dispatchEvent(new CustomEvent('reseller-created'));
+      
+      // Atualizar Dashboard instantaneamente
+      console.log('📤 Revendas: Disparando evento refresh-dashboard após criar revenda');
+      try {
+        window.dispatchEvent(new CustomEvent('refresh-dashboard', { detail: { source: 'resellers', action: 'create' } }));
+        console.log('✅ Evento disparado com sucesso');
       } catch (error) {
-        console.error('❌ [AdminResellers] Erro ao adicionar revendedor:', error);
-        setIsAddingReseller(false);
-      } finally {
-        setIsAddingReseller(false);
+        console.error('❌ Erro ao disparar evento:', error);
       }
+      
+      // Usar localStorage como fallback
+      try {
+        localStorage.setItem('dashboard-refresh', Date.now().toString());
+        console.log('✅ Flag localStorage definida');
+      } catch (error) {
+        console.error('❌ Erro ao definir flag localStorage:', error);
+      }
+      
+      // Limpar formulário
+      setNewReseller({
+        username: "",
+        password: "",
+        force_password_change: false,
+        permission: "",
+        credits: 10,
+        servers: "",
+        master_reseller: "",
+        disable_login_days: 0,
+        monthly_reseller: false,
+        personal_name: "",
+        email: "",
+        telegram: "",
+        whatsapp: "",
+        observations: ""
+      });
+      
+      // Fechar modal após 1 segundo
+      setTimeout(() => {
+        setIsAddDialogOpen(false);
+        setAddResellerSuccess(false);
+      }, 1000);
+    } catch (error) {
+      console.error('❌ [AdminResellers] Erro ao adicionar revendedor:', error);
+      setIsAddingReseller(false);
+    } finally {
+      setIsAddingReseller(false);
     }
   };
 
