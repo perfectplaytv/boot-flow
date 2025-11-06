@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from '@/lib/supabase';
 
 export interface Revenda {
   id: number;
@@ -108,34 +108,123 @@ export function useRevendas() {
       console.log('🔄 [useRevendas] Tentando adicionar revendedor:', revendaData);
       console.log('🔄 [useRevendas] JSON serializado:', JSON.stringify(revendaData, null, 2));
       
-      console.log('🔄 [useRevendas] Chamando supabase.from("resellers").insert()...');
-      const { data, error } = await supabase.from('resellers').insert([revendaData]).select();
+      // Obter token de autenticação do localStorage
+      const allKeys = Object.keys(localStorage);
+      const supabaseKeys = allKeys.filter(key => key.startsWith('sb-') && key.includes('auth-token'));
+      let authToken = '';
       
-      console.log('🔄 [useRevendas] Resposta recebida do Supabase');
+      for (const key of supabaseKeys) {
+        try {
+          const authData = localStorage.getItem(key);
+          if (authData) {
+            const parsed = JSON.parse(authData);
+            if (parsed?.access_token) {
+              authToken = parsed.access_token;
+              break;
+            }
+          }
+        } catch (e) {
+          // Continuar procurando
+        }
+      }
       
-      if (error) {
-        console.error('❌ [useRevendas] Erro ao adicionar revendedor:', error);
-        console.error('❌ [useRevendas] Detalhes do erro:', {
-          message: error.message,
-          code: error.code,
-          details: error.details,
-          hint: error.hint
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_ANON_KEY,
+        'Prefer': 'return=representation',
+      };
+      
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`;
+      }
+      
+      const insertUrl = `${SUPABASE_URL}/rest/v1/resellers`;
+      
+      console.log('🔄 [useRevendas] URL:', insertUrl);
+      console.log('🔄 [useRevendas] Headers:', { ...headers, Authorization: authToken ? 'Bearer ***' : 'Não fornecido' });
+      
+      // Timeout de 15 segundos
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+      
+      let response: Response;
+      try {
+        response = await fetch(insertUrl, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(revendaData),
+          signal: controller.signal,
         });
         
-        // Verificar se é erro de RLS
-        if (error.message.includes('row-level security policy')) {
-          setError('Erro de permissão: As políticas de segurança estão bloqueando a inserção. Execute o script SQL para corrigir as políticas RLS.');
+        clearTimeout(timeoutId);
+      } catch (fetchError: any) {
+        clearTimeout(timeoutId);
+        
+        if (fetchError.name === 'AbortError') {
+          console.error('⏰ [useRevendas] Timeout na inserção (15 segundos)');
+          setError('Erro de conexão: A operação está demorando muito. Verifique sua conexão com a internet.');
+          return false;
+        }
+        
+        throw fetchError;
+      }
+      
+      console.log('🔄 [useRevendas] Resposta recebida:', response.status, response.statusText);
+      
+      const responseText = await response.text();
+      console.log('🔄 [useRevendas] Resposta completa:', responseText);
+      
+      let data;
+      let error: any = null;
+      
+      try {
+        data = responseText ? JSON.parse(responseText) : null;
+      } catch (parseError) {
+        console.error('❌ [useRevendas] Erro ao fazer parse da resposta:', parseError);
+        if (!response.ok) {
+          error = {
+            code: response.status.toString(),
+            message: response.statusText || 'Erro desconhecido',
+            details: responseText,
+          };
+        }
+      }
+      
+      if (!response.ok || error) {
+        const errorObj = error || data || {
+          code: response.status.toString(),
+          message: response.statusText || 'Erro desconhecido',
+          details: responseText,
+        };
+        
+        console.error('❌ [useRevendas] Erro do Supabase:', errorObj);
+        console.error('❌ [useRevendas] Status:', response.status);
+        
+        // Verificar tipo de erro
+        if (response.status === 401 || errorObj.message?.includes('401') || errorObj.message?.includes('Unauthorized')) {
+          setError('Erro de autenticação: Sua sessão expirou. Por favor, faça login novamente.');
+        } else if (errorObj.message?.includes('row-level security policy') || errorObj.message?.includes('new row violates row-level security')) {
+          setError('Erro de permissão: As políticas de segurança estão bloqueando a inserção. Verifique se você está autenticado e se as políticas RLS estão configuradas corretamente.');
+        } else if (response.status === 409 || errorObj.message?.includes('duplicate key')) {
+          setError('Erro: Já existe um revendedor com este username ou email.');
         } else {
-          setError(`Erro ao adicionar revendedor: ${error.message}`);
+          setError(`Erro ao adicionar revendedor: ${errorObj.message || errorObj.details || 'Erro desconhecido'} (Status: ${response.status})`);
         }
         return false;
       }
       
-      console.log('✅ [useRevendas] Revendedor adicionado com sucesso:', data);
+      console.log('✅ [useRevendas] Revendedor inserido com sucesso:', data);
       
-      // Buscar novamente para atualizar a lista
-      console.log('🔄 [useRevendas] Atualizando lista de revendedores...');
-      await fetchRevendas();
+      // Adicionar o revendedor diretamente ao estado ou buscar novamente
+      if (data && Array.isArray(data) && data.length > 0) {
+        const newRevenda = data[0] as Revenda;
+        setRevendas(prevRevendas => [...prevRevendas, newRevenda]);
+        console.log('✅ [useRevendas] Revendedor adicionado ao estado local');
+      } else {
+        // Se não conseguiu adicionar ao estado, buscar novamente
+        console.log('🔄 [useRevendas] Atualizando lista de revendedores...');
+        await fetchRevendas();
+      }
       console.log('✅ [useRevendas] Lista atualizada!');
       return true;
     } catch (err) {
