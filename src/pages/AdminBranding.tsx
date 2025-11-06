@@ -488,35 +488,101 @@ const AdminBranding: React.FC = () => {
             </div>
             {/* Coluna Preview */}
             <div className="space-y-6">
-              <div className="rounded-2xl border border-purple-700/40 bg-gradient-to-br from-purple-900/50 to-purple-800/30 p-6 shadow-lg min-w-[260px]">
-                <span className="block text-purple-300 font-semibold mb-4 text-lg">Preview</span>
-                <div className="bg-[#181e29] rounded-lg p-4 flex flex-col items-center">
-                  <div className="flex gap-2 mb-2">
-                    <div className="w-4 h-4 rounded-full bg-gray-400" />
-                    <div className="w-4 h-4 rounded-full bg-gray-600" />
-                    <div className="w-4 h-4 rounded-full bg-gray-700" />
-                  </div>
-                  <div className="w-full bg-white rounded p-2 mb-2">
-                    <div className="flex items-center gap-2 mb-2">
-                      {brand.logo ? (
-                        <img src={brand.logo} alt="Logo" className="h-6" />
-                      ) : (
-                        <span className="font-bold text-gray-700">Sua Empresa</span>
-                      )}
+              <Card className="rounded-2xl border border-purple-700/40 bg-gradient-to-br from-purple-900/50 to-purple-800/30 shadow-lg min-w-[260px]">
+                <CardHeader>
+                  <CardTitle className="text-purple-300 font-semibold text-lg">Preview</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="bg-[#181e29] rounded-lg p-4 flex flex-col items-center space-y-4">
+                    {/* Simulação de navegador */}
+                    <div className="w-full bg-gray-800 rounded-t-lg p-2 flex gap-2">
+                      <div className="w-3 h-3 rounded-full bg-red-500" />
+                      <div className="w-3 h-3 rounded-full bg-yellow-500" />
+                      <div className="w-3 h-3 rounded-full bg-green-500" />
                     </div>
-                    <div className="h-3 w-2/3 bg-purple-200 rounded mb-1" />
-                    <div className="h-3 w-1/2 bg-purple-100 rounded" />
+                    
+                    {/* Preview do header */}
+                    <div className="w-full bg-white rounded-b-lg p-4 shadow-lg">
+                      <div className="flex items-center gap-3 mb-3">
+                        {brand.logo ? (
+                          <img src={brand.logo} alt="Logo" className="h-8 max-w-[120px] object-contain" />
+                        ) : (
+                          <div className="h-8 w-32 bg-gray-300 rounded flex items-center justify-center">
+                            <span className="text-xs font-bold text-gray-600">Logo</span>
+                          </div>
+                        )}
+                        {brand.favicon && (
+                          <img src={brand.favicon} alt="Favicon" className="h-6 w-6" />
+                        )}
+                      </div>
+                      <h2 className="text-lg font-bold text-gray-800 mb-1">{brand.name || 'Nome da Empresa'}</h2>
+                      {brand.slogan && (
+                        <p className="text-sm text-gray-600 mb-2">{brand.slogan}</p>
+                      )}
+                      {brand.description && (
+                        <p className="text-xs text-gray-500 line-clamp-2">{brand.description}</p>
+                      )}
+                      <div className="mt-3 pt-3 border-t border-gray-200">
+                        <div className="text-xs text-gray-500 space-y-1">
+                          <div><strong>Website:</strong> {brand.website || 'Não informado'}</div>
+                          <div><strong>E-mail:</strong> {brand.email || 'Não informado'}</div>
+                          <div><strong>Telefone:</strong> {brand.phone || 'Não informado'}</div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Informações do template */}
+                    <div className="text-xs text-gray-400 space-y-1 w-full">
+                      <div className="flex justify-between">
+                        <span>Template:</span>
+                        <span className="text-gray-300">Moderno</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Fonte:</span>
+                        <span className="text-gray-300">Inter</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Idioma:</span>
+                        <span className="text-gray-300">Português (BR)</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-xs text-gray-400 mt-2">
-                    <div>Template: Moderno</div>
-                    <div>Fonte: Inter</div>
-                    <div>Idioma: Português (Brasil)</div>
-                  </div>
-                </div>
-              </div>
-              <div className="flex justify-end gap-2 mt-6">
-                <Button variant="outline" className="bg-gray-700 text-white px-6 py-2 rounded font-semibold">Cancelar</Button>
-                <Button className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded font-semibold">Salvar Configurações</Button>
+                </CardContent>
+              </Card>
+              
+              {/* Botões de ação */}
+              <div className="flex flex-col gap-2">
+                <Button 
+                  onClick={handleSave}
+                  disabled={!hasChanges}
+                  className={`w-full px-6 py-2 rounded font-semibold transition-all ${
+                    hasChanges 
+                      ? 'bg-purple-600 hover:bg-purple-700 text-white' 
+                      : 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                  }`}
+                >
+                  {hasChanges ? (
+                    <>
+                      <Check className="w-4 h-4 mr-2 inline" />
+                      Salvar Configuração
+                    </>
+                  ) : (
+                    'Nenhuma alteração'
+                  )}
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={handleCancel}
+                  disabled={!hasChanges}
+                  className={`w-full px-6 py-2 rounded font-semibold transition-all ${
+                    hasChanges 
+                      ? 'bg-gray-700 hover:bg-gray-600 text-white border-gray-600' 
+                      : 'bg-gray-800 text-gray-500 border-gray-700 cursor-not-allowed'
+                  }`}
+                >
+                  <X className="w-4 h-4 mr-2 inline" />
+                  Cancelar
+                </Button>
               </div>
             </div>
           </div>
@@ -665,35 +731,93 @@ const AdminBranding: React.FC = () => {
       <Dialog open={logoModal} onOpenChange={setLogoModal}>
         <DialogContent className="bg-[#232a36] border border-purple-700 text-white max-w-md">
           <DialogHeader>
-            <DialogTitle>Selecionar Logo</DialogTitle>
+            <DialogTitle className="text-xl font-bold">Selecionar Logo</DialogTitle>
           </DialogHeader>
-          <div className="flex flex-col items-center gap-4 py-4">
-            <UploadCloud className="w-12 h-12 text-purple-400" />
-            <input type="file" accept="image/png,image/jpeg" onChange={handleLogoUpload} className="hidden" id="logo-upload" />
-            <label htmlFor="logo-upload" className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded cursor-pointer">Escolher arquivo</label>
-            <span className="text-xs text-gray-400">PNG, JPG até 1MB</span>
+          <div className="flex flex-col items-center gap-4 py-6">
+            <UploadCloud className="w-16 h-16 text-purple-400" />
+            <div className="text-center">
+              <p className="text-gray-300 mb-2">Selecione uma imagem para o logo</p>
+              <p className="text-xs text-gray-400">Formatos aceitos: PNG, JPG</p>
+              <p className="text-xs text-gray-400">Tamanho máximo: 1MB</p>
+            </div>
+            <input 
+              type="file" 
+              accept="image/png,image/jpeg,image/jpg" 
+              onChange={handleLogoUpload} 
+              className="hidden" 
+              id="logo-upload" 
+            />
+            <label 
+              htmlFor="logo-upload" 
+              className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg cursor-pointer transition-colors font-medium"
+            >
+              Escolher arquivo
+            </label>
+            {logoFile && (
+              <div className="mt-2 text-xs text-green-400">
+                Arquivo selecionado: {logoFile.name}
+              </div>
+            )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setLogoModal(false)} className="bg-gray-700 text-white">Cancelar</Button>
-            <Button onClick={() => setLogoModal(false)} className="bg-purple-600 hover:bg-purple-700 text-white">OK</Button>
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setLogoModal(false);
+                setLogoFile(null);
+              }} 
+              className="bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
+            >
+              Cancelar
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      
       {/* Modal de upload de favicon */}
       <Dialog open={faviconModal} onOpenChange={setFaviconModal}>
         <DialogContent className="bg-[#232a36] border border-purple-700 text-white max-w-md">
           <DialogHeader>
-            <DialogTitle>Selecionar Favicon</DialogTitle>
+            <DialogTitle className="text-xl font-bold">Selecionar Favicon</DialogTitle>
           </DialogHeader>
-          <div className="flex flex-col items-center gap-4 py-4">
-            <UploadCloud className="w-12 h-12 text-purple-400" />
-            <input type="file" accept="image/png,image/x-icon" onChange={handleFaviconUpload} className="hidden" id="favicon-upload" />
-            <label htmlFor="favicon-upload" className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded cursor-pointer">Escolher arquivo</label>
-            <span className="text-xs text-gray-400">ICO, PNG até 1MB</span>
+          <div className="flex flex-col items-center gap-4 py-6">
+            <UploadCloud className="w-16 h-16 text-purple-400" />
+            <div className="text-center">
+              <p className="text-gray-300 mb-2">Selecione uma imagem para o favicon</p>
+              <p className="text-xs text-gray-400">Formatos aceitos: PNG, ICO</p>
+              <p className="text-xs text-gray-400">Tamanho máximo: 1MB</p>
+              <p className="text-xs text-gray-400 mt-1">Recomendado: 32x32 ou 16x16 pixels</p>
+            </div>
+            <input 
+              type="file" 
+              accept="image/png,image/x-icon,image/vnd.microsoft.icon" 
+              onChange={handleFaviconUpload} 
+              className="hidden" 
+              id="favicon-upload" 
+            />
+            <label 
+              htmlFor="favicon-upload" 
+              className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg cursor-pointer transition-colors font-medium"
+            >
+              Escolher arquivo
+            </label>
+            {faviconFile && (
+              <div className="mt-2 text-xs text-green-400">
+                Arquivo selecionado: {faviconFile.name}
+              </div>
+            )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setFaviconModal(false)} className="bg-gray-700 text-white">Cancelar</Button>
-            <Button onClick={() => setFaviconModal(false)} className="bg-purple-600 hover:bg-purple-700 text-white">OK</Button>
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setFaviconModal(false);
+                setFaviconFile(null);
+              }} 
+              className="bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
+            >
+              Cancelar
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
