@@ -42,35 +42,81 @@ export function useRevendas() {
       setLoading(true);
       setError(null);
       
-      console.log('🔄 [useRevendas] Chamando supabase.from("resellers").select("*")...');
-      const { data, error } = await supabase.from('resellers').select('*');
+      // Usar fetch direto para evitar travamentos (igual ao useClientes)
+      const allKeys = Object.keys(localStorage);
+      const supabaseKeys = allKeys.filter(key => key.startsWith('sb-') && key.includes('auth-token'));
+      let authToken = '';
       
-      console.log('🔄 [useRevendas] Resposta recebida do Supabase');
-      
-      if (error) {
-        console.error('❌ [useRevendas] Erro ao buscar revendedores:', error);
-        console.error('❌ [useRevendas] Detalhes do erro:', {
-          message: error.message,
-          code: error.code,
-          details: error.details,
-          hint: error.hint
-        });
-        
-        // Verificar se é erro de RLS
-        if (error.message.includes('row-level security policy')) {
-          setError('Erro de permissão: As políticas de segurança estão bloqueando o acesso. Execute o script SQL para corrigir as políticas RLS.');
-        } else {
-          setError(`Erro ao buscar revendedores: ${error.message}`);
+      for (const key of supabaseKeys) {
+        try {
+          const authData = localStorage.getItem(key);
+          if (authData) {
+            const parsed = JSON.parse(authData);
+            if (parsed?.access_token) {
+              authToken = parsed.access_token;
+              break;
+            }
+          }
+        } catch (e) {
+          // Continuar procurando
         }
-        return;
       }
       
-      console.log('✅ [useRevendas] Revendedores buscados com sucesso:', data?.length || 0, 'revendedores');
-      setRevendas(data || []);
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_ANON_KEY,
+      };
+      
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`;
+      }
+      
+      const fetchUrl = `${SUPABASE_URL}/rest/v1/resellers?select=*`;
+      
+      console.log('🔄 [useRevendas] Chamando:', fetchUrl);
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      
+      try {
+        const response = await fetch(fetchUrl, {
+          method: 'GET',
+          headers,
+          signal: controller.signal,
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        console.log('✅ [useRevendas] Revendedores buscados com sucesso:', data?.length || 0, 'revendedores');
+        setRevendas(data || []);
+      } catch (fetchError: any) {
+        clearTimeout(timeoutId);
+        // Ignorar erros de abort
+        if (fetchError.name === 'AbortError') {
+          console.log('🔄 [useRevendas] Requisição abortada (nova requisição iniciada)');
+          return;
+        }
+        throw fetchError;
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
       console.error('❌ [useRevendas] Erro inesperado ao buscar revendedores:', err);
-      setError(`Erro inesperado: ${errorMessage}`);
+      console.error('❌ [useRevendas] Detalhes:', {
+        message: errorMessage,
+        error: err
+      });
+      
+      // Verificar se é erro de RLS
+      if (errorMessage.includes('row-level security policy')) {
+        setError('Erro de permissão: As políticas de segurança estão bloqueando o acesso. Execute o script SQL para corrigir as políticas RLS.');
+      } else {
+        setError(`Erro inesperado: ${errorMessage}`);
+      }
     } finally {
       setLoading(false);
       isFetchingRef.current = false;
@@ -108,24 +154,34 @@ export function useRevendas() {
       console.log('🔄 [useRevendas] Tentando adicionar revendedor:', revendaData);
       console.log('🔄 [useRevendas] JSON serializado:', JSON.stringify(revendaData, null, 2));
       
-      // Obter token de autenticação do localStorage
-      const allKeys = Object.keys(localStorage);
-      const supabaseKeys = allKeys.filter(key => key.startsWith('sb-') && key.includes('auth-token'));
+      // Obter token de autenticação do localStorage (igual ao useClientes)
       let authToken = '';
       
-      for (const key of supabaseKeys) {
-        try {
-          const authData = localStorage.getItem(key);
-          if (authData) {
-            const parsed = JSON.parse(authData);
-            if (parsed?.access_token) {
-              authToken = parsed.access_token;
-              break;
+      try {
+        const allKeys = Object.keys(localStorage);
+        const supabaseKeys = allKeys.filter(key => key.startsWith('sb-') && key.includes('auth-token'));
+        
+        for (const key of supabaseKeys) {
+          try {
+            const authData = localStorage.getItem(key);
+            if (authData) {
+              const parsed = JSON.parse(authData);
+              if (parsed?.access_token) {
+                authToken = parsed.access_token;
+                console.log('🔄 [useRevendas] Token encontrado no localStorage');
+                break;
+              }
             }
+          } catch (e) {
+            // Continuar procurando
           }
-        } catch (e) {
-          // Continuar procurando
         }
+        
+        if (!authToken) {
+          console.log('🔄 [useRevendas] Token não encontrado, usando apenas apikey');
+        }
+      } catch (e) {
+        console.log('🔄 [useRevendas] Erro ao buscar token:', e);
       }
       
       const headers: HeadersInit = {
@@ -149,6 +205,7 @@ export function useRevendas() {
       
       let response: Response;
       try {
+        console.log('🔄 [useRevendas] Fazendo requisição POST...');
         response = await fetch(insertUrl, {
           method: 'POST',
           headers,
@@ -157,6 +214,7 @@ export function useRevendas() {
         });
         
         clearTimeout(timeoutId);
+        console.log('🔄 [useRevendas] Requisição completa, status:', response.status);
       } catch (fetchError: any) {
         clearTimeout(timeoutId);
         
