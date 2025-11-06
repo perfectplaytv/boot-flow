@@ -131,7 +131,7 @@ export function useRevendas() {
       // Preparar dados para inserção, garantindo tipos corretos
       const revendaData: any = {
         username: revenda.username,
-        email: revenda.email,
+        email: revenda.email || `${revenda.username}@revenda.local`, // Email obrigatório - usar padrão se não fornecido
         password: revenda.password,
         permission: revenda.permission,
         credits: revenda.credits ?? 10,

@@ -105,34 +105,56 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
   const handleAddRevenda = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (newReseller.username && newReseller.password && newReseller.permission) {
-      setIsAddingReseller(true);
-      setAddResellerSuccess(false);
+    console.log('🔄 [AdminResellers] handleAddRevenda chamado');
+    console.log('🔄 [AdminResellers] Dados do formulário:', newReseller);
+    
+    if (!newReseller.username || !newReseller.password || !newReseller.permission) {
+      console.error('❌ [AdminResellers] Campos obrigatórios não preenchidos:', {
+        username: !!newReseller.username,
+        password: !!newReseller.password,
+        permission: !!newReseller.permission
+      });
+      alert('Por favor, preencha todos os campos obrigatórios: Usuário, Senha e Permissão.');
+      return;
+    }
+    
+    // Validar email se fornecido (deve ser válido se não estiver vazio)
+    if (newReseller.email && !newReseller.email.includes('@')) {
+      console.error('❌ [AdminResellers] Email inválido:', newReseller.email);
+      alert('Por favor, forneça um email válido ou deixe o campo vazio.');
+      return;
+    }
+    
+    setIsAddingReseller(true);
+    setAddResellerSuccess(false);
+    
+    try {
+      console.log('🔄 [AdminResellers] Chamando addRevenda...');
+      const success = await addRevenda({
+        username: newReseller.username,
+        password: newReseller.password,
+        force_password_change: newReseller.force_password_change || false,
+        permission: newReseller.permission as 'admin' | 'reseller' | 'subreseller',
+        credits: newReseller.credits,
+        servers: newReseller.servers || undefined,
+        master_reseller: newReseller.master_reseller || undefined,
+        disable_login_days: newReseller.disable_login_days,
+        monthly_reseller: newReseller.monthly_reseller,
+        personal_name: newReseller.personal_name || undefined,
+        email: newReseller.email || undefined,
+        telegram: newReseller.telegram || undefined,
+        whatsapp: newReseller.whatsapp || undefined,
+        observations: newReseller.observations || undefined,
+        status: 'Ativo' // Garantir que o revendedor seja criado como Ativo
+      });
       
-      try {
-        const success = await addRevenda({
-          username: newReseller.username,
-          password: newReseller.password,
-          force_password_change: newReseller.force_password_change || false,
-          permission: newReseller.permission as 'admin' | 'reseller' | 'subreseller',
-          credits: newReseller.credits,
-          servers: newReseller.servers || undefined,
-          master_reseller: newReseller.master_reseller || undefined,
-          disable_login_days: newReseller.disable_login_days,
-          monthly_reseller: newReseller.monthly_reseller,
-          personal_name: newReseller.personal_name || undefined,
-          email: newReseller.email || undefined,
-          telegram: newReseller.telegram || undefined,
-          whatsapp: newReseller.whatsapp || undefined,
-          observations: newReseller.observations || undefined,
-          status: 'Ativo' // Garantir que o revendedor seja criado como Ativo
-        });
-        
-        if (!success) {
-          console.error('❌ [AdminResellers] Falha ao adicionar revendedor. Verifique o console para detalhes.');
-          setIsAddingReseller(false);
-          return;
-        }
+      console.log('🔄 [AdminResellers] addRevenda retornou:', success);
+      
+      if (!success) {
+        console.error('❌ [AdminResellers] Falha ao adicionar revendedor. Verifique o console para detalhes.');
+        setIsAddingReseller(false);
+        return;
+      }
         
         try {
           setAddResellerSuccess(true);
