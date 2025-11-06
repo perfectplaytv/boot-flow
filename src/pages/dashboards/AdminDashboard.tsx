@@ -174,6 +174,7 @@ const AdminDashboard = () => {
   
   // Atualiza os estados locais quando os dados em tempo real mudam OU quando os dados dos hooks mudam
   useEffect(() => {
+    console.log('🔄 [AdminDashboard] useEffect sincronização - revendasFromHook:', revendasFromHook?.length, 'realtimeRevendas:', realtimeRevendas?.length);
     // Priorizar dados do hook se disponíveis, caso contrário usar dados em tempo real
     const clientesToUse = clientesFromHook && clientesFromHook.length > 0 ? clientesFromHook : realtimeClientes;
     const revendasToUse = revendasFromHook && revendasFromHook.length > 0 ? revendasFromHook : realtimeRevendas;
@@ -184,6 +185,7 @@ const AdminDashboard = () => {
     }
     
     if (revendasToUse) {
+      console.log('✅ [AdminDashboard] Atualizando estado revendas com', revendasToUse.length, 'revendedores');
       setRevendas(revendasToUse);
       setLoadingRevendas(false);
     }
@@ -1098,6 +1100,38 @@ const AdminDashboard = () => {
     });
   }, [clientes, stats.activeClients, stats.monthlyGrowth]);
 
+  // Atualizar o card de revendas quando a quantidade mudar
+  useEffect(() => {
+    setKanbanColumns(prevColumns => {
+      const updatedColumns = { ...prevColumns };
+      const servicosColumn = updatedColumns['servicos'];
+      if (servicosColumn) {
+        const revendasCardIndex = servicosColumn.cards.findIndex(card => card.id === 'revendas');
+        if (revendasCardIndex !== -1) {
+          const updatedCards = [...servicosColumn.cards];
+          updatedCards[revendasCardIndex] = {
+            ...updatedCards[revendasCardIndex],
+            body: (
+              <CardContent className="bg-[#1f2937] rounded-b-lg">
+                <p className="text-gray-300 mb-4">Gerencie suas revendas e parceiros</p>
+                <div className="space-y-2">
+                  <div className="flex justify-between"><span className="text-sm text-gray-400">Revendedores Ativos:</span><span className="text-sm font-semibold text-white">{stats.activeResellers}</span></div>
+                  <div className="flex justify-between"><span className="text-sm text-gray-400">Total de Revendas:</span><span className="text-sm font-semibold text-white">{(revendas?.length || 0).toLocaleString()}</span></div>
+                  <div className="flex justify-between"><span className="text-sm text-gray-400">Novos este mês:</span><span className="text-sm font-semibold text-green-400">+8</span></div>
+                </div>
+              </CardContent>
+            )
+          };
+          updatedColumns['servicos'] = {
+            ...servicosColumn,
+            cards: updatedCards
+          };
+        }
+      }
+      return updatedColumns;
+    });
+  }, [revendas, stats.activeResellers]);
+
   // Componente SortableCard
   function SortableCard({ id, content, body, onClick }: any) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
@@ -1572,13 +1606,26 @@ const AdminDashboard = () => {
                       <div className="flex-1 overflow-y-auto">
                         <AdminResellersWrapper 
                           onResellerCreated={() => {
+                            console.log('🔄 [AdminDashboard] Revendedor criado, atualizando dados...');
                             // Fechar modal após criar revendedor com sucesso
                             setTimeout(() => {
                               setResellerModal(false);
                               // Forçar atualização dos dados
-                              if (fetchRevendas) fetchRevendas();
-                              if (refreshResellers) refreshResellers();
-                              if (refreshStats) refreshStats();
+                              console.log('🔄 [AdminDashboard] Chamando fetchRevendas...');
+                              if (fetchRevendas) {
+                                fetchRevendas().then(() => {
+                                  console.log('✅ [AdminDashboard] fetchRevendas concluído');
+                                  // Aguardar um pouco antes de atualizar stats para garantir que os dados foram atualizados
+                                  setTimeout(() => {
+                                    if (refreshResellers) refreshResellers();
+                                    if (refreshStats) refreshStats();
+                                    console.log('✅ [AdminDashboard] Dados atualizados');
+                                  }, 500);
+                                });
+                              } else {
+                                if (refreshResellers) refreshResellers();
+                                if (refreshStats) refreshStats();
+                              }
                             }, 1000);
                           }}
                           onCloseModal={() => {
