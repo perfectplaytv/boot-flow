@@ -340,6 +340,7 @@ export default function AdminUsers() {
         password: editingUser.password || "",
         plan: editingUser.plan || "", // Campo plan
         price: editingUser.price || "", // Campo price
+        server: editingUser.server || "", // Campo server
         m3u_url: editingUser.m3u_url || "", // Campo m3u_url separado
         bouquets: editingUser.bouquets || "",
         expiration_date: editingUser.expirationDate || null,
@@ -402,8 +403,9 @@ export default function AdminUsers() {
 
         setEditingUser(null);
         setIsEditDialogOpen(false);
+        alert("Cliente atualizado com sucesso!");
       } else {
-        alert("Erro ao atualizar usuário. Verifique os dados.");
+        alert("Erro ao atualizar cliente. Verifique os dados.");
       }
     }
   };
@@ -478,6 +480,7 @@ export default function AdminUsers() {
       expirationDate: user.expiration_date || "", // Mapear expiration_date para expirationDate
       plan: user.plan || "", // Mapear plan corretamente
       price: user.price || "", // Campo price
+      server: user.server || "", // Campo server
       m3u_url: user.m3u_url || "", // Campo m3u_url separado
       observations: user.observations || "", // Garantir que observations existe
       telegram: user.telegram || "", // Campo telegram
@@ -1872,8 +1875,8 @@ export default function AdminUsers() {
                         Servidor *
                       </label>
                       <select
-                        value={newUser.server || ""}
-                        onChange={(e) => setNewUser({ ...newUser, server: e.target.value })}
+                        value={editingUser.server || ""}
+                        onChange={(e) => setEditingUser({ ...editingUser, server: e.target.value })}
                         className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                       >
                         <option value="">Selecione um servidor</option>
