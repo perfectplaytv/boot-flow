@@ -275,28 +275,143 @@ export function useClientes() {
 
   async function updateCliente(id: number, updates: Partial<Cliente>) {
     try {
+      console.log('🔄 [useClientes] updateCliente chamado com:', { id, updates });
       setError(null);
       
-      const { data, error } = await supabase.from('users').update(updates).eq('id', id).select();
+      // Usar fetch direto ao invés do cliente Supabase para evitar travamentos
+      console.log('🔄 [useClientes] Atualizando cliente usando fetch direto...');
       
-      if (error) {
-        console.error('Erro ao atualizar cliente:', error);
+      // Obter token de autenticação do localStorage
+      let authToken = '';
+      
+      try {
+        const allKeys = Object.keys(localStorage);
+        const supabaseKeys = allKeys.filter(key => key.startsWith('sb-') && key.includes('auth-token'));
         
-        // Verificar se é erro de RLS
-        if (error.message.includes('row-level security policy')) {
-          setError('Erro de permissão: As políticas de segurança estão bloqueando a atualização. Execute o script SQL para corrigir as políticas RLS.');
+        for (const key of supabaseKeys) {
+          try {
+            const authData = localStorage.getItem(key);
+            if (authData) {
+              const parsed = JSON.parse(authData);
+              if (parsed?.access_token) {
+                authToken = parsed.access_token;
+                console.log('🔄 [useClientes] Token encontrado no localStorage');
+                break;
+              }
+            }
+          } catch (e) {
+            // Continuar procurando
+          }
+        }
+        
+        if (!authToken) {
+          console.log('🔄 [useClientes] Token não encontrado, usando apenas apikey');
+        }
+      } catch (e) {
+        console.log('🔄 [useClientes] Erro ao buscar token:', e);
+      }
+      
+      // Preparar headers
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_ANON_KEY,
+        'Prefer': 'return=representation',
+      };
+      
+      // Adicionar token de autenticação se disponível
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`;
+      }
+      
+      // URL da API do Supabase
+      const updateUrl = `${SUPABASE_URL}/rest/v1/users?id=eq.${id}`;
+      
+      console.log('🔄 [useClientes] URL:', updateUrl);
+      console.log('🔄 [useClientes] Headers:', { ...headers, Authorization: authToken ? 'Bearer ***' : 'Não fornecido' });
+      console.log('🔄 [useClientes] Dados que serão atualizados:', JSON.stringify(updates, null, 2));
+      
+      // Timeout de 15 segundos
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+      
+      let response: Response;
+      try {
+        response = await fetch(updateUrl, {
+          method: 'PATCH',
+          headers,
+          body: JSON.stringify(updates),
+          signal: controller.signal,
+        });
+        
+        clearTimeout(timeoutId);
+      } catch (fetchError: any) {
+        clearTimeout(timeoutId);
+        
+        if (fetchError.name === 'AbortError') {
+          console.error('⏰ [useClientes] Timeout na atualização (15 segundos)');
+          setError('Erro de conexão: A operação está demorando muito. Verifique sua conexão com a internet.');
+          return false;
+        }
+        
+        throw fetchError;
+      }
+      
+      console.log('🔄 [useClientes] Resposta recebida:', response.status, response.statusText);
+      
+      const responseText = await response.text();
+      console.log('🔄 [useClientes] Resposta completa:', responseText);
+      
+      let data;
+      let error: any = null;
+      
+      try {
+        data = responseText ? JSON.parse(responseText) : null;
+      } catch (parseError) {
+        console.error('❌ [useClientes] Erro ao fazer parse da resposta:', parseError);
+        if (!response.ok) {
+          error = {
+            code: response.status.toString(),
+            message: response.statusText || 'Erro desconhecido',
+            details: responseText,
+          };
+        }
+      }
+      
+      if (!response.ok || error) {
+        const errorObj = error || data || {
+          code: response.status.toString(),
+          message: response.statusText || 'Erro desconhecido',
+          details: responseText,
+        };
+        
+        console.error('❌ [useClientes] Erro do Supabase:', errorObj);
+        console.error('❌ [useClientes] Status:', response.status);
+        
+        // Verificar tipo de erro
+        if (response.status === 401 || errorObj.message?.includes('401') || errorObj.message?.includes('Unauthorized')) {
+          setError('Erro de autenticação: Sua sessão expirou. Por favor, faça login novamente.');
+        } else if (errorObj.message?.includes('row-level security policy') || errorObj.message?.includes('new row violates row-level security')) {
+          setError('Erro de permissão: As políticas de segurança estão bloqueando a atualização. Verifique se você está autenticado e se as políticas RLS estão configuradas corretamente.');
+        } else if (response.status === 409 || errorObj.message?.includes('duplicate key')) {
+          setError('Erro: Já existe um cliente com este e-mail ou dados duplicados.');
         } else {
-          setError(`Erro ao atualizar cliente: ${error.message}`);
+          setError(`Erro ao atualizar cliente: ${errorObj.message || errorObj.details || 'Erro desconhecido'} (Status: ${response.status})`);
         }
         return false;
       }
       
+      console.log('✅ [useClientes] Cliente atualizado com sucesso:', data);
+      
+      // Atualizar a lista de clientes
+      console.log('🔄 [useClientes] Atualizando lista de clientes...');
       await fetchClientes();
+      console.log('✅ [useClientes] Lista atualizada!');
       return true;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
+      console.error('❌ [useClientes] Erro inesperado:', err);
+      console.error('❌ [useClientes] Stack trace:', err instanceof Error ? err.stack : 'N/A');
       setError(`Erro inesperado ao atualizar cliente: ${errorMessage}`);
-      console.error('Erro ao atualizar cliente:', err);
       return false;
     }
   }

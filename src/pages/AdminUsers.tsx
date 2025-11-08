@@ -326,12 +326,22 @@ export default function AdminUsers() {
   };
 
   const handleEditUser = async () => {
-    if (editingUser) {
-      console.log("=== DEBUG: Salvando alterações ===");
-      console.log("Usuário completo:", editingUser);
-      console.log("Campo realName do editingUser:", editingUser.realName);
-      console.log("Tipo do realName:", typeof editingUser.realName);
-      console.log("Todos os campos do editingUser:", Object.keys(editingUser));
+    if (!editingUser) {
+      alert("Erro: Nenhum cliente selecionado para editar.");
+      return;
+    }
+
+    // Validação básica
+    if (!editingUser.realName?.trim() && !editingUser.name?.trim()) {
+      alert("Por favor, preencha o nome do cliente.");
+      return;
+    }
+
+    console.log("=== DEBUG: Salvando alterações ===");
+    console.log("Usuário completo:", editingUser);
+    console.log("Campo realName do editingUser:", editingUser.realName);
+    console.log("Tipo do realName:", typeof editingUser.realName);
+    console.log("Todos os campos do editingUser:", Object.keys(editingUser));
 
       // Preparar dados para atualização no Neon
       const updatedUserData = {
@@ -2272,7 +2282,7 @@ export default function AdminUsers() {
                   </Button>
                   <Button
                     onClick={handleEditUser}
-                    disabled={!editingUser.realName?.trim()}
+                    disabled={!editingUser || (!editingUser.realName?.trim() && !editingUser.name?.trim())}
                     className="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-2 rounded font-semibold disabled:bg-gray-600 disabled:cursor-not-allowed"
                   >
                     Salvar Alterações
