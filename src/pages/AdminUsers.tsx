@@ -2462,9 +2462,15 @@ function VencimentoDatePickerEdit({
   setEditingUser: (user: any) => void;
 }) {
   const [open, setOpen] = React.useState(false);
+  // Função auxiliar para criar data local a partir de string YYYY-MM-DD
+  const createLocalDate = (dateString: string): Date => {
+    const [year, month, day] = dateString.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  };
+
   const [date, setDate] = React.useState<Date | undefined>(
     editingUser?.expirationDate
-      ? new Date(editingUser.expirationDate)
+      ? createLocalDate(editingUser.expirationDate)
       : undefined
   );
   const [time, setTime] = React.useState<string>("");
@@ -2472,7 +2478,7 @@ function VencimentoDatePickerEdit({
   // Atualizar data quando editingUser mudar
   React.useEffect(() => {
     if (editingUser?.expirationDate) {
-      setDate(new Date(editingUser.expirationDate));
+      setDate(createLocalDate(editingUser.expirationDate));
     } else {
       setDate(undefined);
     }
@@ -2481,9 +2487,12 @@ function VencimentoDatePickerEdit({
   function handleDateSelect(selected: Date | undefined) {
     setDate(selected);
     if (selected && editingUser) {
-      // Converter para formato ISO para o estado
-      const isoDate = selected.toISOString().split("T")[0];
-      setEditingUser({ ...editingUser, expirationDate: isoDate });
+      // Formatar data localmente sem conversão de timezone
+      const year = selected.getFullYear();
+      const month = String(selected.getMonth() + 1).padStart(2, '0');
+      const day = String(selected.getDate()).padStart(2, '0');
+      const localDate = `${year}-${month}-${day}`;
+      setEditingUser({ ...editingUser, expirationDate: localDate });
     } else if (editingUser) {
       setEditingUser({ ...editingUser, expirationDate: "" });
     }
