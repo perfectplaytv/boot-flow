@@ -458,9 +458,11 @@ export default function AdminUsers() {
     // Mapear campos do banco para o frontend
     const mappedUser = {
       ...user,
-      realName: user.real_name || "", // Mapear real_name do banco para realName
+      realName: user.real_name || user.name || "", // Mapear real_name do banco para realName
       expirationDate: user.expiration_date || "", // Mapear expiration_date para expirationDate
-      plan: user.m3u_url || "", // Mapear m3u_url para plan
+      plan: user.plan || "", // Mapear plan corretamente
+      price: user.price || "", // Campo price
+      m3u_url: user.m3u_url || "", // Campo m3u_url separado
       observations: user.observations || "", // Garantir que observations existe
       telegram: user.telegram || "", // Campo telegram
       whatsapp: user.whatsapp || "", // Campo whatsapp
