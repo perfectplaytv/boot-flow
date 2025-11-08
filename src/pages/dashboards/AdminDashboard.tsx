@@ -306,18 +306,28 @@ const AdminDashboard = () => {
     const hoje = new Date();
     hoje.setHours(0, 0, 0, 0);
     
+    // Data de expiração em 3 dias (incluindo hoje, então são 3 dias a partir de hoje)
     const em3Dias = new Date();
     em3Dias.setDate(hoje.getDate() + 3);
-    em3Dias.setHours(23, 59, 59, 999);
+    em3Dias.setHours(0, 0, 0, 0);
     
     const count = clientes.filter(cliente => {
       if (!cliente.expiration_date) return false;
       
-      const expirationDate = new Date(cliente.expiration_date);
-      expirationDate.setHours(0, 0, 0, 0);
-      
-      // Verificar se a data de expiração está entre hoje e 3 dias
-      return expirationDate >= hoje && expirationDate <= em3Dias;
+      try {
+        const expirationDate = new Date(cliente.expiration_date);
+        expirationDate.setHours(0, 0, 0, 0);
+        
+        // Calcular diferença em dias
+        const diffTime = expirationDate.getTime() - hoje.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        // Clientes que expiram em 3 dias ou menos (0, 1, 2 ou 3 dias)
+        return diffDays >= 0 && diffDays <= 3;
+      } catch (error) {
+        console.error('Erro ao processar data de expiração:', error);
+        return false;
+      }
     }).length;
     
     return count;
@@ -1704,16 +1714,40 @@ const AdminDashboard = () => {
 
             {/* Stats Cards */}
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 my-4 sm:my-6">
+              {/* Card 1: Total Clientes */}
               <Card className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 border border-purple-700/40 text-white">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-xs sm:text-sm font-medium text-gray-300">Total de Usuários</CardTitle>
+                  <CardTitle className="text-xs sm:text-sm font-medium text-gray-300">Total Clientes</CardTitle>
                   <Users className="h-3 w-3 sm:h-4 sm:w-4 text-purple-400" />
                 </CardHeader>
                 <CardContent className="p-3 sm:p-6">
                   <div className="text-lg sm:text-2xl font-bold text-white">{(clientes?.length || 0).toLocaleString()}</div>
-                  <p className="text-xs text-gray-400 mt-1">+12.5% em relação ao mês passado</p>
+                  <p className="text-xs text-gray-400 mt-1">Clientes cadastrados</p>
                 </CardContent>
               </Card>
+              {/* Card 2: Total Revendas */}
+              <Card className="bg-gradient-to-br from-yellow-900/50 to-yellow-800/30 border border-yellow-700/40 text-white">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-xs sm:text-sm font-medium text-gray-300">Total Revendas</CardTitle>
+                  <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-400" />
+                </CardHeader>
+                <CardContent className="p-3 sm:p-6">
+                  <div className="text-lg sm:text-2xl font-bold text-white">{(revendas?.length || 0).toLocaleString()}</div>
+                  <p className="text-xs text-gray-400 mt-1">Revendedores cadastrados</p>
+                </CardContent>
+              </Card>
+              {/* Card 3: Expiram em 3 dias */}
+              <Card className="bg-gradient-to-br from-red-900/50 to-red-800/30 border border-red-700/40 text-white">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-xs sm:text-sm font-medium text-gray-300">Expiram em 3 dias</CardTitle>
+                  <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4 text-red-400" />
+                </CardHeader>
+                <CardContent className="p-3 sm:p-6">
+                  <div className="text-lg sm:text-2xl font-bold text-white">{clientesExpiramEm3Dias.toLocaleString()}</div>
+                  <p className="text-xs text-gray-400 mt-1">Clientes próximos do vencimento</p>
+                </CardContent>
+              </Card>
+              {/* Card 4: Receita Total */}
               <Card className="bg-gradient-to-br from-green-900/50 to-green-800/30 border border-green-700/40 text-white">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-xs sm:text-sm font-medium text-gray-300">Receita Total</CardTitle>
@@ -1721,27 +1755,7 @@ const AdminDashboard = () => {
                 </CardHeader>
                 <CardContent className="p-3 sm:p-6">
                   <div className="text-lg sm:text-2xl font-bold text-white">R$ {stats.totalRevenue.toLocaleString()}</div>
-                  <p className="text-xs text-gray-400 mt-1">+15.3% em relação ao mês passado</p>
-                </CardContent>
-              </Card>
-              <Card className="bg-gradient-to-br from-yellow-900/50 to-yellow-800/30 border border-yellow-700/40 text-white">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-xs sm:text-sm font-medium text-gray-300">Revendedores Ativos</CardTitle>
-                  <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-400" />
-                </CardHeader>
-                <CardContent className="p-3 sm:p-6">
-                  <div className="text-lg sm:text-2xl font-bold text-white">{(revendas?.length || 0).toLocaleString()}</div>
-                  <p className="text-xs text-gray-400 mt-1">+8.2% em relação ao mês passado</p>
-                </CardContent>
-              </Card>
-              <Card className="bg-gradient-to-br from-red-900/50 to-red-800/30 border border-red-700/40 text-white">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-xs sm:text-sm font-medium text-gray-300">Interações IA</CardTitle>
-                  <Brain className="h-3 w-3 sm:h-4 sm:w-4 text-red-400" />
-                </CardHeader>
-                <CardContent className="p-3 sm:p-6">
-                  <div className="text-lg sm:text-2xl font-bold text-white">{stats.aiInteractions.toLocaleString()}</div>
-                  <p className="text-xs text-gray-400 mt-1">+23.1% em relação ao mês passado</p>
+                  <p className="text-xs text-gray-400 mt-1">Receita acumulada</p>
                 </CardContent>
               </Card>
             </div>
@@ -2807,16 +2821,40 @@ const AdminDashboard = () => {
                 </div>
                 {/* Cards de métricas do Analytics */}
                 <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 my-4 sm:my-6">
+                  {/* Card 1: Total Clientes */}
                   <Card className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 border border-purple-700/40 text-white">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-xs sm:text-sm font-medium text-gray-300">Total de Usuários</CardTitle>
+                      <CardTitle className="text-xs sm:text-sm font-medium text-gray-300">Total Clientes</CardTitle>
                       <Users className="h-3 w-3 sm:h-4 sm:w-4 text-purple-400" />
                     </CardHeader>
                     <CardContent className="p-3 sm:p-6">
                       <div className="text-lg sm:text-2xl font-bold text-white">{(clientes?.length || 0).toLocaleString()}</div>
-                      <p className="text-xs text-gray-400 mt-1">+12.5% em relação ao mês passado</p>
+                      <p className="text-xs text-gray-400 mt-1">Clientes cadastrados</p>
                     </CardContent>
                   </Card>
+                  {/* Card 2: Total Revendas */}
+                  <Card className="bg-gradient-to-br from-yellow-900/50 to-yellow-800/30 border border-yellow-700/40 text-white">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-xs sm:text-sm font-medium text-gray-300">Total Revendas</CardTitle>
+                      <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-400" />
+                    </CardHeader>
+                    <CardContent className="p-3 sm:p-6">
+                      <div className="text-lg sm:text-2xl font-bold text-white">{(revendas?.length || 0).toLocaleString()}</div>
+                      <p className="text-xs text-gray-400 mt-1">Revendedores cadastrados</p>
+                    </CardContent>
+                  </Card>
+                  {/* Card 3: Expiram em 3 dias */}
+                  <Card className="bg-gradient-to-br from-red-900/50 to-red-800/30 border border-red-700/40 text-white">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-xs sm:text-sm font-medium text-gray-300">Expiram em 3 dias</CardTitle>
+                      <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4 text-red-400" />
+                    </CardHeader>
+                    <CardContent className="p-3 sm:p-6">
+                      <div className="text-lg sm:text-2xl font-bold text-white">{clientesExpiramEm3Dias.toLocaleString()}</div>
+                      <p className="text-xs text-gray-400 mt-1">Clientes próximos do vencimento</p>
+                    </CardContent>
+                  </Card>
+                  {/* Card 4: Receita Total */}
                   <Card className="bg-gradient-to-br from-green-900/50 to-green-800/30 border border-green-700/40 text-white">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-xs sm:text-sm font-medium text-gray-300">Receita Total</CardTitle>
@@ -2824,27 +2862,7 @@ const AdminDashboard = () => {
                     </CardHeader>
                     <CardContent className="p-3 sm:p-6">
                       <div className="text-lg sm:text-2xl font-bold text-white">R$ {stats.totalRevenue.toLocaleString()}</div>
-                      <p className="text-xs text-gray-400 mt-1">+15.3% em relação ao mês passado</p>
-                    </CardContent>
-                  </Card>
-                  <Card className="bg-gradient-to-br from-yellow-900/50 to-yellow-800/30 border border-yellow-700/40 text-white">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-xs sm:text-sm font-medium text-gray-300">Revendedores Ativos</CardTitle>
-                      <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-400" />
-                    </CardHeader>
-                    <CardContent className="p-3 sm:p-6">
-                      <div className="text-lg sm:text-2xl font-bold text-white">{(revendas?.length || 0).toLocaleString()}</div>
-                      <p className="text-xs text-gray-400 mt-1">+8.2% em relação ao mês passado</p>
-                    </CardContent>
-                  </Card>
-                  <Card className="bg-gradient-to-br from-red-900/50 to-red-800/30 border border-red-700/40 text-white">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-xs sm:text-sm font-medium text-gray-300">Interações IA</CardTitle>
-                      <Brain className="h-3 w-3 sm:h-4 sm:w-4 text-red-400" />
-                    </CardHeader>
-                    <CardContent className="p-3 sm:p-6">
-                      <div className="text-lg sm:text-2xl font-bold text-white">{stats.aiInteractions.toLocaleString()}</div>
-                      <p className="text-xs text-gray-400 mt-1">+23.1% em relação ao mês passado</p>
+                      <p className="text-xs text-gray-400 mt-1">Receita acumulada</p>
                     </CardContent>
                   </Card>
                 </div>
