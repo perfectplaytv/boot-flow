@@ -254,28 +254,44 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
 
   const handleDeleteRevenda = async () => {
     if (deletingReseller) {
+      console.log("🔄 [AdminResellers] Iniciando exclusão do revendedor:", deletingReseller.id);
+      
       const success = await deleteRevenda(deletingReseller.id);
       
       if (success) {
+        console.log("✅ [AdminResellers] Revendedor deletado com sucesso do Supabase");
+        
         // Atualizar Dashboard instantaneamente
-        console.log('📤 Revendas: Disparando evento refresh-dashboard após deletar revenda');
+        console.log('📤 [AdminResellers] Disparando evento refresh-dashboard após deletar revenda');
         try {
-          window.dispatchEvent(new CustomEvent('refresh-dashboard', { detail: { source: 'resellers', action: 'delete' } }));
-          console.log('✅ Evento disparado com sucesso');
+          window.dispatchEvent(new CustomEvent('refresh-dashboard', { 
+            detail: { source: 'resellers', action: 'delete', revendaId: deletingReseller.id } 
+          }));
+          console.log('✅ [AdminResellers] Evento refresh-dashboard disparado com sucesso');
         } catch (error) {
-          console.error('❌ Erro ao disparar evento:', error);
+          console.error('❌ [AdminResellers] Erro ao disparar evento:', error);
         }
         
         // Usar localStorage como fallback
         try {
           localStorage.setItem('dashboard-refresh', Date.now().toString());
-          console.log('✅ Flag localStorage definida');
+          console.log('✅ [AdminResellers] Flag localStorage definida');
         } catch (error) {
-          console.error('❌ Erro ao definir flag localStorage:', error);
+          console.error('❌ [AdminResellers] Erro ao definir flag localStorage:', error);
         }
         
+        // Fechar modal
         setDeletingReseller(null);
         setIsDeleteDialogOpen(false);
+        
+        // Mostrar mensagem de sucesso
+        alert("✅ Revendedor excluído com sucesso!");
+        
+        console.log("✅ [AdminResellers] Processo de exclusão concluído");
+      } else {
+        const errorMsg = error || "Erro ao deletar revendedor. Verifique se você tem permissão no Supabase ou se há policies bloqueando a exclusão.";
+        console.error("❌ [AdminResellers] Erro ao deletar revendedor:", errorMsg);
+        alert(`❌ ${errorMsg}`);
       }
     }
   };

@@ -325,27 +325,87 @@ export function useRevendas() {
   async function deleteRevenda(id: number) {
     try {
       setError(null);
+      console.log('🔄 [useRevendas] Deletando revendedor com ID:', id);
       
-      const { error } = await supabase.from('resellers').delete().eq('id', id);
+      // Obter token de autenticação do localStorage
+      let authToken = '';
       
-      if (error) {
-        console.error('Erro ao deletar revendedor:', error);
+      try {
+        const allKeys = Object.keys(localStorage);
+        const supabaseKeys = allKeys.filter(key => key.startsWith('sb-') && key.includes('auth-token'));
+        
+        for (const key of supabaseKeys) {
+          try {
+            const authData = localStorage.getItem(key);
+            if (authData) {
+              const parsed = JSON.parse(authData);
+              if (parsed?.access_token) {
+                authToken = parsed.access_token;
+                console.log('🔄 [useRevendas] Token encontrado no localStorage');
+                break;
+              }
+            }
+          } catch (e) {
+            // Continuar procurando
+          }
+        }
+        
+        if (!authToken) {
+          console.log('🔄 [useRevendas] Token não encontrado, usando apenas apikey');
+        }
+      } catch (e) {
+        console.log('🔄 [useRevendas] Erro ao buscar token:', e);
+      }
+      
+      // Preparar headers
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_ANON_KEY,
+        'Prefer': 'return=representation',
+      };
+      
+      // Adicionar token de autenticação se disponível
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`;
+      }
+      
+      // Usar fetch direto para deletar
+      const deleteUrl = `${SUPABASE_URL}/rest/v1/resellers?id=eq.${id}`;
+      console.log('🔄 [useRevendas] URL de exclusão:', deleteUrl);
+      console.log('🔄 [useRevendas] Headers:', { ...headers, Authorization: authToken ? 'Bearer ***' : 'Não fornecido' });
+      
+      const response = await fetch(deleteUrl, {
+        method: 'DELETE',
+        headers: headers,
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.message || `Erro HTTP: ${response.status} ${response.statusText}`;
+        console.error('❌ [useRevendas] Erro ao deletar revendedor:', errorMessage);
         
         // Verificar se é erro de RLS
-        if (error.message.includes('row-level security policy')) {
+        if (errorMessage.includes('row-level security policy') || errorMessage.includes('permission denied')) {
           setError('Erro de permissão: As políticas de segurança estão bloqueando a exclusão. Execute o script SQL para corrigir as políticas RLS.');
         } else {
-          setError(`Erro ao deletar revendedor: ${error.message}`);
+          setError(`Erro ao deletar revendedor: ${errorMessage}`);
         }
         return false;
       }
       
+      console.log('✅ [useRevendas] Revendedor deletado com sucesso');
+      
+      // Atualizar lista de revendedores
       await fetchRevendas();
+      
+      // Atualizar estado local removendo o revendedor deletado
+      setRevendas(prevRevendas => prevRevendas.filter(revenda => revenda.id !== id));
+      
       return true;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
       setError(`Erro inesperado ao deletar revendedor: ${errorMessage}`);
-      console.error('Erro ao deletar revendedor:', err);
+      console.error('❌ [useRevendas] Erro ao deletar revendedor:', err);
       return false;
     }
   }
