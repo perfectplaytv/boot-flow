@@ -9,6 +9,7 @@ type UserRow = {
   email?: string;
   status?: string;
   plan?: string;
+  price?: string;
   m3u_url?: string;
   [key: string]: any; // Para propriedades adicionais
 };
@@ -18,6 +19,8 @@ type ResellerRow = {
   username?: string;
   email?: string;
   status?: string;
+  credits?: number;
+  price?: string;
   [key: string]: any; // Para propriedades adicionais
 };
 
@@ -74,8 +77,52 @@ function useDashboardData() {
       // Total de usuários (clientes + revendedores)
       const totalUsers = clientes.length + revendas.length;
 
-      // Buscar dados adicionais do Supabase, se necessário
-      let totalRevenue = 0;
+      // Função auxiliar para converter preço de string (formato brasileiro) para número
+      const parsePrice = (price: string | number | undefined): number => {
+        if (!price) return 0;
+        if (typeof price === 'number') return price;
+        
+        // Converte formato brasileiro "30,00" para número
+        const priceString = String(price).replace(/\./g, '').replace(',', '.');
+        const parsed = parseFloat(priceString);
+        return isNaN(parsed) ? 0 : parsed;
+      };
+
+      // Calcular receita total dos clientes (soma dos preços)
+      let revenueFromClientes = 0;
+      try {
+        revenueFromClientes = clientes.reduce((sum, cliente) => {
+          const price = (cliente as UserRow).price;
+          return sum + parsePrice(price);
+        }, 0);
+        console.log('💰 [useDashboardData] Receita dos clientes:', revenueFromClientes);
+      } catch (error) {
+        console.error('Erro ao calcular receita dos clientes:', error);
+      }
+
+      // Calcular receita total das revendas (soma dos créditos ou preços se houver)
+      let revenueFromRevendas = 0;
+      try {
+        revenueFromRevendas = revendas.reduce((sum, revenda) => {
+          // Primeiro tenta usar o campo price, depois credits
+          const price = (revenda as ResellerRow).price;
+          const credits = (revenda as ResellerRow).credits || 0;
+          
+          if (price) {
+            return sum + parsePrice(price);
+          } else if (credits) {
+            // Se não tiver price, usa credits como valor
+            return sum + (typeof credits === 'number' ? credits : parseFloat(String(credits)) || 0);
+          }
+          return sum;
+        }, 0);
+        console.log('💰 [useDashboardData] Receita das revendas:', revenueFromRevendas);
+      } catch (error) {
+        console.error('Erro ao calcular receita das revendas:', error);
+      }
+
+      // Buscar dados adicionais do Supabase (cobranças)
+      let revenueFromCobrancas = 0;
       let monthlyGrowth = 0;
       
       try {
@@ -86,7 +133,8 @@ function useDashboardData() {
           .eq('status', 'pago')
           .gte('data_vencimento', new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString().split('T')[0]);
           
-        totalRevenue = revenueData?.reduce((sum, item) => sum + (parseFloat(String(item.valor)) || 0), 0) || 0;
+        revenueFromCobrancas = revenueData?.reduce((sum, item) => sum + (parseFloat(String(item.valor)) || 0), 0) || 0;
+        console.log('💰 [useDashboardData] Receita das cobranças:', revenueFromCobrancas);
         
         // Cálculo simples de crescimento (pode ser aprimorado)
         const lastMonthStart = new Date(new Date().setMonth(new Date().getMonth() - 2)).toISOString().split('T')[0];
@@ -101,11 +149,19 @@ function useDashboardData() {
           
         const lastMonthRevenue = lastMonthData?.reduce((sum, item) => sum + (parseFloat(String(item.valor)) || 0), 0) || 0;
         monthlyGrowth = lastMonthRevenue > 0 
-          ? ((totalRevenue - lastMonthRevenue) / lastMonthRevenue) * 100 
+          ? ((revenueFromCobrancas - lastMonthRevenue) / lastMonthRevenue) * 100 
           : 0;
       } catch (error) {
         console.error('Erro ao buscar dados financeiros:', error);
       }
+
+      // Receita total = clientes + revendas + cobranças
+      const totalRevenue = revenueFromClientes + revenueFromRevendas + revenueFromCobrancas;
+      console.log('💰 [useDashboardData] Receita Total:', totalRevenue, {
+        clientes: revenueFromClientes,
+        revendas: revenueFromRevendas,
+        cobrancas: revenueFromCobrancas
+      });
 
       // Contar usuários de IPTV e Rádio baseado no plano
       const iptvUsers = clientes.filter(cliente => {
