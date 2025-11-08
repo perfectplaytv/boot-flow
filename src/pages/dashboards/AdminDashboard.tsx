@@ -1343,6 +1343,7 @@ const AdminDashboard = () => {
                               >
                                 <option value="">Selecione um plano</option>
                                 <option value="Mensal">Mensal</option>
+                                <option value="Bimestral">Bimestral</option>
                                 <option value="Trimestral">Trimestral</option>
                                 <option value="Semestral">Semestral</option>
                                 <option value="Anual">Anual</option>
@@ -2144,6 +2145,7 @@ const AdminDashboard = () => {
                                   >
                                     <option value="">Selecione um plano</option>
                                     <option value="Mensal">Mensal</option>
+                                    <option value="Bimestral">Bimestral</option>
                                     <option value="Trimestral">Trimestral</option>
                                     <option value="Semestral">Semestral</option>
                                     <option value="Anual">Anual</option>
