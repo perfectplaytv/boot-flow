@@ -116,6 +116,7 @@ const AdminDashboard = () => {
     name: "",
     email: "",
     plan: "",
+    price: "",
     status: "Ativo",
     telegram: "",
     observations: "",
@@ -282,6 +283,18 @@ const AdminDashboard = () => {
     if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} min atrás`;
     if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} horas atrás`;
     return `${Math.floor(diffInSeconds / 86400)} dias atrás`;
+  };
+
+  // Função para retornar os preços baseados no plano selecionado
+  const getPlanPrices = (plan: string): string[] => {
+    const prices: { [key: string]: string[] } = {
+      "Mensal": ["30,00", "35,00", "40,00"],
+      "Bimestral": ["50,00", "60,00", "70,00"],
+      "Trimestral": ["75,00", "90,00", "100,00"],
+      "Semestral": ["150,00", "160,00", "170,00"],
+      "Anual": ["130,00", "180,00", "200,00", "250,00", "280,00"],
+    };
+    return prices[plan] || [];
   };
 
   // Mapear clientes e revendedores para atividade recente
@@ -744,6 +757,7 @@ const AdminDashboard = () => {
         name: "",
         email: "",
         plan: "",
+        price: "",
         status: "Ativo",
         telegram: "",
         observations: "",
@@ -1349,6 +1363,28 @@ const AdminDashboard = () => {
                                 <option value="Anual">Anual</option>
                               </select>
                             </div>
+                            {/* Preço */}
+                            {newUser.plan && (
+                              <div className="col-span-1">
+                                <label className="block text-gray-300 mb-1 font-medium">
+                                  Preço *
+                                </label>
+                                <select
+                                  className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+                                  value={newUser.price}
+                                  onChange={(e) =>
+                                    setNewUser({ ...newUser, price: e.target.value })
+                                  }
+                                >
+                                  <option value="">Selecione um preço</option>
+                                  {getPlanPrices(newUser.plan).map((price) => (
+                                    <option key={price} value={price}>
+                                      R$ {price}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                            )}
                             {/* Nome */}
                             <div className="col-span-1">
                               <label className="block text-gray-300 mb-1 font-medium">
