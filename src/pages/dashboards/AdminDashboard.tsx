@@ -1764,7 +1764,7 @@ const AdminDashboard = () => {
                 </CardHeader>
                 <CardContent className="p-3 sm:p-6">
                   <div className="text-lg sm:text-2xl font-bold text-white">
-                    R$ {stats.totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    R$ {formatCurrency(stats.totalRevenue)}
                   </div>
                   <p className="text-xs text-gray-400 mt-1">Receita acumulada (clientes + revendas)</p>
                 </CardContent>
@@ -2873,7 +2873,7 @@ const AdminDashboard = () => {
                     </CardHeader>
                     <CardContent className="p-3 sm:p-6">
                       <div className="text-lg sm:text-2xl font-bold text-white">
-                        R$ {stats.totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        R$ {formatCurrency(stats.totalRevenue)}
                       </div>
                       <p className="text-xs text-gray-400 mt-1">Receita acumulada (clientes + revendas)</p>
                     </CardContent>
