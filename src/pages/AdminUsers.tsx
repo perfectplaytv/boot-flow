@@ -1407,7 +1407,7 @@ export default function AdminUsers() {
                   Servidor
                 </TableHead>
                 <TableHead className="hidden sm:table-cell text-xs sm:text-sm">
-                  Números do WhatsApp
+                  Preço
                 </TableHead>
                 <TableHead className="text-xs sm:text-sm">Ações</TableHead>
               </TableRow>
@@ -1451,7 +1451,7 @@ export default function AdminUsers() {
                     {user.server || "-"}
                   </TableCell>
                   <TableCell className="hidden sm:table-cell text-gray-300 text-xs sm:text-sm">
-                    {user.whatsapp || "-"}
+                    {user.price ? `R$ ${user.price}` : "-"}
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-1 sm:gap-2">
