@@ -1407,7 +1407,7 @@ export default function AdminUsers() {
                   Vencimento
                 </TableHead>
                 <TableHead className="hidden lg:table-cell text-xs sm:text-sm">
-                  Criado em
+                  Servidor
                 </TableHead>
                 <TableHead className="text-xs sm:text-sm">Ações</TableHead>
               </TableRow>
@@ -1450,8 +1450,8 @@ export default function AdminUsers() {
                       ? new Date(user.expiration_date).toLocaleDateString('pt-BR')
                       : "-"}
                   </TableCell>
-                  <TableCell className="hidden lg:table-cell text-gray-400 text-xs sm:text-sm">
-                    {user.createdAt}
+                  <TableCell className="hidden lg:table-cell text-gray-300 text-xs sm:text-sm">
+                    {user.server || "-"}
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-1 sm:gap-2">
