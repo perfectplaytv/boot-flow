@@ -541,30 +541,56 @@ export default function AdminUsers() {
         // O hook useClientes já atualiza automaticamente após updateCliente
         console.log(`Cliente ${pagoUser.name} marcado como ${newPagoStatus ? 'Pago' : 'Não Pago'}`);
         
-        // Disparar evento para atualizar o dashboard (receita total)
-        console.log('📤 Clientes: Disparando evento refresh-dashboard após marcar como pago');
-        try {
-          window.dispatchEvent(
-            new CustomEvent("refresh-dashboard", {
-              detail: { source: "users", action: "update", field: "pago" },
-            })
-          );
-          console.log("✅ Evento refresh-dashboard disparado com sucesso");
-        } catch (error) {
-          console.error("❌ Erro ao disparar evento:", error);
-        }
-        
-        // Usar localStorage como fallback
-        try {
-          localStorage.setItem("dashboard-refresh", Date.now().toString());
-          console.log("✅ Flag localStorage definida");
-        } catch (error) {
-          console.error("❌ Erro ao definir flag localStorage:", error);
-        }
-
-        // Fechar o modal
+        // Fechar o modal primeiro
         setIsPagoDialogOpen(false);
+        const userInfo = { ...pagoUser, pago: newPagoStatus };
         setPagoUser(null);
+
+        // Aguardar um pequeno delay para garantir que o banco foi atualizado
+        // e o useRealtime tenha tempo de receber a mudança
+        setTimeout(() => {
+          // Disparar evento para atualizar o dashboard (receita total)
+          console.log('📤 Clientes: Disparando evento refresh-dashboard após marcar como pago');
+          try {
+            window.dispatchEvent(
+              new CustomEvent("refresh-dashboard", {
+                detail: { 
+                  source: "users", 
+                  action: "update", 
+                  field: "pago",
+                  userId: userInfo.id,
+                  pago: newPagoStatus,
+                  price: userInfo.price
+                },
+              })
+            );
+            console.log("✅ Evento refresh-dashboard disparado com sucesso");
+          } catch (error) {
+            console.error("❌ Erro ao disparar evento:", error);
+          }
+          
+          // Usar localStorage como fallback
+          try {
+            localStorage.setItem("dashboard-refresh", Date.now().toString());
+            console.log("✅ Flag localStorage definida");
+          } catch (error) {
+            console.error("❌ Erro ao definir flag localStorage:", error);
+          }
+
+          // Disparar um segundo evento após mais um delay para garantir atualização
+          setTimeout(() => {
+            window.dispatchEvent(
+              new CustomEvent("refresh-dashboard", {
+                detail: { 
+                  source: "users", 
+                  action: "update", 
+                  field: "pago",
+                  forceRefresh: true
+                },
+              })
+            );
+          }, 500);
+        }, 300);
       }
     } catch (error) {
       console.error('Erro ao atualizar status de pagamento:', error);
