@@ -2054,10 +2054,20 @@ const AdminDashboard = () => {
       if (event.detail?.source === 'users' || !event.detail?.source) {
         console.log('🔄 Atualizando dados de usuários...');
         refreshUsers();
+        // Forçar atualização das estatísticas do dashboard (receita total)
+        if (refreshStats) {
+          console.log('🔄 Atualizando estatísticas do dashboard (receita)...');
+          refreshStats();
+        }
       }
       if (event.detail?.source === 'resellers' || !event.detail?.source) {
         console.log('🔄 Atualizando dados de revendedores...');
         if (refreshResellers) refreshResellers();
+        // Forçar atualização das estatísticas do dashboard
+        if (refreshStats) {
+          console.log('🔄 Atualizando estatísticas do dashboard (receita)...');
+          refreshStats();
+        }
       }
       
       // Apenas atualiza o trigger se realmente necessário
