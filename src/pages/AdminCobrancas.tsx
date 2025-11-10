@@ -69,6 +69,10 @@ const generateCobrancasFromClientes = (clientes: Cliente[]): Cobranca[] => {
     const vencimento = new Date(hoje);
     vencimento.setDate(hoje.getDate() + (index * 7) + Math.floor(Math.random() * 30));
     
+    // Se o cliente estiver marcado como pago, a cobrança deve ser "Paga"
+    // Caso contrário, usa o status padrão baseado no índice
+    const statusCobranca = cliente.pago ? 'Paga' : statuses[index % statuses.length];
+    
     return {
       id: cliente.id,
       cliente: cliente.name,
@@ -76,7 +80,7 @@ const generateCobrancasFromClientes = (clientes: Cliente[]): Cobranca[] => {
       descricao: descricoes[index % descricoes.length],
       valor: Math.floor(Math.random() * 50) + 90, // Valor entre 90 e 140
       vencimento: vencimento.toLocaleDateString('pt-BR'),
-      status: statuses[index % statuses.length],
+      status: statusCobranca,
       tipo: 'Cliente',
       gateway: ['PIX', 'Stripe', 'Mercado Pago'][index % 3],
       formaPagamento: ['PIX', 'Cartão de Crédito', 'Cartão de Débito'][index % 3],
