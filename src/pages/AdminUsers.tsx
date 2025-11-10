@@ -1525,12 +1525,12 @@ export default function AdminUsers() {
                       </Button>
                       <Button
                         size="sm"
-                        variant="outline"
+                        variant={user.pago ? "default" : "outline"}
                         className={`${
                           user.pago
-                            ? "border-green-600 text-green-400 hover:bg-green-600 hover:text-white bg-green-600/20"
-                            : "border-green-600 text-green-400 hover:bg-green-600 hover:text-white"
-                        } h-8 w-8 sm:h-9 sm:w-9 p-0`}
+                            ? "bg-green-600 text-white hover:bg-green-700 border-green-600"
+                            : "border-green-600 text-green-400 hover:bg-green-600 hover:text-white bg-background"
+                        } h-8 w-8 sm:h-9 sm:w-9 p-0 rounded-md`}
                         onClick={() => handleTogglePago(user)}
                         title={user.pago ? "Marcar como Não Pago" : "Marcar como Pago"}
                       >
