@@ -40,8 +40,8 @@ function useDashboardData() {
   // Estados para os dados em tempo real
   // Usando o hook useRealtime para buscar dados em tempo real
   // Nota: Estamos usando 'any' temporariamente para evitar erros de tipo
-  const { data: clientes = [], error: clientesError } = useRealtime<any>({ table: 'users' });
-  const { data: revendas = [], error: revendasError } = useRealtime<any>({ table: 'resellers' });
+  const { data: clientes = [], error: clientesError, refresh: refreshClientes } = useRealtime<any>({ table: 'users' });
+  const { data: revendas = [], error: revendasError, refresh: refreshRevendas } = useRealtime<any>({ table: 'resellers' });
   const [loading, setLoading] = useState(true);
   
   // Estado para as estatísticas do dashboard
