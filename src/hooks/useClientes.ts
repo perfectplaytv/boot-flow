@@ -23,6 +23,7 @@ export interface Cliente {
   plan?: string;
   price?: string;
   status?: string;
+  pago?: boolean;
 }
 
 export function useClientes() {
