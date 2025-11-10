@@ -277,6 +277,13 @@ export function useClientes() {
   async function updateCliente(id: number, updates: Partial<Cliente>) {
     try {
       console.log('🔄 [useClientes] updateCliente chamado com:', { id, updates });
+      
+      // Garantir que o campo pago seja boolean se estiver presente
+      if ('pago' in updates) {
+        updates.pago = Boolean(updates.pago);
+        console.log('🔄 [useClientes] Campo pago convertido para boolean:', updates.pago);
+      }
+      
       setError(null);
       
       // Usar fetch direto ao invés do cliente Supabase para evitar travamentos
@@ -387,17 +394,35 @@ export function useClientes() {
         
         console.error('❌ [useClientes] Erro do Supabase:', errorObj);
         console.error('❌ [useClientes] Status:', response.status);
+        console.error('❌ [useClientes] Resposta completa:', responseText);
+        console.error('❌ [useClientes] Dados enviados:', JSON.stringify(updates, null, 2));
+        
+        let errorMessage = '';
         
         // Verificar tipo de erro
         if (response.status === 401 || errorObj.message?.includes('401') || errorObj.message?.includes('Unauthorized')) {
-          setError('Erro de autenticação: Sua sessão expirou. Por favor, faça login novamente.');
-        } else if (errorObj.message?.includes('row-level security policy') || errorObj.message?.includes('new row violates row-level security')) {
-          setError('Erro de permissão: As políticas de segurança estão bloqueando a atualização. Verifique se você está autenticado e se as políticas RLS estão configuradas corretamente.');
+          errorMessage = 'Erro de autenticação: Sua sessão expirou. Por favor, faça login novamente.';
+        } else if (response.status === 404) {
+          errorMessage = 'Erro: Cliente não encontrado. O ID pode estar incorreto.';
+        } else if (response.status === 400) {
+          // Erro 400 pode ser coluna não existe ou tipo incorreto
+          if (errorObj.message?.includes('column') || errorObj.details?.includes('column')) {
+            errorMessage = `Erro: A coluna 'pago' pode não existir na tabela 'users'. Execute o script SQL para adicionar a coluna.`;
+          } else {
+            errorMessage = `Erro de validação: ${errorObj.message || errorObj.details || 'Dados inválidos'}`;
+          }
+        } else if (errorObj.message?.includes('row-level security policy') || errorObj.message?.includes('new row violates row-level security') || errorObj.message?.includes('RLS')) {
+          errorMessage = 'Erro de permissão: As políticas de segurança (RLS) estão bloqueando a atualização. Verifique se você está autenticado e se as políticas RLS estão configuradas corretamente.';
         } else if (response.status === 409 || errorObj.message?.includes('duplicate key')) {
-          setError('Erro: Já existe um cliente com este e-mail ou dados duplicados.');
+          errorMessage = 'Erro: Já existe um cliente com este e-mail ou dados duplicados.';
+        } else if (response.status === 500) {
+          errorMessage = 'Erro interno do servidor. Tente novamente mais tarde.';
         } else {
-          setError(`Erro ao atualizar cliente: ${errorObj.message || errorObj.details || 'Erro desconhecido'} (Status: ${response.status})`);
+          errorMessage = `Erro ao atualizar cliente: ${errorObj.message || errorObj.details || 'Erro desconhecido'} (Status: ${response.status})`;
         }
+        
+        setError(errorMessage);
+        console.error('❌ [useClientes] Mensagem de erro definida:', errorMessage);
         return false;
       }
       

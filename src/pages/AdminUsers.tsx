@@ -534,16 +534,21 @@ export default function AdminUsers() {
     try {
       const newPagoStatus = !pagoUser.pago;
       console.log(`🔄 [AdminUsers] Marcando cliente ${pagoUser.id} como ${newPagoStatus ? 'Pago' : 'Não Pago'}`);
+      console.log(`🔄 [AdminUsers] Dados do cliente:`, {
+        id: pagoUser.id,
+        name: pagoUser.name,
+        pagoAtual: pagoUser.pago,
+        pagoNovo: newPagoStatus,
+        tipoPagoAtual: typeof pagoUser.pago,
+        tipoPagoNovo: typeof newPagoStatus
+      });
       
-      // Atualizar estado local IMEDIATAMENTE para feedback visual (botão verde)
-      // Isso faz o botão ficar verde antes mesmo de atualizar no banco
-      const updatedUsersList = users.map((u) =>
-        u.id === pagoUser.id ? { ...u, pago: newPagoStatus } : u
-      );
-      // Nota: Não podemos atualizar diretamente o estado de users porque vem do hook
-      // Mas o useClientes já atualiza após o updateUser, então isso vai funcionar
+      // Garantir que o valor seja boolean
+      const pagoValue = Boolean(newPagoStatus);
+      console.log(`🔄 [AdminUsers] Valor boolean garantido:`, pagoValue);
       
-      const success = await updateUser(pagoUser.id, { pago: newPagoStatus });
+      const success = await updateUser(pagoUser.id, { pago: pagoValue });
+      
       if (success) {
         console.log(`✅ [AdminUsers] Cliente ${pagoUser.name} marcado como ${newPagoStatus ? 'Pago' : 'Não Pago'}`);
         
@@ -552,9 +557,6 @@ export default function AdminUsers() {
         const userInfo = { ...pagoUser, pago: newPagoStatus };
         setPagoUser(null);
 
-        // O hook useClientes já chama fetchClientes() após updateCliente
-        // Mas vamos forçar uma atualização adicional e aguardar um pouco
-        
         // Disparar evento IMEDIATAMENTE para atualizar o dashboard
         console.log('📤 [AdminUsers] Disparando evento refresh-dashboard IMEDIATAMENTE');
         try {
@@ -610,11 +612,15 @@ export default function AdminUsers() {
           }, 300);
         }
       } else {
-        alert('Erro ao atualizar status de pagamento. Verifique os dados e tente novamente.');
+        // Mostrar erro mais detalhado
+        const errorMessage = error || 'Erro desconhecido ao atualizar status de pagamento.';
+        console.error('❌ [AdminUsers] Erro ao atualizar:', errorMessage);
+        alert(`Erro ao atualizar status de pagamento.\n\nDetalhes: ${errorMessage}\n\nVerifique:\n- Se a coluna 'pago' existe na tabela 'users'\n- Se você tem permissão para atualizar\n- Se está conectado à internet`);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ [AdminUsers] Erro ao atualizar status de pagamento:', error);
-      alert('Erro ao atualizar status de pagamento. Tente novamente.');
+      const errorMessage = error?.message || error?.toString() || 'Erro desconhecido';
+      alert(`Erro ao atualizar status de pagamento.\n\nErro: ${errorMessage}\n\nVerifique o console para mais detalhes.`);
     }
   };
 
