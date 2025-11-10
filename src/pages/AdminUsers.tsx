@@ -363,6 +363,7 @@ export default function AdminUsers() {
       devices: editingUser.devices || 0, // Campo dispositivos
       credits: editingUser.credits || 0, // Campo créditos
       notes: editingUser.notes || "", // Campo anotações
+      pago: editingUser.pago || false, // Campo pago
     };
 
     console.log("Dados preparados para atualização:", updatedUserData);
@@ -499,6 +500,7 @@ export default function AdminUsers() {
       devices: user.devices || 0, // Campo dispositivos
       credits: user.credits || 0, // Campo créditos
       notes: user.notes || "", // Campo anotações
+      pago: user.pago || false, // Campo pago
     };
 
     console.log("Usuário mapeado para o frontend:", mappedUser);
@@ -2241,6 +2243,30 @@ export default function AdminUsers() {
                         <option value="Inativo">Inativo</option>
                         <option value="Pendente">Pendente</option>
                       </select>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+                    {/* Status de Pagamento */}
+                    <div className="flex items-center gap-3 p-3 bg-[#23272f] border border-gray-700 rounded">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={editingUser.pago || false}
+                          onChange={(e) =>
+                            setEditingUser({
+                              ...editingUser,
+                              pago: e.target.checked,
+                            })
+                          }
+                          className="w-4 h-4 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2"
+                        />
+                        <span className="text-gray-300 font-medium">
+                          Cliente Pago
+                        </span>
+                        {editingUser.pago && (
+                          <CheckCircle className="w-4 h-4 text-green-500" />
+                        )}
+                      </label>
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
