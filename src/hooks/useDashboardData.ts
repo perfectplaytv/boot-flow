@@ -213,28 +213,45 @@ function useDashboardData() {
   // Função de refresh que atualiza os dados e recalcula as estatísticas
   const refresh = useCallback(async () => {
     console.log('🔄 [useDashboardData] Refresh manual chamado');
-    // Forçar atualização dos dados do useRealtime
-    if (refreshClientes) {
-      await refreshClientes();
-    }
-    if (refreshRevendas) {
-      await refreshRevendas();
-    }
-    // Aguardar um pouco para os dados serem atualizados
-    setTimeout(() => {
+    try {
+      // Forçar atualização dos dados do useRealtime
+      if (refreshClientes) {
+        console.log('🔄 [useDashboardData] Atualizando clientes...');
+        await refreshClientes();
+      }
+      if (refreshRevendas) {
+        console.log('🔄 [useDashboardData] Atualizando revendas...');
+        await refreshRevendas();
+      }
+      // Aguardar um pouco para os dados serem atualizados e então recalcular
+      // Usar um delay maior para garantir que o Supabase atualizou
+      setTimeout(async () => {
+        console.log('🔄 [useDashboardData] Recalculando estatísticas após refresh...');
+        await calculateStats();
+      }, 300);
+    } catch (error) {
+      console.error('❌ [useDashboardData] Erro no refresh:', error);
+      // Mesmo com erro, tenta recalcular com os dados atuais
       calculateStats();
-    }, 100);
+    }
   }, [refreshClientes, refreshRevendas, calculateStats]);
 
   // Listener para eventos de atualização
   useEffect(() => {
     const handleRefreshEvent = (event: CustomEvent) => {
-      if (event.detail?.field === 'pago' || event.detail?.forceRefresh) {
+      console.log('🔄 [useDashboardData] Evento refresh-dashboard recebido:', event.detail);
+      if (event.detail?.field === 'pago' || event.detail?.forceRefresh || event.detail?.source === 'users') {
         console.log('🔄 [useDashboardData] Evento de pagamento detectado, atualizando receita...');
-        // Aguardar um pouco para garantir que o useRealtime recebeu a atualização
+        console.log('🔄 [useDashboardData] Detalhes:', {
+          userId: event.detail?.userId,
+          pago: event.detail?.pago,
+          price: event.detail?.price
+        });
+        // Aguardar um pouco para garantir que o useRealtime recebeu a atualização do Supabase
+        // O realtime do Supabase pode levar alguns milissegundos para propagar
         setTimeout(() => {
           refresh();
-        }, 200);
+        }, 400);
       }
     };
 
