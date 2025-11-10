@@ -531,6 +531,27 @@ export default function AdminUsers() {
         );
         // O hook useClientes já atualiza automaticamente após updateCliente
         console.log(`Cliente ${user.name} marcado como ${newPagoStatus ? 'Pago' : 'Não Pago'}`);
+        
+        // Disparar evento para atualizar o dashboard (receita total)
+        console.log('📤 Clientes: Disparando evento refresh-dashboard após marcar como pago');
+        try {
+          window.dispatchEvent(
+            new CustomEvent("refresh-dashboard", {
+              detail: { source: "users", action: "update", field: "pago" },
+            })
+          );
+          console.log("✅ Evento refresh-dashboard disparado com sucesso");
+        } catch (error) {
+          console.error("❌ Erro ao disparar evento:", error);
+        }
+        
+        // Usar localStorage como fallback
+        try {
+          localStorage.setItem("dashboard-refresh", Date.now().toString());
+          console.log("✅ Flag localStorage definida");
+        } catch (error) {
+          console.error("❌ Erro ao definir flag localStorage:", error);
+        }
       }
     } catch (error) {
       console.error('Erro ao atualizar status de pagamento:', error);
