@@ -11,6 +11,7 @@ type UserRow = {
   plan?: string;
   price?: string;
   m3u_url?: string;
+  pago?: boolean;
   [key: string]: any; // Para propriedades adicionais
 };
 
@@ -88,14 +89,19 @@ function useDashboardData() {
         return isNaN(parsed) ? 0 : parsed;
       };
 
-      // Calcular receita total dos clientes (soma dos preços)
+      // Calcular receita total dos clientes marcados como pagos (soma dos preços)
       let revenueFromClientes = 0;
       try {
         revenueFromClientes = clientes.reduce((sum, cliente) => {
-          const price = (cliente as UserRow).price;
-          return sum + parsePrice(price);
+          const clienteRow = cliente as UserRow;
+          // Só soma a receita se o cliente estiver marcado como pago
+          if (clienteRow.pago === true) {
+            const price = clienteRow.price;
+            return sum + parsePrice(price);
+          }
+          return sum;
         }, 0);
-        console.log('💰 [useDashboardData] Receita dos clientes:', revenueFromClientes);
+        console.log('💰 [useDashboardData] Receita dos clientes pagos:', revenueFromClientes);
       } catch (error) {
         console.error('Erro ao calcular receita dos clientes:', error);
       }
