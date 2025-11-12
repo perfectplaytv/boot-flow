@@ -943,6 +943,176 @@ const AdminBranding: React.FC = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Modal de Dashboard Personalizado */}
+      <Dialog open={dashboardModal} onOpenChange={setDashboardModal}>
+        <DialogContent className="bg-[#232a36] border border-purple-700 text-white max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold">
+              {editingDashboard ? 'Editar Dashboard' : 'Criar Novo Dashboard'}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-6 py-4">
+            {/* Nome do Dashboard */}
+            <div className="space-y-2">
+              <Label htmlFor="dashboard-name" className="text-gray-300 font-medium">
+                Nome do Dashboard <span className="text-red-400">*</span>
+              </Label>
+              <Input
+                id="dashboard-name"
+                value={dashboardForm.name}
+                onChange={(e) => setDashboardForm({ ...dashboardForm, name: e.target.value })}
+                className="bg-gray-900 border border-gray-700 text-white focus:border-purple-500"
+                placeholder="Ex: Dashboard de Vendas"
+              />
+            </div>
+
+            {/* Layout */}
+            <div className="space-y-2">
+              <Label htmlFor="dashboard-layout" className="text-gray-300 font-medium">
+                Layout
+              </Label>
+              <select
+                id="dashboard-layout"
+                value={dashboardForm.layout}
+                onChange={(e) => setDashboardForm({ ...dashboardForm, layout: e.target.value })}
+                className="w-full bg-gray-900 border border-gray-700 text-white rounded-md px-3 py-2 focus:border-purple-500 focus:outline-none"
+              >
+                <option value="Padrão">Padrão</option>
+                <option value="Compacto">Compacto</option>
+                <option value="Espaçado">Espaçado</option>
+                <option value="Grid">Grid</option>
+                <option value="Lista">Lista</option>
+              </select>
+            </div>
+
+            {/* Widgets Disponíveis */}
+            <div className="space-y-2">
+              <Label className="text-gray-300 font-medium">Widgets Disponíveis</Label>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {['Métricas', 'Gráficos', 'Atividades Recentes', 'Notificações', 'Tabelas', 'Calendário', 'Mapas', 'Relatórios', 'Análises'].map((widget) => (
+                  <div
+                    key={widget}
+                    className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-colors ${
+                      dashboardForm.widgets.includes(widget)
+                        ? 'bg-purple-900/30 border-purple-500 text-purple-300'
+                        : 'bg-gray-900 border-gray-700 text-gray-300 hover:border-gray-600'
+                    }`}
+                    onClick={() => {
+                      const newWidgets = dashboardForm.widgets.includes(widget)
+                        ? dashboardForm.widgets.filter((w) => w !== widget)
+                        : [...dashboardForm.widgets, widget];
+                      setDashboardForm({ ...dashboardForm, widgets: newWidgets, order: newWidgets });
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={dashboardForm.widgets.includes(widget)}
+                      onChange={() => {}}
+                      className="accent-purple-500"
+                    />
+                    <span className="text-sm">{widget}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Ordem dos Widgets */}
+            {dashboardForm.widgets.length > 0 && (
+              <div className="space-y-2">
+                <Label className="text-gray-300 font-medium">Ordem dos Widgets</Label>
+                <div className="bg-gray-900 border border-gray-700 rounded-lg p-4 space-y-2">
+                  {dashboardForm.order.map((widget, index) => (
+                    <div
+                      key={widget}
+                      className="flex items-center gap-3 p-2 bg-gray-800 rounded border border-gray-700"
+                    >
+                      <GripVertical className="w-5 h-5 text-gray-500 cursor-move" />
+                      <span className="flex-1 text-gray-300">{widget}</span>
+                      {index > 0 && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => moveWidget(index, index - 1)}
+                          className="text-gray-400 hover:text-white"
+                        >
+                          ↑
+                        </Button>
+                      )}
+                      {index < dashboardForm.order.length - 1 && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => moveWidget(index, index + 1)}
+                          className="text-gray-400 hover:text-white"
+                        >
+                          ↓
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Cor e Configurações */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="dashboard-color" className="text-gray-300 font-medium">
+                  Cor do Tema
+                </Label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="color"
+                    id="dashboard-color"
+                    value={dashboardForm.color}
+                    onChange={(e) => setDashboardForm({ ...dashboardForm, color: e.target.value })}
+                    className="w-16 h-12 rounded border border-gray-700 cursor-pointer"
+                  />
+                  <Input
+                    value={dashboardForm.color}
+                    onChange={(e) => setDashboardForm({ ...dashboardForm, color: e.target.value })}
+                    className="flex-1 bg-gray-900 border border-gray-700 text-white focus:border-purple-500"
+                    placeholder="#7c3aed"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-gray-300 font-medium">Configurações</Label>
+                <div className="flex items-center gap-3 p-3 bg-gray-900 border border-gray-700 rounded-lg">
+                  <input
+                    type="checkbox"
+                    id="dashboard-realtime"
+                    checked={dashboardForm.realtime}
+                    onChange={(e) => setDashboardForm({ ...dashboardForm, realtime: e.target.checked })}
+                    className="accent-purple-500"
+                  />
+                  <Label htmlFor="dashboard-realtime" className="text-gray-300 cursor-pointer">
+                    Atualização em Tempo Real
+                  </Label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDashboardModal(false)}
+              className="bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={saveDashboard}
+              className="bg-purple-600 hover:bg-purple-700 text-white"
+            >
+              {editingDashboard ? 'Salvar Alterações' : 'Criar Dashboard'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
