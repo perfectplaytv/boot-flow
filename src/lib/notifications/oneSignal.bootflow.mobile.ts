@@ -1,7 +1,5 @@
 import { agentLogger } from '@/lib/logger.agent';
 
-const logger = agentLogger;
-
 declare global {
   interface Window {
     OneSignal?: any;
@@ -22,13 +20,13 @@ export class OneSignalService {
 
   async initialize(config: OneSignalConfig): Promise<boolean> {
     if (this.initialized) {
-      logger.warn('OneSignal já inicializado');
+      agentLogger.warn('OneSignal já inicializado');
       return true;
     }
 
     try {
       if (typeof window === 'undefined' || !window.OneSignal) {
-        logger.warn('OneSignal SDK não carregado');
+        agentLogger.warn('OneSignal SDK não carregado');
         return false;
       }
 
@@ -41,10 +39,10 @@ export class OneSignalService {
 
       this.config = config;
       this.initialized = true;
-      logger.info('OneSignal inicializado', { appId: config.appId });
+      agentLogger.info('OneSignal inicializado', { appId: config.appId });
       return true;
     } catch (error) {
-      logger.error('Erro ao inicializar OneSignal', { error: (error as Error).message });
+      agentLogger.error('Erro ao inicializar OneSignal', { error: (error as Error).message });
       return false;
     }
   }
@@ -56,10 +54,10 @@ export class OneSignalService {
 
     try {
       const permission = await window.OneSignal.Notifications.requestPermission();
-      logger.info('Permissão de notificação', { permission });
+      agentLogger.info('Permissão de notificação', { permission });
       return permission;
     } catch (error) {
-      logger.error('Erro ao solicitar permissão', { error: (error as Error).message });
+      agentLogger.error('Erro ao solicitar permissão', { error: (error as Error).message });
       return Notification.permission;
     }
   }
@@ -73,7 +71,7 @@ export class OneSignalService {
       const userId = await window.OneSignal.User.PushSubscription.id;
       return userId || null;
     } catch (error) {
-      logger.error('Erro ao obter User ID', { error: (error as Error).message });
+      agentLogger.error('Erro ao obter User ID', { error: (error as Error).message });
       return null;
     }
   }
@@ -91,10 +89,10 @@ export class OneSignalService {
       });
 
       if (error) throw error;
-      logger.info('Device registrado', { userId, oneSignalId });
+      agentLogger.info('Device registrado', { userId, oneSignalId });
       return true;
     } catch (error) {
-      logger.error('Erro ao registrar device', { error: (error as Error).message });
+      agentLogger.error('Erro ao registrar device', { error: (error as Error).message });
       return false;
     }
   }

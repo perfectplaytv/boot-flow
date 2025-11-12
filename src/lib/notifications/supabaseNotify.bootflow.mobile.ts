@@ -1,8 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import { agentLogger } from '@/lib/logger.agent';
 
-const logger = agentLogger;
-
 export interface SupabaseNotification {
   id: string;
   user_id: string;
@@ -21,7 +19,7 @@ export class SupabaseNotificationService {
     const channelName = `notifications:${userId}`;
     
     if (this.channels.has(channelName)) {
-      logger.warn('Já inscrito no canal', { channelName });
+      agentLogger.warn('Já inscrito no canal', { channelName });
       return;
     }
 
@@ -44,7 +42,7 @@ export class SupabaseNotificationService {
       .subscribe();
 
     this.channels.set(channelName, channel);
-    logger.info('Inscrito em notificações Supabase', { userId });
+    agentLogger.info('Inscrito em notificações Supabase', { userId });
   }
 
   unsubscribe(userId: string) {
@@ -54,7 +52,7 @@ export class SupabaseNotificationService {
     if (channel) {
       supabase.removeChannel(channel);
       this.channels.delete(channelName);
-      logger.info('Desinscrito de notificações', { userId });
+      agentLogger.info('Desinscrito de notificações', { userId });
     }
   }
 
@@ -72,7 +70,7 @@ export class SupabaseNotificationService {
         data: notification.data,
       });
     } catch (error) {
-      logger.error('Erro ao exibir notificação do navegador', { error: (error as Error).message });
+      agentLogger.error('Erro ao exibir notificação do navegador', { error: (error as Error).message });
     }
   }
 
@@ -86,7 +84,7 @@ export class SupabaseNotificationService {
       if (error) throw error;
       return true;
     } catch (error) {
-      logger.error('Erro ao marcar notificação como lida', { error: (error as Error).message });
+      agentLogger.error('Erro ao marcar notificação como lida', { error: (error as Error).message });
       return false;
     }
   }
@@ -102,7 +100,7 @@ export class SupabaseNotificationService {
       if (error) throw error;
       return count || 0;
     } catch (error) {
-      logger.error('Erro ao obter contagem de não lidas', { error: (error as Error).message });
+      agentLogger.error('Erro ao obter contagem de não lidas', { error: (error as Error).message });
       return 0;
     }
   }
