@@ -81,5 +81,19 @@ Forneça respostas úteis, concisas e profissionais. Se o usuário for ${context
   }
 }
 
-export const bootFlowChatAgent = new BootFlowChatAgent();
+// Lazy initialization para evitar problemas de inicialização
+let _bootFlowChatAgent: BootFlowChatAgent | null = null;
+
+export const getBootFlowChatAgent = (): BootFlowChatAgent => {
+  if (!_bootFlowChatAgent) {
+    _bootFlowChatAgent = new BootFlowChatAgent();
+  }
+  return _bootFlowChatAgent;
+};
+
+export const bootFlowChatAgent = new Proxy({} as BootFlowChatAgent, {
+  get(_target, prop) {
+    return getBootFlowChatAgent()[prop as keyof BootFlowChatAgent];
+  }
+});
 

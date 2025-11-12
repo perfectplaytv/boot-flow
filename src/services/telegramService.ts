@@ -68,5 +68,19 @@ class TelegramService {
   }
 }
 
-export const telegramService = new TelegramService();
+// Lazy initialization para evitar problemas de inicialização
+let _telegramService: TelegramService | null = null;
+
+export const getTelegramService = (): TelegramService => {
+  if (!_telegramService) {
+    _telegramService = new TelegramService();
+  }
+  return _telegramService;
+};
+
+export const telegramService = new Proxy({} as TelegramService, {
+  get(_target, prop) {
+    return getTelegramService()[prop as keyof TelegramService];
+  }
+});
 

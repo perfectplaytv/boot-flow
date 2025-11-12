@@ -104,5 +104,19 @@ Gere 3-5 sugestões práticas e acionáveis, priorizando ações que podem aumen
   }
 }
 
-export const bootFlowSuggestionAgent = new BootFlowSuggestionAgent();
+// Lazy initialization para evitar problemas de inicialização
+let _bootFlowSuggestionAgent: BootFlowSuggestionAgent | null = null;
+
+export const getBootFlowSuggestionAgent = (): BootFlowSuggestionAgent => {
+  if (!_bootFlowSuggestionAgent) {
+    _bootFlowSuggestionAgent = new BootFlowSuggestionAgent();
+  }
+  return _bootFlowSuggestionAgent;
+};
+
+export const bootFlowSuggestionAgent = new Proxy({} as BootFlowSuggestionAgent, {
+  get(_target, prop) {
+    return getBootFlowSuggestionAgent()[prop as keyof BootFlowSuggestionAgent];
+  }
+});
 

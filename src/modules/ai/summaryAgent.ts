@@ -64,5 +64,19 @@ Gere um resumo conciso de 1-2 parágrafos.`;
   }
 }
 
-export const bootFlowSummaryAgent = new BootFlowSummaryAgent();
+// Lazy initialization para evitar problemas de inicialização
+let _bootFlowSummaryAgent: BootFlowSummaryAgent | null = null;
+
+export const getBootFlowSummaryAgent = (): BootFlowSummaryAgent => {
+  if (!_bootFlowSummaryAgent) {
+    _bootFlowSummaryAgent = new BootFlowSummaryAgent();
+  }
+  return _bootFlowSummaryAgent;
+};
+
+export const bootFlowSummaryAgent = new Proxy({} as BootFlowSummaryAgent, {
+  get(_target, prop) {
+    return getBootFlowSummaryAgent()[prop as keyof BootFlowSummaryAgent];
+  }
+});
 
