@@ -523,14 +523,12 @@ export default function Notifications() {
           setImagePreview(null);
         }
       }}>
-        <DialogContent className="bg-gradient-to-br from-[#232a36] to-[#1f1930] border border-purple-700 text-white max-w-lg shadow-2xl rounded-2xl">
-          <DialogHeader>
-            <DialogTitle>Novo Template</DialogTitle>
-            <DialogDescription>
-              Crie um novo template de mensagem para notificações. Use variáveis como {'{nome}'} para personalização.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-2">
+        <DialogContent className="bg-gradient-to-br from-[#232a36] to-[#1f1930] border border-purple-700 text-white max-w-4xl w-full p-0 rounded-xl shadow-xl flex flex-col max-h-[90vh] overflow-y-auto scrollbar-hide">
+          <div className="p-6 w-full flex flex-col">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold">Novo Template</h2>
+            </div>
+            <div className="space-y-4">
             <div>
               <label htmlFor="template-name" className="sr-only">Nome do Template</label>
               <Input 
@@ -679,20 +677,20 @@ export default function Notifications() {
                 <option value={TEMPLATE_STATUS.INATIVO}>Inativo</option>
               </select>
             </div>
+            
+            <div className="flex justify-end gap-2 mt-6">
+              <Button variant="outline" onClick={() => setModal({ type: null })} className="bg-gray-700 text-white">
+                Cancelar
+              </Button>
+              <Button 
+                className="bg-purple-600 hover:bg-purple-700 text-white" 
+                onClick={handleNovo}
+                disabled={!form.nome || !form.texto}
+              >
+                Salvar
+              </Button>
+            </div>
           </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setModal({ type: null })} className="bg-gray-700 text-white">
-              Cancelar
-            </Button>
-            <Button 
-              className="bg-purple-600 hover:bg-purple-700 text-white" 
-              onClick={handleNovo}
-              disabled={!form.nome || !form.texto}
-            >
-              Salvar
-            </Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
       
