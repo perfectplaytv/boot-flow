@@ -268,6 +268,72 @@ const AdminBranding: React.FC = () => {
     setDashboardForm({ ...dashboardForm, order: newOrder });
   };
 
+  // Função para renderizar widgets do dashboard
+  const renderWidget = (widgetName: string, index: number) => {
+    const widgetIcons: { [key: string]: any } = {
+      'Métricas': BarChart3,
+      'Gráficos': TrendingUp,
+      'Atividades Recentes': Activity,
+      'Notificações': Bell,
+      'Tabelas': Table,
+      'Calendário': Calendar,
+      'Mapas': Map,
+      'Relatórios': FileText,
+      'Análises': PieChart,
+    };
+
+    const Icon = widgetIcons[widgetName] || BarChart3;
+    const mockData = {
+      'Métricas': { value: '1.234', label: 'Total de Vendas', change: '+12%' },
+      'Gráficos': { value: 'R$ 45.678', label: 'Receita Mensal', change: '+8%' },
+      'Atividades Recentes': { value: '23', label: 'Atividades Hoje', change: '+5' },
+      'Notificações': { value: '7', label: 'Novas Notificações', change: 'Novas' },
+      'Tabelas': { value: '156', label: 'Registros', change: 'Atualizado' },
+      'Calendário': { value: '12', label: 'Eventos', change: 'Este Mês' },
+      'Mapas': { value: '8', label: 'Localizações', change: 'Ativas' },
+      'Relatórios': { value: '45', label: 'Relatórios', change: 'Disponíveis' },
+      'Análises': { value: '89%', label: 'Performance', change: '+3%' },
+    };
+
+    const data = mockData[widgetName as keyof typeof mockData] || { value: '0', label: widgetName, change: '' };
+
+    return (
+      <Card 
+        key={index}
+        className="bg-[#181e29] border border-gray-700 hover:border-purple-500 transition-all"
+        style={{ borderTopColor: viewingDashboard?.color }}
+      >
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Icon className="w-5 h-5" style={{ color: viewingDashboard?.color }} />
+              <CardTitle className="text-white text-base">{widgetName}</CardTitle>
+            </div>
+            {viewingDashboard?.realtime && (
+              <span className="text-xs px-2 py-1 bg-green-900/30 text-green-300 rounded animate-pulse">
+                Live
+              </span>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            <div className="text-3xl font-bold" style={{ color: viewingDashboard?.color }}>
+              {data.value}
+            </div>
+            <div className="text-sm text-gray-400">{data.label}</div>
+            {data.change && (
+              <div className="text-xs text-green-400 flex items-center gap-1">
+                <TrendingUp className="w-3 h-3" />
+                {data.change}
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
   const navItems = [
     { id: 'marca', title: 'Marca', icon: Paintbrush, description: 'Logo, nome e informações.', color: 'purple' },
     { id: 'visual', title: 'Visual', icon: Palette, description: 'Cores, fontes e temas.', color: 'green' },
