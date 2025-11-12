@@ -97,6 +97,17 @@ const AdminBranding: React.FC = () => {
         console.error('Erro ao carregar dashboards:', error);
       }
     }
+    
+    // Carregar páginas personalizadas
+    const savedPages = localStorage.getItem('custom-pages');
+    if (savedPages) {
+      try {
+        const parsedPages = JSON.parse(savedPages);
+        setCustomPages(parsedPages);
+      } catch (error) {
+        console.error('Erro ao carregar páginas:', error);
+      }
+    }
   }, []);
 
   // Verificar mudanças
@@ -356,12 +367,105 @@ const AdminBranding: React.FC = () => {
     );
   };
 
+  // Funções para gerenciar páginas personalizadas
+  const openNewPage = () => {
+    setEditingPage(null);
+    setPageForm({
+      title: '',
+      slug: '',
+      description: '',
+      content: '',
+      type: 'afiliado',
+      backgroundColor: '#ffffff',
+      textColor: '#000000',
+      primaryColor: '#7c3aed',
+      showHeader: true,
+      showFooter: true,
+      customCSS: '',
+      metaTitle: '',
+      metaDescription: '',
+      isPublished: false,
+    });
+    setPageModal(true);
+  };
+
+  const openEditPage = (page: any) => {
+    setEditingPage(page);
+    setPageForm({ ...page });
+    setPageModal(true);
+  };
+
+  const savePage = () => {
+    if (!pageForm.title.trim() || !pageForm.slug.trim()) {
+      toast.error('Título e URL são obrigatórios');
+      return;
+    }
+
+    // Validar slug (apenas letras, números, hífens e underscores)
+    const slugRegex = /^[a-z0-9-_]+$/;
+    if (!slugRegex.test(pageForm.slug)) {
+      toast.error('A URL deve conter apenas letras minúsculas, números, hífens e underscores');
+      return;
+    }
+
+    // Verificar se o slug já existe (exceto se estiver editando a mesma página)
+    const slugExists = customPages.some(
+      p => p.slug === pageForm.slug && (!editingPage || p.id !== editingPage.id)
+    );
+    if (slugExists) {
+      toast.error('Esta URL já está em uso. Escolha outra.');
+      return;
+    }
+
+    let updatedPages;
+    let savedPage;
+
+    if (editingPage) {
+      savedPage = { ...editingPage, ...pageForm };
+      updatedPages = customPages.map(p => 
+        p.id === editingPage.id ? savedPage : p
+      );
+      toast.success('Página atualizada com sucesso!');
+    } else {
+      savedPage = { ...pageForm, id: Date.now(), createdAt: new Date().toISOString() };
+      updatedPages = [...customPages, savedPage];
+      toast.success('Página criada com sucesso!');
+    }
+
+    setCustomPages(updatedPages);
+    localStorage.setItem('custom-pages', JSON.stringify(updatedPages));
+    setPageModal(false);
+  };
+
+  const removePage = (id: number) => {
+    const updatedPages = customPages.filter(p => p.id !== id);
+    setCustomPages(updatedPages);
+    localStorage.setItem('custom-pages', JSON.stringify(updatedPages));
+    toast.success('Página removida com sucesso!');
+  };
+
+  const generateSlug = (title: string) => {
+    return title
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+  };
+
+  const copyPageUrl = (slug: string) => {
+    const url = `${window.location.origin}/page/${slug}`;
+    navigator.clipboard.writeText(url);
+    toast.success('URL copiada para a área de transferência!');
+  };
+
   const navItems = [
     { id: 'marca', title: 'Marca', icon: Paintbrush, description: 'Logo, nome e informações.', color: 'purple' },
     { id: 'visual', title: 'Visual', icon: Palette, description: 'Cores, fontes e temas.', color: 'green' },
     { id: 'avancado', title: 'Avançado', icon: Code, description: 'Domínio, scripts e SEO.', color: 'blue' },
     { id: 'funcionalidades', title: 'Funcionalidades', icon: Sliders, description: 'Módulos e integrações.', color: 'yellow' },
     { id: 'whitelabel', title: 'WhiteLabel', icon: Star, description: 'Sua marca própria.', color: 'red' },
+    { id: 'paginas', title: 'Páginas', icon: Globe, description: 'Criar páginas personalizadas.', color: 'blue' },
   ];
 
   const colorClasses = {
@@ -1123,6 +1227,119 @@ const AdminBranding: React.FC = () => {
             </div>
           </div>
         )}
+        {tab === 'paginas' && (
+          <div className="space-y-6">
+            <div className="rounded-2xl border border-blue-700/40 bg-gradient-to-br from-blue-900/50 to-blue-800/30 p-6 shadow-lg">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <span className="block text-blue-300 font-semibold text-lg mb-1">Páginas Personalizadas</span>
+                  <p className="text-gray-400 text-sm">Crie páginas de afiliados, landing pages e outras páginas personalizadas</p>
+                </div>
+                <Button 
+                  onClick={openNewPage}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Nova Página
+                </Button>
+              </div>
+              
+              {customPages.length === 0 ? (
+                <div className="text-center py-12 text-gray-400">
+                  <Globe className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                  <p className="mb-2 text-lg">Nenhuma página personalizada criada ainda.</p>
+                  <p className="text-sm mb-4">Crie páginas de afiliados, landing pages ou outras páginas personalizadas.</p>
+                  <Button 
+                    onClick={openNewPage}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Criar Primeira Página
+                  </Button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {customPages.map((page) => (
+                    <Card 
+                      key={page.id} 
+                      className="bg-[#181e29] border border-gray-700 hover:border-blue-500 transition-colors"
+                    >
+                      <CardHeader className="pb-3">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <CardTitle className="text-white text-base mb-1">{page.title}</CardTitle>
+                            <p className="text-xs text-gray-400 mb-2">{page.description || 'Sem descrição'}</p>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs px-2 py-1 bg-blue-900/30 text-blue-300 rounded capitalize">
+                                {page.type}
+                              </span>
+                              {page.isPublished ? (
+                                <span className="text-xs px-2 py-1 bg-green-900/30 text-green-300 rounded">
+                                  Publicada
+                                </span>
+                              ) : (
+                                <span className="text-xs px-2 py-1 bg-gray-700 text-gray-400 rounded">
+                                  Rascunho
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                        <div className="space-y-3 mb-4">
+                          <div className="flex items-center gap-2 text-xs text-gray-400">
+                            <Link2 className="w-3 h-3" />
+                            <span className="truncate">/{page.slug}</span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => copyPageUrl(page.slug)}
+                              className="h-6 w-6 p-0 text-gray-400 hover:text-white"
+                            >
+                              <Copy className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setViewingPage(page)}
+                            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white border-blue-600"
+                          >
+                            <Eye className="w-3 h-3 mr-1" />
+                            Visualizar
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => openEditPage(page)}
+                            className="bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
+                          >
+                            <Edit className="w-3 h-3" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              if (confirm('Tem certeza que deseja remover esta página?')) {
+                                removePage(page.id);
+                              }
+                            }}
+                            className="bg-red-600 hover:bg-red-700 text-white border-red-600"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Modals */}
@@ -1390,6 +1607,366 @@ const AdminBranding: React.FC = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Modal de Página Personalizada */}
+      <Dialog open={pageModal} onOpenChange={setPageModal}>
+        <DialogContent className="bg-[#232a36] border border-blue-700 text-white max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold">
+              {editingPage ? 'Editar Página' : 'Criar Nova Página'}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-6 py-4">
+            {/* Informações Básicas */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-blue-300">Informações Básicas</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="page-title" className="text-gray-300 font-medium">
+                    Título da Página <span className="text-red-400">*</span>
+                  </Label>
+                  <Input
+                    id="page-title"
+                    value={pageForm.title}
+                    onChange={(e) => {
+                      setPageForm({ 
+                        ...pageForm, 
+                        title: e.target.value,
+                        slug: pageForm.slug || generateSlug(e.target.value)
+                      });
+                    }}
+                    className="bg-gray-900 border border-gray-700 text-white focus:border-blue-500"
+                    placeholder="Ex: Página de Afiliados"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="page-slug" className="text-gray-300 font-medium">
+                    URL (slug) <span className="text-red-400">*</span>
+                  </Label>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-400">/page/</span>
+                    <Input
+                      id="page-slug"
+                      value={pageForm.slug}
+                      onChange={(e) => setPageForm({ ...pageForm, slug: e.target.value.toLowerCase() })}
+                      className="flex-1 bg-gray-900 border border-gray-700 text-white focus:border-blue-500"
+                      placeholder="pagina-afiliados"
+                    />
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setPageForm({ ...pageForm, slug: generateSlug(pageForm.title) })}
+                      className="text-blue-400 hover:text-blue-300"
+                    >
+                      <Link2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="page-description" className="text-gray-300 font-medium">
+                  Descrição
+                </Label>
+                <Input
+                  id="page-description"
+                  value={pageForm.description}
+                  onChange={(e) => setPageForm({ ...pageForm, description: e.target.value })}
+                  className="bg-gray-900 border border-gray-700 text-white focus:border-blue-500"
+                  placeholder="Breve descrição da página"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="page-type" className="text-gray-300 font-medium">
+                  Tipo de Página
+                </Label>
+                <select
+                  id="page-type"
+                  value={pageForm.type}
+                  onChange={(e) => setPageForm({ ...pageForm, type: e.target.value })}
+                  className="w-full bg-gray-900 border border-gray-700 text-white rounded-md px-3 py-2 focus:border-blue-500 focus:outline-none"
+                >
+                  <option value="afiliado">Afiliado</option>
+                  <option value="landing">Landing Page</option>
+                  <option value="promocao">Promoção</option>
+                  <option value="sobre">Sobre</option>
+                  <option value="contato">Contato</option>
+                  <option value="outro">Outro</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Conteúdo */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-blue-300">Conteúdo</h3>
+              
+              <div className="space-y-2">
+                <Label htmlFor="page-content" className="text-gray-300 font-medium">
+                  Conteúdo da Página (HTML permitido)
+                </Label>
+                <textarea
+                  id="page-content"
+                  value={pageForm.content}
+                  onChange={(e) => setPageForm({ ...pageForm, content: e.target.value })}
+                  className="w-full bg-gray-900 border border-gray-700 text-white rounded-md p-3 min-h-[200px] focus:border-blue-500 focus:outline-none font-mono text-sm"
+                  placeholder="Digite o conteúdo da página. HTML é permitido."
+                />
+                <p className="text-xs text-gray-400">
+                  Você pode usar HTML para formatar o conteúdo. Ex: &lt;h1&gt;Título&lt;/h1&gt;, &lt;p&gt;Parágrafo&lt;/p&gt;, &lt;a href="#"&gt;Link&lt;/a&gt;
+                </p>
+              </div>
+            </div>
+
+            {/* Personalização Visual */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-blue-300">Personalização Visual</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="page-bg-color" className="text-gray-300 font-medium">
+                    Cor de Fundo
+                  </Label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      id="page-bg-color"
+                      value={pageForm.backgroundColor}
+                      onChange={(e) => setPageForm({ ...pageForm, backgroundColor: e.target.value })}
+                      className="w-12 h-12 rounded border border-gray-700 cursor-pointer"
+                    />
+                    <Input
+                      value={pageForm.backgroundColor}
+                      onChange={(e) => setPageForm({ ...pageForm, backgroundColor: e.target.value })}
+                      className="flex-1 bg-gray-900 border border-gray-700 text-white focus:border-blue-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="page-text-color" className="text-gray-300 font-medium">
+                    Cor do Texto
+                  </Label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      id="page-text-color"
+                      value={pageForm.textColor}
+                      onChange={(e) => setPageForm({ ...pageForm, textColor: e.target.value })}
+                      className="w-12 h-12 rounded border border-gray-700 cursor-pointer"
+                    />
+                    <Input
+                      value={pageForm.textColor}
+                      onChange={(e) => setPageForm({ ...pageForm, textColor: e.target.value })}
+                      className="flex-1 bg-gray-900 border border-gray-700 text-white focus:border-blue-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="page-primary-color" className="text-gray-300 font-medium">
+                    Cor Primária
+                  </Label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      id="page-primary-color"
+                      value={pageForm.primaryColor}
+                      onChange={(e) => setPageForm({ ...pageForm, primaryColor: e.target.value })}
+                      className="w-12 h-12 rounded border border-gray-700 cursor-pointer"
+                    />
+                    <Input
+                      value={pageForm.primaryColor}
+                      onChange={(e) => setPageForm({ ...pageForm, primaryColor: e.target.value })}
+                      className="flex-1 bg-gray-900 border border-gray-700 text-white focus:border-blue-500"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex items-center gap-3 p-3 bg-gray-900 border border-gray-700 rounded-lg">
+                  <input
+                    type="checkbox"
+                    id="page-show-header"
+                    checked={pageForm.showHeader}
+                    onChange={(e) => setPageForm({ ...pageForm, showHeader: e.target.checked })}
+                    className="accent-blue-500"
+                  />
+                  <Label htmlFor="page-show-header" className="text-gray-300 cursor-pointer">
+                    Mostrar Cabeçalho
+                  </Label>
+                </div>
+
+                <div className="flex items-center gap-3 p-3 bg-gray-900 border border-gray-700 rounded-lg">
+                  <input
+                    type="checkbox"
+                    id="page-show-footer"
+                    checked={pageForm.showFooter}
+                    onChange={(e) => setPageForm({ ...pageForm, showFooter: e.target.checked })}
+                    className="accent-blue-500"
+                  />
+                  <Label htmlFor="page-show-footer" className="text-gray-300 cursor-pointer">
+                    Mostrar Rodapé
+                  </Label>
+                </div>
+              </div>
+            </div>
+
+            {/* SEO */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-blue-300">SEO</h3>
+              
+              <div className="space-y-2">
+                <Label htmlFor="page-meta-title" className="text-gray-300 font-medium">
+                  Meta Título (SEO)
+                </Label>
+                <Input
+                  id="page-meta-title"
+                  value={pageForm.metaTitle}
+                  onChange={(e) => setPageForm({ ...pageForm, metaTitle: e.target.value })}
+                  className="bg-gray-900 border border-gray-700 text-white focus:border-blue-500"
+                  placeholder="Título para SEO (aparece nos resultados de busca)"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="page-meta-description" className="text-gray-300 font-medium">
+                  Meta Descrição (SEO)
+                </Label>
+                <textarea
+                  id="page-meta-description"
+                  value={pageForm.metaDescription}
+                  onChange={(e) => setPageForm({ ...pageForm, metaDescription: e.target.value })}
+                  className="w-full bg-gray-900 border border-gray-700 text-white rounded-md p-3 min-h-[80px] focus:border-blue-500 focus:outline-none"
+                  placeholder="Descrição para SEO (aparece nos resultados de busca)"
+                />
+              </div>
+            </div>
+
+            {/* CSS Personalizado */}
+            <div className="space-y-2">
+              <Label htmlFor="page-custom-css" className="text-gray-300 font-medium">
+                CSS Personalizado
+              </Label>
+              <textarea
+                id="page-custom-css"
+                value={pageForm.customCSS}
+                onChange={(e) => setPageForm({ ...pageForm, customCSS: e.target.value })}
+                className="w-full bg-gray-900 border border-gray-700 text-white rounded-md p-3 min-h-[100px] focus:border-blue-500 focus:outline-none font-mono text-sm"
+                placeholder="/* Adicione CSS personalizado aqui */"
+              />
+            </div>
+
+            {/* Publicação */}
+            <div className="flex items-center gap-3 p-3 bg-gray-900 border border-gray-700 rounded-lg">
+              <input
+                type="checkbox"
+                id="page-is-published"
+                checked={pageForm.isPublished}
+                onChange={(e) => setPageForm({ ...pageForm, isPublished: e.target.checked })}
+                className="accent-blue-500"
+              />
+              <Label htmlFor="page-is-published" className="text-gray-300 cursor-pointer">
+                Publicar página (tornar acessível publicamente)
+              </Label>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setPageModal(false)}
+              className="bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={savePage}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              {editingPage ? 'Salvar Alterações' : 'Criar Página'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Visualização de Página */}
+      {viewingPage && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b p-4 flex items-center justify-between z-10">
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setViewingPage(null)}
+                  className="bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Voltar
+                </Button>
+                <h2 className="text-xl font-bold text-gray-800">{viewingPage.title}</h2>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    copyPageUrl(viewingPage.slug);
+                  }}
+                  className="bg-blue-600 hover:bg-blue-700 text-white border-blue-600"
+                >
+                  <Copy className="w-4 h-4 mr-2" />
+                  Copiar URL
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setViewingPage(null);
+                    openEditPage(viewingPage);
+                  }}
+                  className="bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
+                >
+                  <Edit className="w-4 h-4 mr-2" />
+                  Editar
+                </Button>
+              </div>
+            </div>
+            <div 
+              className="p-8"
+              style={{
+                backgroundColor: viewingPage.backgroundColor,
+                color: viewingPage.textColor,
+              }}
+            >
+              {viewingPage.showHeader && (
+                <header className="mb-8 pb-4 border-b" style={{ borderColor: viewingPage.primaryColor }}>
+                  <h1 className="text-4xl font-bold mb-2" style={{ color: viewingPage.primaryColor }}>
+                    {viewingPage.title}
+                  </h1>
+                  {viewingPage.description && (
+                    <p className="text-lg opacity-80">{viewingPage.description}</p>
+                  )}
+                </header>
+              )}
+              <div 
+                dangerouslySetInnerHTML={{ __html: viewingPage.content || '<p>Nenhum conteúdo adicionado ainda.</p>' }}
+                style={{ color: viewingPage.textColor }}
+              />
+              {viewingPage.showFooter && (
+                <footer className="mt-8 pt-4 border-t" style={{ borderColor: viewingPage.primaryColor }}>
+                  <p className="text-sm opacity-60">© {new Date().getFullYear()} {brand.name || 'Sua Empresa'}</p>
+                </footer>
+              )}
+              {viewingPage.customCSS && (
+                <style>{viewingPage.customCSS}</style>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
