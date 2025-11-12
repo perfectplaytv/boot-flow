@@ -597,29 +597,100 @@ const AdminWhatsApp: React.FC = () => {
 
         {/* Modal de Configuração */}
         <Dialog open={configModalOpen} onOpenChange={setConfigModalOpen}>
-          <DialogContent className="bg-[#1f2937] text-white max-w-2xl w-full p-0 rounded-xl shadow-xl border border-gray-700">
-            <div className="p-6 max-h-[90vh] overflow-y-auto scrollbar-hide">
-              <div className="flex items-center gap-2 mb-1">
-                <MessageSquare className="w-6 h-6 text-green-500" />
-                <span className="text-lg font-semibold text-white">Configurar WhatsApp Business</span>
+          <DialogContent className="bg-[#1f2937] text-white max-w-4xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col max-h-[90vh] overflow-y-auto scrollbar-hide">
+            <div className="p-6 w-full flex flex-col">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold flex items-center gap-2">
+                    <MessageSquare className="w-6 h-6 text-green-500" />
+                    Configurar WhatsApp Business
+                  </h2>
+                  <p className="text-gray-400 text-sm mt-1">Configure a integração com a API Brasil para enviar mensagens via WhatsApp</p>
+                </div>
               </div>
-              <p className="text-gray-400 text-sm mb-6">Envio de mensagens via WhatsApp</p>
               
-              {/* Seção de Configuração da API Brasil */}
-              <APIBrasilRealtimeSection 
-                apiToken={apiBrasilConfig.bearerToken}
-                profileId={apiBrasilConfig.profileId}
-                isConnected={isConnected}
-                setIsConnected={setIsConnected}
-                setConnectionStatus={setConnectionStatus}
-                setQrCodeData={setQrCodeData}
-                qrCodeData={qrCodeData}
-                isLoadingQR={isLoadingQR}
-                setIsLoadingQR={setIsLoadingQR}
-              />
+              {/* Campos de Configuração da API */}
+              <div className="space-y-6 mb-6">
+                <div className="bg-[#23272f] border border-gray-700 rounded-lg p-6">
+                  <h3 className="text-lg font-semibold text-white mb-4">Credenciais da API Brasil</h3>
+                  
+                  <div className="space-y-4">
+                    {/* Bearer Token */}
+                    <div>
+                      <label className="block text-gray-300 mb-2 font-medium">
+                        Bearer Token <span className="text-red-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <Input
+                          type={apiBrasilConfig.showToken ? 'text' : 'password'}
+                          placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                          className="bg-[#1f2937] border border-gray-600 text-white placeholder-gray-400 focus:border-green-500 pr-10"
+                          value={apiBrasilConfig.bearerToken}
+                          onChange={(e) => setApiBrasilConfig(prev => ({ ...prev, bearerToken: e.target.value }))}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setApiBrasilConfig(prev => ({ ...prev, showToken: !prev.showToken }))}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                        >
+                          {apiBrasilConfig.showToken ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
+                      </div>
+                      <p className="text-xs text-gray-400 mt-1">
+                        Token de autenticação fornecido pela API Brasil. Você pode obtê-lo no painel da API Brasil.
+                      </p>
+                    </div>
+
+                    {/* Profile ID */}
+                    <div>
+                      <label className="block text-gray-300 mb-2 font-medium">
+                        Profile ID <span className="text-red-500">*</span>
+                      </label>
+                      <Input
+                        type="text"
+                        placeholder="profile-123456"
+                        className="bg-[#1f2937] border border-gray-600 text-white placeholder-gray-400 focus:border-green-500"
+                        value={apiBrasilConfig.profileId}
+                        onChange={(e) => setApiBrasilConfig(prev => ({ ...prev, profileId: e.target.value }))}
+                      />
+                      <p className="text-xs text-gray-400 mt-1">
+                        ID do perfil do WhatsApp Business na API Brasil. Você pode encontrá-lo no painel da API Brasil.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Seção de Conexão e QR Code */}
+                {apiBrasilConfig.bearerToken && apiBrasilConfig.profileId ? (
+                  <APIBrasilRealtimeSection 
+                    apiToken={apiBrasilConfig.bearerToken}
+                    profileId={apiBrasilConfig.profileId}
+                    isConnected={isConnected}
+                    setIsConnected={setIsConnected}
+                    setConnectionStatus={setConnectionStatus}
+                    setQrCodeData={setQrCodeData}
+                    qrCodeData={qrCodeData}
+                    isLoadingQR={isLoadingQR}
+                    setIsLoadingQR={setIsLoadingQR}
+                  />
+                ) : (
+                  <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-4">
+                    <p className="text-orange-400 text-sm">
+                      Preencha o Bearer Token e o Profile ID acima para gerar o QR Code e conectar o WhatsApp.
+                    </p>
+                  </div>
+                )}
+              </div>
               
               {/* Botão de salvar configurações */}
-              <div className="mt-6 flex justify-end">
+              <div className="flex justify-end gap-2 mt-6 pt-6 border-t border-gray-700">
+                <Button 
+                  variant="outline"
+                  onClick={() => setConfigModalOpen(false)}
+                  className="border-gray-600 text-gray-400 hover:text-white"
+                >
+                  Cancelar
+                </Button>
                 <Button 
                   onClick={() => {
                     // Validar campos obrigatórios
@@ -640,7 +711,7 @@ const AdminWhatsApp: React.FC = () => {
                     
                     toast.success('Configurações salvas com sucesso!');
                   }}
-                  className="bg-blue-600 hover:bg-blue-700"
+                  className="bg-green-600 hover:bg-green-700"
                 >
                   Salvar Configurações
                 </Button>
