@@ -13,7 +13,7 @@ interface StripeCreateIntentRequest {
 
 export const POST = async (request: Request) => {
   try {
-    const body: StripeCreateIntentRequest = await request.json();
+    const body = await request.json() as StripeCreateIntentRequest;
     const { amount, currency = 'brl', metadata = {}, customerId } = body;
 
     if (!amount || amount < 50) {

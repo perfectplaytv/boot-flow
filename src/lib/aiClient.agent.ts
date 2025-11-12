@@ -85,8 +85,14 @@ export class AgentAIClient {
       throw new Error(`[AgentAI] Erro na API OpenAI: ${response.status} ${response.statusText}`);
     }
 
-    const json = await response.json();
-    return json.output[0]?.content?.[0]?.text
+    const json = await response.json() as {
+      output?: Array<{
+        content?: Array<{
+          text?: string;
+        }>;
+      }>;
+    };
+    return json.output?.[0]?.content?.[0]?.text
       ? JSON.parse(json.output[0].content[0].text) as AgentInsightPayload
       : ({
           title: 'Insight indisponível',

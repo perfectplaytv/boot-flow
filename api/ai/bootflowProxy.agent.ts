@@ -25,7 +25,7 @@ const mockResponse = (prompt: string): string => {
 
 export const POST = async (request: Request) => {
   try {
-    const body: BootflowProxyRequest = await request.json();
+    const body = await request.json() as BootflowProxyRequest;
     const { messages, context, type = 'chat' } = body;
 
     if (!openai) {
