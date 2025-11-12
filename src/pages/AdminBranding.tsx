@@ -2807,6 +2807,7 @@ const AdminBranding: React.FC = () => {
               </DialogFooter>
             </>
           ) : (
+            <>
             <div className="space-y-6 py-4 p-6 overflow-y-auto max-h-[calc(95vh-100px)]">
             {/* Informações Básicas */}
             <div className="space-y-4">
@@ -3081,7 +3082,7 @@ const AdminBranding: React.FC = () => {
               {editingPage ? 'Salvar Alterações' : 'Criar Página'}
             </Button>
           </DialogFooter>
-          </div>
+          </>
           )}
         </DialogContent>
       </Dialog>
