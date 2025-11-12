@@ -11,7 +11,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { CheckCircle, MessageSquare, Clock, FileText, Zap, Settings, Trash2, Edit, Plus, Eye, EyeOff, Download, Upload, Users, Loader2 } from 'lucide-react';
 import { APIBrasilRealtimeSection } from '@/components/APIBrasilRealtimeSection';
-import { checkConnectionStatus } from '@/services/apiBrasilService';
+import { checkConnectionStatus, MOCK_CREDENTIALS } from '@/services/apiBrasilService';
 
 const templatesMock = [
   {
@@ -373,35 +373,25 @@ const AdminWhatsApp: React.FC = () => {
       const token = apiBrasilConfig.bearerToken.trim();
       const profileId = apiBrasilConfig.profileId.trim();
       
+      // Verifica se são credenciais de teste e ativa o modo mock automaticamente
+      if (token === MOCK_CREDENTIALS.BEARER_TOKEN || 
+          profileId === MOCK_CREDENTIALS.PROFILE_ID ||
+          token.includes('MOCK_TOKEN_FOR_TESTING')) {
+        localStorage.setItem('useApiBrasilMock', 'true');
+        toast.info('Modo de teste ativado automaticamente');
+      }
+      
       console.log('Testando conexão com API Brasil...', { token: token.substring(0, 10) + '...', profileId });
       
-      const response = await fetch('https://gateway.apibrasil.io/api/v2/whatsapp/status', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'profile-id': profileId,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-      });
-
-      // Verifica se a resposta é JSON válido
-      let data;
-      try {
-        data = await response.json();
-        console.log('Resposta da API Brasil:', data);
-      } catch (jsonError) {
-        console.error('Erro ao processar resposta JSON:', jsonError);
-        throw new Error('Resposta inválida do servidor');
+      // Usa o serviço checkConnectionStatus que já verifica o modo mock
+      const statusRes = await checkConnectionStatus(token, profileId);
+      
+      if (!statusRes.success) {
+        throw new Error(statusRes.error || 'Erro ao verificar conexão');
       }
 
-      if (!response.ok) {
-        console.error('Erro na resposta da API:', { status: response.status, data });
-        const errorMsg = data?.message || data?.error?.message || `Erro HTTP ${response.status}`;
-        throw new Error(errorMsg);
-      }
-
-      const isConnected = data.connected === true;
+      const isConnected = statusRes.data?.connected === true;
+      const data = statusRes.data;
       
       setApiBrasilConfig(prev => ({
         ...prev,
