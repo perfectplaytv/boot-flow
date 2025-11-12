@@ -1,11 +1,19 @@
-import { agentLogger } from '../../src/lib/logger.agent';
+import { agentLogger } from '../../../src/lib/logger.agent';
 
 const logger = agentLogger;
+
+interface PIXGenerateRequest {
+  amount: number;
+  description?: string;
+  payerName?: string;
+  payerDocument?: string;
+}
 
 // Mock implementation - substituir por integração real (MercadoPago, Gerencianet, etc.)
 export const POST = async (request: Request) => {
   try {
-    const { amount, description, payerName, payerDocument } = await request.json();
+    const body: PIXGenerateRequest = await request.json();
+    const { amount, description, payerName, payerDocument } = body;
 
     if (!amount || amount < 1) {
       return new Response(JSON.stringify({ error: 'Valor inválido' }), {

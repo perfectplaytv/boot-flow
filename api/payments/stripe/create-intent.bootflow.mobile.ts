@@ -1,12 +1,20 @@
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || import.meta.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2024-12-18.acacia',
+  apiVersion: '2025-10-29.clover',
 });
+
+interface StripeCreateIntentRequest {
+  amount: number;
+  currency?: string;
+  metadata?: Record<string, string>;
+  customerId?: string;
+}
 
 export const POST = async (request: Request) => {
   try {
-    const { amount, currency = 'brl', metadata = {}, customerId } = await request.json();
+    const body: StripeCreateIntentRequest = await request.json();
+    const { amount, currency = 'brl', metadata = {}, customerId } = body;
 
     if (!amount || amount < 50) {
       return new Response(JSON.stringify({ error: 'Valor inválido' }), {

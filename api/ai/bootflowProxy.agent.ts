@@ -1,10 +1,16 @@
 import OpenAI from 'openai';
-import { agentLogger } from '../src/lib/logger.agent';
+import { agentLogger } from '../../src/lib/logger.agent';
 
 const logger = agentLogger;
 
 const openaiApiKey = process.env.OPENAI_API_KEY || import.meta.env.OPENAI_API_KEY || import.meta.env.VITE_OPENAI_API_KEY;
 const openai = openaiApiKey ? new OpenAI({ apiKey: openaiApiKey }) : null;
+
+interface BootflowProxyRequest {
+  messages: Array<{ role: string; content: string }>;
+  context?: Record<string, unknown>;
+  type?: 'chat' | 'summary' | 'suggestion';
+}
 
 // Mock responses quando OpenAI não está configurado
 const mockResponse = (prompt: string): string => {
@@ -19,7 +25,8 @@ const mockResponse = (prompt: string): string => {
 
 export const POST = async (request: Request) => {
   try {
-    const { messages, context, type = 'chat' } = await request.json();
+    const body: BootflowProxyRequest = await request.json();
+    const { messages, context, type = 'chat' } = body;
 
     if (!openai) {
       logger.warn('OpenAI não configurado, usando mock');
