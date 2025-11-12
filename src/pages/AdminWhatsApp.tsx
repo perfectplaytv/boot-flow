@@ -720,8 +720,241 @@ const AdminWhatsApp: React.FC = () => {
           </DialogContent>
         </Dialog>
 
-        {/* Resto do conteúdo da página */}
-        {/* ... */}
+        {/* Modal Novo/Editar Template */}
+        <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+          <DialogContent className="bg-[#1f2937] text-white max-w-4xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col max-h-[90vh] overflow-y-auto scrollbar-hide">
+            <div className="p-6 w-full flex flex-col">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold">
+                  {editing ? 'Editar Template' : 'Novo Template'}
+                </h2>
+              </div>
+
+              <div className="space-y-6">
+                {/* Título do Template */}
+                <div>
+                  <label className="block text-gray-300 mb-2 font-medium">
+                    Título do Template <span className="text-red-500">*</span>
+                  </label>
+                  <Input
+                    placeholder="Ex: Confirmação de Agendamento"
+                    className="bg-[#23272f] border border-gray-600 text-white placeholder-gray-400 focus:border-green-500"
+                    value={form.title}
+                    onChange={(e) => setForm({ ...form, title: e.target.value })}
+                  />
+                </div>
+
+                {/* Tag */}
+                <div>
+                  <label className="block text-gray-300 mb-2 font-medium">
+                    Tag <span className="text-red-500">*</span>
+                  </label>
+                  <Input
+                    placeholder="Ex: confirmação, lembrete, marketing"
+                    className="bg-[#23272f] border border-gray-600 text-white placeholder-gray-400 focus:border-green-500"
+                    value={form.tag}
+                    onChange={(e) => setForm({ ...form, tag: e.target.value })}
+                  />
+                  <p className="text-xs text-gray-400 mt-1">
+                    Use tags para categorizar seus templates
+                  </p>
+                </div>
+
+                {/* Conteúdo da Mensagem */}
+                <div>
+                  <label className="block text-gray-300 mb-2 font-medium">
+                    Conteúdo da Mensagem <span className="text-red-500">*</span>
+                  </label>
+                  <div className="mb-2">
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      <span className="text-xs text-gray-400">Variáveis disponíveis:</span>
+                      {['nome', 'servico', 'data', 'hora', 'valor', 'pix', 'promocao', 'desconto', 'validade'].map(v => (
+                        <button
+                          key={v}
+                          type="button"
+                          className="bg-green-900/60 text-green-200 rounded-full px-3 py-1 text-xs font-semibold border border-green-700 hover:bg-green-800 hover:text-white transition"
+                          onClick={() => {
+                            const textarea = document.getElementById('template-content') as HTMLTextAreaElement;
+                            if (textarea) {
+                              const start = textarea.selectionStart;
+                              const end = textarea.selectionEnd;
+                              const before = form.content.substring(0, start);
+                              const after = form.content.substring(end);
+                              const insert = `{{${v}}}`;
+                              setForm({ ...form, content: before + insert + after });
+                              setTimeout(() => {
+                                textarea.focus();
+                                textarea.selectionStart = textarea.selectionEnd = start + insert.length;
+                              }, 0);
+                            } else {
+                              setForm({ ...form, content: form.content + ` {{${v}}}` });
+                            }
+                          }}
+                        >
+                          {`{{${v}}}`}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <Textarea
+                    id="template-content"
+                    placeholder="Digite o conteúdo da mensagem. Use {{variavel}} para personalização."
+                    rows={6}
+                    className="bg-[#23272f] border border-gray-600 text-white placeholder-gray-400 focus:border-green-500 resize-none"
+                    value={form.content}
+                    onChange={(e) => {
+                      const content = e.target.value;
+                      const variables = (content.match(/\{\{(\w+)\}\}/g) || []).map(v => v.replace(/[{}]/g, ''));
+                      setForm({ ...form, content, variables: variables.length });
+                    }}
+                  />
+                  <p className="text-xs text-gray-400 mt-1">
+                    Variáveis detectadas: {form.variables || 0}
+                  </p>
+                </div>
+
+                {/* Status */}
+                <div>
+                  <label className="block text-gray-300 mb-2 font-medium">
+                    Status
+                  </label>
+                  <Select
+                    value={form.status}
+                    onValueChange={(value) => setForm({ ...form, status: value })}
+                  >
+                    <SelectTrigger className="bg-[#23272f] border border-gray-600 text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Ativo">Ativo</SelectItem>
+                      <SelectItem value="Inativo">Inativo</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Visualização */}
+                {form.content && (
+                  <div className="bg-[#181825] border border-green-800 rounded-lg p-4">
+                    <div className="font-semibold text-green-300 mb-2">Visualização:</div>
+                    <div className="text-gray-200 whitespace-pre-line">
+                      {form.content.replace(/\{\{(\w+)\}\}/g, (match, varName) => {
+                        const examples: { [key: string]: string } = {
+                          nome: 'João Silva',
+                          servico: 'Consulta Médica',
+                          data: '15/01/2025',
+                          hora: '14:30',
+                          valor: 'R$ 150,00',
+                          pix: 'chave@email.com',
+                          promocao: 'Desconto de 20%',
+                          desconto: '20%',
+                          validade: '31/01/2025'
+                        };
+                        return examples[varName] || `[${varName}]`;
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Botões */}
+              <div className="flex justify-end gap-2 mt-6 pt-6 border-t border-gray-700">
+                <Button
+                  variant="outline"
+                  onClick={() => setModalOpen(false)}
+                  className="border-gray-600 text-gray-400 hover:text-white"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={handleSaveTemplate}
+                  className="bg-green-600 hover:bg-green-700"
+                  disabled={!form.title.trim() || !form.tag.trim() || !form.content.trim()}
+                >
+                  {editing ? 'Atualizar Template' : 'Criar Template'}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Modal de Confirmação de Exclusão */}
+        <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
+          <DialogContent className="bg-[#1f2937] text-white max-w-md">
+            <DialogHeader>
+              <DialogTitle>Confirmar Exclusão</DialogTitle>
+              <DialogDescription className="text-gray-400">
+                Tem certeza que deseja excluir o template "{templateToDelete?.title}"? Esta ação não pode ser desfeita.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setDeleteModalOpen(false)}
+                className="border-gray-600 text-gray-400 hover:text-white"
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={confirmDeleteTemplate}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                Excluir
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Lista de Templates */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {templates.map((template) => (
+            <Card key={template.id} className="bg-[#23272f] border border-gray-700">
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <CardTitle className="text-white text-lg">{template.title}</CardTitle>
+                    <div className="flex items-center gap-2 mt-2">
+                      <Badge variant={template.status === 'Ativo' ? 'default' : 'secondary'}>
+                        {template.status}
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        {template.tag}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-300 text-sm line-clamp-3 mb-4">
+                  {template.content}
+                </p>
+                <div className="flex items-center justify-between text-xs text-gray-400 mb-4">
+                  <span>📤 {template.sent} enviadas</span>
+                  <span>✅ {template.delivery}% entrega</span>
+                  <span>🔢 {template.variables} variáveis</span>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1 border-yellow-600 text-yellow-400 hover:bg-yellow-600 hover:text-white"
+                    onClick={() => handleEditTemplate(template)}
+                  >
+                    <Edit className="w-4 h-4 mr-1" />
+                    Editar
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="border-red-600 text-red-400 hover:bg-red-600 hover:text-white"
+                    onClick={() => handleDeleteTemplate(template)}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     </WhatsAppStatusContext.Provider>
   );
