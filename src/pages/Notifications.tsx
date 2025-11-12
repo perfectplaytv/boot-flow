@@ -677,6 +677,7 @@ export default function Notifications() {
                 <option value={TEMPLATE_STATUS.INATIVO}>Inativo</option>
               </select>
             </div>
+            </div>
             
             <div className="flex justify-end gap-2 mt-6">
               <Button variant="outline" onClick={() => setModal({ type: null })} className="bg-gray-700 text-white">
