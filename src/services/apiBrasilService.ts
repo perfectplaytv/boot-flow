@@ -1,4 +1,18 @@
 import { toast } from 'sonner';
+import { 
+  shouldUseMock, 
+  mockCheckConnectionStatus, 
+  mockGenerateQRCode, 
+  mockSendMessage, 
+  mockConnectWhatsApp, 
+  mockDisconnectWhatsApp, 
+  mockSendTemplate,
+  showMockModeWarning,
+  MOCK_CREDENTIALS
+} from './apiBrasilMockService';
+
+// Exportar credenciais de teste para uso externo
+export { MOCK_CREDENTIALS };
 
 // URL base da API Brasil - Pode ser configurada via variável de ambiente
 const API_BRASIL_BASE_URL = (typeof process !== 'undefined' ? process.env?.NEXT_PUBLIC_API_BRASIL_URL : null) || 'https://gateway.apibrasil.io/api/v2/whatsapp';
@@ -65,6 +79,12 @@ export async function sendMessage(
   message: string,
   isGroup: boolean = false
 ): Promise<ApiBrasilResponse> {
+  // Verifica se deve usar mock
+  if (shouldUseMock()) {
+    showMockModeWarning();
+    return mockSendMessage(token, profileId, phoneNumber, message);
+  }
+
   try {
     console.log('Enviando mensagem via WhatsApp...', { profileId, phoneNumber, isGroup });
     
@@ -113,6 +133,11 @@ export async function generateQRCode(
   deviceToken: string = 'b87d9e20-6fbd-4eea-95a4-d6d1f9cbbfe1',
   authorization: string = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2dhdGV3YXkuYXBpYnJhc2lsLmlvL2FwaS92Mi9hdXRoL3JlZ2lzdGVyIiwiaWF0IjoxNzQ5MDg2MTQzLCJleHAiOjE3ODA2MjIxNDMsIm5iZiI6MTc0OTA4NjE0MywianRpIjoiclVXZjdDNkxKUmZPV25ldCIsInN1YiI6IjE1NTU2IiwicHJ2IjoiMjNiZDVjODk0OWY2MDBhZGIzOWU3MDFjNDAwODcyZGI3YTU5NzZmNyJ9.0Uj5y56Yr2Cnauz4QDnXoGACZx13aON6pEDIjGV1Jp4'
 ): Promise<ApiBrasilResponse<QRCodeResponse>> {
+  // Verifica se deve usar mock
+  if (shouldUseMock()) {
+    showMockModeWarning();
+    return mockGenerateQRCode();
+  }
   try {
     console.log('Gerando QR Code...');
     
@@ -179,6 +204,12 @@ export async function checkConnectionStatus(
   token: string,
   profileId: string
 ): Promise<ApiBrasilResponse<{ connected: boolean; status?: string }>> {
+  // Verifica se deve usar mock
+  if (shouldUseMock()) {
+    showMockModeWarning();
+    return mockCheckConnectionStatus(token, profileId);
+  }
+
   try {
     const response = await fetch(`${API_BRASIL_BASE_URL}/status`, {
       method: 'GET',
@@ -220,6 +251,12 @@ export async function disconnectWhatsApp(
   token: string,
   profileId: string
 ): Promise<ApiBrasilResponse> {
+  // Verifica se deve usar mock
+  if (shouldUseMock()) {
+    showMockModeWarning();
+    return mockDisconnectWhatsApp(token, profileId);
+  }
+
   try {
     const response = await fetch(`${API_BRASIL_BASE_URL}/disconnect`, {
       method: 'POST',
@@ -260,6 +297,12 @@ export async function sendTemplateMessage(
   templateParams: string[] = [],
   isGroup: boolean = false
 ): Promise<ApiBrasilResponse> {
+  // Verifica se deve usar mock
+  if (shouldUseMock()) {
+    showMockModeWarning();
+    return mockSendTemplate(token, profileId, phoneNumber, templateName, templateParams);
+  }
+
   try {
     const cleanedPhone = phoneNumber.replace(/\D/g, '');
     
