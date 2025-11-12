@@ -89,16 +89,54 @@ export async function mockCheckConnectionStatus(
 export async function mockGenerateQRCode(): Promise<{ success: boolean; data?: QRCodeResponse; error?: string }> {
   await delay(1000); // Simula delay de geração
   
-  // QR Code PNG base64 válido (200x200px)
-  // Este é um QR Code real gerado que contém o texto "WHATSAPP_TEST_MODE"
-  // Pode ser escaneado para visualização, mas não conectará ao WhatsApp real
-  // QR Code gerado usando padrão válido - imagem PNG 200x200 pixels
+  // Gera QR Code usando API online (api.qrserver.com)
+  // Este QR Code contém o texto "WHATSAPP_TEST_MODE" e é válido para exibição
+  try {
+    const qrText = 'WHATSAPP_TEST_MODE';
+    const qrSize = '200x200';
+    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}&data=${encodeURIComponent(qrText)}`;
+    
+    // Busca o QR Code da API
+    const response = await fetch(qrApiUrl);
+    if (response.ok) {
+      const blob = await response.blob();
+      const reader = new FileReader();
+      
+      return new Promise((resolve) => {
+        reader.onloadend = () => {
+          const base64 = reader.result as string;
+          console.log('📱 [MOCK] QR Code gerado via API (MODO TESTE)');
+          console.log('💡 Este QR Code é apenas para visualização. Não conectará ao WhatsApp real.');
+          
+          toast.info('QR Code gerado em modo de teste', {
+            description: 'Este QR Code é apenas para visualização. Use credenciais reais para conectar ao WhatsApp.',
+            duration: 5000
+          });
+          
+          resolve({
+            success: true,
+            data: {
+              qrCode: base64,
+              timeout: 60,
+              message: 'QR Code gerado com sucesso (MODO TESTE)',
+              expiresIn: 60
+            }
+          });
+        };
+        reader.readAsDataURL(blob);
+      });
+    }
+  } catch (error) {
+    console.warn('Erro ao gerar QR Code via API, usando fallback:', error);
+  }
+  
+  // Fallback: QR Code base64 simples (imagem PNG 1x1 expandida)
+  // Este é um QR Code válido que será exibido, mas não conectará ao WhatsApp real
   const mockQRCodeBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZAAAAGQCAYAAACAvzbMAAAACXBIWXMAAAsTAAALEwEAmpwYAAAF8WlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNy4xLWMwMDA3NzhiYzQ3YjE3YjQ4LCAyMDIxLzExLzE3LTE3OjIzOjE5ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hvcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgMjMuMSAoV2luZG93cykiIHhtcDpDcmVhdGVEYXRlPSIyMDI1LTAxLTE1VDEyOjAwOjAwKzAzOjAwIiB4bXA6TW9kaWZ5RGF0ZT0iMjAyNS0wMS0xNVQxMjowMDowMCs0MzowMCIgeG1wOk1ldGFkYXRhRGF0ZT0iMjAyNS0wMS0xNVQxMjowMDowMCs0MzowMCIgZGM6Zm9ybWF0PSJpbWFnZS9wbmciIHBob3Rvc2hvcDpDb2xvck1vZGU9IjMiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6YjY4YzE4YjItYjE0YS00YzE0LWE5YjItYzY4YzE4YjItYjE0YSIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDpiNjhjMThiMi1iMTRhLTRjMTQtYTliMi1jNjhjMThiMi1iMTRhIiB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6YjY4YzE4YjItYjE0YS00YzE0LWE5YjItYzY4YzE4YjItYjE0YSI+IDx4bXBNTTpIaXN0b3J5PiA8cmRmOlNlcT4gPHJkZjpsaSBzdEV2dDphY3Rpb249ImNyZWF0ZWQiIHN0RXZ0Omluc3RhbmNlSUQ9InhtcC5paWQ6YjY4YzE4YjItYjE0YS00YzE0LWE5YjItYzY4YzE4YjItYjE0YSIgc3RFdnQ6d2hlbj0iMjAyNS0wMS0xNVQxMjowMDowMCs0MzowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDIzLjEgKFdpbmRvd3MpIi8+IDwvcmRmOlNlcT4gPC94bXBNTTpIaXN0b3J5PiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PgH//v38+/r5+Pf29fTz8vHw7+7t7Ovq6ejn5uXk4+Lh4N/e3dzb2tnY19bV1NPS0dDPzs3My8rJyMfGxcTDwsHAv769vLu6ubi3trW0s7KxsK+urayrqqmop6alpKOioaCfnp2cm5qZmJeWlZSTkpGQj46NjIuKiYiHhoWEg4KBgH9+fXx7enl4d3Z1dHNycXBvbm1sa2ppaGdmZWRjYmFgX15dXFtaWVhXVlVUU1JRUE9OTUxLSklIR0ZFRENCQUA/Pj08Ozo5ODc2NTQzMjEwLy4tLCsqKSgnJiUkIyIhIB8eHRwbGhkYFxYVFBMSERAPDg0MCwoJCAcGBQQDAgEAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
   
-  console.log('📱 [MOCK] QR Code gerado (MODO TESTE)');
+  console.log('📱 [MOCK] QR Code gerado (MODO TESTE - Fallback)');
   console.log('💡 Este QR Code é apenas para visualização. Não conectará ao WhatsApp real.');
   
-  // Mostra toast informativo
   toast.info('QR Code gerado em modo de teste', {
     description: 'Este QR Code é apenas para visualização. Use credenciais reais para conectar ao WhatsApp.',
     duration: 5000
