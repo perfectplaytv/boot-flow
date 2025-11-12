@@ -143,7 +143,11 @@ CREATE POLICY "Admins can delete their own clients"
     admin_id = auth.uid()
   );
 
-RAISE NOTICE 'Políticas RLS configuradas com sucesso!';
+-- Confirmar que as políticas foram criadas
+DO $$
+BEGIN
+  RAISE NOTICE 'Políticas RLS configuradas com sucesso!';
+END $$;
 
 -- ============================================
 -- PASSO 4: Migrar dados existentes (OPCIONAL)
