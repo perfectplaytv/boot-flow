@@ -794,12 +794,10 @@ export default function AdminCobrancas() {
       </Tabs>
       {/* Modal Nova Cobrança */}
       <Dialog open={modalNova} onOpenChange={setModalNova}>
-        <DialogContent className="bg-[#1f2937] text-white max-w-2xl w-full p-0 rounded-xl shadow-xl border border-gray-700">
-          <DialogTitle>Nova Cobrança</DialogTitle>
-          <DialogDescription>Preencha os dados para criar uma nova cobrança.</DialogDescription>
-          <div className="p-6 max-h-[90vh] overflow-y-auto scrollbar-hide">
+        <DialogContent className="bg-[#1f2937] text-white max-w-4xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col max-h-[90vh] overflow-y-auto scrollbar-hide">
+          <div className="p-6 w-full flex flex-col">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-white">Nova Cobrança</h2>
+              <h2 className="text-2xl font-bold">Nova Cobrança</h2>
               <Button 
                 variant="ghost" 
                 size="icon" 
