@@ -1,0 +1,112 @@
+{
+  "version": "1.0.0",
+  "timestamp": "2025-11-12T21:45:00Z",
+  "mode": "non-destructive",
+  "fileSuffixes": [".bootflow.mobile.*", ".agent.*"],
+  "phases": [
+    {
+      "id": 0,
+      "name": "Audit & Branch",
+      "status": "in_progress",
+      "actions": [
+        "Criar logs iniciais",
+        "Gerar plano de upgrade",
+        "Criar estrutura de diretórios"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "Dependências",
+      "status": "pending",
+      "dependencies": [
+        "@use-gesture/react",
+        "react-swipeable",
+        "react-device-detect",
+        "localforage",
+        "idb",
+        "@vercel/analytics",
+        "one-signal",
+        "@stripe/stripe-js",
+        "@stripe/react-stripe-js",
+        "workbox-window",
+        "vite-plugin-compression"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Estrutura de Arquivos",
+      "status": "pending",
+      "files": [
+        "components/bootflow/mobile/MobileNavBar.bootflow.mobile.tsx",
+        "components/bootflow/mobile/BottomSheet.bootflow.mobile.tsx",
+        "components/bootflow/mobile/MobileDashboard.bootflow.mobile.tsx",
+        "hooks/useResponsiveLayout.bootflow.mobile.ts",
+        "hooks/useGestureControls.bootflow.mobile.ts",
+        "hooks/useOfflineSync.bootflow.mobile.ts",
+        "hooks/useBiometricAuth.bootflow.mobile.ts"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "PWA + Manifest",
+      "status": "pending"
+    },
+    {
+      "id": 4,
+      "name": "UI Mobile",
+      "status": "pending"
+    },
+    {
+      "id": 5,
+      "name": "Gestos & Interações",
+      "status": "pending"
+    },
+    {
+      "id": 6,
+      "name": "Offline Sync",
+      "status": "pending"
+    },
+    {
+      "id": 7,
+      "name": "Push Notifications",
+      "status": "pending"
+    },
+    {
+      "id": 8,
+      "name": "Pagamentos",
+      "status": "pending"
+    },
+    {
+      "id": 9,
+      "name": "IA Proxy Server",
+      "status": "pending"
+    },
+    {
+      "id": 10,
+      "name": "Biometrics",
+      "status": "pending"
+    },
+    {
+      "id": 11,
+      "name": "Performance",
+      "status": "pending"
+    },
+    {
+      "id": 12,
+      "name": "Testes",
+      "status": "pending"
+    },
+    {
+      "id": 13,
+      "name": "Docs & Logs",
+      "status": "pending"
+    },
+    {
+      "id": 14,
+      "name": "Build & Deploy",
+      "status": "pending",
+      "mode": "dry-run"
+    }
+  ]
+}
+
