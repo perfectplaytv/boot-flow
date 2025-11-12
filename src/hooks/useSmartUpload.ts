@@ -27,39 +27,84 @@ export const useSmartUpload = () => {
   const [error, setError] = useState<string | null>(null);
 
   const compressImage = async (file: File, quality: number = 0.8): Promise<File> => {
-    try {
-      const sharp = await import('sharp');
-      const arrayBuffer = await file.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const maxWidth = 1920;
+          const maxHeight = 1920;
+          let width = img.width;
+          let height = img.height;
 
-      const compressed = await sharp.default(buffer)
-        .resize(1920, 1920, { fit: 'inside', withoutEnlargement: true })
-        .jpeg({ quality: Math.round(quality * 100) })
-        .toBuffer();
+          if (width > maxWidth || height > maxHeight) {
+            if (width > height) {
+              height = (height * maxWidth) / width;
+              width = maxWidth;
+            } else {
+              width = (width * maxHeight) / height;
+              height = maxHeight;
+            }
+          }
 
-      return new File([compressed], file.name, { type: 'image/jpeg' });
-    } catch (err) {
-      logger.warn('Compressão não disponível, usando arquivo original', { error: (err as Error).message });
-      return file;
-    }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            canvas.toBlob(
+              (blob) => {
+                if (blob) {
+                  resolve(new File([blob], file.name, { type: 'image/jpeg' }));
+                } else {
+                  resolve(file);
+                }
+              },
+              'image/jpeg',
+              quality,
+            );
+          } else {
+            resolve(file);
+          }
+        };
+        img.src = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    });
   };
 
   const generateThumbnail = async (file: File): Promise<File | null> => {
-    try {
-      const sharp = await import('sharp');
-      const arrayBuffer = await file.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
-
-      const thumbnail = await sharp.default(buffer)
-        .resize(300, 300, { fit: 'cover' })
-        .jpeg({ quality: 80 })
-        .toBuffer();
-
-      return new File([thumbnail], `thumb_${file.name}`, { type: 'image/jpeg' });
-    } catch (err) {
-      logger.warn('Geração de thumbnail não disponível', { error: (err as Error).message });
-      return null;
-    }
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = 300;
+          canvas.height = 300;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, 300, 300);
+            canvas.toBlob(
+              (blob) => {
+                if (blob) {
+                  resolve(new File([blob], `thumb_${file.name}`, { type: 'image/jpeg' }));
+                } else {
+                  resolve(null);
+                }
+              },
+              'image/jpeg',
+              0.8,
+            );
+          } else {
+            resolve(null);
+          }
+        };
+        img.src = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    });
   };
 
   const upload = useCallback(
