@@ -50,28 +50,4 @@ export const createAgentLogger = (options?: LoggerOptions) => {
   };
 };
 
-// Lazy initialization para evitar problemas de inicialização
-let _agentLogger: ReturnType<typeof createAgentLogger> | null = null;
-
-export const getAgentLogger = () => {
-  if (!_agentLogger) {
-    _agentLogger = createAgentLogger();
-  }
-  return _agentLogger;
-};
-
-// Exportar objeto com getters lazy para evitar problemas de inicialização
-export const agentLogger = {
-  get info() {
-    return getAgentLogger().info;
-  },
-  get warn() {
-    return getAgentLogger().warn;
-  },
-  get error() {
-    return getAgentLogger().error;
-  },
-  get debug() {
-    return getAgentLogger().debug;
-  },
-};
+export const agentLogger = createAgentLogger();

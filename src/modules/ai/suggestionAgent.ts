@@ -1,7 +1,7 @@
 import { AgentAIClient, defaultAIClient } from '@/lib/aiClient.agent';
-import { agentLogger } from '@/lib/agentLogger.agent';
+import { agentLogger } from '@/lib/logger.agent';
 
-
+const logger = agentLogger;
 
 export interface UserHistory {
   userId: string;
@@ -60,7 +60,7 @@ Gere 3-5 sugestões práticas e acionáveis, priorizando ações que podem aumen
 
       return suggestions;
     } catch (error) {
-      agentLogger.error('Erro ao gerar sugestões', { error: (error as Error).message });
+      logger.error('Erro ao gerar sugestões', { error: (error as Error).message });
       return this.getDefaultSuggestions(history.role);
     }
   }
@@ -104,26 +104,5 @@ Gere 3-5 sugestões práticas e acionáveis, priorizando ações que podem aumen
   }
 }
 
-// Lazy initialization para evitar problemas de inicialização
-let _bootFlowSuggestionAgent: BootFlowSuggestionAgent | null = null;
-
-export const getBootFlowSuggestionAgent = (): BootFlowSuggestionAgent => {
-  if (!_bootFlowSuggestionAgent) {
-    _bootFlowSuggestionAgent = new BootFlowSuggestionAgent();
-  }
-  return _bootFlowSuggestionAgent;
-};
-
-// Exportar função factory para evitar problemas de inicialização
-export const bootFlowSuggestionAgent = (() => {
-  let instance: BootFlowSuggestionAgent | null = null;
-  return new Proxy({} as BootFlowSuggestionAgent, {
-    get(_target, prop) {
-      if (!instance) {
-        instance = new BootFlowSuggestionAgent();
-      }
-      return instance[prop as keyof BootFlowSuggestionAgent];
-    }
-  });
-})();
+export const bootFlowSuggestionAgent = new BootFlowSuggestionAgent();
 

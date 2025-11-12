@@ -1,6 +1,8 @@
 import { AgentAIClient, defaultAIClient } from '@/lib/aiClient.agent';
 import { agentLogger } from '@/lib/logger.agent';
 
+const logger = agentLogger;
+
 export interface ChatMessage {
   role: 'user' | 'assistant' | 'system';
   content: string;
@@ -63,7 +65,7 @@ Forneça respostas úteis, concisas e profissionais. Se o usuário for ${context
         suggestions: insight.actions.slice(0, 3),
       };
     } catch (error) {
-      agentLogger.error('Erro no chat agent', { error: (error as Error).message });
+      logger.error('Erro no chat agent', { error: (error as Error).message });
       return {
         response: 'Desculpe, ocorreu um erro ao processar sua mensagem. Tente novamente.',
       };
@@ -79,26 +81,5 @@ Forneça respostas úteis, concisas e profissionais. Se o usuário for ${context
   }
 }
 
-// Lazy initialization para evitar problemas de inicialização
-let _bootFlowChatAgent: BootFlowChatAgent | null = null;
-
-export const getBootFlowChatAgent = (): BootFlowChatAgent => {
-  if (!_bootFlowChatAgent) {
-    _bootFlowChatAgent = new BootFlowChatAgent();
-  }
-  return _bootFlowChatAgent;
-};
-
-// Exportar função factory para evitar problemas de inicialização
-export const bootFlowChatAgent = (() => {
-  let instance: BootFlowChatAgent | null = null;
-  return new Proxy({} as BootFlowChatAgent, {
-    get(_target, prop) {
-      if (!instance) {
-        instance = new BootFlowChatAgent();
-      }
-      return instance[prop as keyof BootFlowChatAgent];
-    }
-  });
-})();
+export const bootFlowChatAgent = new BootFlowChatAgent();
 

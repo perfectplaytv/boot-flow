@@ -85,14 +85,8 @@ export class AgentAIClient {
       throw new Error(`[AgentAI] Erro na API OpenAI: ${response.status} ${response.statusText}`);
     }
 
-    const json = await response.json() as {
-      output?: Array<{
-        content?: Array<{
-          text?: string;
-        }>;
-      }>;
-    };
-    return json.output?.[0]?.content?.[0]?.text
+    const json = await response.json();
+    return json.output[0]?.content?.[0]?.text
       ? JSON.parse(json.output[0].content[0].text) as AgentInsightPayload
       : ({
           title: 'Insight indisponível',
@@ -135,25 +129,4 @@ export class AgentAIClient {
   }
 }
 
-// Lazy initialization para evitar problemas de inicialização
-let _defaultAIClient: AgentAIClient | null = null;
-
-export const getDefaultAIClient = (): AgentAIClient => {
-  if (!_defaultAIClient) {
-    _defaultAIClient = new AgentAIClient();
-  }
-  return _defaultAIClient;
-};
-
-// Exportar função factory para evitar problemas de inicialização
-export const defaultAIClient = (() => {
-  let instance: AgentAIClient | null = null;
-  return new Proxy({} as AgentAIClient, {
-    get(_target, prop) {
-      if (!instance) {
-        instance = new AgentAIClient();
-      }
-      return instance[prop as keyof AgentAIClient];
-    }
-  });
-})();
+export const defaultAIClient = new AgentAIClient();

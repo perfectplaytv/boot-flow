@@ -1,3 +1,0 @@
-# Ignorar verificação TypeScript da pasta api durante build
-# Os arquivos da API são compilados separadamente pelo Vercel como Edge Functions
-

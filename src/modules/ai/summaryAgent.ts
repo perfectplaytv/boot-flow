@@ -1,7 +1,7 @@
 import { AgentAIClient, defaultAIClient } from '@/lib/aiClient.agent';
-import { agentLogger } from '@/lib/agentLogger.agent';
+import { agentLogger } from '@/lib/logger.agent';
 
-
+const logger = agentLogger;
 
 export interface MetricsData {
   totalUsers?: number;
@@ -33,7 +33,7 @@ Gere um resumo de 2-3 parágrafos destacando pontos principais, tendências e re
       const insight = await this.client.createInsight(prompt, metrics);
       return insight.summary;
     } catch (error) {
-      agentLogger.error('Erro ao gerar resumo de métricas', { error: (error as Error).message });
+      logger.error('Erro ao gerar resumo de métricas', { error: (error as Error).message });
       return 'Não foi possível gerar o resumo das métricas no momento.';
     }
   }
@@ -58,32 +58,11 @@ Gere um resumo conciso de 1-2 parágrafos.`;
       const insight = await this.client.createInsight(prompt, { activities });
       return insight.summary;
     } catch (error) {
-      agentLogger.error('Erro ao gerar resumo de atividades', { error: (error as Error).message });
+      logger.error('Erro ao gerar resumo de atividades', { error: (error as Error).message });
       return 'Não foi possível gerar o resumo das atividades no momento.';
     }
   }
 }
 
-// Lazy initialization para evitar problemas de inicialização
-let _bootFlowSummaryAgent: BootFlowSummaryAgent | null = null;
-
-export const getBootFlowSummaryAgent = (): BootFlowSummaryAgent => {
-  if (!_bootFlowSummaryAgent) {
-    _bootFlowSummaryAgent = new BootFlowSummaryAgent();
-  }
-  return _bootFlowSummaryAgent;
-};
-
-// Exportar função factory para evitar problemas de inicialização
-export const bootFlowSummaryAgent = (() => {
-  let instance: BootFlowSummaryAgent | null = null;
-  return new Proxy({} as BootFlowSummaryAgent, {
-    get(_target, prop) {
-      if (!instance) {
-        instance = new BootFlowSummaryAgent();
-      }
-      return instance[prop as keyof BootFlowSummaryAgent];
-    }
-  });
-})();
+export const bootFlowSummaryAgent = new BootFlowSummaryAgent();
 

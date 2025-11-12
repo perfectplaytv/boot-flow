@@ -68,26 +68,5 @@ class TelegramService {
   }
 }
 
-// Lazy initialization para evitar problemas de inicialização
-let _telegramService: TelegramService | null = null;
-
-export const getTelegramService = (): TelegramService => {
-  if (!_telegramService) {
-    _telegramService = new TelegramService();
-  }
-  return _telegramService;
-};
-
-// Exportar função factory para evitar problemas de inicialização
-export const telegramService = (() => {
-  let instance: TelegramService | null = null;
-  return new Proxy({} as TelegramService, {
-    get(_target, prop) {
-      if (!instance) {
-        instance = new TelegramService();
-      }
-      return instance[prop as keyof TelegramService];
-    }
-  });
-})();
+export const telegramService = new TelegramService();
 
