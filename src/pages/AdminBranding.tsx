@@ -1740,16 +1740,46 @@ const AdminBranding: React.FC = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Modal de Página Personalizada */}
+      {/* Modal de Página Personalizada com Page Builder */}
       <Dialog open={pageModal} onOpenChange={setPageModal}>
-        <DialogContent className="bg-[#232a36] border border-blue-700 text-white max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold">
-              {editingPage ? 'Editar Página' : 'Criar Nova Página'}
-            </DialogTitle>
+        <DialogContent className="bg-[#232a36] border border-blue-700 text-white max-w-[95vw] max-h-[95vh] overflow-hidden p-0">
+          <DialogHeader className="p-6 border-b border-gray-700">
+            <div className="flex items-center justify-between">
+              <DialogTitle className="text-xl font-bold">
+                {editingPage ? 'Editar Página' : 'Criar Nova Página'}
+              </DialogTitle>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setBuilderMode(!builderMode)}
+                  className={builderMode ? 'bg-blue-600 text-white' : 'bg-gray-700 text-white'}
+                >
+                  <Layout className="w-4 h-4 mr-2" />
+                  {builderMode ? 'Modo Simples' : 'Page Builder'}
+                </Button>
+              </div>
+            </div>
           </DialogHeader>
           
-          <div className="space-y-6 py-4">
+          {builderMode ? (
+            <PageBuilderContent
+              pageForm={pageForm}
+              setPageForm={setPageForm}
+              availableComponents={availableComponents}
+              addComponent={addComponent}
+              removeComponent={removeComponent}
+              updateComponent={updateComponent}
+              selectedComponent={selectedComponent}
+              setSelectedComponent={setSelectedComponent}
+              handleDragEnd={handleDragEnd}
+              sensors={sensors}
+              stats={stats}
+              clientes={clientes}
+              generateSlug={generateSlug}
+            />
+          ) : (
+            <div className="space-y-6 py-4 p-6 overflow-y-auto max-h-[calc(95vh-100px)]">
             {/* Informações Básicas */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-blue-300">Informações Básicas</h3>
