@@ -83,17 +83,19 @@ CREATE POLICY "Admins can view their own clients"
   ON public.users
   FOR SELECT
   USING (
-    -- Se admin_id for NULL, qualquer admin pode ver (clientes não associados)
-    admin_id IS NULL
-    OR
-    -- Ou se o admin_id corresponde ao usuário logado
-    admin_id = auth.uid()
-    OR
-    -- Ou se o usuário logado é admin (verificar na tabela profiles)
+    -- Verificar se o usuário logado é admin
     EXISTS (
       SELECT 1 FROM public.profiles
       WHERE id = auth.uid()
       AND role = 'admin'
+    )
+    AND
+    (
+      -- Se admin_id for NULL, qualquer admin pode ver (clientes não associados)
+      admin_id IS NULL
+      OR
+      -- Ou se o admin_id corresponde ao usuário logado
+      admin_id = auth.uid()
     )
   );
 

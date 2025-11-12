@@ -584,7 +584,7 @@ export function useClientes() {
 
   useEffect(() => { 
     fetchClientes(); 
-  }, []);
+  }, [fetchClientes]);
 
   return { 
     clientes, 
