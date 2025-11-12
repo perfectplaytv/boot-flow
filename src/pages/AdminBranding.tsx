@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Paintbrush, UploadCloud, X, Check, GripVertical, Plus, Edit, Trash2, Palette, Code, Sliders, Star, Eye, ArrowLeft, BarChart3, TrendingUp, Activity, Bell, Table, Calendar, Map, FileText, PieChart } from 'lucide-react';
+import { Paintbrush, UploadCloud, X, Check, GripVertical, Plus, Edit, Trash2, Palette, Code, Sliders, Star, Eye, ArrowLeft, BarChart3, TrendingUp, Activity, Bell, Table, Calendar, Map, FileText, PieChart, Globe, ExternalLink, Copy, Link2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -50,6 +50,28 @@ const AdminBranding: React.FC = () => {
     order: ['Métricas'],
     realtime: true,
     color: '#7c3aed',
+  });
+  
+  // Estados para páginas personalizadas
+  const [customPages, setCustomPages] = useState<any[]>([]);
+  const [pageModal, setPageModal] = useState(false);
+  const [editingPage, setEditingPage] = useState<any>(null);
+  const [viewingPage, setViewingPage] = useState<any>(null);
+  const [pageForm, setPageForm] = useState({
+    title: '',
+    slug: '',
+    description: '',
+    content: '',
+    type: 'afiliado', // afiliado, landing, promoção, etc
+    backgroundColor: '#ffffff',
+    textColor: '#000000',
+    primaryColor: '#7c3aed',
+    showHeader: true,
+    showFooter: true,
+    customCSS: '',
+    metaTitle: '',
+    metaDescription: '',
+    isPublished: false,
   });
 
   // Carregar dados salvos do localStorage ao montar o componente
