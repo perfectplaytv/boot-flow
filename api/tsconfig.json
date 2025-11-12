@@ -17,8 +17,7 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "resolveJsonModule": true,
-    "types": ["@types/node", "vite/client"],
+    "types": ["vite/client"],
     "typeRoots": ["./node_modules/@types", "../node_modules/@types"]
   },
   "include": ["**/*.ts", "vite-env.d.ts"],
