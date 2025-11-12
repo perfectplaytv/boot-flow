@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Paintbrush, UploadCloud, X, Check, GripVertical, Plus, Edit, Trash2, Palette, Code, Sliders, Star } from 'lucide-react';
+import { Paintbrush, UploadCloud, X, Check, GripVertical, Plus, Edit, Trash2, Palette, Code, Sliders, Star, Eye, ArrowLeft, BarChart3, TrendingUp, Activity, Bell, Table, Calendar, Map, FileText, PieChart } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -42,6 +42,7 @@ const AdminBranding: React.FC = () => {
   const [dashboards, setDashboards] = useState(initialDashboards);
   const [dashboardModal, setDashboardModal] = useState(false);
   const [editingDashboard, setEditingDashboard] = useState<any>(null);
+  const [viewingDashboard, setViewingDashboard] = useState<any>(null);
   const [dashboardForm, setDashboardForm] = useState({
     name: '',
     layout: 'Padrão',
@@ -227,15 +228,19 @@ const AdminBranding: React.FC = () => {
     }
     
     let updatedDashboards;
+    let savedDashboard;
+    
     if (editingDashboard) {
+      savedDashboard = { ...editingDashboard, ...dashboardForm };
       updatedDashboards = dashboards.map(db => 
-        db.id === editingDashboard.id ? { ...editingDashboard, ...dashboardForm } : db
+        db.id === editingDashboard.id ? savedDashboard : db
       );
       toast.success('Dashboard atualizado com sucesso!');
     } else {
+      savedDashboard = { ...dashboardForm, id: Date.now() };
       updatedDashboards = [
         ...dashboards,
-        { ...dashboardForm, id: Date.now() },
+        savedDashboard,
       ];
       toast.success('Dashboard criado com sucesso!');
     }
@@ -244,6 +249,9 @@ const AdminBranding: React.FC = () => {
     // Salvar no localStorage
     localStorage.setItem('custom-dashboards', JSON.stringify(updatedDashboards));
     setDashboardModal(false);
+    
+    // Mostrar o dashboard criado/editado automaticamente
+    setViewingDashboard(savedDashboard);
   };
   const removeDashboard = (id: number) => {
     const updatedDashboards = dashboards.filter(db => db.id !== id);
@@ -780,11 +788,19 @@ const AdminBranding: React.FC = () => {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => openEditDashboard(dashboard)}
-                            className="flex-1 bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
+                            onClick={() => setViewingDashboard(dashboard)}
+                            className="flex-1 bg-purple-600 hover:bg-purple-700 text-white border-purple-600"
                           >
-                            <Edit className="w-3 h-3 mr-1" />
-                            Editar
+                            <Eye className="w-3 h-3 mr-1" />
+                            Visualizar
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => openEditDashboard(dashboard)}
+                            className="bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
+                          >
+                            <Edit className="w-3 h-3" />
                           </Button>
                           <Button
                             variant="outline"
