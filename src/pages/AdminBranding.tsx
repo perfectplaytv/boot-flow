@@ -385,6 +385,77 @@ const AdminBranding: React.FC = () => {
     }
   };
 
+  // Se estiver visualizando um dashboard, mostrar a visualização
+  if (viewingDashboard) {
+    const getGridCols = (layout: string) => {
+      switch (layout) {
+        case 'Compacto': return 'grid-cols-1 md:grid-cols-3 lg:grid-cols-4';
+        case 'Espaçado': return 'grid-cols-1 md:grid-cols-2';
+        case 'Grid': return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3';
+        case 'Lista': return 'grid-cols-1';
+        default: return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3';
+      }
+    };
+
+    return (
+      <div className="max-w-full w-full h-full overflow-auto p-4">
+        {/* Header do Dashboard */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setViewingDashboard(null)}
+                className="bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Voltar
+              </Button>
+              <div>
+                <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+                  <div 
+                    className="w-4 h-4 rounded-full"
+                    style={{ backgroundColor: viewingDashboard.color }}
+                  />
+                  {viewingDashboard.name}
+                </h1>
+                <p className="text-gray-400 text-sm mt-1">
+                  Layout: {viewingDashboard.layout} • {viewingDashboard.widgets.length} Widgets
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => openEditDashboard(viewingDashboard)}
+                className="bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
+              >
+                <Edit className="w-4 h-4 mr-2" />
+                Editar
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Renderização dos Widgets */}
+        <div className={`grid ${getGridCols(viewingDashboard.layout)} gap-4`}>
+          {viewingDashboard.order.map((widget: string, index: number) => 
+            renderWidget(widget, index)
+          )}
+        </div>
+
+        {/* Mensagem se não houver widgets */}
+        {viewingDashboard.order.length === 0 && (
+          <div className="text-center py-12 text-gray-400">
+            <BarChart3 className="w-16 h-16 mx-auto mb-4 opacity-50" />
+            <p className="text-lg">Nenhum widget configurado</p>
+            <p className="text-sm">Edite este dashboard para adicionar widgets</p>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-full w-full h-full overflow-auto p-4">
       <div className="flex items-center space-x-3 mb-2">
