@@ -902,6 +902,7 @@ const AdminBranding: React.FC = () => {
     stats,
     clientes,
     generateSlug,
+    renderComponent,
   }: any) => {
     const categories = Array.from(new Set(availableComponents.map((c: any) => c.category)));
 
@@ -929,7 +930,7 @@ const AdminBranding: React.FC = () => {
                         onClick={() => addComponent(component.id)}
                         className="w-full flex items-center gap-2 p-2 rounded hover:bg-gray-800 text-left text-sm text-gray-300 hover:text-white transition-colors"
                       >
-                        <component.icon className="w-4 h-4" />
+                        {React.createElement(component.icon, { className: "w-4 h-4" })}
                         {component.name}
                       </button>
                     ))}
@@ -2787,6 +2788,7 @@ const AdminBranding: React.FC = () => {
                 stats={stats}
                 clientes={clientes}
                 generateSlug={generateSlug}
+                renderComponent={renderComponent}
               />
               <DialogFooter className="p-4 border-t border-gray-700">
                 <Button
