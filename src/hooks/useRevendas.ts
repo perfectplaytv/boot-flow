@@ -339,6 +339,15 @@ export function useRevendas() {
       let response: Response;
       try {
         console.log('🔄 [useRevendas] Fazendo requisição POST...');
+        console.log('🔄 [useRevendas] Dados sendo enviados:', JSON.stringify(revendaData, null, 2));
+        console.log('🔄 [useRevendas] URL:', insertUrl);
+        console.log('🔄 [useRevendas] Headers completos:', {
+          'Content-Type': headers['Content-Type'],
+          'apikey': headers['apikey'] ? '***' : 'não fornecido',
+          'Prefer': headers['Prefer'],
+          'Authorization': headers['Authorization'] ? 'Bearer ***' : 'não fornecido'
+        });
+        
         response = await fetch(insertUrl, {
           method: 'POST',
           headers,
@@ -348,6 +357,8 @@ export function useRevendas() {
         
         clearTimeout(timeoutId);
         console.log('🔄 [useRevendas] Requisição completa, status:', response.status);
+        console.log('🔄 [useRevendas] Response OK:', response.ok);
+        console.log('🔄 [useRevendas] Response Status Text:', response.statusText);
       } catch (fetchError: any) {
         clearTimeout(timeoutId);
         
@@ -424,73 +435,110 @@ export function useRevendas() {
         console.warn('⚠️ [useRevendas] Status:', response.status);
         console.warn('⚠️ [useRevendas] Status Text:', response.statusText);
         
-        // Se a resposta está OK mas vazia, pode ser que o Prefer não funcionou
-        // Mas também pode ser um problema de RLS que não está retornando erro
+        // Se a resposta está OK mas vazia, SEMPRE verificar se inserção foi bem-sucedida
         if (response.ok && (response.status === 201 || response.status === 200 || response.status === 204)) {
           console.log('🔄 [useRevendas] Resposta OK mas vazia (status ' + response.status + '), verificando se inserção foi bem-sucedida...');
           
           // Aguardar um pouco para garantir que o Supabase processou a inserção
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          await new Promise(resolve => setTimeout(resolve, 1500));
           
-          // Tentar buscar o revenda recém-criado pelo username
-          try {
-            console.log('🔄 [useRevendas] Buscando revenda recém-criado pelo username:', revendaData.username);
-            const verifyHeaders: HeadersInit = {
-              'Content-Type': 'application/json',
-              'apikey': SUPABASE_ANON_KEY,
-            };
-            
-            if (authToken) {
-              verifyHeaders['Authorization'] = `Bearer ${authToken}`;
+          // Tentar buscar o revenda recém-criado pelo username (múltiplas tentativas)
+          let verifySuccess = false;
+          let newRevenda: Revenda | null = null;
+          
+          for (let attempt = 1; attempt <= 3; attempt++) {
+            try {
+              console.log(`🔄 [useRevendas] Tentativa ${attempt}/3: Buscando revenda pelo username:`, revendaData.username);
+              const verifyHeaders: HeadersInit = {
+                'Content-Type': 'application/json',
+                'apikey': SUPABASE_ANON_KEY,
+              };
+              
+              if (authToken) {
+                verifyHeaders['Authorization'] = `Bearer ${authToken}`;
+              }
+              
+              // Tentar buscar sem filtro primeiro (caso RLS esteja bloqueando)
+              let verifyUrl = `${SUPABASE_URL}/rest/v1/resellers?select=*`;
+              console.log('🔄 [useRevendas] URL de verificação (todos):', verifyUrl);
+              
+              let verifyResponse = await fetch(verifyUrl, {
+                method: 'GET',
+                headers: verifyHeaders,
+              });
+              
+              if (verifyResponse.ok) {
+                const allData = await verifyResponse.json();
+                console.log('🔄 [useRevendas] Todos os revendas encontrados:', allData?.length || 0);
+                
+                // Filtrar pelo username manualmente
+                if (allData && Array.isArray(allData)) {
+                  const found = allData.find((r: any) => r.username === revendaData.username);
+                  if (found) {
+                    newRevenda = found as Revenda;
+                    verifySuccess = true;
+                    console.log('✅ [useRevendas] Revenda encontrado na lista completa!');
+                    break;
+                  }
+                }
+              }
+              
+              // Se não encontrou, tentar buscar com filtro
+              if (!verifySuccess) {
+                verifyUrl = `${SUPABASE_URL}/rest/v1/resellers?username=eq.${encodeURIComponent(revendaData.username)}&select=*`;
+                console.log('🔄 [useRevendas] URL de verificação (filtrado):', verifyUrl);
+                
+                verifyResponse = await fetch(verifyUrl, {
+                  method: 'GET',
+                  headers: verifyHeaders,
+                });
+                
+                if (verifyResponse.ok) {
+                  const verifyData = await verifyResponse.json();
+                  console.log('🔄 [useRevendas] Dados de verificação (filtrado):', verifyData);
+                  
+                  if (verifyData && Array.isArray(verifyData) && verifyData.length > 0) {
+                    newRevenda = verifyData[0] as Revenda;
+                    verifySuccess = true;
+                    console.log('✅ [useRevendas] Revenda encontrado após inserção!');
+                    break;
+                  }
+                } else {
+                  console.warn(`⚠️ [useRevendas] Tentativa ${attempt} falhou:`, verifyResponse.status);
+                }
+              }
+              
+              // Aguardar antes da próxima tentativa
+              if (!verifySuccess && attempt < 3) {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+              }
+            } catch (verifyError) {
+              console.error(`❌ [useRevendas] Erro na tentativa ${attempt}:`, verifyError);
+              if (attempt < 3) {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+              }
             }
-            
-            const verifyUrl = `${SUPABASE_URL}/rest/v1/resellers?username=eq.${encodeURIComponent(revendaData.username)}&select=*`;
-            console.log('🔄 [useRevendas] URL de verificação:', verifyUrl);
-            
-            const verifyResponse = await fetch(verifyUrl, {
-              method: 'GET',
-              headers: verifyHeaders,
+          }
+          
+          if (verifySuccess && newRevenda) {
+            setRevendas(prevRevendas => {
+              const exists = prevRevendas.find(r => r.id === newRevenda!.id || r.username === newRevenda!.username);
+              if (exists) {
+                return prevRevendas.map(r => r.id === newRevenda!.id ? newRevenda! : r);
+              }
+              console.log('✅ [useRevendas] Adicionando revenda verificado ao estado. Total antes:', prevRevendas.length);
+              return [...prevRevendas, newRevenda!];
             });
             
-            if (verifyResponse.ok) {
-              const verifyData = await verifyResponse.json();
-              console.log('🔄 [useRevendas] Dados de verificação:', verifyData);
-              
-              if (verifyData && Array.isArray(verifyData) && verifyData.length > 0) {
-                console.log('✅ [useRevendas] Revenda encontrado após inserção!');
-                const newRevenda = verifyData[0] as Revenda;
-                setRevendas(prevRevendas => {
-                  const exists = prevRevendas.find(r => r.id === newRevenda.id || r.username === newRevenda.username);
-                  if (exists) {
-                    return prevRevendas.map(r => r.id === newRevenda.id ? newRevenda : r);
-                  }
-                  return [...prevRevendas, newRevenda];
-                });
-                return true;
-              } else {
-                console.error('❌ [useRevendas] Revenda não encontrado após inserção. Pode ser um problema de RLS ou a inserção não foi bem-sucedida.');
-                setError('Erro: A inserção foi confirmada pelo servidor, mas o revenda não foi encontrado. Isso pode indicar um problema com as políticas RLS. Verifique as políticas no Supabase.');
-                return false;
-              }
-            } else {
-              console.error('❌ [useRevendas] Erro ao verificar inserção:', verifyResponse.status, verifyResponse.statusText);
-              const verifyErrorText = await verifyResponse.text();
-              console.error('❌ [useRevendas] Erro de verificação:', verifyErrorText);
-              
-              // Se o erro for 403 ou relacionado a RLS, indicar problema de RLS
-              if (verifyResponse.status === 403 || verifyErrorText.includes('row-level security') || verifyErrorText.includes('permission denied')) {
-                setError('Erro de permissão: As políticas de segurança (RLS) estão bloqueando a inserção ou leitura. Execute o script SQL para corrigir as políticas RLS no Supabase Dashboard.');
-                return false;
-              }
-              
-              // Se não conseguir verificar, tratar como erro
-              setError(`Erro ao verificar inserção: ${verifyResponse.status} ${verifyResponse.statusText}. A inserção pode não ter sido bem-sucedida. Verifique as políticas RLS no Supabase.`);
-              return false;
-            }
-          } catch (verifyError) {
-            console.error('❌ [useRevendas] Erro ao verificar inserção:', verifyError);
-            const errorMsg = verifyError instanceof Error ? verifyError.message : 'Erro desconhecido ao verificar inserção';
-            setError(`Erro ao verificar inserção: ${errorMsg}. A inserção pode não ter sido bem-sucedida. Verifique as políticas RLS no Supabase.`);
+            // Forçar atualização
+            setTimeout(() => {
+              fetchRevendas();
+            }, 500);
+            
+            return true;
+          } else {
+            console.error('❌ [useRevendas] Revenda NÃO encontrado após 3 tentativas. A inserção pode ter falhado silenciosamente devido a RLS.');
+            setError('❌ ERRO: A inserção foi confirmada pelo servidor, mas o revenda não foi encontrado no banco após 3 tentativas. Isso indica que as políticas RLS estão bloqueando. Execute o script SQL corrigir_rls_resellers_inserir.sql no Supabase para desabilitar RLS temporariamente.');
             return false;
           }
         } else {
