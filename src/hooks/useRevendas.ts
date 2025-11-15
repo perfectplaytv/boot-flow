@@ -129,13 +129,30 @@ export function useRevendas() {
       setError(null);
       
       // Preparar dados para inserção, garantindo tipos corretos
+      // Gerar email único se não fornecido
+      let email = revenda.email;
+      if (!email || email.trim() === '') {
+        // Gerar email único baseado no username e timestamp
+        const timestamp = Date.now();
+        email = `${revenda.username}_${timestamp}@revenda.local`;
+        console.log('🔄 [useRevendas] Email não fornecido, gerando email único:', email);
+      }
+      
+      // Validar email
+      if (!email || !email.includes('@')) {
+        const errorMsg = 'Email inválido: O email é obrigatório e deve ser válido.';
+        console.error('❌ [useRevendas]', errorMsg);
+        setError(errorMsg);
+        return false;
+      }
+      
       const revendaData: any = {
-        username: revenda.username,
-        email: revenda.email || `${revenda.username}@revenda.local`, // Email obrigatório - usar padrão se não fornecido
+        username: revenda.username.trim(),
+        email: email.trim(),
         password: revenda.password,
         permission: revenda.permission,
         credits: revenda.credits ?? 10,
-        personal_name: revenda.personal_name,
+        personal_name: revenda.personal_name?.trim() || null,
         status: revenda.status || 'Ativo',
         force_password_change: typeof revenda.force_password_change === 'string' 
           ? revenda.force_password_change === 'true' 
@@ -228,23 +245,45 @@ export function useRevendas() {
       }
       
       console.log('🔄 [useRevendas] Resposta recebida:', response.status, response.statusText);
+      console.log('🔄 [useRevendas] Headers da resposta:', Object.fromEntries(response.headers.entries()));
       
       const responseText = await response.text();
-      console.log('🔄 [useRevendas] Resposta completa:', responseText);
+      console.log('🔄 [useRevendas] Resposta completa (texto):', responseText);
+      console.log('🔄 [useRevendas] Tamanho da resposta:', responseText.length);
       
       let data;
       let error: any = null;
       
-      try {
-        data = responseText ? JSON.parse(responseText) : null;
-      } catch (parseError) {
-        console.error('❌ [useRevendas] Erro ao fazer parse da resposta:', parseError);
-        if (!response.ok) {
+      // Verificar se a resposta está vazia
+      if (!responseText || responseText.trim().length === 0) {
+        console.warn('⚠️ [useRevendas] Resposta vazia do Supabase');
+        // Se a resposta está OK mas vazia, pode ser que o Prefer não funcionou
+        // Vamos buscar os dados novamente
+        if (response.ok) {
+          console.log('🔄 [useRevendas] Resposta OK mas vazia, buscando dados atualizados...');
+          await fetchRevendas();
+          return true;
+        } else {
           error = {
             code: response.status.toString(),
             message: response.statusText || 'Erro desconhecido',
-            details: responseText,
+            details: 'Resposta vazia do servidor',
           };
+        }
+      } else {
+        try {
+          data = JSON.parse(responseText);
+          console.log('🔄 [useRevendas] Resposta parseada:', data);
+        } catch (parseError) {
+          console.error('❌ [useRevendas] Erro ao fazer parse da resposta:', parseError);
+          console.error('❌ [useRevendas] Texto que falhou no parse:', responseText);
+          if (!response.ok) {
+            error = {
+              code: response.status.toString(),
+              message: response.statusText || 'Erro desconhecido',
+              details: responseText,
+            };
+          }
         }
       }
       
@@ -257,30 +296,67 @@ export function useRevendas() {
         
         console.error('❌ [useRevendas] Erro do Supabase:', errorObj);
         console.error('❌ [useRevendas] Status:', response.status);
+        console.error('❌ [useRevendas] Status Text:', response.statusText);
+        console.error('❌ [useRevendas] Dados enviados:', JSON.stringify(revendaData, null, 2));
         
         // Verificar tipo de erro
         if (response.status === 401 || errorObj.message?.includes('401') || errorObj.message?.includes('Unauthorized')) {
-          setError('Erro de autenticação: Sua sessão expirou. Por favor, faça login novamente.');
-        } else if (errorObj.message?.includes('row-level security policy') || errorObj.message?.includes('new row violates row-level security')) {
-          setError('Erro de permissão: As políticas de segurança estão bloqueando a inserção. Verifique se você está autenticado e se as políticas RLS estão configuradas corretamente.');
-        } else if (response.status === 409 || errorObj.message?.includes('duplicate key')) {
-          setError('Erro: Já existe um revendedor com este username ou email.');
+          const errorMsg = 'Erro de autenticação: Sua sessão expirou. Por favor, faça login novamente.';
+          console.error('❌ [useRevendas]', errorMsg);
+          setError(errorMsg);
+        } else if (errorObj.message?.includes('row-level security policy') || errorObj.message?.includes('new row violates row-level security') || errorObj.details?.includes('row-level security')) {
+          const errorMsg = 'Erro de permissão: As políticas de segurança (RLS) estão bloqueando a inserção. Execute o script SQL para corrigir as políticas RLS ou verifique se você está autenticado.';
+          console.error('❌ [useRevendas]', errorMsg);
+          setError(errorMsg);
+        } else if (response.status === 409 || errorObj.message?.includes('duplicate key') || errorObj.details?.includes('duplicate')) {
+          const errorMsg = 'Erro: Já existe um revendedor com este username ou email.';
+          console.error('❌ [useRevendas]', errorMsg);
+          setError(errorMsg);
+        } else if (response.status === 400 || errorObj.message?.includes('violates')) {
+          const errorMsg = `Erro de validação: ${errorObj.message || errorObj.details || 'Dados inválidos'} (Status: ${response.status})`;
+          console.error('❌ [useRevendas]', errorMsg);
+          setError(errorMsg);
         } else {
-          setError(`Erro ao adicionar revendedor: ${errorObj.message || errorObj.details || 'Erro desconhecido'} (Status: ${response.status})`);
+          const errorMsg = `Erro ao adicionar revendedor: ${errorObj.message || errorObj.details || 'Erro desconhecido'} (Status: ${response.status})`;
+          console.error('❌ [useRevendas]', errorMsg);
+          setError(errorMsg);
         }
         return false;
       }
       
-      console.log('✅ [useRevendas] Revendedor inserido com sucesso:', data);
+      console.log('✅ [useRevendas] Revendedor inserido com sucesso');
+      console.log('✅ [useRevendas] Dados retornados:', data);
       
       // Adicionar o revendedor diretamente ao estado ou buscar novamente
       if (data && Array.isArray(data) && data.length > 0) {
         const newRevenda = data[0] as Revenda;
-        setRevendas(prevRevendas => [...prevRevendas, newRevenda]);
+        console.log('✅ [useRevendas] Revendedor retornado:', newRevenda);
+        setRevendas(prevRevendas => {
+          // Verificar se já existe para evitar duplicatas
+          const exists = prevRevendas.find(r => r.id === newRevenda.id || r.username === newRevenda.username);
+          if (exists) {
+            console.log('⚠️ [useRevendas] Revendedor já existe na lista, atualizando...');
+            return prevRevendas.map(r => r.id === newRevenda.id ? newRevenda : r);
+          }
+          return [...prevRevendas, newRevenda];
+        });
+        console.log('✅ [useRevendas] Revendedor adicionado ao estado local');
+      } else if (data && typeof data === 'object' && !Array.isArray(data)) {
+        // Se retornou um objeto único ao invés de array
+        console.log('✅ [useRevendas] Revendedor retornado como objeto único:', data);
+        const newRevenda = data as Revenda;
+        setRevendas(prevRevendas => {
+          const exists = prevRevendas.find(r => r.id === newRevenda.id || r.username === newRevenda.username);
+          if (exists) {
+            console.log('⚠️ [useRevendas] Revendedor já existe na lista, atualizando...');
+            return prevRevendas.map(r => r.id === newRevenda.id ? newRevenda : r);
+          }
+          return [...prevRevendas, newRevenda];
+        });
         console.log('✅ [useRevendas] Revendedor adicionado ao estado local');
       } else {
         // Se não conseguiu adicionar ao estado, buscar novamente
-        console.log('🔄 [useRevendas] Atualizando lista de revendedores...');
+        console.log('🔄 [useRevendas] Resposta não contém dados, buscando lista atualizada...');
         await fetchRevendas();
       }
       console.log('✅ [useRevendas] Lista atualizada!');

@@ -189,7 +189,11 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
       
       if (!success) {
         console.error('❌ [AdminResellers] Falha ao adicionar revendedor. Verifique o console para detalhes.');
+        // Exibir erro ao usuário
+        const errorMessage = error || 'Erro ao adicionar revendedor. Verifique os dados e tente novamente.';
+        alert(`❌ Erro ao adicionar revendedor:\n\n${errorMessage}\n\nVerifique:\n1. Se você está autenticado\n2. Se as políticas RLS estão configuradas corretamente\n3. Se o username/email não está duplicado\n4. Os logs no console para mais detalhes`);
         setIsAddingReseller(false);
+        setAddResellerSuccess(false);
         return;
       }
       
@@ -250,7 +254,10 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
       }, 1000);
     } catch (error) {
       console.error('❌ [AdminResellers] Erro ao adicionar revendedor:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido ao adicionar revendedor';
+      alert(`❌ Erro ao adicionar revendedor:\n\n${errorMessage}\n\nVerifique os logs no console para mais detalhes.`);
       setIsAddingReseller(false);
+      setAddResellerSuccess(false);
     } finally {
       setIsAddingReseller(false);
     }
