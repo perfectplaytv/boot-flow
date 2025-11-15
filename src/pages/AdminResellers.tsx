@@ -53,65 +53,60 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
 
   // Listener para atualizar a lista quando um revendedor é criado em outro lugar (ex: modal do Dashboard)
   useEffect(() => {
-    // Sempre buscar dados ao montar o componente para garantir dados atualizados
-    console.log('🔄 [AdminResellers] Componente montado, buscando dados atualizados...');
-    if (fetchRevendas) {
-      fetchRevendas();
+    // Função para buscar dados com delay opcional
+    const refreshData = (delay: number = 0, reason: string = '') => {
+      if (!fetchRevendas) return;
+      
+      if (delay > 0) {
+        setTimeout(() => {
+          console.log(`🔄 [AdminResellers] ${reason} - Atualizando lista após ${delay}ms...`);
+          fetchRevendas();
+        }, delay);
+      } else {
+        console.log(`🔄 [AdminResellers] ${reason} - Atualizando lista...`);
+        fetchRevendas();
+      }
+    };
+
+    // Verificar localStorage ao montar PRIMEIRO (antes de buscar dados)
+    const refreshFlag = localStorage.getItem('dashboard-refresh');
+    const resellerCreatedFlag = localStorage.getItem('reseller-created');
+    const hasFlags = refreshFlag || resellerCreatedFlag;
+    
+    if (hasFlags) {
+      console.log('🔄 [AdminResellers] Flag de refresh encontrada ao montar, removendo flags...');
+      localStorage.removeItem('dashboard-refresh');
+      localStorage.removeItem('reseller-created');
+      // Buscar dados com um pequeno delay para garantir que o banco foi atualizado
+      refreshData(500, 'Flag encontrada ao montar');
+    } else {
+      // Se não há flags, buscar dados imediatamente ao montar
+      console.log('🔄 [AdminResellers] Componente montado, buscando dados atualizados...');
+      refreshData(0, 'Componente montado');
     }
 
     const handleResellerCreated = () => {
-      console.log('🔄 [AdminResellers] Evento reseller-created recebido, atualizando lista...');
-      if (fetchRevendas) {
-        // Aguardar um pouco para garantir que o banco foi atualizado
-        setTimeout(() => {
-          fetchRevendas();
-        }, 300);
-      }
+      console.log('🔄 [AdminResellers] Evento reseller-created recebido');
+      refreshData(500, 'Evento reseller-created');
     };
 
     const handleRefreshDashboard = (event: CustomEvent) => {
       // Atualizar apenas se for relacionado a revendedores
       if (event.detail?.source === 'resellers' || !event.detail?.source) {
-        console.log('🔄 [AdminResellers] Evento refresh-dashboard recebido, atualizando lista...');
-        if (fetchRevendas) {
-          // Aguardar um pouco para garantir que o banco foi atualizado
-          setTimeout(() => {
-            fetchRevendas();
-          }, 300);
-        }
+        console.log('🔄 [AdminResellers] Evento refresh-dashboard recebido');
+        refreshData(500, 'Evento refresh-dashboard');
       }
     };
 
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'dashboard-refresh' || e.key === 'reseller-created') {
-        console.log('🔄 [AdminResellers] localStorage change detectado, atualizando lista...');
-        if (fetchRevendas) {
-          setTimeout(() => {
-            fetchRevendas();
-          }, 300);
-        }
+        console.log('🔄 [AdminResellers] localStorage change detectado');
+        // Remover a flag para evitar múltiplas atualizações
+        if (e.key === 'dashboard-refresh') localStorage.removeItem('dashboard-refresh');
+        if (e.key === 'reseller-created') localStorage.removeItem('reseller-created');
+        refreshData(500, 'localStorage change');
       }
     };
-
-    // Escutar eventos
-    window.addEventListener('reseller-created', handleResellerCreated);
-    window.addEventListener('refresh-dashboard', handleRefreshDashboard as EventListener);
-    window.addEventListener('storage', handleStorageChange);
-
-    // Verificar localStorage ao montar (com verificação adicional)
-    const refreshFlag = localStorage.getItem('dashboard-refresh');
-    const resellerCreatedFlag = localStorage.getItem('reseller-created');
-    if (refreshFlag || resellerCreatedFlag) {
-      console.log('🔄 [AdminResellers] Flag de refresh encontrada ao montar, atualizando lista...');
-      localStorage.removeItem('dashboard-refresh');
-      localStorage.removeItem('reseller-created');
-      if (fetchRevendas) {
-        // Aguardar um pouco para garantir que o banco foi atualizado
-        setTimeout(() => {
-          fetchRevendas();
-        }, 500);
-      }
-    }
 
     // Adicionar listener para quando a página ganha foco (útil quando volta de outra página)
     const handleVisibilityChange = () => {
@@ -122,13 +117,15 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
         if (needsRefresh && fetchRevendas) {
           console.log('🔄 [AdminResellers] Flag de atualização encontrada, atualizando lista...');
           localStorage.removeItem('reseller-created');
-          setTimeout(() => {
-            fetchRevendas();
-          }, 300);
+          refreshData(500, 'Página visível com flag');
         }
       }
     };
 
+    // Escutar eventos
+    window.addEventListener('reseller-created', handleResellerCreated);
+    window.addEventListener('refresh-dashboard', handleRefreshDashboard as EventListener);
+    window.addEventListener('storage', handleStorageChange);
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
