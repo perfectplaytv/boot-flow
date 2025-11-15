@@ -44,6 +44,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddingReseller, setIsAddingReseller] = useState(false);
   const [addResellerSuccess, setAddResellerSuccess] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const filteredRevendas = revendas.filter(revenda =>
     revenda.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -187,7 +188,10 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
     console.log('✅ [AdminResellers] Validação passou, iniciando criação...');
     setIsAddingReseller(true);
     setAddResellerSuccess(false);
-    setError(null); // Limpar erros anteriores
+    if (clearError) {
+      clearError();
+    }
+    setFormError(null); // Limpar erros anteriores
     
     try {
       console.log('🔄 [AdminResellers] Chamando addRevenda...');
@@ -218,6 +222,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
         alert(`❌ Erro ao adicionar revendedor:\n\n${errorMessage}\n\nVerifique:\n1. Se você está autenticado\n2. Se as políticas RLS estão configuradas corretamente\n3. Se o username/email não está duplicado\n4. Os logs no console para mais detalhes`);
         setIsAddingReseller(false);
         setAddResellerSuccess(false);
+        setFormError(errorMessage);
         return;
       }
       
@@ -282,6 +287,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
       alert(`❌ Erro ao adicionar revendedor:\n\n${errorMessage}\n\nVerifique os logs no console para mais detalhes.`);
       setIsAddingReseller(false);
       setAddResellerSuccess(false);
+        setFormError(errorMessage);
     } finally {
       setIsAddingReseller(false);
     }
@@ -854,6 +860,11 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
               </div>
               
               <form onSubmit={handleAddRevenda} className="space-y-6 flex-1 overflow-y-auto">
+                {formError && (
+                  <div className="rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+                    {formError}
+                  </div>
+                )}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-white">
