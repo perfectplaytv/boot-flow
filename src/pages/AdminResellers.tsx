@@ -69,6 +69,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
     };
 
     // Verificar localStorage ao montar PRIMEIRO (antes de buscar dados)
+    // O hook useRevendas já busca dados ao montar, então só buscamos novamente se houver flags
     const refreshFlag = localStorage.getItem('dashboard-refresh');
     const resellerCreatedFlag = localStorage.getItem('reseller-created');
     const hasFlags = refreshFlag || resellerCreatedFlag;
@@ -78,11 +79,12 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
       localStorage.removeItem('dashboard-refresh');
       localStorage.removeItem('reseller-created');
       // Buscar dados com um pequeno delay para garantir que o banco foi atualizado
-      refreshData(500, 'Flag encontrada ao montar');
+      // Isso garante que os dados recém-criados no modal apareçam na lista
+      refreshData(800, 'Flag encontrada ao montar (revenda criado no modal)');
     } else {
-      // Se não há flags, buscar dados imediatamente ao montar
-      console.log('🔄 [AdminResellers] Componente montado, buscando dados atualizados...');
-      refreshData(0, 'Componente montado');
+      // Se não há flags, o hook useRevendas já busca os dados automaticamente ao montar
+      // Não precisamos buscar novamente aqui
+      console.log('🔄 [AdminResellers] Componente montado - hook useRevendas irá buscar dados automaticamente');
     }
 
     const handleResellerCreated = () => {
