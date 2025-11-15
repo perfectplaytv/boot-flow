@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRealtime } from './useRealtime';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -61,9 +61,40 @@ function useDashboardData() {
   });
 
   const [error, setError] = useState<string | null>(null);
+  
+  // Proteção contra múltiplas chamadas simultâneas
+  const isCalculatingRef = useRef(false);
+  const lastCalculationRef = useRef<{ clientesLength: number; revendasLength: number; userId: string | undefined } | null>(null);
+  const refreshTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Função para calcular as estatísticas
   const calculateStats = useCallback(async () => {
+    // Proteção contra múltiplas chamadas simultâneas
+    if (isCalculatingRef.current) {
+      console.log('🔄 [useDashboardData] calculateStats já em execução, ignorando chamada');
+      return;
+    }
+
+    // Verificar se os dados realmente mudaram
+    const currentState = {
+      clientesLength: clientes.length,
+      revendasLength: revendas.length,
+      userId: user?.id
+    };
+    
+    if (lastCalculationRef.current) {
+      const hasChanged = 
+        lastCalculationRef.current.clientesLength !== currentState.clientesLength ||
+        lastCalculationRef.current.revendasLength !== currentState.revendasLength ||
+        lastCalculationRef.current.userId !== currentState.userId;
+      
+      if (!hasChanged) {
+        console.log('🔄 [useDashboardData] Dados não mudaram, ignorando cálculo');
+        return;
+      }
+    }
+
+    isCalculatingRef.current = true;
     try {
       setLoading(true);
       
@@ -217,33 +248,77 @@ function useDashboardData() {
       }).length;
 
       // Atualiza as estatísticas
-      setStats(prevStats => ({
-        ...prevStats,
-        totalUsers,
-        totalRevenue,
-        activeResellers,
-        activeClients,
-        monthlyGrowth,
-        iptvUsers,
-        radioListeners,
-        aiInteractions: 0 // Implementar contagem de interações com IA se necessário
-      }));
+      setStats(prevStats => {
+        const newStats = {
+          ...prevStats,
+          totalUsers,
+          totalRevenue,
+          activeResellers,
+          activeClients,
+          monthlyGrowth,
+          iptvUsers,
+          radioListeners,
+          aiInteractions: 0 // Implementar contagem de interações com IA se necessário
+        };
+        
+        // Verificar se realmente mudou para evitar re-renderizações desnecessárias
+        const hasChanged = 
+          prevStats.totalUsers !== newStats.totalUsers ||
+          prevStats.totalRevenue !== newStats.totalRevenue ||
+          prevStats.activeResellers !== newStats.activeResellers ||
+          prevStats.activeClients !== newStats.activeClients;
+        
+        if (!hasChanged) {
+          console.log('🔄 [useDashboardData] Estatísticas não mudaram, mantendo estado anterior');
+          return prevStats;
+        }
+        
+        return newStats;
+      });
+      
+      // Atualizar referência do último cálculo
+      lastCalculationRef.current = currentState;
 
     } catch (err) {
       console.error('Erro ao calcular estatísticas do dashboard:', err);
       setError('Erro ao carregar dados do dashboard');
     } finally {
       setLoading(false);
+      isCalculatingRef.current = false;
     }
-  }, [clientes, revendas, user?.id, setError, setLoading, setStats]);
+  }, [clientes, revendas, user?.id]);
 
-  // Atualiza as estatísticas quando os dados mudam
+  // Atualiza as estatísticas quando os dados mudam (com debounce)
   useEffect(() => {
-    if (clientes.length > 0 || revendas.length > 0 || clientes.length === 0) {
-      calculateStats();
+    // Limpar timeout anterior se houver
+    if (refreshTimeoutRef.current) {
+      clearTimeout(refreshTimeoutRef.current);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [clientes.length, revendas.length, user?.id]); // Removido calculateStats para evitar loop infinito
+    
+    // Aguardar um pouco antes de recalcular para evitar chamadas muito frequentes
+    refreshTimeoutRef.current = setTimeout(() => {
+      // Só recalcular se os dados realmente mudaram
+      const currentState = {
+        clientesLength: clientes.length,
+        revendasLength: revendas.length,
+        userId: user?.id
+      };
+      
+      if (!lastCalculationRef.current || 
+          lastCalculationRef.current.clientesLength !== currentState.clientesLength ||
+          lastCalculationRef.current.revendasLength !== currentState.revendasLength ||
+          lastCalculationRef.current.userId !== currentState.userId) {
+        console.log('🔄 [useDashboardData] Dados mudaram, recalculando estatísticas...');
+        calculateStats();
+      }
+    }, 500); // Debounce de 500ms
+    
+    return () => {
+      if (refreshTimeoutRef.current) {
+        clearTimeout(refreshTimeoutRef.current);
+      }
+    };
+  }, [clientes.length, revendas.length, user?.id, calculateStats]);
 
   // Função de refresh que atualiza os dados e recalcula as estatísticas
   const refresh = useCallback(async () => {
