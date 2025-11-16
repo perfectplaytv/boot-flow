@@ -1674,13 +1674,6 @@ const AdminDashboard = () => {
                 </Dialog>
                 
                 <Dialog open={resellerModal} onOpenChange={setResellerModal}>
-                  <DialogTrigger asChild>
-                    <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white h-10 sm:h-auto flex-1 sm:flex-initial"> 
-                      <Plus className="w-4 h-4 sm:mr-2" />
-                      <span className="hidden sm:inline">Novo Revenda</span>
-                      <span className="sm:hidden">Revenda</span>
-                    </Button>
-                  </DialogTrigger>
                   <DialogContent className="bg-[#1f2937] text-white max-w-4xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col max-h-[90vh] overflow-y-auto scrollbar-hide">
                     <DialogHeader className="sr-only">
                       <DialogTitle>Adicionar um Revenda</DialogTitle>
@@ -2523,13 +2516,6 @@ const AdminDashboard = () => {
                     </Dialog>
                     
                     <Dialog open={resellerModal} onOpenChange={setResellerModal}>
-                      <DialogTrigger asChild>
-                        <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white h-10 sm:h-auto flex-1 sm:flex-initial"> 
-                          <Plus className="w-4 h-4 sm:mr-2" />
-                          <span className="hidden sm:inline">Novo Revenda</span>
-                          <span className="sm:hidden">Revenda</span>
-                        </Button>
-                      </DialogTrigger>
                       <DialogContent className="bg-[#1f2937] text-white max-w-4xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col max-h-[90vh] overflow-y-auto scrollbar-hide">
                         <DialogHeader className="sr-only">
                           <DialogTitle>Adicionar um Revenda</DialogTitle>
