@@ -1,5 +1,6 @@
 import { ArrowLeft, Play, Zap, MessageSquare, Bot, Code, Settings, CheckCircle, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,6 +8,11 @@ import { ThemeToggle } from "@/components/theme-toggle";
 
 const Demo = () => {
   const navigate = useNavigate();
+
+  // Efeito para fazer scroll até o topo quando a página é carregada
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
 
   const demoFeatures = [
     {
