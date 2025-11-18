@@ -582,6 +582,16 @@ const HelpCenter = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {contactOptions.map((option, index) => {
                 const IconComponent = option.icon;
+                const handleAction = () => {
+                  if (option.title === "Chat ao Vivo") {
+                    window.open("https://wa.me/5527999587725", "_blank", "noopener,noreferrer");
+                  } else if (option.title === "Telefone") {
+                    window.open(`tel:${option.description.replace(/\s/g, "")}`, "_self");
+                  } else if (option.title === "Email") {
+                    window.open(`mailto:${option.description}`, "_self");
+                  }
+                };
+                
                 return (
                   <Card key={index}>
                     <CardContent className="p-6 text-center">
@@ -595,6 +605,7 @@ const HelpCenter = () => {
                       <Button 
                         className="w-full"
                         disabled={!option.available}
+                        onClick={handleAction}
                       >
                         {option.action}
                       </Button>
