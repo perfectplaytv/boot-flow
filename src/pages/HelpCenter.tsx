@@ -66,32 +66,172 @@ const HelpCenter = () => {
 
   const guides = [
     {
+      id: "primeiros-passos",
       title: "Guia de Primeiros Passos",
       description: "Configure sua conta e comece a usar a plataforma",
       type: "text",
       duration: "5 min",
-      icon: Book
+      icon: Book,
+      content: {
+        sections: [
+          {
+            title: "1. Criando sua Conta",
+            content: "Para começar, acesse a página de cadastro e preencha seus dados básicos. Você precisará de um email válido e uma senha segura. Após o cadastro, verifique seu email para ativar a conta."
+          },
+          {
+            title: "2. Configuração Inicial",
+            content: "Após o login, você será direcionado para o dashboard. Complete seu perfil adicionando informações como nome completo, telefone e empresa. Isso ajudará na personalização da plataforma."
+          },
+          {
+            title: "3. Explorando o Dashboard",
+            content: "O dashboard é seu centro de comando. Aqui você encontrará: estatísticas em tempo real, acesso rápido aos módulos principais, notificações importantes e atalhos para funcionalidades mais usadas."
+          },
+          {
+            title: "4. Primeiros Passos com IA",
+            content: "Configure sua primeira assistente de IA acessando o módulo 'IA + Voz'. Escolha uma voz (masculina ou feminina), defina a personalidade e teste as respostas antes de ativar."
+          },
+          {
+            title: "5. Conectando WhatsApp",
+            content: "Para começar a usar o WhatsApp, vá em 'WhatsApp' > 'Configurações' e siga o processo de conexão. Você precisará escanear um QR Code com seu WhatsApp Business."
+          },
+          {
+            title: "6. Criando seu Primeiro Cliente",
+            content: "Acesse 'Clientes' > 'Novo Cliente' e preencha as informações. Você pode adicionar planos, definir datas de expiração e configurar notificações automáticas."
+          }
+        ]
+      }
     },
     {
+      id: "configurando-ia",
       title: "Configurando a IA",
       description: "Tutorial completo sobre configuração da IA",
       type: "video",
       duration: "12 min",
-      icon: Video
+      icon: Video,
+      content: {
+        sections: [
+          {
+            title: "1. Acessando as Configurações de IA",
+            content: "No menu lateral, clique em 'IA + Voz' para acessar o painel de configuração. Aqui você encontrará todas as opções para personalizar sua assistente virtual."
+          },
+          {
+            title: "2. Escolhendo o Modelo de IA",
+            content: "Selecione o modelo de IA que melhor se adequa ao seu negócio. Temos modelos otimizados para vendas, suporte técnico e atendimento geral. Cada modelo tem características específicas de linguagem e tom."
+          },
+          {
+            title: "3. Personalizando a Voz",
+            content: "Escolha entre vozes masculinas e femininas, ajuste a velocidade de fala, o tom e a entonação. Você pode testar cada configuração antes de salvar."
+          },
+          {
+            title: "4. Configurando a Personalidade",
+            content: "Defina como sua IA deve se comportar: formal ou casual, empática ou direta, técnica ou simples. Isso influencia diretamente na experiência do cliente."
+          },
+          {
+            title: "5. Treinando com Base de Conhecimento",
+            content: "Adicione documentos, FAQs e informações sobre seu produto/serviço. A IA usará essas informações para responder perguntas dos clientes de forma mais precisa."
+          },
+          {
+            title: "6. Configurando Fluxos de Conversa",
+            content: "Crie fluxos condicionais que direcionam a conversa baseado em palavras-chave, intenções do cliente ou contexto da conversa. Isso permite automações mais inteligentes."
+          },
+          {
+            title: "7. Testando e Ajustando",
+            content: "Use o modo de teste para simular conversas e verificar se as respostas estão adequadas. Faça ajustes conforme necessário antes de ativar em produção."
+          }
+        ]
+      }
     },
     {
+      id: "iptv-revendedores",
       title: "Sistema IPTV para Revendedores",
       description: "Como ativar e configurar o módulo IPTV",
       type: "text",
       duration: "8 min",
-      icon: FileText
+      icon: FileText,
+      content: {
+        sections: [
+          {
+            title: "1. Ativando o Módulo IPTV",
+            content: "Acesse 'Módulos' > 'IPTV' no menu lateral. Se o módulo não estiver ativo, clique em 'Ativar Módulo'. Alguns planos podem exigir upgrade para acessar esta funcionalidade."
+          },
+          {
+            title: "2. Configurando Servidores",
+            content: "Vá em 'IPTV' > 'Servidores' e adicione seus servidores IPTV. Informe o nome, URL do servidor, credenciais de acesso e limite de conexões simultâneas. Você pode adicionar múltiplos servidores."
+          },
+          {
+            title: "3. Importando Listas de Canais",
+            content: "Use a função 'Importar M3U' para carregar suas listas de canais. Você pode importar arquivos M3U ou inserir URLs diretas. O sistema organizará automaticamente os canais por categoria."
+          },
+          {
+            title: "4. Criando Pacotes (Bouquets)",
+            content: "Organize seus canais em pacotes personalizados. Crie pacotes como 'Básico', 'Premium', 'Esportes', etc. Isso facilita a venda e gestão para seus clientes."
+          },
+          {
+            title: "5. Configurando Preços e Planos",
+            content: "Defina preços para cada pacote e crie planos de assinatura (Mensal, Trimestral, Semestral, Anual). Configure descontos e promoções conforme necessário."
+          },
+          {
+            title: "6. Gerenciando Revendedores",
+            content: "No painel de revendedores, você pode definir quais servidores e pacotes cada revendedor pode acessar. Configure limites de clientes e comissões."
+          },
+          {
+            title: "7. Exportando Credenciais",
+            content: "Para cada cliente, você pode gerar links M3U personalizados ou credenciais de acesso. Essas informações são enviadas automaticamente por email ou WhatsApp após a ativação."
+          },
+          {
+            title: "8. Monitoramento e Estatísticas",
+            content: "Acompanhe o uso dos servidores, conexões ativas, canais mais assistidos e receita gerada. Use esses dados para otimizar sua operação."
+          }
+        ]
+      }
     },
     {
+      id: "campanhas-multicanal",
       title: "Campanhas Multicanal",
       description: "Criando campanhas para WhatsApp, Instagram e mais",
       type: "video",
       duration: "15 min",
-      icon: Video
+      icon: Video,
+      content: {
+        sections: [
+          {
+            title: "1. Acessando o Módulo de Campanhas",
+            content: "No menu principal, clique em 'Campanhas' para acessar o gerenciador de campanhas. Aqui você pode criar, editar e monitorar todas as suas campanhas."
+          },
+          {
+            title: "2. Escolhendo o Canal",
+            content: "Selecione o canal de comunicação: WhatsApp, Instagram, Facebook, Telegram, Email ou SMS. Cada canal tem características específicas e formatos de mensagem diferentes."
+          },
+          {
+            title: "3. Definindo o Público-Alvo",
+            content: "Crie segmentos de clientes baseado em critérios como: plano contratado, data de cadastro, última interação, localização, ou tags personalizadas. Isso garante que a mensagem chegue às pessoas certas."
+          },
+          {
+            title: "4. Criando a Mensagem",
+            content: "Use o editor de mensagens para criar conteúdo personalizado. Você pode usar variáveis dinâmicas como {nome}, {empresa}, {plano} para personalizar cada mensagem. Adicione imagens, vídeos ou documentos quando disponível."
+          },
+          {
+            title: "5. Agendando o Envio",
+            content: "Escolha entre envio imediato ou agendado. Para agendamento, defina data e horário específicos. Você pode também configurar envios recorrentes (diário, semanal, mensal)."
+          },
+          {
+            title: "6. Configurando Automações",
+            content: "Crie respostas automáticas para interações dos clientes. Configure palavras-chave que disparam ações específicas, como enviar um catálogo, agendar uma reunião ou transferir para atendimento humano."
+          },
+          {
+            title: "7. Testando a Campanha",
+            content: "Antes de enviar para todos, envie uma mensagem de teste para você mesmo ou para um grupo de teste. Verifique se a formatação, links e mídias estão funcionando corretamente."
+          },
+          {
+            title: "8. Monitorando Resultados",
+            content: "Acompanhe em tempo real: mensagens enviadas, entregues, lidas e respondidas. Analise taxas de abertura, cliques e conversões. Use esses dados para melhorar campanhas futuras."
+          },
+          {
+            title: "9. Campanhas Multicanal Coordenadas",
+            content: "Crie campanhas que enviam mensagens em múltiplos canais simultaneamente ou sequencialmente. Por exemplo: WhatsApp primeiro, depois Email se não houver resposta, e por fim SMS."
+          }
+        ]
+      }
     }
   ];
 
@@ -203,7 +343,11 @@ const HelpCenter = () => {
               {guides.map((guide, index) => {
                 const IconComponent = guide.icon;
                 return (
-                  <Card key={index} className="cursor-pointer hover:shadow-md transition-shadow">
+                  <Card 
+                    key={index} 
+                    className="cursor-pointer hover:shadow-md transition-shadow"
+                    onClick={() => setSelectedGuide(guide.id)}
+                  >
                     <CardContent className="p-6">
                       <div className="flex items-start gap-4">
                         <div className="p-2 bg-primary/10 rounded-lg">
@@ -373,6 +517,39 @@ const HelpCenter = () => {
           <ArrowUp className="w-5 h-5" />
           Voltar ao Topo
         </Button>
+      )}
+
+      {/* Modal de Guias */}
+      {selectedGuide && (
+        <Dialog open={!!selectedGuide} onOpenChange={() => setSelectedGuide(null)}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-2xl">
+                {guides.find(g => g.id === selectedGuide)?.title}
+              </DialogTitle>
+              <DialogDescription>
+                {guides.find(g => g.id === selectedGuide)?.description}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="mt-4 space-y-6">
+              {guides.find(g => g.id === selectedGuide)?.content?.sections.map((section, index) => (
+                <div key={index} className="border-b border-border/50 pb-4 last:border-0">
+                  <h3 className="text-lg font-semibold mb-2 text-primary">
+                    {section.title}
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {section.content}
+                  </p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-6 flex justify-end">
+              <Button onClick={() => setSelectedGuide(null)}>
+                Fechar
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );
