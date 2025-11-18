@@ -246,7 +246,7 @@ const HelpCenter = () => {
     },
     {
       title: "Telefone",
-      description: "+55 27 99958-7725",
+      description: "27 99958-7725",
       phoneNumber: "5527999587725",
       icon: Phone,
       action: "Ligar",
