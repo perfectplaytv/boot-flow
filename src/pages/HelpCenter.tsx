@@ -14,6 +14,7 @@ const HelpCenter = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [selectedGuide, setSelectedGuide] = useState<string | null>(null);
+  const [selectedResource, setSelectedResource] = useState<string | null>(null);
 
   // Efeito para mostrar/ocultar o botão de voltar ao topo
   useEffect(() => {
