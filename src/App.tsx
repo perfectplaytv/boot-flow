@@ -31,6 +31,7 @@ import Privacy from "./pages/Privacy";
 import API from "./pages/API";
 import Documentacao from "./pages/Documentacao";
 import Integracoes from "./pages/Integracoes";
+import Demo from "./pages/Demo";
 import Products from "./pages/Products";
 import Statistics from "./pages/Statistics";
 import Ecommerce from "./pages/Ecommerce";
@@ -72,6 +73,7 @@ const App = () => {
                 <Route path="/api" element={<API />} />
                 <Route path="/documentacao" element={<Documentacao />} />
                 <Route path="/integracoes" element={<Integracoes />} />
+                <Route path="/demo" element={<Demo />} />
                 <Route path="/empresa/sobre" element={<Sobre />} />
                 <Route path="/empresa/blog" element={<Blog />} />
 

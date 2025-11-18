@@ -268,7 +268,7 @@ const Landing = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="py-20 px-4 text-center relative overflow-hidden">
+      <section id="hero" className="py-20 px-4 text-center relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-hero opacity-10"></div>
         <div className="container mx-auto relative z-10">
           <Badge variant="neon" className="mb-6 animate-pulse-glow">
@@ -291,7 +291,7 @@ const Landing = () => {
               <Play className="w-5 h-5 mr-2" />
               Começar Agora - Grátis
             </Button>
-            <Button variant="glass" size="xl">
+            <Button variant="glass" size="xl" onClick={() => navigate('/demo')}>
               <Phone className="w-5 h-5 mr-2" />
               Ver Demo em Ação
             </Button>
@@ -612,11 +612,18 @@ const Landing = () => {
                 </li>
                 <li>
                   <a 
-                    href="/api" 
+                    href="#hero" 
                     className="hover:text-foreground transition-colors cursor-pointer"
                     onClick={(e) => {
                       e.preventDefault();
-                      navigate('/api');
+                      if (location.pathname !== '/') {
+                        navigate('/');
+                        setTimeout(() => {
+                          document.getElementById('hero')?.scrollIntoView({ behavior: 'smooth' });
+                        }, 100);
+                      } else {
+                        document.getElementById('hero')?.scrollIntoView({ behavior: 'smooth' });
+                      }
                     }}
                   >
                     API
@@ -624,11 +631,11 @@ const Landing = () => {
                 </li>
                 <li>
                   <a 
-                    href="/integracoes" 
+                    href="/demo" 
                     className="hover:text-foreground transition-colors cursor-pointer"
                     onClick={(e) => {
                       e.preventDefault();
-                      navigate('/integracoes');
+                      navigate('/demo');
                     }}
                   >
                     Integrações
