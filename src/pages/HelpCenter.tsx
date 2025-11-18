@@ -585,6 +585,8 @@ const HelpCenter = () => {
                 const handleAction = () => {
                   if (option.title === "Chat ao Vivo") {
                     const phoneNumber = "5527999587725";
+                    // Mensagem automática pré-preenchida
+                    const defaultMessage = encodeURIComponent("Olá! Gostaria de obter suporte sobre o BootFlow.");
                     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
                     const isMac = /Macintosh|MacIntel|MacPPC|Mac68K/i.test(navigator.userAgent);
                     const isWindows = /Windows|Win32|Win64/i.test(navigator.userAgent);
@@ -593,19 +595,19 @@ const HelpCenter = () => {
                     
                     if (isMobile) {
                       // Mobile (Android/iOS): Tenta abrir no app WhatsApp Mobile
-                      const appUrl = `whatsapp://send?phone=${phoneNumber}`;
+                      const appUrl = `whatsapp://send?phone=${phoneNumber}&text=${defaultMessage}`;
                       
                       // Tenta abrir no app
                       window.location.href = appUrl;
                       
                       // Fallback: se o app não abrir em 1 segundo, abre no web
                       setTimeout(() => {
-                        window.open(`https://wa.me/${phoneNumber}`, "_blank", "noopener,noreferrer");
+                        window.open(`https://wa.me/${phoneNumber}?text=${defaultMessage}`, "_blank", "noopener,noreferrer");
                       }, 1000);
                     } else if (isDesktop) {
                       // Desktop (Windows/Mac/Linux): Tenta abrir no app WhatsApp Desktop primeiro
-                      const desktopAppUrl = `whatsapp://send?phone=${phoneNumber}`;
-                      const webUrl = `https://web.whatsapp.com/send?phone=${phoneNumber}&text=`;
+                      const desktopAppUrl = `whatsapp://send?phone=${phoneNumber}&text=${defaultMessage}`;
+                      const webUrl = `https://web.whatsapp.com/send?phone=${phoneNumber}&text=${defaultMessage}`;
                       
                       // Tenta abrir no app WhatsApp Desktop
                       const tryDesktopApp = () => {
@@ -623,7 +625,7 @@ const HelpCenter = () => {
                       tryDesktopApp();
                     } else {
                       // Fallback genérico: usa o link wa.me que funciona em todos os casos
-                      window.open(`https://wa.me/${phoneNumber}`, "_blank", "noopener,noreferrer");
+                      window.open(`https://wa.me/${phoneNumber}?text=${defaultMessage}`, "_blank", "noopener,noreferrer");
                     }
                   } else if (option.title === "Telefone") {
                     window.open(`tel:${option.description.replace(/\s/g, "")}`, "_self");
