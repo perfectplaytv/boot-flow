@@ -626,7 +626,7 @@ const Landing = () => {
                       }
                     }}
                   >
-                    Início
+                    Automatize
                   </a>
                 </li>
                 <li>
