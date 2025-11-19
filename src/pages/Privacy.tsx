@@ -283,7 +283,205 @@ const Privacy = () => {
             </section>
           </CardContent>
         </Card>
+        </div>
       </div>
+
+      {/* Footer */}
+      <footer className="border-t border-border/20 py-12 px-4">
+        <div className="container mx-auto">
+          <div className="grid md:grid-cols-4 gap-8">
+            <div>
+              <div 
+                className="flex items-center space-x-2 mb-4 cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={() => navigate('/')}
+              >
+                <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+                  <Bot className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-xl font-bold gradient-text">BootFlow</span>
+              </div>
+              <p className="text-muted-foreground mb-4">
+                A plataforma de IA emocional que revoluciona a comunicação empresarial no Brasil.
+              </p>
+              <div className="flex space-x-2">
+                <Badge variant="glass">IA Emocional</Badge>
+                <Badge variant="glass">WhatsApp</Badge>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-4">Produto</h4>
+              <ul className="space-y-2 text-muted-foreground">
+                <li>
+                  <a 
+                    href="#features" 
+                    className="hover:text-foreground transition-colors cursor-pointer"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (location.pathname !== '/') {
+                        navigate('/');
+                        setTimeout(() => {
+                          document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+                        }, 100);
+                      } else {
+                        document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }}
+                  >
+                    Funcionalidades
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="/preco" 
+                    onClick={scrollToPricing}
+                    className="hover:text-foreground transition-colors cursor-pointer"
+                  >
+                    Preços
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="#hero" 
+                    className="hover:text-foreground transition-colors cursor-pointer"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (location.pathname !== '/') {
+                        navigate('/');
+                        setTimeout(() => {
+                          document.getElementById('hero')?.scrollIntoView({ behavior: 'smooth' });
+                        }, 100);
+                      } else {
+                        document.getElementById('hero')?.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }}
+                  >
+                    Automatize
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="/demo" 
+                    className="hover:text-foreground transition-colors cursor-pointer"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigate('/demo');
+                    }}
+                  >
+                    Demo
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-4">Suporte</h4>
+              <ul className="space-y-2 text-muted-foreground">
+                <li>
+                  <a 
+                    href="/ajuda" 
+                    className="hover:text-foreground transition-colors cursor-pointer"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigate('/ajuda');
+                    }}
+                  >
+                    Central de Ajuda
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="/documentacao" 
+                    className="hover:text-foreground transition-colors cursor-pointer"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigate('/documentacao');
+                    }}
+                  >
+                    Documentação
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="https://wa.me/5527999587725" 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-foreground transition-colors"
+                  >
+                    WhatsApp
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="mailto:suporte@bootflow.com.br" 
+                    className="hover:text-foreground transition-colors"
+                  >
+                    Email
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-4">Empresa</h4>
+              <ul className="space-y-2 text-muted-foreground">
+                <li>
+                  <a 
+                    href="/empresa/sobre" 
+                    className="hover:text-foreground transition-colors cursor-pointer"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigate('/empresa/sobre');
+                    }}
+                  >
+                    Sobre
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="/empresa/blog" 
+                    className="hover:text-foreground transition-colors cursor-pointer"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigate('/empresa/blog');
+                    }}
+                  >
+                    Blog
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="/privacidade" 
+                    className="hover:text-foreground transition-colors cursor-pointer"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigate('/privacidade');
+                    }}
+                  >
+                    Privacidade
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="/termos" 
+                    className="hover:text-foreground transition-colors cursor-pointer"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigate('/termos');
+                    }}
+                  >
+                    Termos
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t border-border/20 mt-8 pt-8 text-center text-muted-foreground">
+            <p>&copy; 2024 BootFlow. Todos os direitos reservados. Feito com ❤️ no Brasil.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
