@@ -83,10 +83,38 @@ const Terms = () => {
             </div>
             
             <div className="hidden md:flex items-center space-x-8">
-              <a href="#features" className="text-muted-foreground hover:text-foreground transition-colors">
+              <a 
+                href="#features" 
+                className="text-muted-foreground hover:text-foreground transition-colors"
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (location.pathname !== '/') {
+                    navigate('/');
+                    setTimeout(() => {
+                      document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+                    }, 100);
+                  } else {
+                    document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
+              >
                 Funcionalidades
               </a>
-              <a href="#avisos" className="text-muted-foreground hover:text-foreground transition-colors">
+              <a 
+                href="#avisos" 
+                className="text-muted-foreground hover:text-foreground transition-colors"
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (location.pathname !== '/') {
+                    navigate('/');
+                    setTimeout(() => {
+                      document.getElementById('avisos')?.scrollIntoView({ behavior: 'smooth' });
+                    }, 100);
+                  } else {
+                    document.getElementById('avisos')?.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
+              >
                 Avisos
               </a>
               <a 
