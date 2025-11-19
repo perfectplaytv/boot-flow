@@ -311,6 +311,13 @@ export const AuthProvider = ({ children, navigate }: AuthProviderProps) => {
       let errorMessage = 'Erro ao fazer login. Verifique suas credenciais.';
       let showDemoHint = false;
       let showCreateUserHint = false;
+      
+      // Tratamento específico para email não confirmado
+      if (error?.message?.includes('Email not confirmed') || error?.message?.includes('email_not_confirmed')) {
+        errorMessage = 'Por favor, confirme seu email antes de fazer login. Verifique sua caixa de entrada e a pasta de spam.';
+        toast.error(errorMessage);
+        return { error: new Error(errorMessage) };
+      }
 
       if (error?.message?.includes('Failed to fetch') || 
           error?.message?.includes('ERR_NAME_NOT_RESOLVED') ||
