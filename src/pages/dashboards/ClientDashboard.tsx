@@ -89,13 +89,91 @@ const ClientResellersWrapper = ({ onResellerCreated, onCloseModal }: { onReselle
 };
 
 const ClientDashboard = () => {
-  const [currentPage, setCurrentPage] = useState<string>("dashboard");
-  const [stats] = useState({
-    iptvHours: 245,
-    radioHours: 89,
-    aiChats: 34,
-    gamePoints: 1250
+  // Obter o cliente logado para filtrar dados
+  const { user } = useAuth();
+  
+  // --- Estados para integração APIBrasil QR Code ---
+  const [apiBrasilConfig, setApiBrasilConfig] = useState(() => {
+    const saved = localStorage.getItem('apiBrasilConfig');
+    return saved ? JSON.parse(saved) : { bearerToken: '', profileId: '' };
   });
+  const [isConnected, setIsConnected] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState('disconnected');
+  const [qrCodeData, setQrCodeData] = useState<string | null>(null);
+  const [isLoadingQR, setIsLoadingQR] = useState(false);
+  // --- Fim estados integração APIBrasil ---
+  const [activeModal, setActiveModal] = useState<string | null>(null);
+  const [clientModal, setClientModal] = useState(false);
+  const [resellerModal, setResellerModal] = useState(false);
+  const [brandingModal, setBrandingModal] = useState(false);
+  const [currentPage, setCurrentPage] = useState<string>("dashboard");
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [viewMode, setViewMode] = useState<'grid' | 'kanban'>('grid');
+  // Usando o hook personalizado para gerenciar os dados do dashboard
+  const { stats, loading: loadingStats, error: statsError, refresh: refreshStats } = useDashboardData();
+
+  // Estados para o modal de cliente
+  const [newUser, setNewUser] = useState({
+    name: "",
+    email: "",
+    plan: "",
+    price: "",
+    status: "Ativo",
+    telegram: "",
+    observations: "",
+    expirationDate: "",
+    password: "",
+    bouquets: "",
+    realName: "",
+    whatsapp: "",
+    devices: 0,
+    credits: 0,
+    notes: "",
+    server: "",
+    m3u_url: "",
+  });
+
+  // Estados para o modal de revendedor
+  const [newReseller, setNewReseller] = useState({
+    username: "",
+    password: "",
+    force_password_change: false,
+    permission: "",
+    credits: 10,
+    servers: "",
+    master_reseller: "",
+    disable_login_days: 0,
+    monthly_reseller: false,
+    personal_name: "",
+    email: "",
+    telegram: "",
+    whatsapp: "",
+    observations: ""
+  });
+
+  const [isAddingReseller, setIsAddingReseller] = useState(false);
+
+  // Estados para a extração M3U
+  const [m3uUrl, setM3uUrl] = useState("");
+  const [isExtracting, setIsExtracting] = useState(false);
+  const [extractionResult, setExtractionResult] = useState<any>(null);
+  const [extractionError, setExtractionError] = useState("");
+  const [isAddingUser, setIsAddingUser] = useState(false);
+
+  // Hooks para dados de usuários e revendedores com atualização em tempo real
+  const { data: realtimeClientes, error: clientesError, isConnected: clientesConnected } = useRealtimeClientes();
+  const { data: realtimeRevendas, error: revendasError, isConnected: revendasConnected } = useRealtimeRevendas();
+  
+  // Hooks para funções de atualização e dados
+  const { clientes: clientesFromHook, fetchClientes, addCliente: addClienteHook } = useClientes();
+  const { revendas: revendasFromHook, fetchRevendas } = useRevendas();
+  
+  // Estados locais para os dados
+  const [clientes, setClientes] = useState<any[]>([]);
+  const [revendas, setRevendas] = useState<any[]>([]);
+  const [loadingClientes, setLoadingClientes] = useState(true);
+  const [loadingRevendas, setLoadingRevendas] = useState(true);
 
   return (
     <SidebarProvider>
