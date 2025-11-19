@@ -53,6 +53,46 @@ const Demo = () => {
     }
   };
 
+  const handleWhatsAppClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    const phoneNumber = "5527999587725";
+    const defaultMessage = encodeURIComponent("Olá! Gostaria de obter suporte sobre o BootFlow.");
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    const isMac = /Macintosh|MacIntel|MacPPC|Mac68K/i.test(navigator.userAgent);
+    const isWindows = /Windows|Win32|Win64/i.test(navigator.userAgent);
+    const isLinux = /Linux/i.test(navigator.userAgent);
+    const isDesktop = isMac || isWindows || isLinux;
+    
+    if (isMobile) {
+      const appUrl = `whatsapp://send?phone=${phoneNumber}&text=${defaultMessage}`;
+      window.location.href = appUrl;
+      setTimeout(() => {
+        window.open(`https://wa.me/${phoneNumber}?text=${defaultMessage}`, "_blank", "noopener,noreferrer");
+      }, 1000);
+    } else if (isDesktop) {
+      const desktopAppUrl = `whatsapp://send?phone=${phoneNumber}&text=${defaultMessage}`;
+      const webUrl = `https://web.whatsapp.com/send?phone=${phoneNumber}&text=${defaultMessage}`;
+      const tryDesktopApp = () => {
+        window.location.href = desktopAppUrl;
+        setTimeout(() => {
+          if (document.hasFocus()) {
+            window.open(webUrl, "_blank", "noopener,noreferrer");
+          }
+        }, 500);
+      };
+      tryDesktopApp();
+    } else {
+      window.open(`https://wa.me/${phoneNumber}?text=${defaultMessage}`, "_blank", "noopener,noreferrer");
+    }
+  };
+
+  const handleEmailClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    const emailSubject = encodeURIComponent('Contato - BootFlow');
+    const emailBody = encodeURIComponent('Olá! Gostaria de entrar em contato sobre o BootFlow.');
+    window.location.href = `mailto:suporte@bootflow.com.br?subject=${emailSubject}&body=${emailBody}`;
+  };
+
   const demoFeatures = [
     {
       icon: Bot,
