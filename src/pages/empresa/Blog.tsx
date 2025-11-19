@@ -245,24 +245,31 @@ const Blog = () => {
                   ))}
                 </div>
               </CardContent>
-              
               <CardHeader>
                 <CardTitle className="text-xl">Assine nossa newsletter</CardTitle>
                 <CardDescription>Receba as últimas atualizações diretamente no seu e-mail.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <input 
+                    type="email" 
+                    placeholder="Seu e-mail" 
+                    className="w-full p-2 border rounded"
+                    value={newsletterEmail}
+                    onChange={(e) => setNewsletterEmail(e.target.value)}
+                  />
+                  <Button 
+                    className="w-full"
+                    type="button"
+                    onClick={handleNewsletterSubmit}
+                  >
+                    Assinar
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
-          <div>
-            <h4 className="font-semibold mb-4">Produto</h4>
-            <ul className="space-y-2 text-muted-foreground">
-              <li>
-                <a 
-                  href="#features" 
-                  className="hover:text-foreground transition-colors cursor-pointer"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (location.pathname !== '/') {
-                      navigate('/');
-                      setTimeout(() => {
           {/* Posts */}
           <div className="md:w-3/4">
             <div className="grid md:grid-cols-2 gap-6">
