@@ -651,10 +651,10 @@ const Landing = () => {
                       size="lg"
                       onClick={handleNextStep}
                       disabled={!formData.name.trim()}
-                      className="w-full bg-white text-primary hover:bg-white/90 font-semibold [&_svg]:text-primary"
+                      className="w-full bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800 font-semibold shadow-lg shadow-purple-500/50 [&_svg]:text-white"
                     >
                       Continuar
-                      <ArrowRight className="w-4 h-4 ml-2 text-primary" />
+                      <ArrowRight className="w-4 h-4 ml-2 text-white" />
                     </Button>
                   </div>
                 )}
@@ -688,10 +688,10 @@ const Landing = () => {
                         size="lg"
                         onClick={handleNextStep}
                         disabled={!formData.email.trim() || !formData.email.includes('@')}
-                        className="flex-1 bg-white text-primary hover:bg-white/90 font-semibold [&_svg]:text-primary"
+                        className="flex-1 bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800 font-semibold shadow-lg shadow-purple-500/50 [&_svg]:text-white"
                       >
                         Continuar
-                        <ArrowRight className="w-4 h-4 ml-2 text-primary" />
+                        <ArrowRight className="w-4 h-4 ml-2 text-white" />
                       </Button>
                     </div>
                   </div>
@@ -740,10 +740,10 @@ const Landing = () => {
                         size="lg"
                         onClick={handleSubmit}
                         disabled={!formData.phone.trim() || formData.phone.replace(/\D/g, '').length < 10}
-                        className="flex-1 bg-white text-primary hover:bg-white/90 font-semibold [&_svg]:text-primary"
+                        className="flex-1 bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800 font-semibold shadow-lg shadow-purple-500/50 [&_svg]:text-white"
                       >
                         Enviar
-                        <ArrowRight className="w-4 h-4 ml-2 text-primary" />
+                        <ArrowRight className="w-4 h-4 ml-2 text-white" />
                       </Button>
                     </div>
                   </div>
