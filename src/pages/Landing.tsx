@@ -620,13 +620,13 @@ const Landing = () => {
                       key={step}
                       className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${
                         step === currentStep
-                          ? "bg-primary text-white scale-110"
+                          ? "bg-gradient-to-r from-purple-600 to-purple-700 text-white scale-110 shadow-lg shadow-purple-500/50"
                           : step < currentStep
-                          ? "bg-primary/50 text-white"
-                          : "bg-white/20 text-white/60"
+                          ? "bg-gradient-to-r from-purple-500 to-purple-600 text-white"
+                          : "bg-white/30 border-2 border-white/40 text-white"
                       }`}
                     >
-                      {step < currentStep ? <Check className="w-5 h-5" /> : step}
+                      {step < currentStep ? <Check className="w-5 h-5 text-white" /> : <span className="text-white font-bold">{step}</span>}
                     </div>
                   ))}
                 </div>
