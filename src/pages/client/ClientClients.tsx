@@ -69,7 +69,6 @@ import {
 } from "@/components/ui/popover";
 import React from "react";
 import { useClientes } from "@/hooks/useClientes";
-import { useUsers } from "@/hooks/useUsers";
 import { RLSErrorBanner } from "@/components/RLSErrorBanner";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { ClientSidebar } from "@/components/sidebars/ClientSidebar";
@@ -87,7 +86,6 @@ export default function ClientClients() {
     clearError,
     fetchClientes,
   } = useClientes();
-  const { users: cobrancasUsers } = useUsers(); // Usuários da página de Cobranças
 
   const [newUser, setNewUser] = useState({
     name: "",
@@ -131,11 +129,6 @@ export default function ClientClients() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddingUser, setIsAddingUser] = useState(false);
   const [addUserSuccess, setAddUserSuccess] = useState(false);
-
-  // Estados para copiar clientes da página de Cobranças
-  const [isCopyingUsers, setIsCopyingUsers] = useState(false);
-  const [copyProgress, setCopyProgress] = useState(0);
-  const [copySuccess, setCopySuccess] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -635,84 +628,6 @@ export default function ClientClients() {
     }
   };
 
-  // Função para copiar todos os clientes da página de Cobranças
-  const handleCopyAllUsersFromCobrancas = async () => {
-    setIsCopyingUsers(true);
-    setCopyProgress(0);
-    setCopySuccess(false);
-
-    try {
-      // Filtrar usuários que não existem na página de Clientes
-      const existingEmails = users.map((user) => user.email.toLowerCase());
-      const usersToCopy = cobrancasUsers.filter(
-        (user) => !existingEmails.includes(user.email.toLowerCase())
-      );
-
-      if (usersToCopy.length === 0) {
-        alert(
-          "Todos os clientes da página de Cobranças já existem na página de Clientes!"
-        );
-        setIsCopyingUsers(false);
-        return;
-      }
-
-      console.log(
-        `Copiando ${usersToCopy.length} usuários da página de Cobranças...`
-      );
-
-      // Copiar usuários um por um
-      for (let i = 0; i < usersToCopy.length; i++) {
-        const user = usersToCopy[i];
-
-        // Preparar dados do usuário para o Neon
-        const userData = {
-          name: user.name,
-          email: user.email,
-          password: user.password || "",
-          m3u_url: user.plan || "",
-          bouquets: user.bouquets || "",
-          expiration_date: user.expirationDate || user.renewalDate || null,
-          observations: user.observations || user.notes || "",
-        };
-
-        console.log(
-          `Copiando usuário ${i + 1}/${usersToCopy.length}:`,
-          user.name
-        );
-
-        // Adicionar usuário usando o hook do Neon
-        const success = await addCliente(userData);
-
-        if (!success) {
-          console.error(`Erro ao copiar usuário: ${user.name}`);
-        }
-
-        // Atualizar progresso
-        setCopyProgress(((i + 1) / usersToCopy.length) * 100);
-
-        // Pequena pausa para não sobrecarregar a API
-        await new Promise((resolve) => setTimeout(resolve, 100));
-      }
-
-      setCopySuccess(true);
-      alert(
-        `✅ ${usersToCopy.length} clientes copiados com sucesso da página de Cobranças!`
-      );
-
-      // Fechar modal após 2 segundos
-      setTimeout(() => {
-        setIsCopyingUsers(false);
-        setCopySuccess(false);
-        setCopyProgress(0);
-      }, 2000);
-    } catch (error) {
-      console.error("Erro ao copiar usuários:", error);
-      alert("Erro ao copiar usuários. Verifique o console para mais detalhes.");
-    } finally {
-      setIsCopyingUsers(false);
-    }
-  };
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Ativo":
@@ -1041,26 +956,62 @@ export default function ClientClients() {
         <RLSErrorBanner error={error} onClearError={clearError} />
       )}
 
+      {/* Aviso de limite de clientes */}
+      {usersSafe.length >= MAX_CLIENTS && (
+        <div className="bg-yellow-900/40 border border-yellow-700 text-yellow-300 rounded-lg p-4">
+          <div className="flex items-center gap-2">
+            <Shield className="w-5 h-5" />
+            <div>
+              <strong>Limite de clientes atingido!</strong>
+              <p className="text-sm mt-1">
+                Você atingiu o limite de {MAX_CLIENTS} clientes do seu plano Essencial. 
+                Para adicionar mais clientes, faça upgrade do seu plano.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {usersSafe.length >= MAX_CLIENTS - 1 && usersSafe.length < MAX_CLIENTS && (
+        <div className="bg-blue-900/40 border border-blue-700 text-blue-300 rounded-lg p-4">
+          <div className="flex items-center gap-2">
+            <Activity className="w-5 h-5" />
+            <div>
+              <strong>Atenção: Limite próximo!</strong>
+              <p className="text-sm mt-1">
+                Você tem {usersSafe.length} de {MAX_CLIENTS} clientes. 
+                Ainda pode adicionar {MAX_CLIENTS - usersSafe.length} cliente(s).
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-white">
-            Gerenciamento de Usuários
+            Gerenciamento de Clientes
           </h1>
           <p className="text-gray-400 text-sm sm:text-base">
             {loading
               ? "Carregando..."
-              : `Gerencie todos os usuários do sistema (${
-                  (users || []).length
-                } usuários)`}
+              : `Gerencie seus clientes (${(users || []).length}/${MAX_CLIENTS} clientes)`}
           </p>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="flex items-center gap-2 bg-[#7e22ce] hover:bg-[#6d1bb7] text-white h-10 sm:h-auto">
+              <Button 
+                className="flex items-center gap-2 bg-[#7e22ce] hover:bg-[#6d1bb7] text-white h-10 sm:h-auto disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={usersSafe.length >= MAX_CLIENTS}
+              >
                 <Plus className="w-4 h-4" />
-                <span className="hidden sm:inline">Novo Cliente</span>
-                <span className="sm:hidden">Novo</span>
+                <span className="hidden sm:inline">
+                  {usersSafe.length >= MAX_CLIENTS ? `Limite atingido (${MAX_CLIENTS}/${MAX_CLIENTS})` : "Novo Cliente"}
+                </span>
+                <span className="sm:hidden">
+                  {usersSafe.length >= MAX_CLIENTS ? "Limite" : "Novo"}
+                </span>
               </Button>
             </DialogTrigger>
             <DialogContent className="bg-[#1f2937] text-white max-w-4xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col max-h-[90vh] overflow-y-auto scrollbar-hide">
@@ -2638,6 +2589,9 @@ export default function ClientClients() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
+        </main>
+      </div>
+    </SidebarProvider>
   );
 }
 
