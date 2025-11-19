@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
-import { Loader2, Mail, Lock, Eye, EyeOff, ArrowLeft, User, MessageSquare, AlertTriangle, Phone } from "lucide-react";
+import { Loader2, Mail, Lock, Eye, EyeOff, ArrowLeft, User, MessageSquare, AlertTriangle, Phone, Bot, Link, Zap, FileText, CreditCard, DollarSign, Download, ShoppingCart, ArrowRightCircle, Check } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function Signup() {
