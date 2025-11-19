@@ -70,8 +70,6 @@ import {
 import React from "react";
 import { useClientes } from "@/hooks/useClientes";
 import { RLSErrorBanner } from "@/components/RLSErrorBanner";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { ClientSidebar } from "@/components/sidebars/ClientSidebar";
 
 const MAX_CLIENTS = 5; // Limite de clientes para o plano Essencial
 
@@ -936,10 +934,6 @@ export default function ClientClients() {
   };
 
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background">
-        <ClientSidebar />
-        <main className="flex-1 p-3 sm:p-6">
     <div className="space-y-4 sm:space-y-6 min-h-screen bg-[#09090b]">
       {/* Indicadores de status */}
       {loading && (
@@ -2589,9 +2583,6 @@ export default function ClientClients() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
-        </main>
-      </div>
-    </SidebarProvider>
   );
 }
 

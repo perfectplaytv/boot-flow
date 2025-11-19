@@ -24,19 +24,6 @@ import Blog from "./pages/empresa/Blog";
 import AdminDashboard from "./pages/dashboards/AdminDashboard";
 import ClientDashboard from "./pages/dashboards/ClientDashboard";
 
-// Client Pages
-import ClientClients from "./pages/client/ClientClients";
-import ClientResellers from "./pages/client/ClientResellers";
-import ClientBilling from "./pages/client/ClientBilling";
-import ClientNotifications from "./pages/client/ClientNotifications";
-import ClientWhatsApp from "./pages/client/ClientWhatsApp";
-import ClientGateways from "./pages/client/ClientGateways";
-import ClientBranding from "./pages/client/ClientBranding";
-import ClientShop from "./pages/client/ClientShop";
-import ClientAI from "./pages/client/ClientAI";
-import ClientGames from "./pages/client/ClientGames";
-import ClientAnalytics from "./pages/client/ClientAnalytics";
-import ClientSettings from "./pages/client/ClientSettings";
 
 // Internal Pages
 import Settings from "./pages/Settings";
@@ -101,20 +88,6 @@ const App = () => {
                 
                 {/* Redirecionamento para /dashboard */}
                 <Route path="/dashboard" element={<ClientDashboard />} />
-                
-                {/* Rotas do Cliente */}
-                <Route path="/client/clients" element={<ClientClients />} />
-                <Route path="/client/resellers" element={<ClientResellers />} />
-                <Route path="/client/billing" element={<ClientBilling />} />
-                <Route path="/client/notifications" element={<ClientNotifications />} />
-                <Route path="/client/whatsapp" element={<ClientWhatsApp />} />
-                <Route path="/client/gateways" element={<ClientGateways />} />
-                <Route path="/client/branding" element={<ClientBranding />} />
-                <Route path="/client/shop" element={<ClientShop />} />
-                <Route path="/client/ai" element={<ClientAI />} />
-                <Route path="/client/games" element={<ClientGames />} />
-                <Route path="/client/analytics" element={<ClientAnalytics />} />
-                <Route path="/client/settings" element={<ClientSettings />} />
                 
                 {/* Outras rotas */}
                 <Route path="/configuracoes" element={<Settings />} />

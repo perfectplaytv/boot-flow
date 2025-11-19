@@ -17,8 +17,10 @@ import {
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { ClientSidebar } from "@/components/sidebars/ClientSidebar";
 import { ThemeToggle } from "@/components/theme-toggle";
+import ClientClients from "../client/ClientClients";
 
 const ClientDashboard = () => {
+  const [currentPage, setCurrentPage] = useState<string>("dashboard");
   const [stats] = useState({
     iptvHours: 245,
     radioHours: 89,
@@ -29,9 +31,10 @@ const ClientDashboard = () => {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-[#09090b]">
-        <ClientSidebar />
+        <ClientSidebar onPageChange={setCurrentPage} currentPage={currentPage} />
         
         <main className="flex-1 p-6">
+          {currentPage === "dashboard" && (
           <div className="max-w-7xl mx-auto space-y-6">
             <div className="flex items-center justify-between">
               <div>
@@ -153,6 +156,25 @@ const ClientDashboard = () => {
               </Card>
             </div>
           </div>
+          )}
+          
+          {currentPage === "clients" && <ClientClients />}
+          
+          {/* Outras páginas podem ser adicionadas aqui */}
+          {currentPage !== "dashboard" && currentPage !== "clients" && (
+            <div className="max-w-7xl mx-auto">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Página em desenvolvimento</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">
+                    Esta página está em desenvolvimento e estará disponível em breve.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          )}
         </main>
       </div>
     </SidebarProvider>

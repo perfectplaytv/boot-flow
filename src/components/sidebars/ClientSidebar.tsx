@@ -1,4 +1,4 @@
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { 
   Tv, 
   Radio, 
@@ -42,25 +42,28 @@ import { AvatarSelectionModal } from "@/components/modals/AvatarSelectionModal";
 import { useState } from 'react';
 
 const menuItems = [
-  { title: "Dashboard", url: "/dashboard/client", icon: Home },
-  { title: "Clientes", url: "/client/clients", icon: User },
-  { title: "Revendas", url: "/client/resellers", icon: User },
-  { title: "Cobranças", url: "/client/billing", icon: BarChart3 },
-  { title: "Notificações", url: "/client/notifications", icon: Bell },
-  { title: "WhatsApp", url: "/client/whatsapp", icon: MessageSquare },
-  { title: "Gateways", url: "/client/gateways", icon: CreditCard },
-  { title: "Customizar Marca", url: "/client/branding", icon: Palette },
-  { title: "E-commerce", url: "/client/shop", icon: ShoppingBag },
-  { title: "IA + Voz", url: "/client/ai", icon: Brain },
-  { title: "Gamificação", url: "/client/games", icon: Gamepad2 },
-  { title: "Análises", url: "/client/analytics", icon: BarChart3 },
-  { title: "Configurações", url: "/client/settings", icon: Settings },
+  { title: "Dashboard", page: "dashboard", icon: Home },
+  { title: "Clientes", page: "clients", icon: User },
+  { title: "Revendas", page: "resellers", icon: User },
+  { title: "Cobranças", page: "billing", icon: BarChart3 },
+  { title: "Notificações", page: "notifications", icon: Bell },
+  { title: "WhatsApp", page: "whatsapp", icon: MessageSquare },
+  { title: "Gateways", page: "gateways", icon: CreditCard },
+  { title: "Customizar Marca", page: "branding", icon: Palette },
+  { title: "E-commerce", page: "shop", icon: ShoppingBag },
+  { title: "IA + Voz", page: "ai", icon: Brain },
+  { title: "Gamificação", page: "games", icon: Gamepad2 },
+  { title: "Análises", page: "analytics", icon: BarChart3 },
+  { title: "Configurações", page: "settings", icon: Settings },
 ];
 
-export function ClientSidebar() {
+interface ClientSidebarProps {
+  onPageChange: (page: string) => void;
+  currentPage: string;
+}
+
+export function ClientSidebar({ onPageChange, currentPage }: ClientSidebarProps) {
   const { state } = useSidebar();
-  const location = useLocation();
-  const currentPath = location.pathname;
   const collapsed = state === "collapsed";
   const navigate = useNavigate();
   const { userName, userEmail, avatar } = useUser();
@@ -68,6 +71,10 @@ export function ClientSidebar() {
 
   const handleProfileClick = () => {
     navigate('/profile');
+  };
+
+  const handlePageChange = (page: string) => {
+    onPageChange(page);
   };
 
   return (
@@ -92,16 +99,12 @@ export function ClientSidebar() {
                 <SidebarMenu>
                   {menuItems.map((item) => (
                     <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild>
-                        <NavLink 
-                          to={item.url} 
-                          className={({ isActive }) =>
-                            isActive ? "bg-primary text-primary-foreground" : "hover:bg-accent"
-                          }
-                        >
-                          <item.icon className="mr-2 h-4 w-4" />
-                          {!collapsed && <span>{item.title}</span>}
-                        </NavLink>
+                      <SidebarMenuButton 
+                        onClick={() => handlePageChange(item.page)}
+                        className={`${currentPage === item.page ? "bg-primary text-primary-foreground" : "hover:bg-accent"}`}
+                      >
+                        <item.icon className="mr-2 h-4 w-4" />
+                        {!collapsed && <span>{item.title}</span>}
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   ))}
