@@ -287,10 +287,7 @@ const Blog = () => {
               <Button variant="ghost" onClick={() => navigate('/login')}>
                 Entrar
               </Button>
-              <Button
-                className="bg-gradient-primary text-white shadow-lg hover:opacity-90"
-                onClick={() => navigate('/cadastro')}
-              >
+              <Button variant="hero" onClick={() => navigate('/cadastro')}>
                 Teste Grátis
               </Button>
             </div>
