@@ -228,7 +228,7 @@ const Landing = () => {
   return (
     <div className="min-h-screen bg-background overflow-hidden">
       {/* Header */}
-      <header className="border-b border-border/20 backdrop-blur-xl bg-background/80 sticky top-0 z-50">
+      <header className="border-b border-border/20 backdrop-blur-xl bg-background/80 fixed top-0 left-0 right-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <nav className="flex items-center justify-between">
             <div 
@@ -269,6 +269,9 @@ const Landing = () => {
           </nav>
         </div>
       </header>
+
+      {/* Spacer para compensar o header fixo */}
+      <div className="h-[73px]"></div>
 
       {/* Hero Section */}
       <section id="hero" className="py-20 px-4 text-center relative overflow-hidden">
