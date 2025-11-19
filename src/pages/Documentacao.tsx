@@ -347,10 +347,22 @@ const Documentacao = () => {
                   Nossa equipe está pronta para ajudar você
                 </p>
                 <div className="flex gap-4 justify-center">
-                  <Button variant="outline" onClick={() => navigate('/ajuda')}>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => navigate('/ajuda')}
+                    className="hover:bg-primary hover:text-primary-foreground transition-colors"
+                  >
                     Central de Ajuda
                   </Button>
-                  <Button onClick={() => window.open('mailto:suporte@bootflow.com', '_blank')}>
+                  <Button 
+                    onClick={() => {
+                      const email = 'suporte@bootflow.com.br';
+                      const subject = encodeURIComponent('Suporte - Documentação BootFlow');
+                      const body = encodeURIComponent('Olá equipe BootFlow,\n\nPreciso de ajuda com:\n\n\n\nAtenciosamente,');
+                      window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+                    }}
+                    className="hover:bg-primary/90 transition-colors"
+                  >
                     Enviar Email
                   </Button>
                 </div>
