@@ -210,11 +210,44 @@ const Landing = () => {
       
       const phoneNumber = "5527999587725";
       const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      const isMac = /Macintosh|MacIntel|MacPPC|Mac68K/i.test(navigator.userAgent);
+      const isWindows = /Windows|Win32|Win64/i.test(navigator.userAgent);
+      const isLinux = /Linux/i.test(navigator.userAgent);
+      const isDesktop = isMac || isWindows || isLinux;
       
       if (isMobile) {
-        window.open(`https://wa.me/${phoneNumber}?text=${whatsappMessage}`, "_blank");
+        // Mobile (Android/iOS): Tenta abrir no app WhatsApp Mobile
+        const appUrl = `whatsapp://send?phone=${phoneNumber}&text=${whatsappMessage}`;
+        
+        // Tenta abrir no app
+        window.location.href = appUrl;
+        
+        // Fallback: se o app não abrir em 1 segundo, abre no web
+        setTimeout(() => {
+          window.open(`https://wa.me/${phoneNumber}?text=${whatsappMessage}`, "_blank", "noopener,noreferrer");
+        }, 1000);
+      } else if (isDesktop) {
+        // Desktop (Windows/Mac/Linux): Tenta abrir no app WhatsApp Desktop primeiro
+        const desktopAppUrl = `whatsapp://send?phone=${phoneNumber}&text=${whatsappMessage}`;
+        const webUrl = `https://web.whatsapp.com/send?phone=${phoneNumber}&text=${whatsappMessage}`;
+        
+        // Tenta abrir no app WhatsApp Desktop
+        const tryDesktopApp = () => {
+          window.location.href = desktopAppUrl;
+          
+          // Se o app não abrir em 500ms, abre no WhatsApp Web
+          setTimeout(() => {
+            // Verifica se ainda está na mesma página (app não abriu)
+            if (document.hasFocus()) {
+              window.open(webUrl, "_blank", "noopener,noreferrer");
+            }
+          }, 500);
+        };
+        
+        tryDesktopApp();
       } else {
-        window.open(`https://web.whatsapp.com/send?phone=${phoneNumber}&text=${whatsappMessage}`, "_blank");
+        // Fallback genérico: usa o link wa.me que funciona em todos os casos
+        window.open(`https://wa.me/${phoneNumber}?text=${whatsappMessage}`, "_blank", "noopener,noreferrer");
       }
 
       // Resetar formulário
