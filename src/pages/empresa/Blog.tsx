@@ -3,12 +3,13 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, Tag, ArrowUp, Bot } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { DialogWrapper } from "@/components/ui/DialogWrapper";
 
 const Blog = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { category } = useParams<{ category?: string }>();
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [isNewsletterModalOpen, setIsNewsletterModalOpen] = useState(false);
@@ -166,14 +167,32 @@ const Blog = () => {
   ];
 
   const categories = [
-    { name: "Todos", count: posts.length },
-    { name: "IA", count: 3 },
-    { name: "Tecnologia", count: 5 },
-    { name: "Produtividade", count: 2 },
-    { name: "Segurança", count: 3 },
-    { name: "Trabalho Remoto", count: 2 },
-    { name: "Cloud Computing", count: 1 }
+    { name: "Todos", slug: "todos", count: posts.length },
+    { name: "IA", slug: "ia", count: 3 },
+    { name: "Tecnologia", slug: "tecnologia", count: 5 },
+    { name: "Produtividade", slug: "produtividade", count: 2 },
+    { name: "Segurança", slug: "seguranca", count: 3 },
+    { name: "Trabalho Remoto", slug: "trabalho-remoto", count: 2 },
+    { name: "Cloud Computing", slug: "cloud-computing", count: 1 }
   ];
+
+  const categorySlugToName: Record<string, string> = {
+    "ia": "IA",
+    "tecnologia": "Tecnologia",
+    "produtividade": "Produtividade",
+    "seguranca": "Segurança",
+    "trabalho-remoto": "Trabalho Remoto",
+    "cloud-computing": "Cloud Computing",
+    "todos": "Todos",
+  };
+
+  const activeCategoryName = category
+    ? categorySlugToName[category.toLowerCase()] || "Todos"
+    : "Todos";
+
+  const filteredPosts = activeCategoryName === "Todos"
+    ? posts
+    : posts.filter((post) => post.category === activeCategoryName);
 
   return (
     <div className="min-h-screen bg-background">
@@ -222,25 +241,42 @@ const Blog = () => {
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Blog</h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Fique por dentro das últimas notícias, dicas e tendências do mundo da tecnologia
-          </p>
-        </div>
-      </div>
 
-      {/* Main Content */}
-      <div className="container mx-auto px-4 py-12">
-        <div className="flex flex-col md:flex-row gap-8">
-          {/* Sidebar */}
-          <div className="md:w-1/4">
-            <Card className="sticky top-24">
+          {/* Hero Section */}
+          <div className="bg-gradient-to-b from-primary/10 to-background py-20">
+            <div className="container mx-auto px-4 text-center">
+              <h1 className="text-4xl md:text-5xl font-bold mb-4">Blog</h1>
+              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+                Fique por dentro das últimas notícias, dicas e tendências do mundo da tecnologia
+              </p>
+            </div>
+          </div>
+
+          {/* Main Content */}
+          <div className="container mx-auto px-4 py-12">
+            <div className="flex flex-col md:flex-row gap-8">
+              {/* Sidebar */}
+              <div className="md:w-1/4">
+                <Card className="sticky top-24">
               <CardHeader>
                 <CardTitle className="text-xl">Categorias</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {categories.map((category, index) => (
-                    <div key={index} className="flex justify-between items-center hover:bg-muted/50 p-2 rounded cursor-pointer">
-                      <span>{category.name}</span>
-                      <Badge variant="outline">{category.count}</Badge>
+                  {categories.map((cat, index) => (
+                    <div
+                      key={index}
+                      className="flex justify-between items-center hover:bg-muted/50 p-2 rounded cursor-pointer"
+                      onClick={() => {
+                        if (cat.slug === "todos") {
+                          navigate("/empresa/blog");
+                        } else {
+                          navigate(`/empresa/blog/${cat.slug}`);
+                        }
+                      }}
+                    >
+                      <span>{cat.name}</span>
+                      <Badge variant="outline">{cat.count}</Badge>
                     </div>
                   ))}
                 </div>
@@ -273,7 +309,7 @@ const Blog = () => {
           {/* Posts */}
           <div className="md:w-3/4">
             <div className="grid md:grid-cols-2 gap-6">
-              {posts.map((post) => (
+              {filteredPosts.map((post) => (
                 <Card key={post.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                   <div className="h-48 overflow-hidden">
                     <img 
