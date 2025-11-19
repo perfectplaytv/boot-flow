@@ -239,8 +239,8 @@ const Sobre = () => {
                 A plataforma de IA emocional que revoluciona a comunicação empresarial no Brasil.
               </p>
               <div className="flex space-x-2">
-                <Badge variant="glass">IA Emocional</Badge>
-                <Badge variant="glass">WhatsApp</Badge>
+                <Badge variant="outline">IA Emocional</Badge>
+                <Badge variant="outline">WhatsApp</Badge>
               </div>
             </div>
 

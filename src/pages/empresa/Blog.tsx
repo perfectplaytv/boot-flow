@@ -241,23 +241,16 @@ const Blog = () => {
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Blog</h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Fique por dentro das últimas notícias, dicas e tendências do mundo da tecnologia
+          </p>
+        </div>
+      </div>
 
-          {/* Hero Section */}
-          <div className="bg-gradient-to-b from-primary/10 to-background py-20">
-            <div className="container mx-auto px-4 text-center">
-              <h1 className="text-4xl md:text-5xl font-bold mb-4">Blog</h1>
-              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-                Fique por dentro das últimas notícias, dicas e tendências do mundo da tecnologia
-              </p>
-            </div>
-          </div>
-
-          {/* Main Content */}
-          <div className="container mx-auto px-4 py-12">
-            <div className="flex flex-col md:flex-row gap-8">
-              {/* Sidebar */}
-              <div className="md:w-1/4">
-                <Card className="sticky top-24">
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-12">
+        <div className="flex flex-col md:flex-row gap-8">
+          {/* Sidebar */}
+          <div className="md:w-1/4">
+            <Card className="sticky top-24">
               <CardHeader>
                 <CardTitle className="text-xl">Categorias</CardTitle>
               </CardHeader>
@@ -382,8 +375,8 @@ const Blog = () => {
                 A plataforma de IA emocional que revoluciona a comunicação empresarial no Brasil.
               </p>
               <div className="flex space-x-2">
-                <Badge variant="glass">IA Emocional</Badge>
-                <Badge variant="glass">WhatsApp</Badge>
+                <Badge variant="outline">IA Emocional</Badge>
+                <Badge variant="outline">WhatsApp</Badge>
               </div>
             </div>
 

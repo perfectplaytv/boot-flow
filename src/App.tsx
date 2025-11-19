@@ -54,7 +54,7 @@ const AuthProviderWithNavigation = ({ children }: { children: React.ReactNode })
 
 const App = () => {
   const [isConnected, setIsConnected] = useState(false);
-  const [connectionStatus, setConnectionStatus] = useState('disconnected');
+  const [connectionStatus, setConnectionStatus] = useState<'disconnected' | 'connecting' | 'connected'>('disconnected');
   
   return (
     <QueryClientProvider client={queryClient}>
