@@ -209,6 +209,18 @@ const Blog = () => {
     ? posts
     : posts.filter((post) => post.category === activeCategoryName);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 2;
+
+  const totalPages = Math.ceil(filteredPosts.length / postsPerPage) || 1;
+  const startIndex = (currentPage - 1) * postsPerPage;
+  const paginatedPosts = filteredPosts.slice(startIndex, startIndex + postsPerPage);
+
+  useEffect(() => {
+    // Sempre volta para a primeira página ao trocar de categoria
+    setCurrentPage(1);
+  }, [activeCategoryName]);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -317,7 +329,7 @@ const Blog = () => {
           {/* Posts */}
           <div className="md:w-3/4">
             <div className="grid md:grid-cols-2 gap-6">
-              {filteredPosts.map((post) => (
+              {paginatedPosts.map((post) => (
                 <Card key={post.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                   <div className="h-48 overflow-hidden">
                     <img 
@@ -361,11 +373,31 @@ const Blog = () => {
             {/* Pagination */}
             <div className="flex justify-center mt-12">
               <div className="flex gap-2">
-                <Button variant="outline">Anterior</Button>
-                <Button variant="outline">1</Button>
-                <Button>2</Button>
-                <Button variant="outline">3</Button>
-                <Button variant="outline">Próximo</Button>
+                <Button
+                  variant="outline"
+                  disabled={currentPage === 1}
+                  onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
+                >
+                  Anterior
+                </Button>
+
+                {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+                  <Button
+                    key={page}
+                    variant={page === currentPage ? "default" : "outline"}
+                    onClick={() => setCurrentPage(page)}
+                  >
+                    {page}
+                  </Button>
+                ))}
+
+                <Button
+                  variant="outline"
+                  disabled={currentPage === totalPages}
+                  onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
+                >
+                  Próximo
+                </Button>
               </div>
             </div>
           </div>
