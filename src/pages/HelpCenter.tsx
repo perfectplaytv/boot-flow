@@ -780,11 +780,11 @@ const HelpCenter = () => {
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
                         <span>Segunda a Sexta:</span>
-                        <span>8h às 18h</span>
+                        <span>9h às 19h</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Sábado:</span>
-                        <span>9h às 15h</span>
+                        <span>10h às 15h</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Domingo:</span>
@@ -798,11 +798,15 @@ const HelpCenter = () => {
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
                         <span>Segunda a Sexta:</span>
-                        <span>8h às 22h</span>
+                        <span>9h às 19h</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>Fim de Semana:</span>
-                        <span>9h às 18h</span>
+                        <span>Sábado:</span>
+                        <span>10h às 15h</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Domingo:</span>
+                        <span>Fechado</span>
                       </div>
                       <div className="flex items-center gap-2 mt-3">
                         <div className="w-2 h-2 bg-success rounded-full"></div>
