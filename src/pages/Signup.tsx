@@ -43,6 +43,124 @@ export default function Signup() {
       
       if (error) throw error;
       
+      // Enviar dados para email e WhatsApp após cadastro bem-sucedido
+      try {
+        // Preparar dados do cadastro
+        const signupData = {
+          to: 'suporte@bootflow.com.br',
+          subject: 'Novo Cadastro - BootFlow',
+          body: `Novo cadastro realizado:\n\n` +
+                `Nome: ${name}\n` +
+                `Email: ${email}\n` +
+                `WhatsApp: ${whatsapp || 'Não informado'}\n\n` +
+                `Data: ${new Date().toLocaleString('pt-BR')}`,
+          name: name,
+          email: email,
+          whatsapp: whatsapp || 'Não informado'
+        };
+
+        // Enviar para email via API ou Formspree
+        let emailSent = false;
+        const apiUrl = import.meta.env.VITE_EMAIL_API_URL;
+        
+        if (apiUrl && apiUrl.trim() !== '') {
+          try {
+            const response = await fetch(apiUrl, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(signupData),
+            });
+
+            if (response.ok) {
+              emailSent = true;
+            }
+          } catch (apiError) {
+            console.log('API não disponível, tentando Formspree...', apiError);
+          }
+        }
+
+        if (!emailSent) {
+          const formspreeId = import.meta.env.VITE_FORMSPREE_ID;
+          
+          if (formspreeId && formspreeId.trim() !== '' && formspreeId !== 'YOUR_FORM_ID') {
+            try {
+              const formspreeUrl = `https://formspree.io/f/${formspreeId}`;
+              
+              const response = await fetch(formspreeUrl, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Accept': 'application/json',
+                },
+                body: JSON.stringify({
+                  _subject: signupData.subject,
+                  name: signupData.name,
+                  email: signupData.email,
+                  whatsapp: signupData.whatsapp,
+                  message: signupData.body,
+                }),
+              });
+
+              if (response.ok) {
+                emailSent = true;
+              }
+            } catch (formspreeError) {
+              console.error('Erro ao enviar via Formspree:', formspreeError);
+            }
+          }
+        }
+
+        // Se nenhum método funcionou, usar mailto como fallback
+        if (!emailSent) {
+          const emailSubject = encodeURIComponent(signupData.subject);
+          const emailBody = encodeURIComponent(signupData.body);
+          window.location.href = `mailto:${signupData.to}?subject=${emailSubject}&body=${emailBody}`;
+        }
+
+        // Enviar para WhatsApp
+        const whatsappMessage = encodeURIComponent(
+          `🎉 *Novo Cadastro - BootFlow*\n\n` +
+          `👤 *Nome:* ${name}\n` +
+          `📧 *Email:* ${email}\n` +
+          `📱 *WhatsApp:* ${whatsapp || 'Não informado'}\n\n` +
+          `📅 *Data:* ${new Date().toLocaleString('pt-BR')}`
+        );
+        
+        const phoneNumber = "5527999587725";
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        const isMac = /Macintosh|MacIntel|MacPPC|Mac68K/i.test(navigator.userAgent);
+        const isWindows = /Windows|Win32|Win64/i.test(navigator.userAgent);
+        const isLinux = /Linux/i.test(navigator.userAgent);
+        const isDesktop = isMac || isWindows || isLinux;
+        
+        if (isMobile) {
+          const appUrl = `whatsapp://send?phone=${phoneNumber}&text=${whatsappMessage}`;
+          window.location.href = appUrl;
+          setTimeout(() => {
+            window.open(`https://wa.me/${phoneNumber}?text=${whatsappMessage}`, "_blank", "noopener,noreferrer");
+          }, 1000);
+        } else if (isDesktop) {
+          const desktopAppUrl = `whatsapp://send?phone=${phoneNumber}&text=${whatsappMessage}`;
+          const webUrl = `https://web.whatsapp.com/send?phone=${phoneNumber}&text=${whatsappMessage}`;
+          const tryDesktopApp = () => {
+            window.location.href = desktopAppUrl;
+            setTimeout(() => {
+              if (document.hasFocus()) {
+                window.open(webUrl, "_blank", "noopener,noreferrer");
+              }
+            }, 500);
+          };
+          tryDesktopApp();
+        } else {
+          window.open(`https://wa.me/${phoneNumber}?text=${whatsappMessage}`, "_blank", "noopener,noreferrer");
+        }
+      } catch (notificationError) {
+        console.error('Erro ao enviar notificações:', notificationError);
+        // Não bloqueia o cadastro se houver erro no envio de notificações
+      }
+      
       // Redireciona para o dashboard após o cadastro bem-sucedido
       navigate("/dashboard");
     } catch (error: any) {
@@ -139,6 +257,38 @@ export default function Signup() {
                       required
                     />
                   </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="whatsapp" className="text-sm font-medium">WhatsApp</Label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Phone className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                    <Input
+                      id="whatsapp"
+                      type="tel"
+                      placeholder="(27) 99999-9999"
+                      value={whatsapp}
+                      onChange={(e) => {
+                        let value = e.target.value.replace(/\D/g, '');
+                        if (value.length <= 11) {
+                          if (value.length > 0) {
+                            if (value.length <= 2) {
+                              value = `(${value}`;
+                            } else if (value.length <= 7) {
+                              value = `(${value.slice(0, 2)}) ${value.slice(2)}`;
+                            } else {
+                              value = `(${value.slice(0, 2)}) ${value.slice(2, 7)}-${value.slice(7)}`;
+                            }
+                          }
+                          setWhatsapp(value);
+                        }
+                      }}
+                      className="pl-10"
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">Opcional, mas recomendado para melhor atendimento</p>
                 </div>
 
                 <div className="space-y-2">
