@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, Book, FileText, Video, Code, Zap, Bot, ArrowUp } from "lucide-react";
+import { ArrowLeft, Book, FileText, Video, Code, Zap, Bot, ArrowUp, Play } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,6 +12,7 @@ const Documentacao = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [selectedGuide, setSelectedGuide] = useState<string | null>(null);
+  const [selectedTutorial, setSelectedTutorial] = useState<string | null>(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
 
   // Efeito para mostrar/ocultar o botão de voltar ao topo
@@ -50,6 +51,27 @@ const Documentacao = () => {
       }, 100);
     }
   };
+
+  const tutorials = [
+    {
+      id: "primeiros-passos",
+      title: "Primeiros Passos",
+      description: "Aprenda a configurar sua conta e começar a usar a plataforma",
+      videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" // Vídeo mockado - substituir depois
+    },
+    {
+      id: "configurando-whatsapp",
+      title: "Configurando WhatsApp",
+      description: "Guia completo para conectar e configurar o WhatsApp",
+      videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4" // Vídeo mockado - substituir depois
+    },
+    {
+      id: "criando-campanhas",
+      title: "Criando Campanhas",
+      description: "Como criar e gerenciar campanhas de marketing eficazes",
+      videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" // Vídeo mockado - substituir depois
+    }
+  ];
 
   const guides = [
     {
@@ -398,42 +420,26 @@ const Documentacao = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="border border-border rounded-lg p-4">
-                      <div className="flex items-center gap-3 mb-2">
-                        <Video className="w-5 h-5 text-primary" />
-                        <h4 className="font-semibold">Primeiros Passos</h4>
+                    {tutorials.map((tutorial, index) => (
+                      <div key={index} className="border border-border rounded-lg p-4 hover:bg-muted/50 transition-colors">
+                        <div className="flex items-center gap-3 mb-2">
+                          <Video className="w-5 h-5 text-primary" />
+                          <h4 className="font-semibold">{tutorial.title}</h4>
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-3">
+                          {tutorial.description}
+                        </p>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => setSelectedTutorial(tutorial.id)}
+                          className="hover:bg-primary hover:text-primary-foreground transition-colors"
+                        >
+                          <Play className="w-4 h-4 mr-2" />
+                          Assistir →
+                        </Button>
                       </div>
-                      <p className="text-sm text-muted-foreground mb-3">
-                        Aprenda a configurar sua conta e começar a usar a plataforma
-                      </p>
-                      <Button variant="outline" size="sm">
-                        Assistir →
-                      </Button>
-                    </div>
-                    <div className="border border-border rounded-lg p-4">
-                      <div className="flex items-center gap-3 mb-2">
-                        <Video className="w-5 h-5 text-primary" />
-                        <h4 className="font-semibold">Configurando WhatsApp</h4>
-                      </div>
-                      <p className="text-sm text-muted-foreground mb-3">
-                        Guia completo para conectar e configurar o WhatsApp
-                      </p>
-                      <Button variant="outline" size="sm">
-                        Assistir →
-                      </Button>
-                    </div>
-                    <div className="border border-border rounded-lg p-4">
-                      <div className="flex items-center gap-3 mb-2">
-                        <Video className="w-5 h-5 text-primary" />
-                        <h4 className="font-semibold">Criando Campanhas</h4>
-                      </div>
-                      <p className="text-sm text-muted-foreground mb-3">
-                        Como criar e gerenciar campanhas de marketing eficazes
-                      </p>
-                      <Button variant="outline" size="sm">
-                        Assistir →
-                      </Button>
-                    </div>
+                    ))}
                   </div>
                 </CardContent>
               </Card>
