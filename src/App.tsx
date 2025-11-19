@@ -15,6 +15,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import ForgotPassword from "./pages/ForgotPassword";
 import AuthCallback from "./pages/AuthCallback";
 import NotFound from "./pages/NotFound";
 import Sobre from "./pages/empresa/Sobre";
@@ -68,6 +69,7 @@ const App = () => {
                 <Route path="/preco" element={<Landing />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/cadastro" element={<Signup />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/auth/callback" element={<AuthCallback />} />
                 <Route path="/termos" element={<Terms />} />
                 <Route path="/privacidade" element={<Privacy />} />
