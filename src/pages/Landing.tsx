@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { 
   Bot, 
@@ -43,6 +44,12 @@ import { useNavigate, useLocation } from "react-router-dom";
 const Landing = () => {
   const [email, setEmail] = useState("");
   const [showScrollButton, setShowScrollButton] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: ""
+  });
   const navigate = useNavigate();
   const location = useLocation();
 
