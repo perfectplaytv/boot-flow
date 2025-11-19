@@ -717,6 +717,45 @@ const Documentacao = () => {
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Modal de Tutoriais em Vídeo */}
+      {selectedTutorial && (
+        <Dialog open={!!selectedTutorial} onOpenChange={() => setSelectedTutorial(null)}>
+          <DialogContent className="max-w-5xl max-h-[90vh]">
+            <DialogHeader>
+              <DialogTitle className="text-2xl">
+                {tutorials.find(t => t.id === selectedTutorial)?.title}
+              </DialogTitle>
+              <DialogDescription>
+                {tutorials.find(t => t.id === selectedTutorial)?.description}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="mt-4">
+              <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden">
+                <video
+                  className="w-full h-full"
+                  controls
+                  autoPlay
+                  playsInline
+                  src={tutorials.find(t => t.id === selectedTutorial)?.videoUrl}
+                >
+                  Seu navegador não suporta a tag de vídeo.
+                </video>
+              </div>
+              <div className="mt-4 p-4 bg-muted/50 rounded-lg">
+                <p className="text-sm text-muted-foreground">
+                  <strong>Nota:</strong> Este é um vídeo de demonstração. Os vídeos reais serão adicionados em breve.
+                </p>
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end">
+              <Button onClick={() => setSelectedTutorial(null)}>
+                Fechar
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };
