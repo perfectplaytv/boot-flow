@@ -12,6 +12,8 @@ import { Users, Plus, Search, Edit, Trash2, Eye, User, Mail, Calendar, Shield, A
 import { useRevendas } from '@/hooks/useRevendas';
 import { RLSErrorBannerResellers } from '@/components/RLSErrorBannerResellers';
 
+const MAX_RESELLERS = 5; // Limite de revendas para o plano Essencial
+
 export default function ClientResellers() {
   const { revendas, loading, error, addRevenda, updateRevenda, deleteRevenda, fetchRevendas, clearError } = useRevendas();
 
