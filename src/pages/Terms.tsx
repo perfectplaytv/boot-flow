@@ -131,7 +131,7 @@ const Terms = () => {
               <Button variant="ghost" onClick={() => navigate('/login')}>
                 Entrar
               </Button>
-              <Button onClick={() => navigate('/cadastro')}>
+              <Button variant="hero" onClick={() => navigate('/cadastro')}>
                 Teste Grátis
               </Button>
             </div>
