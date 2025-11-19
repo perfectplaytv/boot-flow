@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
-import { Loader2, Mail, Lock, Eye, EyeOff, ArrowLeft, MessageSquare, AlertTriangle } from "lucide-react";
+import { Loader2, Mail, Lock, Eye, EyeOff, ArrowLeft, Bot, AlertTriangle } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function Login() {
@@ -86,8 +86,8 @@ export default function Login() {
           transition={{ duration: 0.5 }}
           className="max-w-md text-center space-y-6"
         >
-          <div className="mx-auto w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mb-6">
-            <MessageSquare className="w-12 h-12 text-primary" />
+          <div className="mx-auto w-24 h-24 bg-gradient-primary rounded-lg flex items-center justify-center mb-6 shadow-lg">
+            <Bot className="w-12 h-12 text-white" />
           </div>
           <h2 className="text-3xl font-bold tracking-tight">Bem-vindo de volta!</h2>
           <p className="text-muted-foreground">
