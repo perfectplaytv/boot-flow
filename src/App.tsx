@@ -20,6 +20,7 @@ import AuthCallback from "./pages/AuthCallback";
 import NotFound from "./pages/NotFound";
 import Sobre from "./pages/empresa/Sobre";
 import Blog from "./pages/empresa/Blog";
+import BlogPost from "./pages/BlogPost";
 
 // Dashboards
 import AdminDashboard from "./pages/dashboards/AdminDashboard";
@@ -81,6 +82,7 @@ const App = () => {
                 <Route path="/empresa/sobre" element={<Sobre />} />
                 <Route path="/empresa/blog" element={<Blog />} />
                 <Route path="/empresa/blog/:category" element={<Blog />} />
+                <Route path="/blog/:id" element={<BlogPost />} />
 
                 {/* Dashboard Admin - Acesso direto */}
                 <Route path="/admin" element={<AdminDashboard />} />
