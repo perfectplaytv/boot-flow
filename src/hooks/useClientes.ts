@@ -29,7 +29,7 @@ export interface Cliente {
 }
 
 export function useClientes() {
-  const { user } = useAuth(); // Obter o admin logado
+  const { user, userRole } = useAuth(); // Obter o admin logado e seu role
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -92,12 +92,19 @@ export function useClientes() {
         headers['Authorization'] = `Bearer ${authToken}`;
       }
       
-      // Filtrar clientes pelo admin_id do usuário logado
-      // A política RLS já filtra automaticamente, mas adicionamos o filtro explícito para clareza
-      const adminId = user.id;
-      const fetchUrl = `${SUPABASE_URL}/rest/v1/users?select=*&admin_id=eq.${adminId}`;
-      
-      console.log('🔄 [useClientes] Buscando clientes do admin:', adminId);
+      // Se for admin, buscar TODOS os clientes (sem filtrar por admin_id)
+      // Se for cliente ou revendedor, filtrar apenas os seus clientes
+      let fetchUrl: string;
+      if (userRole === 'admin') {
+        // Admin vê todos os clientes
+        fetchUrl = `${SUPABASE_URL}/rest/v1/users?select=*`;
+        console.log('🔄 [useClientes] Admin logado - Buscando TODOS os clientes');
+      } else {
+        // Cliente ou revendedor vê apenas seus próprios clientes
+        const adminId = user.id;
+        fetchUrl = `${SUPABASE_URL}/rest/v1/users?select=*&admin_id=eq.${adminId}`;
+        console.log('🔄 [useClientes] Buscando clientes do admin:', adminId);
+      }
       
       const controller = new AbortController();
       abortControllerRef.current = controller;
@@ -117,7 +124,11 @@ export function useClientes() {
         }
         
         const data = await response.json();
-        console.log('✅ [useClientes] Clientes buscados:', data.length, 'para o admin:', adminId);
+        if (userRole === 'admin') {
+          console.log('✅ [useClientes] Clientes buscados (TODOS):', data.length);
+        } else {
+          console.log('✅ [useClientes] Clientes buscados:', data.length, 'para o admin:', user.id);
+        }
         setClientes(data || []);
       } catch (fetchError: any) {
         clearTimeout(timeoutId);
@@ -137,7 +148,7 @@ export function useClientes() {
       isFetchingRef.current = false;
       abortControllerRef.current = null;
     }
-  }, [user?.id]);
+  }, [user?.id, userRole]);
 
   async function addCliente(cliente: Omit<Cliente, 'id'>) {
     try {

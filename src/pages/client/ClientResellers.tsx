@@ -358,9 +358,42 @@ export default function ClientResellers() {
         <RLSErrorBannerResellers error={error} onClearError={clearError} />
       )}
 
+      {/* Aviso de limite de revendas */}
+      {revendas.length >= MAX_RESELLERS && (
+        <div className="bg-yellow-900/40 border border-yellow-700 text-yellow-300 rounded-lg p-4">
+          <div className="flex items-center gap-2">
+            <Shield className="w-5 h-5" />
+            <div>
+              <strong>Limite de revendas atingido!</strong>
+              <p className="text-sm mt-1">
+                Você atingiu o limite de {MAX_RESELLERS} revendas do seu plano Essencial. 
+                Para adicionar mais revendas, faça upgrade do seu plano.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {revendas.length >= MAX_RESELLERS - 1 && revendas.length < MAX_RESELLERS && (
+        <div className="bg-blue-900/40 border border-blue-700 text-blue-300 rounded-lg p-4">
+          <div className="flex items-center gap-2">
+            <Activity className="w-5 h-5" />
+            <div>
+              <strong>Atenção: Limite próximo!</strong>
+              <p className="text-sm mt-1">
+                Você tem {revendas.length} de {MAX_RESELLERS} revendas. 
+                Ainda pode adicionar {MAX_RESELLERS - revendas.length} revenda(s).
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white">Gerenciamento de Revendedores</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-white">
+            Gerenciamento de Revendedores ({revendas.length}/{MAX_RESELLERS})
+          </h1>
           <p className="text-gray-400 text-sm sm:text-base">
             {loading ? 'Carregando...' : `Gerencie todos os revendedores do sistema (${revendas.length} revendedores)`}
           </p>
@@ -368,10 +401,19 @@ export default function ClientResellers() {
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="flex items-center gap-2 bg-[#7e22ce] hover:bg-[#6d1bb7] text-white h-10 sm:h-auto">
+              <Button 
+                className="flex items-center gap-2 bg-[#7e22ce] hover:bg-[#6d1bb7] text-white h-10 sm:h-auto disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={revendas.length >= MAX_RESELLERS}
+              >
                 <Plus className="w-4 h-4" />
-                <span className="hidden sm:inline">Adicionar Revenda</span>
-                <span className="sm:hidden">Novo</span>
+                {revendas.length >= MAX_RESELLERS ? (
+                  <span className="hidden sm:inline">Limite atingido ({MAX_RESELLERS}/{MAX_RESELLERS})</span>
+                ) : (
+                  <>
+                    <span className="hidden sm:inline">Adicionar Revenda</span>
+                    <span className="sm:hidden">Novo</span>
+                  </>
+                )}
               </Button>
             </DialogTrigger>
             <DialogContent className="bg-[#1f2937] text-white max-w-4xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col max-h-[90vh] overflow-y-auto scrollbar-hide">
