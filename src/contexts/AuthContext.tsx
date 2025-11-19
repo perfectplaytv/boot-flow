@@ -80,7 +80,7 @@ export const AuthProvider = ({ children, navigate }: AuthProviderProps) => {
         safeNavigate('/reseller');
         break;
       case 'client':
-        safeNavigate('/client');
+        safeNavigate('/dashboard/client');
         break;
       default:
         safeNavigate('/');

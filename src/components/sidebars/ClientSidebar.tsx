@@ -40,7 +40,7 @@ import { AvatarSelectionModal } from "@/components/modals/AvatarSelectionModal";
 import { useState } from 'react';
 
 const menuItems = [
-  { title: "Dashboard", url: "/client", icon: Home },
+  { title: "Dashboard", url: "/dashboard/client", icon: Home },
   { title: "Clientes", url: "/client/clients", icon: User },
   { title: "Revendas", url: "/client/resellers", icon: User },
   { title: "Cobranças", url: "/client/billing", icon: BarChart3 },

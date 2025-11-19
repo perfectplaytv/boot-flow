@@ -161,8 +161,12 @@ export default function Signup() {
         // Não bloqueia o cadastro se houver erro no envio de notificações
       }
       
-      // Redireciona para o dashboard após o cadastro bem-sucedido
-      navigate("/dashboard");
+      // Mostrar mensagem de sucesso antes de redirecionar
+      alert("Cadastro realizado com sucesso! Verifique seu e-mail para confirmar sua conta e faça login para acessar seu dashboard.");
+      
+      // Redireciona para o login após o cadastro bem-sucedido
+      // O usuário precisa confirmar o email antes de fazer login
+      navigate("/login");
     } catch (error: any) {
       setError(error.message || "Erro ao criar conta. Tente novamente.");
     } finally {
