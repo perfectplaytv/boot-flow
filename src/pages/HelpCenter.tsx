@@ -272,7 +272,7 @@ const HelpCenter = () => {
     },
     {
       title: "Email",
-      description: "suporte@exemplo.com",
+      description: "suporte@bootflow.com.br",
       icon: Mail,
       action: "Enviar Email",
       available: true
