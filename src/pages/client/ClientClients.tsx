@@ -71,8 +71,12 @@ import React from "react";
 import { useClientes } from "@/hooks/useClientes";
 import { useUsers } from "@/hooks/useUsers";
 import { RLSErrorBanner } from "@/components/RLSErrorBanner";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { ClientSidebar } from "@/components/sidebars/ClientSidebar";
 
-export default function AdminUsers() {
+const MAX_CLIENTS = 5; // Limite de clientes para o plano Essencial
+
+export default function ClientClients() {
   const {
     clientes: users,
     loading,
@@ -168,6 +172,13 @@ export default function AdminUsers() {
   const handleAddUser = async () => {
     console.log("🔵 [DEBUG] handleAddUser chamado");
     console.log("🔵 [DEBUG] Estado newUser:", newUser);
+    
+    // Verificar limite de clientes (5 para plano Essencial)
+    const currentClientCount = usersSafe.length;
+    if (currentClientCount >= MAX_CLIENTS) {
+      alert(`Você atingiu o limite de ${MAX_CLIENTS} clientes do seu plano. Para adicionar mais clientes, faça upgrade do seu plano.`);
+      return;
+    }
     
     // Validação completa dos campos obrigatórios
     if (!newUser.name || !newUser.email || !newUser.plan) {
@@ -1010,7 +1021,11 @@ export default function AdminUsers() {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6 min-h-screen bg-[#09090b] p-3 sm:p-6">
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-background">
+        <ClientSidebar />
+        <main className="flex-1 p-3 sm:p-6">
+    <div className="space-y-4 sm:space-y-6 min-h-screen bg-[#09090b]">
       {/* Indicadores de status */}
       {loading && (
         <div className="bg-blue-900/40 border border-blue-700 text-blue-300 rounded-lg p-4">
