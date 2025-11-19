@@ -175,7 +175,6 @@ const Landing = () => {
                 email: emailData.email,
                 phone: emailData.phone,
                 message: emailData.body,
-                _to: emailData.to,
               }),
             });
 
