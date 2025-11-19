@@ -679,7 +679,7 @@ const Landing = () => {
                         variant="outline"
                         size="lg"
                         onClick={handlePreviousStep}
-                        className="flex-1 bg-white/10 border-white/20 text-white hover:bg-white/20"
+                        className="flex-1 bg-white/20 border-white/30 text-white hover:bg-white/30 font-semibold"
                       >
                         Voltar
                       </Button>
@@ -688,7 +688,7 @@ const Landing = () => {
                         size="lg"
                         onClick={handleNextStep}
                         disabled={!formData.email.trim() || !formData.email.includes('@')}
-                        className="flex-1"
+                        className="flex-1 bg-white text-primary hover:bg-white/90 font-semibold"
                       >
                         Continuar
                         <ArrowRight className="w-4 h-4 ml-2" />
@@ -731,7 +731,7 @@ const Landing = () => {
                         variant="outline"
                         size="lg"
                         onClick={handlePreviousStep}
-                        className="flex-1 bg-white/10 border-white/20 text-white hover:bg-white/20"
+                        className="flex-1 bg-white/20 border-white/30 text-white hover:bg-white/30 font-semibold"
                       >
                         Voltar
                       </Button>
@@ -740,7 +740,7 @@ const Landing = () => {
                         size="lg"
                         onClick={handleSubmit}
                         disabled={!formData.phone.trim() || formData.phone.replace(/\D/g, '').length < 10}
-                        className="flex-1"
+                        className="flex-1 bg-white text-primary hover:bg-white/90 font-semibold"
                       >
                         Enviar
                         <ArrowRight className="w-4 h-4 ml-2" />
