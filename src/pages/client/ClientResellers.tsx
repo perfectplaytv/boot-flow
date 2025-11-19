@@ -132,6 +132,13 @@ export default function ClientResellers() {
     e.preventDefault();
     e.stopPropagation();
     
+    // Verificar limite de revendas (5 para plano Essencial)
+    const currentResellerCount = revendas.length;
+    if (currentResellerCount >= MAX_RESELLERS) {
+      alert(`Você atingiu o limite de ${MAX_RESELLERS} revendas do seu plano. Para adicionar mais revendas, faça upgrade do seu plano.`);
+      return;
+    }
+    
     const errors: string[] = [];
     
     if (!newReseller.username || newReseller.username.trim() === '') {
