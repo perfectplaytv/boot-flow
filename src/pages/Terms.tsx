@@ -1,4 +1,5 @@
-import { ArrowLeft, Bot } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ArrowLeft, ArrowUp, Bot } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +10,20 @@ import { ThemeToggle } from "@/components/theme-toggle";
 const Terms = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [showScrollButton, setShowScrollButton] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 300) {
+        setShowScrollButton(true);
+      } else {
+        setShowScrollButton(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const scrollToPricing = (e?: React.MouseEvent<HTMLAnchorElement>) => {
     if (e) {
@@ -64,6 +79,13 @@ const Terms = () => {
     const emailSubject = encodeURIComponent('Contato - BootFlow');
     const emailBody = encodeURIComponent('Olá! Gostaria de entrar em contato sobre o BootFlow.');
     window.location.href = `mailto:suporte@bootflow.com.br?subject=${emailSubject}&body=${emailBody}`;
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
   };
 
   return (
@@ -131,10 +153,7 @@ const Terms = () => {
               <Button variant="ghost" onClick={() => navigate('/login')}>
                 Entrar
               </Button>
-              <Button
-                className="bg-gradient-primary text-white shadow-lg hover:opacity-90"
-                onClick={() => navigate('/cadastro')}
-              >
+              <Button variant="hero" onClick={() => navigate('/cadastro')}>
                 Teste Grátis
               </Button>
             </div>
@@ -158,146 +177,158 @@ const Terms = () => {
             </div>
           </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Termos e Condições de Uso</CardTitle>
-          </CardHeader>
-          <CardContent className="prose prose-sm max-w-none space-y-6">
-            <section>
-              <h3 className="text-lg font-semibold">1. Aceitação dos Termos</h3>
-              <p className="text-muted-foreground">
-                Ao acessar e usar nossa plataforma SaaS, você concorda em ficar vinculado a estes 
-                termos de uso e a todas as leis e regulamentos aplicáveis, e concorda que é 
-                responsável pelo cumprimento de quaisquer leis locais aplicáveis.
-              </p>
-            </section>
+          <Card>
+            <CardHeader>
+              <CardTitle>Termos e Condições de Uso</CardTitle>
+            </CardHeader>
+            <CardContent className="prose prose-sm max-w-none space-y-6">
+              <section>
+                <h3 className="text-lg font-semibold">1. Aceitação dos Termos</h3>
+                <p className="text-muted-foreground">
+                  Ao acessar e usar nossa plataforma SaaS, você concorda em ficar vinculado a estes 
+                  termos de uso e a todas as leis e regulamentos aplicáveis, e concorda que é 
+                  responsável pelo cumprimento de quaisquer leis locais aplicáveis.
+                </p>
+              </section>
 
-            <Separator />
+              <Separator />
 
-            <section>
-              <h3 className="text-lg font-semibold">2. Licença de Uso</h3>
-              <p className="text-muted-foreground">
-                É concedida permissão para baixar temporariamente uma cópia dos materiais em 
-                nossa plataforma apenas para visualização transitória pessoal e não comercial. 
-                Esta é a concessão de uma licença, não uma transferência de título, e sob esta 
-                licença você não pode:
-              </p>
-              <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
-                <li>Modificar ou copiar os materiais</li>
-                <li>Usar os materiais para qualquer finalidade comercial ou para exibição pública</li>
-                <li>Tentar descompilar ou fazer engenharia reversa de qualquer software</li>
-                <li>Remover quaisquer direitos autorais ou outras notações proprietárias</li>
-              </ul>
-            </section>
+              <section>
+                <h3 className="text-lg font-semibold">2. Licença de Uso</h3>
+                <p className="text-muted-foreground">
+                  É concedida permissão para baixar temporariamente uma cópia dos materiais em 
+                  nossa plataforma apenas para visualização transitória pessoal e não comercial. 
+                  Esta é a concessão de uma licença, não uma transferência de título, e sob esta 
+                  licença você não pode:
+                </p>
+                <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
+                  <li>Modificar ou copiar os materiais</li>
+                  <li>Usar os materiais para qualquer finalidade comercial ou para exibição pública</li>
+                  <li>Tentar descompilar ou fazer engenharia reversa de qualquer software</li>
+                  <li>Remover quaisquer direitos autorais ou outras notações proprietárias</li>
+                </ul>
+              </section>
 
-            <Separator />
+              <Separator />
 
-            <section>
-              <h3 className="text-lg font-semibold">3. Serviços Oferecidos</h3>
-              <p className="text-muted-foreground">
-                Nossa plataforma oferece diversos serviços incluindo, mas não limitado a:
-              </p>
-              <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
-                <li>Sistema de Inteligência Artificial com chat e voz</li>
-                <li>Módulo IPTV para revendedores</li>
-                <li>Sistema multicanal (WhatsApp, Instagram, Telegram, Email, SMS)</li>
-                <li>E-commerce integrado</li>
-                <li>Sistema de gamificação</li>
-                <li>Rádio web e streaming</li>
-              </ul>
-            </section>
+              <section>
+                <h3 className="text-lg font-semibold">3. Serviços Oferecidos</h3>
+                <p className="text-muted-foreground">
+                  Nossa plataforma oferece diversos serviços incluindo, mas não limitado a:
+                </p>
+                <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
+                  <li>Sistema de Inteligência Artificial com chat e voz</li>
+                  <li>Módulo IPTV para revendedores</li>
+                  <li>Sistema multicanal (WhatsApp, Instagram, Telegram, Email, SMS)</li>
+                  <li>E-commerce integrado</li>
+                  <li>Sistema de gamificação</li>
+                  <li>Rádio web e streaming</li>
+                </ul>
+              </section>
 
-            <Separator />
+              <Separator />
 
-            <section>
-              <h3 className="text-lg font-semibold">4. Responsabilidades do Usuário</h3>
-              <p className="text-muted-foreground">
-                Ao usar nossa plataforma, você se compromete a:
-              </p>
-              <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
-                <li>Fornecer informações precisas e atualizadas</li>
-                <li>Manter a confidencialidade de suas credenciais de acesso</li>
-                <li>Não usar a plataforma para atividades ilegais ou não autorizadas</li>
-                <li>Respeitar os direitos de propriedade intelectual</li>
-                <li>Não interferir no funcionamento normal da plataforma</li>
-              </ul>
-            </section>
+              <section>
+                <h3 className="text-lg font-semibold">4. Responsabilidades do Usuário</h3>
+                <p className="text-muted-foreground">
+                  Ao usar nossa plataforma, você se compromete a:
+                </p>
+                <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
+                  <li>Fornecer informações precisas e atualizadas</li>
+                  <li>Manter a confidencialidade de suas credenciais de acesso</li>
+                  <li>Não usar a plataforma para atividades ilegais ou não autorizadas</li>
+                  <li>Respeitar os direitos de propriedade intelectual</li>
+                  <li>Não interferir no funcionamento normal da plataforma</li>
+                </ul>
+              </section>
 
-            <Separator />
+              <Separator />
 
-            <section>
-              <h3 className="text-lg font-semibold">5. Pagamentos e Planos</h3>
-              <p className="text-muted-foreground">
-                Os serviços são oferecidos através de planos de assinatura com diferentes 
-                funcionalidades. O pagamento deve ser efetuado conforme o plano escolhido. 
-                A falta de pagamento pode resultar na suspensão ou cancelamento do serviço.
-              </p>
-              <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
-                <li>Planos são cobrados antecipadamente</li>
-                <li>Cancelamentos podem ser feitos a qualquer momento</li>
-                <li>Reembolsos seguem nossa política específica</li>
-                <li>Preços podem ser alterados mediante aviso prévio</li>
-              </ul>
-            </section>
+              <section>
+                <h3 className="text-lg font-semibold">5. Pagamentos e Planos</h3>
+                <p className="text-muted-foreground">
+                  Os serviços são oferecidos através de planos de assinatura com diferentes 
+                  funcionalidades. O pagamento deve ser efetuado conforme o plano escolhido. 
+                  A falta de pagamento pode resultar na suspensão ou cancelamento do serviço.
+                </p>
+                <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
+                  <li>Planos são cobrados antecipadamente</li>
+                  <li>Cancelamentos podem ser feitos a qualquer momento</li>
+                  <li>Reembolsos seguem nossa política específica</li>
+                  <li>Preços podem ser alterados mediante aviso prévio</li>
+                </ul>
+              </section>
 
-            <Separator />
+              <Separator />
 
-            <section>
-              <h3 className="text-lg font-semibold">6. Privacidade e Proteção de Dados</h3>
-              <p className="text-muted-foreground">
-                Respeitamos sua privacidade e estamos comprometidos com a proteção de seus 
-                dados pessoais. Nossa política de privacidade descreve como coletamos, 
-                usamos e protegemos suas informações.
-              </p>
-            </section>
+              <section>
+                <h3 className="text-lg font-semibold">6. Privacidade e Proteção de Dados</h3>
+                <p className="text-muted-foreground">
+                  Respeitamos sua privacidade e estamos comprometidos com a proteção de seus 
+                  dados pessoais. Nossa política de privacidade descreve como coletamos, 
+                  usamos e protegemos suas informações.
+                </p>
+              </section>
 
-            <Separator />
+              <Separator />
 
-            <section>
-              <h3 className="text-lg font-semibold">7. Limitação de Responsabilidade</h3>
-              <p className="text-muted-foreground">
-                Em nenhum caso nossa empresa será responsável por quaisquer danos 
-                (incluindo, sem limitação, danos por perda de dados ou lucro, ou devido 
-                a interrupção dos negócios) decorrentes do uso ou da incapacidade de usar 
-                os materiais em nossa plataforma.
-              </p>
-            </section>
+              <section>
+                <h3 className="text-lg font-semibold">7. Limitação de Responsabilidade</h3>
+                <p className="text-muted-foreground">
+                  Em nenhum caso nossa empresa será responsável por quaisquer danos 
+                  (incluindo, sem limitação, danos por perda de dados ou lucro, ou devido 
+                  a interrupção dos negócios) decorrentes do uso ou da incapacidade de usar 
+                  os materiais em nossa plataforma.
+                </p>
+              </section>
 
-            <Separator />
+              <Separator />
 
-            <section>
-              <h3 className="text-lg font-semibold">8. Modificações dos Termos</h3>
-              <p className="text-muted-foreground">
-                Podemos revisar estes termos de uso a qualquer momento, sem aviso prévio. 
-                Ao usar nossa plataforma, você concorda em ficar vinculado à versão atual 
-                destes termos de uso.
-              </p>
-            </section>
+              <section>
+                <h3 className="text-lg font-semibold">8. Modificações dos Termos</h3>
+                <p className="text-muted-foreground">
+                  Podemos revisar estes termos de uso a qualquer momento, sem aviso prévio. 
+                  Ao usar nossa plataforma, você concorda em ficar vinculado à versão atual 
+                  destes termos de uso.
+                </p>
+              </section>
 
-            <Separator />
+              <Separator />
 
-            <section>
-              <h3 className="text-lg font-semibold">9. Lei Aplicável</h3>
-              <p className="text-muted-foreground">
-                Estes termos são regidos e interpretados de acordo com as leis do Brasil, 
-                e qualquer disputa relacionada a estes termos estará sujeita à jurisdição 
-                exclusiva dos tribunais brasileiros.
-              </p>
-            </section>
+              <section>
+                <h3 className="text-lg font-semibold">9. Lei Aplicável</h3>
+                <p className="text-muted-foreground">
+                  Estes termos são regidos e interpretados de acordo com as leis do Brasil, 
+                  e qualquer disputa relacionada a estes termos estará sujeita à jurisdição 
+                  exclusiva dos tribunais brasileiros.
+                </p>
+              </section>
 
-            <Separator />
+              <Separator />
 
-            <section>
-              <h3 className="text-lg font-semibold">10. Contato</h3>
-              <p className="text-muted-foreground">
-                Se você tiver alguma dúvida sobre estes Termos de Uso, entre em contato 
-                conosco através do email: legal@exemplo.com ou pelo telefone: +55 11 4000-0000.
-              </p>
-            </section>
-          </CardContent>
-        </Card>
+              <section>
+                <h3 className="text-lg font-semibold">10. Contato</h3>
+                <p className="text-muted-foreground">
+                  Se você tiver alguma dúvida sobre estes Termos de Uso, entre em contato 
+                  conosco através do email: legal@exemplo.com ou pelo telefone: +55 11 4000-0000.
+                </p>
+              </section>
+            </CardContent>
+          </Card>
         </div>
       </div>
+
+      {/* Botão Voltar ao Topo */}
+      {showScrollButton && (
+        <Button
+          onClick={scrollToTop}
+          className="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-primary text-primary-foreground dark:bg-[#7e22ce] dark:text-white shadow-lg hover:bg-primary/90 dark:hover:bg-[#6d1bb7] transition-all duration-300 flex items-center gap-2 z-50 px-6 py-3"
+          aria-label="Voltar ao topo"
+        >
+          <ArrowUp className="w-5 h-5" />
+          Voltar ao topo
+        </Button>
+      )}
 
       {/* Footer */}
       <footer className="border-t border-border/20 py-12 px-4">
