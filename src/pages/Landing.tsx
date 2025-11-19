@@ -116,7 +116,7 @@ const Landing = () => {
 
   const handleSubmit = async () => {
     try {
-      // Enviar para email via API
+      // Preparar dados do email
       const emailData = {
         to: 'suporte@bootflow.com.br',
         subject: 'Novo Lead - BootFlow',
@@ -130,10 +130,11 @@ const Landing = () => {
         phone: formData.phone
       };
 
-      // Tentar enviar via API endpoint (ajuste a URL conforme seu backend)
-      const apiUrl = import.meta.env.VITE_EMAIL_API_URL || '/api/send-email';
+      // Enviar email diretamente via API (sem abrir cliente de email)
+      // Opção 1: Se você tiver um endpoint de API backend
+      const apiUrl = import.meta.env.VITE_EMAIL_API_URL;
       
-      try {
+      if (apiUrl) {
         const response = await fetch(apiUrl, {
           method: 'POST',
           headers: {
@@ -142,53 +143,33 @@ const Landing = () => {
           body: JSON.stringify(emailData),
         });
 
-        if (response.ok) {
-          console.log('Email enviado com sucesso via API');
-        } else {
-          // Se a API não estiver disponível, usar EmailJS como fallback
-          throw new Error('API não disponível');
+        if (!response.ok) {
+          throw new Error('Erro ao enviar email via API');
         }
-      } catch (apiError) {
-        // Fallback: usar EmailJS (requer configuração)
-        const emailjsPublicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
-        const emailjsServiceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-        const emailjsTemplateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+      } else {
+        // Opção 2: Usar Formspree ou similar (gratuito, sem backend necessário)
+        // Configure em: https://formspree.io/
+        const formspreeId = import.meta.env.VITE_FORMSPREE_ID || 'YOUR_FORM_ID';
+        const formspreeUrl = `https://formspree.io/f/${formspreeId}`;
+        
+        const response = await fetch(formspreeUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          body: JSON.stringify({
+            _subject: emailData.subject,
+            name: emailData.name,
+            email: emailData.email,
+            phone: emailData.phone,
+            message: emailData.body,
+            _to: emailData.to,
+          }),
+        });
 
-        if (emailjsPublicKey && emailjsServiceId && emailjsTemplateId) {
-          // Carregar EmailJS dinamicamente
-          const emailjs = await import('@emailjs/browser');
-          await emailjs.send(
-            emailjsServiceId,
-            emailjsTemplateId,
-            {
-              to_email: 'suporte@bootflow.com.br',
-              subject: emailData.subject,
-              message: emailData.body,
-              from_name: emailData.name,
-              from_email: emailData.email,
-              phone: emailData.phone,
-            },
-            emailjsPublicKey
-          );
-          console.log('Email enviado via EmailJS');
-        } else {
-          // Se EmailJS não estiver configurado, usar Webhook/Formspree como último recurso
-          const webhookUrl = import.meta.env.VITE_WEBHOOK_URL || 'https://formspree.io/f/YOUR_FORM_ID';
-          
-          await fetch(webhookUrl, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              _subject: emailData.subject,
-              name: emailData.name,
-              email: emailData.email,
-              phone: emailData.phone,
-              message: emailData.body,
-            }),
-          });
-          console.log('Email enviado via Webhook');
+        if (!response.ok) {
+          throw new Error('Erro ao enviar email via Formspree');
         }
       }
 
