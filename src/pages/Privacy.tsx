@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const Privacy = () => {
   const navigate = useNavigate();
@@ -85,6 +86,9 @@ const Privacy = () => {
               <a href="#features" className="text-muted-foreground hover:text-foreground transition-colors">
                 Funcionalidades
               </a>
+              <a href="#avisos" className="text-muted-foreground hover:text-foreground transition-colors">
+                Avisos
+              </a>
               <a 
                 href="/preco" 
                 onClick={scrollToPricing}
@@ -92,11 +96,15 @@ const Privacy = () => {
               >
                 Preços
               </a>
+            </div>
+
+            <div className="flex items-center space-x-4">
+              <ThemeToggle />
               <Button variant="ghost" onClick={() => navigate('/login')}>
                 Entrar
               </Button>
-              <Button onClick={() => navigate('/cadastro')}>
-                Começar Grátis
+              <Button variant="hero" onClick={() => navigate('/cadastro')}>
+                Teste Grátis
               </Button>
             </div>
           </nav>
