@@ -318,6 +318,51 @@ const AdminDashboard = () => {
     return prices[plan] || [];
   };
 
+  const normalizarDataDeExpiracao = useCallback((cliente: any) => {
+    const rawValue =
+      cliente?.expiration_date ??
+      cliente?.expirationDate ??
+      cliente?.renewalDate ??
+      cliente?.renewal_date;
+
+    if (!rawValue) {
+      return null;
+    }
+
+    try {
+      if (rawValue instanceof Date) {
+        return new Date(rawValue);
+      }
+
+      if (typeof rawValue === 'number') {
+        // Dados legados podem vir como segundos; ajustar automaticamente
+        const timestamp = rawValue < 1e12 ? rawValue * 1000 : rawValue;
+        return new Date(timestamp);
+      }
+
+      if (typeof rawValue === 'string') {
+        // Strings numéricas vindas de integrações (ex: "1699999999")
+        const numericValue = Number(rawValue);
+        if (!Number.isNaN(numericValue)) {
+          const timestamp = rawValue.length === 10 ? numericValue * 1000 : numericValue;
+          const parsedNumeric = new Date(timestamp);
+          if (!Number.isNaN(parsedNumeric.getTime())) {
+            return parsedNumeric;
+          }
+        }
+
+        const parsed = new Date(rawValue);
+        if (!Number.isNaN(parsed.getTime())) {
+          return parsed;
+        }
+      }
+    } catch (error) {
+      console.warn('Não foi possível converter data de expiração do cliente', cliente?.id, error);
+    }
+
+    return null;
+  }, []);
+
   // Função para calcular clientes que expiram em 3 dias
   const clientesExpiramEm3Dias = useMemo(() => {
     if (!clientes || clientes.length === 0) return 0;
@@ -325,32 +370,23 @@ const AdminDashboard = () => {
     const hoje = new Date();
     hoje.setHours(0, 0, 0, 0);
     
-    // Data de expiração em 3 dias (incluindo hoje, então são 3 dias a partir de hoje)
-    const em3Dias = new Date();
-    em3Dias.setDate(hoje.getDate() + 3);
-    em3Dias.setHours(0, 0, 0, 0);
-    
     const count = clientes.filter(cliente => {
-      if (!cliente.expiration_date) return false;
+      const expirationDate = normalizarDataDeExpiracao(cliente);
+      if (!expirationDate) return false;
+
+      const normalizedExpiration = new Date(expirationDate);
+      normalizedExpiration.setHours(0, 0, 0, 0);
       
-      try {
-        const expirationDate = new Date(cliente.expiration_date);
-        expirationDate.setHours(0, 0, 0, 0);
-        
-        // Calcular diferença em dias
-        const diffTime = expirationDate.getTime() - hoje.getTime();
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
-        // Clientes que expiram em 3 dias ou menos (0, 1, 2 ou 3 dias)
-        return diffDays >= 0 && diffDays <= 3;
-      } catch (error) {
-        console.error('Erro ao processar data de expiração:', error);
-        return false;
-      }
+      // Calcular diferença em dias
+      const diffTime = normalizedExpiration.getTime() - hoje.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      // Clientes que expiram em 3 dias ou menos (0, 1, 2 ou 3 dias)
+      return diffDays >= 0 && diffDays <= 3;
     }).length;
     
     return count;
-  }, [clientes]);
+  }, [clientes, normalizarDataDeExpiracao]);
 
   // Função para formatar valor monetário em formato brasileiro
   const formatCurrency = (value: number): string => {
