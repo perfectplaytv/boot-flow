@@ -1757,18 +1757,7 @@ const AdminDashboard = () => {
                   <p className="text-xs text-gray-400 mt-1">Clientes cadastrados</p>
                 </CardContent>
               </Card>
-              {/* Card 2: Total Revendas */}
-              <Card className="bg-gradient-to-br from-yellow-900/50 to-yellow-800/30 border border-yellow-700/40 text-white">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-xs sm:text-sm font-medium text-gray-300">Total Revendas</CardTitle>
-                  <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-400" />
-                </CardHeader>
-                <CardContent className="p-3 sm:p-6">
-                  <div className="text-lg sm:text-2xl font-bold text-white">{(revendas?.length || 0).toLocaleString()}</div>
-                  <p className="text-xs text-gray-400 mt-1">Revendedores cadastrados</p>
-                </CardContent>
-              </Card>
-              {/* Card 3: Clientes dos Revendas */}
+              {/* Card 2: Clientes dos Revendas */}
               <Card className="bg-gradient-to-br from-red-900/50 to-red-800/30 border border-red-700/40 text-white">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-xs sm:text-sm font-medium text-gray-300">Clientes dos Revendas</CardTitle>
@@ -1777,6 +1766,17 @@ const AdminDashboard = () => {
                 <CardContent className="p-3 sm:p-6">
                   <div className="text-lg sm:text-2xl font-bold text-white">{clientesExpiramEm3Dias.toLocaleString()}</div>
                   <p className="text-xs text-gray-400 mt-1">Clientes próximos do vencimento</p>
+                </CardContent>
+              </Card>
+              {/* Card 3: Total Revendas */}
+              <Card className="bg-gradient-to-br from-yellow-900/50 to-yellow-800/30 border border-yellow-700/40 text-white">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-xs sm:text-sm font-medium text-gray-300">Total Revendas</CardTitle>
+                  <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-400" />
+                </CardHeader>
+                <CardContent className="p-3 sm:p-6">
+                  <div className="text-lg sm:text-2xl font-bold text-white">{(revendas?.length || 0).toLocaleString()}</div>
+                  <p className="text-xs text-gray-400 mt-1">Revendedores cadastrados</p>
                 </CardContent>
               </Card>
               {/* Card 4: Receita Total */}
@@ -2876,18 +2876,7 @@ const AdminDashboard = () => {
                       <p className="text-xs text-gray-400 mt-1">Clientes cadastrados</p>
                     </CardContent>
                   </Card>
-                  {/* Card 2: Total Revendas */}
-                  <Card className="bg-gradient-to-br from-yellow-900/50 to-yellow-800/30 border border-yellow-700/40 text-white">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-xs sm:text-sm font-medium text-gray-300">Total Revendas</CardTitle>
-                      <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-400" />
-                    </CardHeader>
-                    <CardContent className="p-3 sm:p-6">
-                      <div className="text-lg sm:text-2xl font-bold text-white">{(revendas?.length || 0).toLocaleString()}</div>
-                      <p className="text-xs text-gray-400 mt-1">Revendedores cadastrados</p>
-                    </CardContent>
-                  </Card>
-                  {/* Card 3: Clientes dos Revendas */}
+                  {/* Card 2: Clientes dos Revendas */}
                   <Card className="bg-gradient-to-br from-red-900/50 to-red-800/30 border border-red-700/40 text-white">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-xs sm:text-sm font-medium text-gray-300">Clientes dos Revendas</CardTitle>
@@ -2896,6 +2885,17 @@ const AdminDashboard = () => {
                     <CardContent className="p-3 sm:p-6">
                       <div className="text-lg sm:text-2xl font-bold text-white">{clientesExpiramEm3Dias.toLocaleString()}</div>
                       <p className="text-xs text-gray-400 mt-1">Clientes próximos do vencimento</p>
+                    </CardContent>
+                  </Card>
+                  {/* Card 3: Total Revendas */}
+                  <Card className="bg-gradient-to-br from-yellow-900/50 to-yellow-800/30 border border-yellow-700/40 text-white">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-xs sm:text-sm font-medium text-gray-300">Total Revendas</CardTitle>
+                      <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-400" />
+                    </CardHeader>
+                    <CardContent className="p-3 sm:p-6">
+                      <div className="text-lg sm:text-2xl font-bold text-white">{(revendas?.length || 0).toLocaleString()}</div>
+                      <p className="text-xs text-gray-400 mt-1">Revendedores cadastrados</p>
                     </CardContent>
                   </Card>
                   {/* Card 4: Receita Total */}
