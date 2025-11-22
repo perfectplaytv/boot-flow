@@ -28,6 +28,7 @@ import {
   Trash2,
   Play,
   Pause,
+  Star,
   DollarSign,
   TrendingUp,
   Clock,
