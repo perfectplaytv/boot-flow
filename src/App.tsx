@@ -24,6 +24,8 @@ import Blog from "./pages/empresa/Blog";
 // Dashboards
 import AdminDashboard from "./pages/dashboards/AdminDashboard";
 import ResellerDashboard from "./pages/dashboards/ResellerDashboard";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import Unauthorized from "@/pages/Unauthorized";
 import ClientDashboard from "./pages/dashboards/ClientDashboard";
 
 
@@ -84,8 +86,12 @@ const App = () => {
 
                 {/* Dashboard Admin - Acesso direto */}
                 <Route path="/admin" element={<AdminDashboard />} />
-                {/* Dashboard Revendedor */}
-                <Route path="/reseller" element={<ResellerDashboard />} />
+                {/* Dashboard Revendas (protegido: apenas role 'reseller') */}
+                <Route element={<ProtectedRoute allowedRoles={[ 'reseller' ]} />}>
+                  <Route path="/revendas" element={<ResellerDashboard />} />
+                </Route>
+                {/* Página de acesso negado */}
+                <Route path="/unauthorized" element={<Unauthorized />} />
                 <Route path="/admin/revendedores" element={<AdminResellers />} />
                 
                 {/* Dashboard Cliente */}
