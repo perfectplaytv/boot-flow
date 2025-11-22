@@ -1,9 +1,4 @@
-import AdminDashboard from './AdminDashboard';
-
-// Reexporta o AdminDashboard como ResellerDashboard para reutilizar toda a UI/funcionalidade
-const ResellerDashboard = AdminDashboard;
-
-export default ResellerDashboard;
+// ResellerDashboard: componente específico para revendas
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
