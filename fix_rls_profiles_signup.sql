@@ -23,15 +23,26 @@ RETURNS TRIGGER
 SECURITY DEFINER
 SET search_path = public
 AS $$
+DECLARE
+  user_role TEXT := COALESCE(NEW.raw_user_meta_data->>'role', 'client');
+  user_full_name TEXT := NEW.raw_user_meta_data->>'full_name';
 BEGIN
   INSERT INTO public.profiles (id, email, role, full_name)
   VALUES (
     NEW.id,
     NEW.email,
-    COALESCE(NEW.raw_user_meta_data->>'role', 'client'),
-    NEW.raw_user_meta_data->>'full_name'
+    user_role,
+    user_full_name
   )
   ON CONFLICT (id) DO NOTHING;
+
+  -- Se for revendedor, também cria entrada em resellers (evita duplicatas)
+  IF user_role = 'reseller' THEN
+    INSERT INTO public.resellers (username, email, personal_name)
+    VALUES (split_part(NEW.email, '@', 1), NEW.email, user_full_name)
+    ON CONFLICT (email) DO NOTHING;
+  END IF;
+
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
