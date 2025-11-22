@@ -1394,644 +1394,145 @@ const ClientDashboard = () => {
       <div className="min-h-screen flex w-full bg-[#09090b]">
         <ClientSidebar onPageChange={setCurrentPage} currentPage={currentPage} />
         
-        <main className="flex-1 p-6 max-w-full w-full overflow-x-auto">
+        <main className="flex-1 p-6">
+          {currentPage === "dashboard" && (
           <div className="max-w-7xl mx-auto space-y-6">
-            {currentPage === "dashboard" && (
-              <>
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  <div className="text-center sm:text-left">
-                    <h1 className="text-2xl sm:text-3xl font-bold text-white">Dashboard Cliente</h1>
-                    <p className="text-gray-400 text-sm sm:text-base">Visão geral do sistema</p>
-                  </div>
-                  <div className="flex flex-row items-center gap-2 w-full sm:w-auto justify-center sm:justify-end">
-                    <ThemeToggle />
-                    <Dialog open={clientModal} onOpenChange={setClientModal}>
-                      <DialogTrigger asChild>
-                        <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white h-10 sm:h-auto flex-1 sm:flex-initial">
-                          <UserPlus className="w-4 h-4 sm:mr-2" />
-                          <span className="hidden sm:inline">Novo Cliente</span>
-                          <span className="sm:hidden">Cliente</span>
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="bg-[#1f2937] text-white max-w-4xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col max-h-[90vh] overflow-y-auto scrollbar-hide">
-                        <DialogHeader className="sr-only">
-                          <DialogTitle>Adicionar um Cliente</DialogTitle>
-                          <DialogDescription>Preencha os dados do novo cliente</DialogDescription>
-                        </DialogHeader>
-                        <div className="p-6 w-full flex flex-col">
-                          <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-2xl font-bold">Adicionar um Cliente</h2>
-                            <div className="flex items-center gap-2">
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                className="text-gray-400 hover:text-white"
-                                onClick={() => setClientModal(false)}
-                              >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                              </Button>
-                            </div>
-                          </div>
-                          
-                          <form onSubmit={async (e) => { 
-                            e.preventDefault(); 
-                            e.stopPropagation();
-                            console.log("🔵 [ClientDashboard] Form submit disparado!");
-                            await handleAddUser(); 
-                          }} className="space-y-6 flex-1 overflow-y-auto">
-                            <div className="flex items-center gap-2 mb-4">
-                              <span className="text-green-400 text-xs font-medium">• Campos obrigatórios marcados com *</span>
-                              <span className="text-blue-400 text-xs font-medium">• Dados serão sincronizados automaticamente</span>
-                            </div>
-                            
-                            {/* Extração M3U */}
-                            <div className="bg-blue-900/30 border border-blue-800 rounded-lg p-4 mb-6">
-                              <div className="flex items-center justify-between mb-1">
-                                <span className="text-blue-300 font-medium">Extração M3U</span>
-                                <div className="flex gap-2">
-                                  <Button type="button" className="bg-blue-600 text-white hover:bg-blue-700 px-4 py-1 rounded text-sm" onClick={extractM3UData} disabled={isExtracting}>Extrair</Button>
-                                </div>
-                              </div>
-                              <p className="text-xs text-blue-300 mb-2">Serve para importar dados automaticamente a partir de uma URL.</p>
-                              <Input placeholder="Insira a URL do M3U para extrair automaticamente os dados do cliente..." className="bg-[#1f2937] border border-blue-800 text-white mb-2" value={m3uUrl} onChange={e => setM3uUrl(e.target.value)} />
-                              {extractionError && (
-                                <div className="bg-red-900/40 border border-red-700 text-red-300 text-xs rounded p-2 mb-2">❌ {extractionError}</div>
-                              )}
-                              {extractionResult && !extractionError && (
-                                <div className="bg-green-900/40 border border-green-700 text-green-300 text-xs rounded p-2 mb-2">✅ {extractionResult.message}</div>
-                              )}
-                            </div>
-                            
-                            {/* Informações Básicas */}
-                            <div className="bg-[#23272f] border border-gray-700 rounded-lg p-4 mb-6">
-                              <span className="block text-white font-semibold mb-4">Informações Básicas</span>
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {/* Servidor */}
-                                <div className="col-span-1">
-                                  <label className="block text-gray-300 mb-1 font-medium">
-                                    Servidor *
-                                  </label>
-                                  <Input
-                                    type="text"
-                                    value={newUser.server || ""}
-                                    onChange={(e) => setNewUser({ ...newUser, server: e.target.value })}
-                                    placeholder="Digite o nome do servidor"
-                                    className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                                  />
-                                </div>
-                                {/* Plano */}
-                                <div className="col-span-1">
-                                  <label className="block text-gray-300 mb-1 font-medium">
-                                    Plano *
-                                  </label>
-                                  <select
-                                    className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                                    value={newUser.plan}
-                                    onChange={(e) =>
-                                      setNewUser({ ...newUser, plan: e.target.value, price: "" })
-                                    }
-                                  >
-                                    <option value="">Selecione um plano</option>
-                                    <option value="Mensal">Mensal</option>
-                                    <option value="Bimestral">Bimestral</option>
-                                    <option value="Trimestral">Trimestral</option>
-                                    <option value="Semestral">Semestral</option>
-                                    <option value="Anual">Anual</option>
-                                  </select>
-                                </div>
-                                {/* Preço */}
-                                {newUser.plan && (
-                                  <div className="col-span-1">
-                                    <label className="block text-gray-300 mb-1 font-medium">
-                                      Preço *
-                                    </label>
-                                    <select
-                                      className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                                      value={newUser.price}
-                                      onChange={(e) =>
-                                        setNewUser({ ...newUser, price: e.target.value })
-                                      }
-                                    >
-                                      <option value="">Selecione um preço</option>
-                                      {getPlanPrices(newUser.plan).map((price) => (
-                                        <option key={price} value={price}>
-                                          R$ {price}
-                                        </option>
-                                      ))}
-                                    </select>
-                                  </div>
-                                )}
-                                {/* Nome */}
-                                <div className="col-span-1">
-                                  <label className="block text-gray-300 mb-1 font-medium">
-                                    Nome *
-                                  </label>
-                                  <Input
-                                    placeholder="Nome completo do cliente"
-                                    className="bg-[#23272f] border border-gray-700 text-white"
-                                    value={newUser.name}
-                                    onChange={(e) =>
-                                      setNewUser({ ...newUser, name: e.target.value })
-                                    }
-                                  />
-                                </div>
-                                {/* Email */}
-                                <div className="col-span-1">
-                                  <label className="block text-gray-300 mb-1 font-medium">
-                                    Email *
-                                  </label>
-                                  <Input
-                                    placeholder="email@exemplo.com"
-                                    className="bg-[#23272f] border border-gray-700 text-white"
-                                    value={newUser.email}
-                                    onChange={(e) =>
-                                      setNewUser({ ...newUser, email: e.target.value })
-                                    }
-                                  />
-                                </div>
-                                {/* Status */}
-                                <div className="col-span-1">
-                                  <label className="block text-gray-300 mb-1 font-medium">
-                                    Status *
-                                  </label>
-                                  <select
-                                    className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                                    value={newUser.status}
-                                    onChange={(e) =>
-                                      setNewUser({ ...newUser, status: e.target.value })
-                                    }
-                                  >
-                                    <option value="Ativo">Ativo</option>
-                                    <option value="Inativo">Inativo</option>
-                                    <option value="Suspenso">Suspenso</option>
-                                    <option value="Pendente">Pendente</option>
-                                  </select>
-                                </div>
-                                {/* Data de Expiração */}
-                                <div className="col-span-1">
-                                  <label className="block text-gray-300 mb-1 font-medium">
-                                    Data de Expiração *
-                                  </label>
-                                  <Input
-                                    type="date"
-                                    className="bg-[#23272f] border border-gray-700 text-white"
-                                    value={newUser.expirationDate}
-                                    onChange={(e) =>
-                                      setNewUser({ ...newUser, expirationDate: e.target.value })
-                                    }
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                            
-                            {/* Configuração de Serviço */}
-                            <div className="bg-[#23272f] border border-gray-700 rounded-lg p-4 mb-6">
-                              <span className="block text-white font-semibold mb-4">Configuração de Serviço</span>
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {/* Dispositivos */}
-                                <div className="col-span-1">
-                                  <label className="block text-gray-300 mb-1 font-medium">
-                                    Dispositivos
-                                  </label>
-                                  <Input
-                                    type="number"
-                                    placeholder="0"
-                                    className="bg-[#23272f] border border-gray-700 text-white"
-                                    value={newUser.devices}
-                                    onChange={(e) =>
-                                      setNewUser({ ...newUser, devices: parseInt(e.target.value) || 0 })
-                                    }
-                                  />
-                                </div>
-                                {/* Créditos */}
-                                <div className="col-span-1">
-                                  <label className="block text-gray-300 mb-1 font-medium">
-                                    Créditos
-                                  </label>
-                                  <Input
-                                    type="number"
-                                    placeholder="0"
-                                    className="bg-[#23272f] border border-gray-700 text-white"
-                                    value={newUser.credits}
-                                    onChange={(e) =>
-                                      setNewUser({ ...newUser, credits: parseInt(e.target.value) || 0 })
-                                    }
-                                  />
-                                </div>
-                                {/* Senha */}
-                                <div className="col-span-1">
-                                  <label className="block text-gray-300 mb-1 font-medium">
-                                    Senha
-                                  </label>
-                                  <Input
-                                    placeholder="Senha do cliente"
-                                    className="bg-[#23272f] border border-gray-700 text-white"
-                                    value={newUser.password}
-                                    onChange={(e) =>
-                                      setNewUser({ ...newUser, password: e.target.value })
-                                    }
-                                  />
-                                </div>
-                                {/* Bouquets */}
-                                <div className="col-span-1">
-                                  <label className="block text-gray-300 mb-1 font-medium">
-                                    Bouquets
-                                  </label>
-                                  <Input
-                                    placeholder="Bouquets disponíveis"
-                                    className="bg-[#23272f] border border-gray-700 text-white"
-                                    value={newUser.bouquets}
-                                    onChange={(e) =>
-                                      setNewUser({ ...newUser, bouquets: e.target.value })
-                                    }
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                            
-                            {/* Informações Adicionais */}
-                            <div className="hidden md:block bg-[#23272f] border border-gray-700 rounded-lg p-4 mb-6">
-                              <span className="block text-white font-semibold mb-4">Informações Adicionais</span>
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {/* Nome Real */}
-                                <div className="col-span-1">
-                                  <label className="block text-gray-300 mb-1 font-medium">
-                                    Nome Real
-                                  </label>
-                                  <Input
-                                    placeholder="Nome real do cliente"
-                                    className="bg-[#23272f] border border-gray-700 text-white"
-                                    value={newUser.realName}
-                                    onChange={(e) =>
-                                      setNewUser({ ...newUser, realName: e.target.value })
-                                    }
-                                  />
-                                </div>
-                                {/* WhatsApp */}
-                                <div className="col-span-1">
-                                  <label className="block text-gray-300 mb-1 font-medium">
-                                    WhatsApp
-                                  </label>
-                                  <Input
-                                    placeholder="+55 (11) 99999-9999"
-                                    className="bg-[#23272f] border border-gray-700 text-white"
-                                    value={newUser.whatsapp}
-                                    onChange={(e) =>
-                                      setNewUser({ ...newUser, whatsapp: e.target.value })
-                                    }
-                                  />
-                                </div>
-                                {/* Telegram */}
-                                <div className="col-span-1">
-                                  <label className="block text-gray-300 mb-1 font-medium">
-                                    Telegram
-                                  </label>
-                                  <Input
-                                    placeholder="@username"
-                                    className="bg-[#23272f] border border-gray-700 text-white"
-                                    value={newUser.telegram}
-                                    onChange={(e) =>
-                                      setNewUser({ ...newUser, telegram: e.target.value })
-                                    }
-                                  />
-                                </div>
-                                {/* Observações */}
-                                <div className="col-span-1">
-                                  <label className="block text-gray-300 mb-1 font-medium">
-                                    Observações
-                                  </label>
-                                  <Input
-                                    placeholder="Observações sobre o cliente"
-                                    className="bg-[#23272f] border border-gray-700 text-white"
-                                    value={newUser.observations}
-                                    onChange={(e) =>
-                                      setNewUser({ ...newUser, observations: e.target.value })
-                                    }
-                                  />
-                                </div>
-                                {/* Notas */}
-                                <div className="col-span-2">
-                                  <label className="block text-gray-300 mb-1 font-medium">
-                                    Notas
-                                  </label>
-                                  <textarea
-                                    placeholder="Notas adicionais sobre o cliente..."
-                                    className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 min-h-[80px] resize-none"
-                                    value={newUser.notes}
-                                    onChange={(e) =>
-                                      setNewUser({ ...newUser, notes: e.target.value })
-                                    }
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                            
-                            {/* Botões de Ação */}
-                            <div className="flex justify-end gap-3 pt-4 border-t border-gray-700">
-                              <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => setClientModal(false)}
-                                className="border-gray-600 text-gray-300 hover:bg-gray-700"
-                              >
-                                Cancelar
-                              </Button>
-                              <Button
-                                type="submit"
-                                disabled={isAddingUser}
-                                className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white"
-                              >
-                                {isAddingUser ? "Adicionando..." : "Adicionar Cliente"}
-                              </Button>
-                            </div>
-                          </form>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                    
-                    <Dialog open={resellerModal} onOpenChange={setResellerModal}>
-                      <DialogContent className="bg-[#1f2937] text-white max-w-4xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col max-h-[90vh] overflow-y-auto scrollbar-hide">
-                        <DialogHeader className="sr-only">
-                          <DialogTitle>Adicionar um Revenda</DialogTitle>
-                          <DialogDescription>Preencha os dados do novo revendedor</DialogDescription>
-                        </DialogHeader>
-                        <div className="p-6 w-full flex flex-col">
-                          <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-2xl font-bold">Adicionar um Revenda</h2>
-                            <div className="flex items-center gap-2">
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                className="text-gray-400 hover:text-white"
-                                onClick={() => setResellerModal(false)}
-                              >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                              </Button>
-                            </div>
-                          </div>
-                          
-                          {/* Usar componente ClientResellers dentro do modal */}
-                          <div className="flex-1 overflow-y-auto">
-                            <ClientResellersWrapper 
-                              onResellerCreated={() => {
-                                console.log('🔄 [ClientDashboard] Revendedor criado, preparando navegação...');
-                                // Garantir que a flag esteja definida antes de navegar
-                                try {
-                                  localStorage.setItem('reseller-created', Date.now().toString());
-                                  localStorage.setItem('dashboard-refresh', Date.now().toString());
-                                  console.log('✅ [ClientDashboard] Flags definidas no localStorage');
-                                } catch (error) {
-                                  console.error('❌ [ClientDashboard] Erro ao definir flags:', error);
-                                }
-                                
-                                // Fechar modal após criar revendedor com sucesso
-                                setTimeout(() => {
-                                  setResellerModal(false);
-                                  // Atualizar stats do dashboard
-                                  if (refreshStats) {
-                                    refreshStats();
-                                  }
-                                  // Navegar para a página de Gerenciamento de Revendedores
-                                  // A página ClientResellers irá buscar os dados atualizados automaticamente
-                                  console.log('🔄 [ClientDashboard] Navegando para página de revendedores...');
-                                  setCurrentPage("resellers");
-                                  console.log('✅ [ClientDashboard] Navegação concluída - ClientResellers irá buscar dados atualizados');
-                                }, 800);
-                              }}
-                              onCloseModal={() => {
-                                setResellerModal(false);
-                              }}
-                            />
-                          </div>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                  </div>
-                </div>
-
-                {/* Stats Cards */}
-                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 my-4 sm:my-6">
-                  {/* Card 1: Total Clientes */}
-                  <Card className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 border border-purple-700/40 text-white">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-xs sm:text-sm font-medium text-gray-300">Total Clientes</CardTitle>
-                      <Users className="h-3 w-3 sm:h-4 sm:w-4 text-purple-400" />
-                    </CardHeader>
-                    <CardContent className="p-3 sm:p-6">
-                      <div className="text-lg sm:text-2xl font-bold text-white">{(clientes?.length || 0).toLocaleString()}</div>
-                      <p className="text-xs text-gray-400 mt-1">Clientes cadastrados</p>
-                    </CardContent>
-                  </Card>
-                  {/* Card 2: Total Revendas */}
-                  <Card className="bg-gradient-to-br from-yellow-900/50 to-yellow-800/30 border border-yellow-700/40 text-white">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-xs sm:text-sm font-medium text-gray-300">Total Revendas</CardTitle>
-                      <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-400" />
-                    </CardHeader>
-                    <CardContent className="p-3 sm:p-6">
-                      <div className="text-lg sm:text-2xl font-bold text-white">{(revendas?.length || 0).toLocaleString()}</div>
-                      <p className="text-xs text-gray-400 mt-1">Revendedores cadastrados</p>
-                    </CardContent>
-                  </Card>
-                  {/* Card 3: Expiram em 3 dias */}
-                  <Card className="bg-gradient-to-br from-red-900/50 to-red-800/30 border border-red-700/40 text-white">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-xs sm:text-sm font-medium text-gray-300">Expiram em 3 dias</CardTitle>
-                      <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4 text-red-400" />
-                    </CardHeader>
-                    <CardContent className="p-3 sm:p-6">
-                      <div className="text-lg sm:text-2xl font-bold text-white">{clientesExpiramEm3Dias.toLocaleString()}</div>
-                      <p className="text-xs text-gray-400 mt-1">Clientes próximos do vencimento</p>
-                    </CardContent>
-                  </Card>
-                  {/* Card 4: Receita Total */}
-                  <Card className="bg-gradient-to-br from-green-900/50 to-green-800/30 border border-green-700/40 text-white">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-xs sm:text-sm font-medium text-gray-300">Receita Total</CardTitle>
-                      <DollarSign className="h-3 w-3 sm:h-4 sm:w-4 text-green-400" />
-                    </CardHeader>
-                    <CardContent className="p-3 sm:p-6">
-                      <div className="text-lg sm:text-2xl font-bold text-white">
-                        R$ {formatCurrency(stats.totalRevenue)}
-                      </div>
-                      <p className="text-xs text-gray-400 mt-1">Receita acumulada (clientes + revendas)</p>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                {/* Cards Section */}
-                <div className="space-y-6">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div>
-                      <h2 className="text-xl sm:text-2xl font-bold text-white">
-                        {viewMode === 'kanban' ? 'Sistema Kanban' : 'Serviços do Sistema'}
-                      </h2>
-                      <p className="text-gray-400 text-sm sm:text-base">
-                        {viewMode === 'kanban' 
-                          ? 'Organize seus serviços por categoria' 
-                          : 'Acesse todos os serviços do sistema'
-                        }
-                      </p>
-                    </div>
-                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                      <Button
-                        variant={viewMode === 'grid' ? 'default' : 'outline'}
-                        onClick={() => setViewMode('grid')}
-                        className="bg-[#1f2937] text-white border border-gray-700 hover:bg-[#23272f] h-10 sm:h-auto"
-                      >
-                        <svg className="w-4 h-4 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                        </svg>
-                        <span className="hidden sm:inline">Grid</span>
-                      </Button>
-                      <Button
-                        variant={viewMode === 'kanban' ? 'default' : 'outline'}
-                        onClick={() => setViewMode('kanban')}
-                        className="bg-[#1f2937] text-white border border-gray-700 hover:bg-[#23272f] h-10 sm:h-auto"
-                      >
-                        <svg className="w-4 h-4 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                        </svg>
-                        <span className="hidden sm:inline">Kanban</span>
-                      </Button>
-                      {viewMode === 'kanban' && (
-                        <>
-                          <Badge className="bg-blue-600 text-white flex items-center gap-1 animate-pulse text-xs">
-                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                            </svg>
-                            <span className="hidden sm:inline">Arraste para reorganizar</span>
-                            <span className="sm:hidden">Arrastar</span>
-                          </Badge>
-                          <Badge className="bg-green-600 text-white flex items-center gap-1 text-xs">
-                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                            <span className="hidden sm:inline">Clique para abrir modal</span>
-                            <span className="sm:hidden">Clique</span>
-                          </Badge>
-                          <Badge className="bg-purple-600 text-white flex items-center gap-1 text-xs">
-                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                            </svg>
-                            <span className="hidden sm:inline">Modais Funcionais</span>
-                            <span className="sm:hidden">Modais</span>
-                          </Badge>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                  
-                  {viewMode === 'kanban' ? (
-                    <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                      <SortableContext items={Object.values(kanbanColumns).flatMap(column => column.cards).map(card => card.id)} strategy={rectSortingStrategy}>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-                          {Object.values(kanbanColumns).map(column => (
-                            <div key={column.id} className="space-y-4">
-                              {/* Column Header */}
-                              <div className={`${column.color} rounded-lg p-4 text-white shadow-lg`}>
-                                <div className="flex items-center justify-between">
-                                  <div className="flex items-center gap-2">
-                                    <h3 className="font-semibold text-lg">{column.title}</h3>
-                                    <div className="w-2 h-2 bg-white rounded-full"></div>
-                                  </div>
-                                  <Badge className="bg-white/20 text-white font-medium">{column.cards.length}</Badge>
-                                </div>
-                              </div>
-                              
-                              {/* Column Cards */}
-                              <div 
-                                className="space-y-4 min-h-[200px] bg-[#1f2937]/50 rounded-lg p-4 border border-gray-700 transition-all duration-200 hover:border-gray-600"
-                                data-column-id={column.id}
-                                data-droppable="true"
-                              >
-                                {column.cards.map(card => (
-                                  <SortableCard 
-                                    key={card.id} 
-                                    id={card.id} 
-                                    content={card.content} 
-                                    body={card.body} 
-                                    onClick={card.onClick} 
-                                  />
-                                ))}
-                                {column.cards.length === 0 && (
-                                  <div 
-                                    className="flex items-center justify-center h-32 text-gray-500 border-2 border-dashed border-gray-600 rounded-lg transition-all duration-200 hover:border-blue-500 hover:text-blue-400 group"
-                                    data-droppable="true"
-                                    data-column-id={column.id}
-                                  >
-                                    <div className="text-center">
-                                      <svg className="w-8 h-8 mx-auto mb-2 text-gray-600 group-hover:text-blue-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                                      </svg>
-                                      <p className="text-sm group-hover:text-blue-400 transition-colors">Solte um card aqui</p>
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </SortableContext>
-                    </DndContext>
-                  ) : (
-                    /* Layout Grid Original */
-                    <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                      <SortableContext items={Object.values(kanbanColumns).flatMap(column => column.cards).map(card => card.id)} strategy={rectSortingStrategy}>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
-                          {Object.values(kanbanColumns).flatMap(column => column.cards).map(card => (
-                            <SortableCard 
-                              key={card.id} 
-                              id={card.id} 
-                              content={card.content} 
-                              body={card.body} 
-                              onClick={card.onClick} 
-                            />
-                          ))}
-                        </div>
-                      </SortableContext>
-                    </DndContext>
-                  )}
-                </div>
-              </>
-            )}
-            {/* Renderização das outras páginas continua igual */}
-            {currentPage === "clients" && <ClientClients />}
-            {currentPage === "resellers" && <ClientResellers />}
-            {currentPage === "billing" && <ClientBilling />}
-            {currentPage === "notifications" && <ClientNotifications />}
-            {currentPage === "whatsapp" && <ClientWhatsApp />}
-            {currentPage === "gateways" && <ClientGateways />}
-            {currentPage === "branding" && <ClientBranding />}
-            {currentPage === "shop" && <ClientShop />}
-            {currentPage === "ai" && <ClientAI />}
-            {currentPage === "games" && <ClientGames />}
-            {currentPage === "analytics" && <ClientAnalytics />}
-            {currentPage === "settings" && <ClientSettings />}
-            {currentPage === "profile" && <ClientProfile />}
-          </div>
-        </main>
-
-        {/* Modals */}
-        <AIModalManager 
-          activeModal={activeModal} 
-          onClose={handleModalClose} 
-          onAddReseller={handleAddReseller}
-        />
-
-        {/* Modal Customizar Marca */}
-        <Dialog open={brandingModal} onOpenChange={setBrandingModal}>
-          <DialogContent className="max-w-4xl bg-[#232a36] border border-purple-700 text-white p-0">
-            <div className="overflow-y-auto max-h-[80vh]">
-              <ClientBranding />
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold text-white">Dashboard Cliente</h1>
+                <p className="text-gray-400 text-sm sm:text-base">Visão geral do sistema</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <ThemeToggle />
+                <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white">
+                  <MessageSquare className="w-4 h-4 mr-2" />
+                  Chat IA
+                </Button>
+              </div>
             </div>
-          </DialogContent>
-        </Dialog>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Card className="bg-[#1f2937] hover:shadow-glow transition-all duration-300">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-white">Horas IPTV</CardTitle>
+                  <Tv className="h-4 w-4 text-gray-400" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-white">{stats.iptvHours}h</div>
+                  <p className="text-xs text-gray-400">Este mês</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-[#1f2937] hover:shadow-glow transition-all duration-300">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-white">Horas Rádio</CardTitle>
+                  <Radio className="h-4 w-4 text-gray-400" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-white">{stats.radioHours}h</div>
+                  <p className="text-xs text-gray-400">Este mês</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-[#1f2937] hover:shadow-glow transition-all duration-300">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-white">Conversas IA</CardTitle>
+                  <Brain className="h-4 w-4 text-gray-400" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-white">{stats.aiChats}</div>
+                  <p className="text-xs text-gray-400">Este mês</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-[#1f2937] hover:shadow-glow transition-all duration-300">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-white">Pontos Game</CardTitle>
+                  <Gamepad2 className="h-4 w-4 text-gray-400" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-white">{stats.gamePoints}</div>
+                  <p className="text-xs text-gray-400">Nível 5</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <Card className="bg-[#1f2937] cursor-pointer hover:shadow-glow transition-all duration-300">
+                <CardHeader>
+                  <div className="flex items-center space-x-2">
+                    <Tv className="w-6 h-6 text-purple-500" />
+                    <CardTitle className="text-white">IPTV Player</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-400 mb-4">
+                    Assista seus canais favoritos
+                  </p>
+                  <Button className="w-full bg-[#7e22ce] hover:bg-[#6d1bb7] text-white">
+                    <Play className="w-4 h-4 mr-2" />
+                    Abrir Player
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-[#1f2937] cursor-pointer hover:shadow-glow transition-all duration-300">
+                <CardHeader>
+                  <div className="flex items-center space-x-2">
+                    <Radio className="w-6 h-6 text-blue-500" />
+                    <CardTitle className="text-white">Rádio Web</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-400 mb-4">
+                    Ouça suas rádios favoritas
+                  </p>
+                  <Button className="w-full bg-[#7e22ce] hover:bg-[#6d1bb7] text-white">
+                    <Play className="w-4 h-4 mr-2" />
+                    Ouvir Agora
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-[#1f2937] cursor-pointer hover:shadow-glow transition-all duration-300">
+                <CardHeader>
+                  <div className="flex items-center space-x-2">
+                    <Gamepad2 className="w-6 h-6 text-orange-500" />
+                    <CardTitle className="text-white">Startup Game</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-400 mb-4">
+                    Construa seu império digital
+                  </p>
+                  <div className="flex items-center space-x-2 mb-4">
+                    <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                    <span className="text-sm text-white">Nível 5 - CEO</span>
+                  </div>
+                  <Button className="w-full bg-[#7e22ce] hover:bg-[#6d1bb7] text-white">
+                    <Play className="w-4 h-4 mr-2" />
+                    Jogar
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+          )}
+          
+          {currentPage === "clients" && <ClientClients />}
+          {currentPage === "resellers" && <ClientResellers />}
+          {currentPage === "billing" && <ClientBilling />}
+          {currentPage === "notifications" && <ClientNotifications />}
+          {currentPage === "whatsapp" && <ClientWhatsApp />}
+          {currentPage === "gateways" && <ClientGateways />}
+          {currentPage === "branding" && <ClientBranding />}
+          {currentPage === "shop" && <ClientShop />}
+          {currentPage === "ai" && <ClientAI />}
+          {currentPage === "games" && <ClientGames />}
+          {currentPage === "analytics" && <ClientAnalytics />}
+          {currentPage === "settings" && <ClientSettings />}
+          {currentPage === "profile" && <ClientProfile />}
+        </main>
       </div>
     </SidebarProvider>
   );

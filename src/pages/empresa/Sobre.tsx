@@ -4,7 +4,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { ArrowUp, Bot } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { ThemeToggle } from "@/components/theme-toggle";
 
 const Sobre = () => {
   const navigate = useNavigate();
@@ -105,39 +104,8 @@ const Sobre = () => {
             </div>
             
             <div className="hidden md:flex items-center space-x-8">
-              <a 
-                href="#features" 
-                className="text-muted-foreground hover:text-foreground transition-colors"
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (location.pathname !== '/') {
-                    navigate('/');
-                    setTimeout(() => {
-                      document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
-                    }, 100);
-                  } else {
-                    document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
-                  }
-                }}
-              >
+              <a href="#features" className="text-muted-foreground hover:text-foreground transition-colors">
                 Funcionalidades
-              </a>
-              <a 
-                href="#avisos" 
-                className="text-muted-foreground hover:text-foreground transition-colors"
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (location.pathname !== '/') {
-                    navigate('/');
-                    setTimeout(() => {
-                      document.getElementById('avisos')?.scrollIntoView({ behavior: 'smooth' });
-                    }, 100);
-                  } else {
-                    document.getElementById('avisos')?.scrollIntoView({ behavior: 'smooth' });
-                  }
-                }}
-              >
-                Avisos
               </a>
               <a 
                 href="/preco" 
@@ -146,15 +114,11 @@ const Sobre = () => {
               >
                 Preços
               </a>
-            </div>
-
-            <div className="flex items-center space-x-4">
-              <ThemeToggle />
               <Button variant="ghost" onClick={() => navigate('/login')}>
                 Entrar
               </Button>
-              <Button variant="hero" onClick={() => navigate('/cadastro')}>
-                Teste Grátis
+              <Button onClick={() => navigate('/cadastro')}>
+                Começar Grátis
               </Button>
             </div>
           </nav>
@@ -222,20 +186,40 @@ const Sobre = () => {
           </div>
         </div>
       </section>
-      
+
+      {/* Time */}
       <section className="py-16 container mx-auto px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-6">Como Atuamos</h2>
-          <p className="text-lg text-muted-foreground mb-6">
-            Na BootFlow, unimos tecnologia, dados e experiência de mercado para criar soluções que
-            realmente geram resultado. Nosso foco é entender a jornada dos seus clientes e automatizar
-            pontos-chave da comunicação, sem perder o lado humano.
-          </p>
-          <p className="text-lg text-muted-foreground">
-            Trabalhamos lado a lado com o seu time para desenhar fluxos inteligentes, implementar
-            integrações e acompanhar a performance contínua, garantindo que cada mensagem enviada tenha
-            propósito e impacto no seu negócio.
-          </p>
+        <h2 className="text-3xl font-bold mb-12 text-center">Conheça Nosso Time</h2>
+        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          {[
+            {
+              name: "João Silva",
+              role: "CEO & Fundador",
+              image: "https://randomuser.me/api/portraits/men/1.jpg"
+            },
+            {
+              name: "Maria Santos",
+              role: "CTO",
+              image: "https://randomuser.me/api/portraits/women/2.jpg"
+            },
+            {
+              name: "Carlos Oliveira",
+              role: "Head de Produto",
+              image: "https://randomuser.me/api/portraits/men/3.jpg"
+            }
+          ].map((member, index) => (
+            <div key={index} className="text-center">
+              <div className="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden">
+                <img 
+                  src={member.image} 
+                  alt={member.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <h3 className="text-xl font-semibold">{member.name}</h3>
+              <p className="text-muted-foreground">{member.role}</p>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -275,8 +259,8 @@ const Sobre = () => {
                 A plataforma de IA emocional que revoluciona a comunicação empresarial no Brasil.
               </p>
               <div className="flex space-x-2">
-                <Badge variant="outline">IA Emocional</Badge>
-                <Badge variant="outline">WhatsApp</Badge>
+                <Badge variant="glass">IA Emocional</Badge>
+                <Badge variant="glass">WhatsApp</Badge>
               </div>
             </div>
 

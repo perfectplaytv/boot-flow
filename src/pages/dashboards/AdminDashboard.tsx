@@ -1768,10 +1768,10 @@ const AdminDashboard = () => {
                   <p className="text-xs text-gray-400 mt-1">Revendedores cadastrados</p>
                 </CardContent>
               </Card>
-              {/* Card 3: Clientes dos Revendas */}
+              {/* Card 3: Expiram em 3 dias */}
               <Card className="bg-gradient-to-br from-red-900/50 to-red-800/30 border border-red-700/40 text-white">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-xs sm:text-sm font-medium text-gray-300">Clientes dos Revendas</CardTitle>
+                  <CardTitle className="text-xs sm:text-sm font-medium text-gray-300">Expiram em 3 dias</CardTitle>
                   <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4 text-red-400" />
                 </CardHeader>
                 <CardContent className="p-3 sm:p-6">
@@ -2887,10 +2887,10 @@ const AdminDashboard = () => {
                       <p className="text-xs text-gray-400 mt-1">Revendedores cadastrados</p>
                     </CardContent>
                   </Card>
-                  {/* Card 3: Clientes dos Revendas */}
+                  {/* Card 3: Expiram em 3 dias */}
                   <Card className="bg-gradient-to-br from-red-900/50 to-red-800/30 border border-red-700/40 text-white">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-xs sm:text-sm font-medium text-gray-300">Clientes dos Revendas</CardTitle>
+                      <CardTitle className="text-xs sm:text-sm font-medium text-gray-300">Expiram em 3 dias</CardTitle>
                       <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4 text-red-400" />
                     </CardHeader>
                     <CardContent className="p-3 sm:p-6">

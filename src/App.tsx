@@ -20,7 +20,6 @@ import AuthCallback from "./pages/AuthCallback";
 import NotFound from "./pages/NotFound";
 import Sobre from "./pages/empresa/Sobre";
 import Blog from "./pages/empresa/Blog";
-import BlogPost from "./pages/BlogPost";
 
 // Dashboards
 import AdminDashboard from "./pages/dashboards/AdminDashboard";
@@ -55,7 +54,7 @@ const AuthProviderWithNavigation = ({ children }: { children: React.ReactNode })
 
 const App = () => {
   const [isConnected, setIsConnected] = useState(false);
-  const [connectionStatus, setConnectionStatus] = useState<'disconnected' | 'connecting' | 'connected'>('disconnected');
+  const [connectionStatus, setConnectionStatus] = useState('disconnected');
   
   return (
     <QueryClientProvider client={queryClient}>
@@ -81,8 +80,6 @@ const App = () => {
                 <Route path="/demo" element={<Demo />} />
                 <Route path="/empresa/sobre" element={<Sobre />} />
                 <Route path="/empresa/blog" element={<Blog />} />
-                <Route path="/empresa/blog/:category" element={<Blog />} />
-                <Route path="/blog/:id" element={<BlogPost />} />
 
                 {/* Dashboard Admin - Acesso direto */}
                 <Route path="/admin" element={<AdminDashboard />} />

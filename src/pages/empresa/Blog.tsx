@@ -1,19 +1,14 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, Tag, ArrowUp, Bot } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useNavigate, useLocation, useParams } from "react-router-dom";
-import { DialogWrapper } from "@/components/ui/DialogWrapper";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const Blog = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { category } = useParams<{ category?: string }>();
   const [showScrollButton, setShowScrollButton] = useState(false);
-  const [newsletterEmail, setNewsletterEmail] = useState("");
-  const [isNewsletterModalOpen, setIsNewsletterModalOpen] = useState(false);
 
   // Efeito para mostrar/ocultar o botão de voltar ao topo
   useEffect(() => {
@@ -92,39 +87,6 @@ const Blog = () => {
     window.location.href = `mailto:suporte@bootflow.com.br?subject=${emailSubject}&body=${emailBody}`;
   };
 
-  const handleNewsletterSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    if (!newsletterEmail) {
-      setIsNewsletterModalOpen(true);
-      return;
-    }
-    setIsNewsletterModalOpen(true);
-  };
-
-  const handleNewsletterEmail = () => {
-    const subject = encodeURIComponent('Assinatura da newsletter - BootFlow');
-    const body = encodeURIComponent(
-      `Olá, gostaria de assinar a newsletter da BootFlow.${newsletterEmail ? `\n\nMeu e-mail: ${newsletterEmail}` : ""}`
-    );
-    // Envia para o e-mail de suporte
-    window.location.href = `mailto:suporte@bootflow.com.br?subject=${subject}&body=${body}`;
-
-    // Também abre o WhatsApp com uma mensagem pronta sobre a inscrição na newsletter
-    const whatsappNumber = "5527999587725";
-    const whatsappMessage = encodeURIComponent(
-      `Olá! Gostaria de assinar a newsletter da BootFlow.${
-        newsletterEmail ? `\n\nMeu e-mail: ${newsletterEmail}` : ""
-      }`
-    );
-    window.open(
-      `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`,
-      "_blank",
-      "noopener,noreferrer"
-    );
-
-    setIsNewsletterModalOpen(false);
-  };
-
   const posts = [
     {
       id: 1,
@@ -183,44 +145,14 @@ const Blog = () => {
   ];
 
   const categories = [
-    { name: "Todos", slug: "todos", count: posts.length },
-    { name: "IA", slug: "ia", count: 3 },
-    { name: "Tecnologia", slug: "tecnologia", count: 5 },
-    { name: "Produtividade", slug: "produtividade", count: 2 },
-    { name: "Segurança", slug: "seguranca", count: 3 },
-    { name: "Trabalho Remoto", slug: "trabalho-remoto", count: 2 },
-    { name: "Cloud Computing", slug: "cloud-computing", count: 1 }
+    { name: "Todos", count: posts.length },
+    { name: "IA", count: 3 },
+    { name: "Tecnologia", count: 5 },
+    { name: "Produtividade", count: 2 },
+    { name: "Segurança", count: 3 },
+    { name: "Trabalho Remoto", count: 2 },
+    { name: "Cloud Computing", count: 1 }
   ];
-
-  const categorySlugToName: Record<string, string> = {
-    "ia": "IA",
-    "tecnologia": "Tecnologia",
-    "produtividade": "Produtividade",
-    "seguranca": "Segurança",
-    "trabalho-remoto": "Trabalho Remoto",
-    "cloud-computing": "Cloud Computing",
-    "todos": "Todos",
-  };
-
-  const activeCategoryName = category
-    ? categorySlugToName[category.toLowerCase()] || "Todos"
-    : "Todos";
-
-  const filteredPosts = activeCategoryName === "Todos"
-    ? posts
-    : posts.filter((post) => post.category === activeCategoryName);
-
-  const [currentPage, setCurrentPage] = useState(1);
-  const postsPerPage = 2;
-
-  const totalPages = Math.ceil(filteredPosts.length / postsPerPage) || 1;
-  const startIndex = (currentPage - 1) * postsPerPage;
-  const paginatedPosts = filteredPosts.slice(startIndex, startIndex + postsPerPage);
-
-  useEffect(() => {
-    // Sempre volta para a primeira página ao trocar de categoria
-    setCurrentPage(1);
-  }, [activeCategoryName]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -239,39 +171,8 @@ const Blog = () => {
             </div>
             
             <div className="hidden md:flex items-center space-x-8">
-              <a 
-                href="#features" 
-                className="text-muted-foreground hover:text-foreground transition-colors"
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (location.pathname !== '/') {
-                    navigate('/');
-                    setTimeout(() => {
-                      document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
-                    }, 100);
-                  } else {
-                    document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
-                  }
-                }}
-              >
+              <a href="#features" className="text-muted-foreground hover:text-foreground transition-colors">
                 Funcionalidades
-              </a>
-              <a 
-                href="#avisos" 
-                className="text-muted-foreground hover:text-foreground transition-colors"
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (location.pathname !== '/') {
-                    navigate('/');
-                    setTimeout(() => {
-                      document.getElementById('avisos')?.scrollIntoView({ behavior: 'smooth' });
-                    }, 100);
-                  } else {
-                    document.getElementById('avisos')?.scrollIntoView({ behavior: 'smooth' });
-                  }
-                }}
-              >
-                Avisos
               </a>
               <a 
                 href="/preco" 
@@ -280,15 +181,11 @@ const Blog = () => {
               >
                 Preços
               </a>
-            </div>
-
-            <div className="flex items-center space-x-4">
-              <ThemeToggle />
               <Button variant="ghost" onClick={() => navigate('/login')}>
                 Entrar
               </Button>
-              <Button variant="hero" onClick={() => navigate('/cadastro')}>
-                Teste Grátis
+              <Button onClick={() => navigate('/cadastro')}>
+                Começar Grátis
               </Button>
             </div>
           </nav>
@@ -319,24 +216,15 @@ const Blog = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {categories.map((cat, index) => (
-                    <div
-                      key={index}
-                      className="flex justify-between items-center hover:bg-muted/50 p-2 rounded cursor-pointer"
-                      onClick={() => {
-                        if (cat.slug === "todos") {
-                          navigate("/empresa/blog");
-                        } else {
-                          navigate(`/empresa/blog/${cat.slug}`);
-                        }
-                      }}
-                    >
-                      <span>{cat.name}</span>
-                      <Badge variant="outline">{cat.count}</Badge>
+                  {categories.map((category, index) => (
+                    <div key={index} className="flex justify-between items-center hover:bg-muted/50 p-2 rounded cursor-pointer">
+                      <span>{category.name}</span>
+                      <Badge variant="outline">{category.count}</Badge>
                     </div>
                   ))}
                 </div>
               </CardContent>
+              
               <CardHeader>
                 <CardTitle className="text-xl">Assine nossa newsletter</CardTitle>
                 <CardDescription>Receba as últimas atualizações diretamente no seu e-mail.</CardDescription>
@@ -347,16 +235,8 @@ const Blog = () => {
                     type="email" 
                     placeholder="Seu e-mail" 
                     className="w-full p-2 border rounded"
-                    value={newsletterEmail}
-                    onChange={(e) => setNewsletterEmail(e.target.value)}
                   />
-                  <Button 
-                    className="w-full"
-                    type="button"
-                    onClick={handleNewsletterSubmit}
-                  >
-                    Assinar
-                  </Button>
+                  <Button className="w-full">Assinar</Button>
                 </div>
               </CardContent>
             </Card>
@@ -365,7 +245,7 @@ const Blog = () => {
           {/* Posts */}
           <div className="md:w-3/4">
             <div className="grid md:grid-cols-2 gap-6">
-              {paginatedPosts.map((post) => (
+              {posts.map((post) => (
                 <Card key={post.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                   <div className="h-48 overflow-hidden">
                     <img 
@@ -409,31 +289,11 @@ const Blog = () => {
             {/* Pagination */}
             <div className="flex justify-center mt-12">
               <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  disabled={currentPage === 1}
-                  onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
-                >
-                  Anterior
-                </Button>
-
-                {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
-                  <Button
-                    key={page}
-                    variant={page === currentPage ? "default" : "outline"}
-                    onClick={() => setCurrentPage(page)}
-                  >
-                    {page}
-                  </Button>
-                ))}
-
-                <Button
-                  variant="outline"
-                  disabled={currentPage === totalPages}
-                  onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
-                >
-                  Próximo
-                </Button>
+                <Button variant="outline">Anterior</Button>
+                <Button variant="outline">1</Button>
+                <Button>2</Button>
+                <Button variant="outline">3</Button>
+                <Button variant="outline">Próximo</Button>
               </div>
             </div>
           </div>
@@ -458,8 +318,8 @@ const Blog = () => {
                 A plataforma de IA emocional que revoluciona a comunicação empresarial no Brasil.
               </p>
               <div className="flex space-x-2">
-                <Badge variant="outline">IA Emocional</Badge>
-                <Badge variant="outline">WhatsApp</Badge>
+                <Badge variant="glass">IA Emocional</Badge>
+                <Badge variant="glass">WhatsApp</Badge>
               </div>
             </div>
 
@@ -648,38 +508,6 @@ const Blog = () => {
           Voltar ao Topo
         </Button>
       )}
-
-      <DialogWrapper
-        open={isNewsletterModalOpen}
-        onOpenChange={setIsNewsletterModalOpen}
-        title="Assinatura da newsletter"
-        description="Vamos enviar suas informações diretamente para o nosso time por e-mail."
-        className="bg-zinc-900 text-white max-w-md"
-      >
-        <div className="space-y-4 mt-4">
-          <p className="text-sm text-gray-300">
-            Ao continuar, vamos abrir o seu cliente de e-mail padrão com uma mensagem pronta para o
-            endereço <span className="font-semibold">suporte@bootflow.com.br</span>, sem passar por
-            aplicativos de mensagem.
-          </p>
-          {newsletterEmail && (
-            <p className="text-sm text-gray-300">
-              E-mail informado: <span className="font-mono">{newsletterEmail}</span>
-            </p>
-          )}
-          <div className="flex justify-end gap-2 pt-2">
-            <Button 
-              variant="outline" 
-              onClick={() => setIsNewsletterModalOpen(false)}
-            >
-              Cancelar
-            </Button>
-            <Button onClick={handleNewsletterEmail}>
-              Enviar e-mail agora
-            </Button>
-          </div>
-        </div>
-      </DialogWrapper>
     </div>
   );
 };
