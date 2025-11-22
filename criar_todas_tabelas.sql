@@ -3,6 +3,11 @@
 -- Execute este script no SQL Editor do Supabase
 -- ============================================
 
+-- NOTE: This script targets PostgreSQL (Supabase). Do not run on
+-- Microsoft SQL Server or other non-Postgres engines.
+
+-- Ensure pgcrypto is available for gen_random_uuid()
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
 -- ============================================
 -- 1. TABELA: users (Clientes)
 -- ============================================
@@ -163,12 +168,12 @@ CREATE POLICY "Resellers can insert all"
   ON public.resellers FOR INSERT
   WITH CHECK (auth.role() = 'authenticated');
 
--- Permitir inserção por funções SECURITY DEFINER / service_role (para triggers que criam registros automaticamente)
+-- Permitir inserção por service role (usando checagem via auth.role())
 DROP POLICY IF EXISTS "Enable insert for service role resellers" ON public.resellers;
 CREATE POLICY "Enable insert for service role resellers"
   ON public.resellers FOR INSERT
-  TO service_role
-  WITH CHECK (true);
+  USING (auth.role() = 'service_role')
+  WITH CHECK (auth.role() = 'service_role');
 
 CREATE POLICY "Resellers can update all"
   ON public.resellers FOR UPDATE
