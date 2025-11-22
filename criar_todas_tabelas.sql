@@ -172,7 +172,6 @@ CREATE POLICY "Resellers can insert all"
 DROP POLICY IF EXISTS "Enable insert for service role resellers" ON public.resellers;
 CREATE POLICY "Enable insert for service role resellers"
   ON public.resellers FOR INSERT
-  USING (auth.role() = 'service_role')
   WITH CHECK (auth.role() = 'service_role');
 
 CREATE POLICY "Resellers can update all"
