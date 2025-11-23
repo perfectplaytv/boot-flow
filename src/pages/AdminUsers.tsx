@@ -2053,10 +2053,12 @@ export default function AdminUsers() {
                     </div>
                     {/* Plano */}
                     <div className="col-span-1">
-                      <label className="block text-gray-300 mb-1 font-medium">
+                      <label htmlFor="edit-plan" className="block text-gray-300 mb-1 font-medium">
                         Plano *
                       </label>
                       <select
+                        id="edit-plan"
+                        aria-label="Plano"
                         className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                         value={editingUser.plan}
                         onChange={(e) =>
@@ -2078,10 +2080,12 @@ export default function AdminUsers() {
                     {/* Preço */}
                     {editingUser.plan && (
                       <div className="col-span-1">
-                        <label className="block text-gray-300 mb-1 font-medium">
+                        <label htmlFor="edit-price" className="block text-gray-300 mb-1 font-medium">
                           Preço *
                         </label>
                         <select
+                          id="edit-price"
+                          aria-label="Preço"
                           className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                           value={editingUser.price}
                           onChange={(e) =>
@@ -2305,10 +2309,10 @@ export default function AdminUsers() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
                     {/* Classe de Serviço */}
                     <div>
-                      <label className="block text-gray-300 mb-1 font-medium">
+                      <label htmlFor="edit-classe-servico" className="block text-gray-300 mb-1 font-medium">
                         Classe de Serviço
                       </label>
-                      <select className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2">
+                      <select id="edit-classe-servico" aria-label="Classe de Serviço" className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2">
                         <option value="">Selecione</option>
                         <option value="basico">Básico</option>
                         <option value="premium">Premium</option>
@@ -2826,15 +2830,19 @@ function VencimentoDatePickerEdit({
       <PopoverTrigger asChild>
         <div className="flex gap-2">
           <input
+            id="vencimento-date-2"
             readOnly
             value={date ? formatDate(date) : ""}
             placeholder="Selecione a data"
+            aria-label="Data de vencimento"
             className="w-1/2 bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 cursor-pointer"
             onClick={() => setOpen(true)}
           />
           <input
+            id="vencimento-time-2"
             type="time"
             value={time}
+            aria-label="Hora de vencimento"
             onChange={handleTimeChange}
             className="w-1/2 bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
           />
