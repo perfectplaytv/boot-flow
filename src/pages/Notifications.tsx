@@ -289,12 +289,7 @@ export default function Notifications() {
     </div>
   );
 
-  // Cards resumo
-  const enviados = historico.length;
-  const entregues = historico.filter(h => h.status === 'Entregue').length;
-  const lidos = historico.filter(h => h.status === 'Lido').length;
-  const falhas = historico.filter(h => h.status === 'Falha').length;
-  const taxaEntrega = enviados ? ((entregues / enviados) * 100).toFixed(1) : '0.0';
+  // resumo de cards (usamos as variáveis calculadas acima com gating)
 
   // Funções dos modais
   const handleNovo = () => {
