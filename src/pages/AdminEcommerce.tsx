@@ -29,21 +29,9 @@ interface Sale {
 }
 
 export default function AdminEcommerce() {
-  const [products, setProducts] = useState<Product[]>([
-    { id: 1, name: "Plano Básico", category: "Planos", price: 29.90, stock: 999, status: "Ativo", sales: 45 },
-    { id: 2, name: "Plano Pro", category: "Planos", price: 59.90, stock: 999, status: "Ativo", sales: 32 },
-    { id: 3, name: "Plano Enterprise", category: "Planos", price: 99.90, stock: 999, status: "Ativo", sales: 18 },
-    { id: 4, name: "Suporte Premium", category: "Serviços", price: 149.90, stock: 50, status: "Ativo", sales: 12 },
-    { id: 5, name: "Consultoria", category: "Serviços", price: 299.90, stock: 20, status: "Ativo", sales: 8 },
-  ]);
+  const [products, setProducts] = useState<Product[]>([]);
 
-  const [recentSales, setRecentSales] = useState<Sale[]>([
-    { id: 1, customer: "João Silva", product: "Plano Pro", amount: 59.90, date: "2024-01-20", status: "Pago" },
-    { id: 2, customer: "Maria Santos", product: "Plano Básico", amount: 29.90, date: "2024-01-19", status: "Pago" },
-    { id: 3, customer: "Pedro Oliveira", product: "Suporte Premium", amount: 149.90, date: "2024-01-18", status: "Pendente" },
-    { id: 4, customer: "Ana Costa", product: "Plano Enterprise", amount: 99.90, date: "2024-01-17", status: "Pago" },
-    { id: 5, customer: "Carlos Lima", product: "Consultoria", amount: 299.90, date: "2024-01-16", status: "Pago" },
-  ]);
+  const [recentSales, setRecentSales] = useState<Sale[]>([]);
 
   const [ecommerceConfig, setEcommerceConfig] = useState({
     storeName: "SaaS Pro Store",

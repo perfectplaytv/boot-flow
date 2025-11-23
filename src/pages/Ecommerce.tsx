@@ -33,68 +33,7 @@ interface Product {
 }
 
 const Ecommerce: React.FC = () => {
-  const [products, setProducts] = useState<Product[]>([
-    {
-      id: '1',
-      name: 'Smartphone Galaxy S23',
-      category: 'Eletrônicos',
-      price: 3499.99,
-      stock: 45,
-      status: 'Ativo',
-      sales: 127,
-      rating: 4.8
-    },
-    {
-      id: '2',
-      name: 'Notebook Dell Inspiron',
-      category: 'Computadores',
-      price: 2899.99,
-      stock: 23,
-      status: 'Ativo',
-      sales: 89,
-      rating: 4.6
-    },
-    {
-      id: '3',
-      name: 'Fone de Ouvido Sony WH-1000XM4',
-      category: 'Acessórios',
-      price: 1299.99,
-      stock: 0,
-      status: 'Esgotado',
-      sales: 234,
-      rating: 4.9
-    },
-    {
-      id: '4',
-      name: 'Smart TV Samsung 55"',
-      category: 'Eletrônicos',
-      price: 2499.99,
-      stock: 12,
-      status: 'Ativo',
-      sales: 67,
-      rating: 4.7
-    },
-    {
-      id: '5',
-      name: 'Câmera Canon EOS R6',
-      category: 'Fotografia',
-      price: 18999.99,
-      stock: 5,
-      status: 'Ativo',
-      sales: 23,
-      rating: 4.9
-    },
-    {
-      id: '6',
-      name: 'Console PlayStation 5',
-      category: 'Games',
-      price: 3999.99,
-      stock: 0,
-      status: 'Esgotado',
-      sales: 156,
-      rating: 4.8
-    }
-  ]);
+  const [products, setProducts] = useState<Product[]>([]);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
