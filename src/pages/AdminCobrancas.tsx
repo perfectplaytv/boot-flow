@@ -894,7 +894,7 @@ export default function AdminCobrancas() {
                   onChange={e => setNova({ ...nova, email: e.target.value })}
                 />
               </div>
-              </div>
+              
 
               {/* Telefone */}
               <div>
