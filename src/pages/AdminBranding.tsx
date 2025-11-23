@@ -3166,6 +3166,7 @@ const AdminBranding: React.FC = () => {
             </div>
             <DynamicStyle className="p-8" styles={{ backgroundColor: viewingPage.backgroundColor, color: viewingPage.textColor }}>
               {viewingPage.showHeader && (
+                <header>
                 <DynamicStyle styles={{ borderColor: viewingPage.primaryColor }} className="mb-8 pb-4 border-b">
                   <DynamicStyle styles={{ color: viewingPage.primaryColor }} className="text-4xl font-bold mb-2">
                     {viewingPage.title}
@@ -3335,6 +3336,7 @@ const AdminBranding: React.FC = () => {
               {viewingPage.customCSS && (
                 <style>{viewingPage.customCSS}</style>
               )}
+            </DynamicStyle>
             </div>
           </div>
         </div>
