@@ -1131,7 +1131,7 @@ export default function ClientBilling() {
               <div>
                 <label className="block text-gray-300 mb-2">Período</label>
                 <Select>
-                  <SelectTrigger className="bg-[#23272f] border-gray-700">
+                  <SelectTrigger aria-label="Período do relatório" className="bg-[#23272f] border-gray-700">
                     <SelectValue placeholder="Selecione o período" />
                   </SelectTrigger>
                   <SelectContent className="bg-[#23272f] border-gray-700">
@@ -1145,7 +1145,7 @@ export default function ClientBilling() {
               <div>
                 <label className="block text-gray-300 mb-2">Formato</label>
                 <Select>
-                  <SelectTrigger className="bg-[#23272f] border-gray-700">
+                  <SelectTrigger aria-label="Formato do relatório" className="bg-[#23272f] border-gray-700">
                     <SelectValue placeholder="Selecione o formato" />
                   </SelectTrigger>
                   <SelectContent className="bg-[#23272f] border-gray-700">
@@ -1180,7 +1180,7 @@ export default function ClientBilling() {
               <div>
                 <label className="block text-gray-300 mb-2">Tipo de Automação</label>
                 <Select>
-                  <SelectTrigger className="bg-[#23272f] border-gray-700">
+                  <SelectTrigger aria-label="Tipo de automação" className="bg-[#23272f] border-gray-700">
                     <SelectValue placeholder="Selecione o tipo" />
                   </SelectTrigger>
                   <SelectContent className="bg-[#23272f] border-gray-700">
@@ -1194,7 +1194,7 @@ export default function ClientBilling() {
               <div>
                 <label className="block text-gray-300 mb-2">Frequência</label>
                 <Select>
-                  <SelectTrigger className="bg-[#23272f] border-gray-700">
+                  <SelectTrigger aria-label="Frequência da automação" className="bg-[#23272f] border-gray-700">
                     <SelectValue placeholder="Selecione a frequência" />
                   </SelectTrigger>
                   <SelectContent className="bg-[#23272f] border-gray-700">
