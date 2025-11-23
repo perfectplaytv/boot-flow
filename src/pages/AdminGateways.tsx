@@ -31,7 +31,7 @@ export default function AdminGateways() {
   const total = gateways.length;
   const ativos = gateways.filter(g => g.status === 'Ativo').length;
   const configurados = gateways.filter(g => g.configurado).length;
-  const volumeMensal = 'R$ 212.840,81';
+  const volumeMensal = '0';
   const transacoes = 5777;
 
   // Funções dos modais
