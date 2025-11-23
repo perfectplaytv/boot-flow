@@ -866,48 +866,34 @@ export default function AdminCobrancas() {
                 >
                   <option value="">Selecionar</option>
                   <optgroup label="Clientes">
-                    {filtradas.map(c => (
-                      <TableRow key={c.id}>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
-                              {shouldShow ? c.cliente.split(' ').map(n => n[0]).join('').slice(0,2) : '--'}
-                            </div>
-                            <div>
-                              <div className="font-semibold text-white">{shouldShow ? c.cliente : '—'}</div>
-                              <div className="text-xs text-gray-400">{shouldShow ? c.email : ''}</div>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell className="p-4 align-middle [&:has([role=checkbox])]:pr-0 text-gray-300">{shouldShow ? c.descricao : '—'}</TableCell>
-                        <TableCell className="p-4 align-middle [&:has([role=checkbox])]:pr-0 font-bold text-white">{shouldShow ? `R$ ${c.valor.toFixed(2)}` : 'R$ 0.00'}</TableCell>
-                        <TableCell className="p-4 align-middle [&:has([role=checkbox])]:pr-0 text-gray-300">{shouldShow ? c.vencimento : '-'}</TableCell>
-                        <TableCell>
-                          {shouldShow ? (
-                            <>
-                              {c.status === 'Vencida' && <Badge className="bg-red-700 text-red-200">Vencida</Badge>}
-                              {c.status === 'Pendente' && <Badge className="bg-yellow-700 text-yellow-200">Pendente</Badge>}
-                              {c.status === 'Paga' && <Badge className="bg-green-700 text-green-200">Paga</Badge>}
-                            </>
-                          ) : (
-                            <div className="text-xs text-gray-500">—</div>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-white text-xs sm:text-sm">{shouldShow ? c.tipo : '-'}</TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            <Button size="icon" variant="ghost" onClick={() => setModalVisualizar(c)} disabled={!shouldShow}><Eye className="w-4 h-4 text-blue-400" /></Button>
-                            <Button size="icon" variant="ghost" onClick={() => openEditModal(c)} disabled={!shouldShow}><Edit className="w-4 h-4 text-yellow-400" /></Button>
-                            <Button size="icon" variant="ghost" onClick={() => setModalWhats(c)} disabled={!shouldShow}><MessageSquare className="w-4 h-4 text-green-500" /></Button>
-                            <Button size="icon" variant="ghost" onClick={() => setModalEmail(c)} disabled={!shouldShow}><Mail className="w-4 h-4 text-blue-500" /></Button>
-                            <Button size="icon" variant="ghost" onClick={() => setModalExcluir(c)} disabled={!shouldShow}><Trash2 className="w-4 h-4 text-red-400" /></Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
+                    {clientes.map(c => (
+                      <option key={`cliente-${c.id}`} value={`cliente-${c.id}`}>
+                        {c.name} — {c.email}
+                      </option>
                     ))}
+                  </optgroup>
+                  <optgroup label="Revendas">
+                    {revendas.map(r => (
+                      <option key={`revenda-${r.id}`} value={`revenda-${r.id}`}>
+                        {r.personal_name || r.username} — {r.email}
+                      </option>
+                    ))}
+                  </optgroup>
+                </select>
+              </div>
+
+              {/* E-mail */}
+              <div>
+                <label className="block text-gray-300 mb-2 font-medium">
+                  E-mail <span className="text-red-500">*</span>
+                </label>
+                <Input
+                  placeholder="exemplo@dominio.com"
+                  className="bg-[#23272f] border border-gray-600 text-white placeholder-gray-400 focus:border-purple-500"
                   value={nova.email}
                   onChange={e => setNova({ ...nova, email: e.target.value })}
                 />
+              </div>
               </div>
 
               {/* Telefone */}
