@@ -423,6 +423,7 @@ const AdminDashboard = () => {
 
   // Mapear clientes e revendedores para usuários online
   const onlineUsersUnified = useMemo(() => {
+    if (!showRealData) return [];
     const clientesOnline = clientes
       .filter(cliente => cliente.status === 'Ativo')
       .slice(0, 10)
@@ -1371,6 +1372,9 @@ const AdminDashboard = () => {
                 <div className="text-center sm:text-left">
                 <h1 className="text-2xl sm:text-3xl font-bold text-white">{isResellerRoute ? 'Dashboard Revenda' : 'Dashboard Admin'}</h1>
                 <p className="text-gray-400 text-sm sm:text-base">Visão geral do sistema</p>
+                {!showRealData && (
+                  <p className="text-xs text-yellow-300 mt-2">Os dados reais serão exibidos somente quando forem adicionados pela página de Revenda.</p>
+                )}
               </div>
               <div className="flex flex-row items-center gap-2 w-full sm:w-auto justify-center sm:justify-end">
                 <Dialog open={clientModal} onOpenChange={setClientModal}>
@@ -1790,7 +1794,7 @@ const AdminDashboard = () => {
                   <Users className="h-3 w-3 sm:h-4 sm:w-4 text-purple-400" />
                 </CardHeader>
                 <CardContent className="p-3 sm:p-6">
-                  <div className="text-lg sm:text-2xl font-bold text-white">{(clientes?.length || 0).toLocaleString()}</div>
+                  <div className="text-lg sm:text-2xl font-bold text-white">{showRealData ? (clientes?.length || 0).toLocaleString() : '0'}</div>
                   <p className="text-xs text-gray-400 mt-1">Clientes cadastrados</p>
                 </CardContent>
               </Card>
@@ -1801,7 +1805,7 @@ const AdminDashboard = () => {
                   <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-400" />
                 </CardHeader>
                 <CardContent className="p-3 sm:p-6">
-                  <div className="text-lg sm:text-2xl font-bold text-white">{(revendas?.length || 0).toLocaleString()}</div>
+                  <div className="text-lg sm:text-2xl font-bold text-white">{showRealData ? (revendas?.length || 0).toLocaleString() : '0'}</div>
                   <p className="text-xs text-gray-400 mt-1">Revendedores cadastrados</p>
                 </CardContent>
               </Card>
@@ -1824,7 +1828,7 @@ const AdminDashboard = () => {
                 </CardHeader>
                 <CardContent className="p-3 sm:p-6">
                   <div className="text-lg sm:text-2xl font-bold text-white">
-                    R$ {formatCurrency(stats.totalRevenue)}
+                    R$ {formatCurrency(showRealData ? stats.totalRevenue : 0)}
                   </div>
                   <p className="text-xs text-gray-400 mt-1">Receita acumulada (clientes + revendas)</p>
                 </CardContent>
