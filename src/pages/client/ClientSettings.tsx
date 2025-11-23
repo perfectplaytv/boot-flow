@@ -20,11 +20,7 @@ export default function ClientSettings() {
   const [modalIntegracao, setModalIntegracao] = useState<string | null>(null);
   // Faturamento
   const [plano, setPlano] = useState('Pro');
-  const [faturas] = useState([
-    { id: 1, data: '10/06/2024', valor: 'R$ 99,90', status: 'Paga' },
-    { id: 2, data: '10/05/2024', valor: 'R$ 99,90', status: 'Paga' },
-    { id: 3, data: '10/04/2024', valor: 'R$ 99,90', status: 'Paga' },
-  ]);
+  const [faturas] = useState([]);
   // Segurança
   const [senha, setSenha] = useState({ atual: '', nova: '', confirmar: '' });
   const [modal2FA, setModal2FA] = useState(false);
