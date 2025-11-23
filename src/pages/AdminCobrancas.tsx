@@ -1317,8 +1317,8 @@ export default function AdminCobrancas() {
             <div className="bg-[#1f2937] border border-gray-700 rounded-lg p-4 mb-4">
               <span className="block text-white font-semibold mb-2">Informações Adicionais</span>
               <div className="flex items-center gap-2 mb-2">
-                <input type="checkbox" className="accent-green-500" />
-                <span className="text-gray-300 text-sm">Notificações via WhatsApp</span>
+                <input id="edit-notify-whatsapp" type="checkbox" className="accent-green-500" />
+                <label htmlFor="edit-notify-whatsapp" className="text-gray-300 text-sm">Notificações via WhatsApp</label>
               </div>
               <div>
                 <label className="block text-gray-300 mb-1 font-medium">Anotações</label>
@@ -1420,16 +1420,22 @@ export default function AdminCobrancas() {
               <label className="block text-gray-300 mb-2">Incluir</label>
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <input type="checkbox" defaultChecked className="accent-purple-500" />
-                  <span className="text-gray-300">Métricas de conversão</span>
+                  <label className="flex items-center gap-2 text-gray-300">
+                    <input type="checkbox" defaultChecked className="accent-purple-500" />
+                    <span>Métricas de conversão</span>
+                  </label>
                 </div>
                 <div className="flex items-center gap-2">
-                  <input type="checkbox" defaultChecked className="accent-purple-500" />
-                  <span className="text-gray-300">Performance por gateway</span>
+                  <label className="flex items-center gap-2 text-gray-300">
+                    <input type="checkbox" defaultChecked className="accent-purple-500" />
+                    <span>Performance por gateway</span>
+                  </label>
                 </div>
                 <div className="flex items-center gap-2">
-                  <input type="checkbox" className="accent-purple-500" />
-                  <span className="text-gray-300">Análise de tendências</span>
+                  <label className="flex items-center gap-2 text-gray-300">
+                    <input type="checkbox" className="accent-purple-500" />
+                    <span>Análise de tendências</span>
+                  </label>
                 </div>
               </div>
             </div>
@@ -1486,17 +1492,17 @@ export default function AdminCobrancas() {
             <div>
               <label className="block text-gray-300 mb-2">Configurações</label>
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-300">Tentativas máximas</span>
-                  <input type="number" min="1" max="10" defaultValue="3" className="w-20 bg-[#23272f] border border-gray-700 text-white rounded px-2 py-1" />
+                  <div className="flex items-center justify-between">
+                  <label className="text-gray-300">Tentativas máximas</label>
+                  <input aria-label="Tentativas máximas" type="number" min="1" max="10" defaultValue="3" className="w-20 bg-[#23272f] border border-gray-700 text-white rounded px-2 py-1" />
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-300">Intervalo entre tentativas (dias)</span>
-                  <input type="number" min="1" max="30" defaultValue="7" className="w-20 bg-[#23272f] border border-gray-700 text-white rounded px-2 py-1" />
+                  <label className="text-gray-300">Intervalo entre tentativas (dias)</label>
+                  <input aria-label="Intervalo entre tentativas em dias" type="number" min="1" max="30" defaultValue="7" className="w-20 bg-[#23272f] border border-gray-700 text-white rounded px-2 py-1" />
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-300">Multa por atraso (%)</span>
-                  <input type="number" min="0" max="20" defaultValue="2" className="w-20 bg-[#23272f] border border-gray-700 text-white rounded px-2 py-1" />
+                  <label className="text-gray-300">Multa por atraso (%)</label>
+                  <input aria-label="Multa por atraso" type="number" min="0" max="20" defaultValue="2" className="w-20 bg-[#23272f] border border-gray-700 text-white rounded px-2 py-1" />
                 </div>
               </div>
             </div>
