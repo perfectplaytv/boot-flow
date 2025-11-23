@@ -34,6 +34,19 @@ export default function AdminGateways() {
     apiTimeout: 30
   });
 
+  // Carregar configurações salvas
+  useEffect(() => {
+    const savedConfig = localStorage.getItem('gateway-config-geral');
+    if (savedConfig) {
+      try {
+        const parsed = JSON.parse(savedConfig);
+        setConfigGeral({ ...configGeral, ...parsed });
+      } catch (error) {
+        console.error('Erro ao carregar configurações gerais:', error);
+      }
+    }
+  }, []);
+
   // Cards resumo
   const total = gateways.length;
   const ativos = gateways.filter(g => g.status === 'Ativo').length;
@@ -63,10 +76,16 @@ export default function AdminGateways() {
   };
 
   const handleSalvarConfigGeral = () => {
-    // Aqui seria implementada a lógica para salvar no backend
-    console.log('Salvando configurações gerais:', configGeral);
-    // TODO: Implementar chamada para API
-    setModal({ type: null });
+    try {
+      localStorage.setItem('gateway-config-geral', JSON.stringify(configGeral));
+      console.log('Configurações gerais salvas:', configGeral);
+      // TODO: Implementar chamada para API do backend
+      setModal({ type: null });
+      // Mostrar toast de sucesso
+      console.log('Configurações salvas com sucesso!');
+    } catch (error) {
+      console.error('Erro ao salvar configurações:', error);
+    }
   };
   const handleDesativar = () => {
     if (!modal.gateway) return;
