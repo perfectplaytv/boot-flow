@@ -127,22 +127,51 @@ const SidebarProvider = React.forwardRef<
       [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar]
     )
 
+    // Use a local ref to apply CSS variables and any provided style object
+    const localRef = React.useRef<HTMLDivElement | null>(null)
+
+    const setRefs = (el: HTMLDivElement | null) => {
+      localRef.current = el
+      if (typeof ref === "function") {
+        (ref as Function)(el)
+      } else if (ref) {
+        try {
+          ;(ref as React.MutableRefObject<HTMLDivElement | null>).current = el
+        } catch (e) {
+          // ignore
+        }
+      }
+    }
+
+    React.useEffect(() => {
+      const el = localRef.current
+      if (!el) return
+      el.style.setProperty("--sidebar-width", String(SIDEBAR_WIDTH))
+      el.style.setProperty("--sidebar-width-icon", String(SIDEBAR_WIDTH_ICON))
+      if (style && typeof style === "object") {
+        try {
+          Object.entries(style as React.CSSProperties).forEach(([k, v]) => {
+            try {
+              ;(el.style as any)[k] = v as any
+            } catch (e) {
+              // ignore individual assignment errors
+            }
+          })
+        } catch (e) {
+          // ignore
+        }
+      }
+    }, [style])
+
     return (
       <SidebarContext.Provider value={contextValue}>
         <TooltipProvider delayDuration={0}>
           <div
-            style={
-              {
-                "--sidebar-width": SIDEBAR_WIDTH,
-                "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
-                ...style,
-              } as React.CSSProperties
-            }
             className={cn(
               "group/sidebar-wrapper flex min-h-svh w-full has-[[data-variant=inset]]:bg-sidebar",
               className
             )}
-            ref={ref}
+            ref={setRefs}
             {...props}
           >
             {children}
