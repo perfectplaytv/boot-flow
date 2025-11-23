@@ -1514,6 +1514,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
                 <Label htmlFor="edit-observations" className="text-sm font-medium text-white">Observações</Label>
                 <textarea
                   id="edit-observations"
+                  aria-label="Observações"
                   value={editingReseller.observations || ''}
                   onChange={(e) => setEditingReseller({...editingReseller, observations: e.target.value})}
                   className="w-full bg-[#23272f] border border-gray-600 text-white rounded-md px-3 py-2"
