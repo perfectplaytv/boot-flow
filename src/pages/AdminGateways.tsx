@@ -24,8 +24,15 @@ export default function AdminGateways() {
   const [gateways, setGateways] = useState<Gateway[]>([]);
   const [modal, setModal] = useState<{ type: null | 'testar' | 'editar' | 'configurar' | 'desativar' | 'configurar-geral', gateway?: Gateway }>({ type: null });
   const [form, setForm] = useState({ nome: '', tipo: '', taxa: '' });
-  const [config, setConfig] = useState({ apiKey: '', secret: '', webhook: '' });
-  const [testValue, setTestValue] = useState('');
+  const [configGeral, setConfigGeral] = useState({
+    gatewayPadrao: '',
+    moedaPadrao: 'BRL',
+    notificacoes: true,
+    processamentoAutomatico: false,
+    validacaoCartao: true,
+    webhookUrl: '',
+    apiTimeout: 30
+  });
 
   // Cards resumo
   const total = gateways.length;
@@ -53,6 +60,13 @@ export default function AdminGateways() {
 
   const handleConfigurarGateways = () => {
     setModal({ type: 'configurar-geral' });
+  };
+
+  const handleSalvarConfigGeral = () => {
+    // Aqui seria implementada a lógica para salvar no backend
+    console.log('Salvando configurações gerais:', configGeral);
+    // TODO: Implementar chamada para API
+    setModal({ type: null });
   };
   const handleDesativar = () => {
     if (!modal.gateway) return;
