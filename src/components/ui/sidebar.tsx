@@ -680,6 +680,16 @@ const SidebarMenuSkeleton = React.forwardRef<
     return `${Math.floor(Math.random() * 40) + 50}%`
   }, [])
 
+  const skeletonRef = React.useRef<HTMLElement | null>(null);
+  React.useEffect(() => {
+    if (!skeletonRef.current) return;
+    try {
+      skeletonRef.current.style.setProperty('--skeleton-width', width);
+    } catch (e) {
+      // ignore
+    }
+  }, [width]);
+
   return (
     <div
       ref={ref}
@@ -694,13 +704,9 @@ const SidebarMenuSkeleton = React.forwardRef<
         />
       )}
       <Skeleton
+        ref={skeletonRef as any}
         className="h-4 flex-1 max-w-[--skeleton-width]"
         data-sidebar="menu-skeleton-text"
-        style={
-          {
-            "--skeleton-width": width,
-          } as React.CSSProperties
-        }
       />
     </div>
   )
