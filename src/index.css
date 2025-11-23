@@ -150,6 +150,8 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
+  /* stylelint-disable compat-api/css */
+  @tailwind base;
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
