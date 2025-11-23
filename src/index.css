@@ -192,6 +192,15 @@ All colors MUST be HSL.
   .transition-smooth {
     transition: var(--transition-smooth);
   }
+
+  /* Sortable card variables applied at runtime */
+  .sortable-card {
+    transform: var(--card-transform, none);
+    transition: var(--card-transition, var(--transition-smooth));
+    z-index: var(--card-z, 1);
+    opacity: var(--card-opacity, 1);
+    cursor: var(--card-cursor, grab);
+  }
 }
 
 /* Scrollbar Customizada Moderna - Aplicada globalmente */

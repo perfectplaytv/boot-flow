@@ -1263,13 +1263,28 @@ const AdminDashboard = () => {
   // Componente SortableCard
   function SortableCard({ id, content, body, onClick }: any) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
-    const style = {
-      transform: CSS.Transform.toString(transform),
-      transition,
-      zIndex: isDragging ? 50 : 1,
-      opacity: isDragging ? 0.8 : 1,
-      cursor: isDragging ? 'grabbing' : 'grab',
-    };
+    const elRef = useRef<HTMLElement | null>(null);
+
+    // Combined ref: attach to dnd-kit and keep local ref for DOM updates
+    const combinedRef = useCallback((el: HTMLElement | null) => {
+      elRef.current = el;
+      setNodeRef(el);
+    }, [setNodeRef]);
+
+    // Update CSS custom properties on the DOM node instead of using inline style
+    useEffect(() => {
+      const el = elRef.current as HTMLElement | null;
+      if (!el) return;
+      try {
+        el.style.setProperty('--card-transform', CSS.Transform.toString(transform) || '');
+        if (transition) el.style.setProperty('--card-transition', transition);
+        el.style.setProperty('--card-z', isDragging ? '50' : '1');
+        el.style.setProperty('--card-opacity', isDragging ? '0.8' : '1');
+        el.style.setProperty('--card-cursor', isDragging ? 'grabbing' : 'grab');
+      } catch (err) {
+        // ignore DOM write errors
+      }
+    }, [transform, transition, isDragging]);
     
     const handleClick = (e: React.MouseEvent) => {
       // Prevenir clique durante o drag
@@ -1293,14 +1308,10 @@ const AdminDashboard = () => {
     };
     
     return (
-      <>
-      {/* style prop required by dnd-kit for drag transforms; disabling lint for this line */}
-      {/* eslint-disable-next-line */}
-      <div 
-        ref={setNodeRef} 
-        style={style} 
-        {...attributes} 
-        className="select-none touch-manipulation"
+      <div
+        ref={combinedRef}
+        {...attributes}
+        className="select-none touch-manipulation sortable-card"
         data-card-id={id}
       >
         <Card 
@@ -1320,12 +1331,9 @@ const AdminDashboard = () => {
               listeners.onTouchStart(e);
             }
           }}
-          tabIndex={0} 
-          role="button" 
+          tabIndex={0}
+          role="button"
           aria-pressed="false"
-          style={{
-            cursor: isDragging ? 'grabbing' : 'grab'
-          }}
         >
           {content}
           {body}
