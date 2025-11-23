@@ -586,6 +586,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
               <input
                 type="checkbox"
                 id="forcePasswordChangeModal"
+                aria-label="Forçar revenda a mudar a senha no próximo login"
                 className="rounded border-gray-600 bg-[#23272f] text-blue-500 focus:ring-blue-500"
                 checked={newReseller.force_password_change}
                 onChange={(e) => setNewReseller({...newReseller, force_password_change: e.target.checked})}
@@ -736,6 +737,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
                 <input
                   type="checkbox"
                   id="monthlyResellerModal"
+                  aria-label="Configuração de Revenda Mensalista"
                   className="rounded border-gray-600 bg-[#23272f] text-blue-500 focus:ring-blue-500"
                   checked={newReseller.monthly_reseller}
                   onChange={(e) => setNewReseller({...newReseller, monthly_reseller: e.target.checked})}
@@ -984,6 +986,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
                   <input
                     type="checkbox"
                     id="forcePasswordChange"
+                    aria-label="Forçar revenda a mudar a senha no próximo login"
                     className="rounded border-gray-600 bg-[#23272f] text-blue-500 focus:ring-blue-500"
                     checked={newReseller.force_password_change}
                     onChange={(e) => setNewReseller({...newReseller, force_password_change: e.target.checked})}
@@ -1126,6 +1129,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
                     <input
                       type="checkbox"
                       id="monthlyReseller"
+                      aria-label="Configuração de Revenda Mensalista"
                       className="rounded border-gray-600 bg-[#23272f] text-blue-500 focus:ring-blue-500"
                       checked={newReseller.monthly_reseller}
                       onChange={(e) => setNewReseller({...newReseller, monthly_reseller: e.target.checked})}
