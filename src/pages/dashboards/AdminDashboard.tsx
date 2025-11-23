@@ -253,6 +253,16 @@ const AdminDashboard = () => {
     return () => window.removeEventListener('refresh-dashboard', handler as EventListener);
   }, [fetchRevendas, fetchClientes, refreshStats]);
 
+  // Ativar dados reais automaticamente ao navegar para a rota de Revendas
+  useEffect(() => {
+    if (isResellerRoute) {
+      setShowRealData(true);
+      if (fetchRevendas) fetchRevendas();
+      if (fetchClientes) fetchClientes();
+      if (refreshStats) refreshStats();
+    }
+  }, [isResellerRoute, fetchRevendas, fetchClientes, refreshStats]);
+
   // Calcular total de usuários diretamente dos dados atualizados (usando estados locais que são atualizados em tempo real)
   const totalUsersCount = useMemo(() => {
     if (!showRealData) return 0;
