@@ -165,7 +165,12 @@ All colors MUST be HSL.
   }
   .scrollbar-hide {
     -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+  }
+
+  @supports (scrollbar-width: none) {
+    .scrollbar-hide {
+      scrollbar-width: none;  /* Firefox */
+    }
   }
 
   /* Utilitários para gradientes */

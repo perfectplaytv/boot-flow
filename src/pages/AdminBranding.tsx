@@ -3361,5 +3361,3 @@ const AdminBranding: React.FC = () => {
 };
 
 export default AdminBranding; 
-
-/* eslint-enable no-inline-styles */
