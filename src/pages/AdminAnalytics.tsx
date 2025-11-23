@@ -22,30 +22,17 @@ export default function AdminAnalytics() {
   const [timeRange, setTimeRange] = useState("7d");
 
   const metrics = {
-    totalUsers: 1256,
-    activeUsers: 892,
-    revenue: 45678.90,
-    growth: 12.5,
-    pageViews: 45678,
-    conversionRate: 3.2
+    totalUsers: 0,
+    activeUsers: 0,
+    revenue: 0,
+    growth: 0,
+    pageViews: 0,
+    conversionRate: 0
   };
 
-  const topPages = [
-    { name: "Dashboard", views: 1234, growth: 15.2 },
-    { name: "Produtos", views: 987, growth: 8.7 },
-    { name: "Suporte", views: 756, growth: -2.1 },
-    { name: "Perfil", views: 654, growth: 12.3 },
-    { name: "Configurações", views: 432, growth: 5.6 }
-  ];
+  const topPages = [];
 
-  const userActivity = [
-    { hour: "00:00", users: 45 },
-    { hour: "04:00", users: 23 },
-    { hour: "08:00", users: 156 },
-    { hour: "12:00", users: 234 },
-    { hour: "16:00", users: 198 },
-    { hour: "20:00", users: 167 }
-  ];
+  const userActivity = [];
 
   return (
     <div className="space-y-4 sm:space-y-6 min-h-screen bg-[#09090b] p-3 sm:p-6">
@@ -263,19 +250,19 @@ export default function AdminAnalytics() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-400">Tempo de Resposta</span>
-                <Badge className="bg-green-100 text-green-800">245ms</Badge>
+                <Badge className="bg-green-100 text-green-800">0ms</Badge>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-400">Uptime</span>
-                <Badge className="bg-green-100 text-green-800">99.9%</Badge>
+                <Badge className="bg-green-100 text-green-800">0%</Badge>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-400">Erros</span>
-                <Badge className="bg-red-100 text-red-800">0.1%</Badge>
+                <Badge className="bg-red-100 text-red-800">0%</Badge>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-400">Sessões Ativas</span>
-                <Badge className="bg-blue-100 text-blue-800">892</Badge>
+                <Badge className="bg-blue-100 text-blue-800">0</Badge>
               </div>
             </div>
           </CardContent>
