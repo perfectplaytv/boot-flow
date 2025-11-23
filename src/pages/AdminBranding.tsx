@@ -344,11 +344,13 @@ const AdminBranding: React.FC = () => {
       <Card 
         key={index}
         className="bg-[#181e29] border border-gray-700 hover:border-purple-500 transition-all"
+        // eslint-disable-next-line no-inline-styles
         style={{ borderTopColor: viewingDashboard?.color }}
       >
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
+              {/* eslint-disable-next-line no-inline-styles */}
               <Icon className="w-5 h-5" style={{ color: viewingDashboard?.color }} />
               <CardTitle className="text-white text-base">{widgetName}</CardTitle>
             </div>
@@ -361,6 +363,7 @@ const AdminBranding: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
+            {/* eslint-disable-next-line no-inline-styles */}
             <div className="text-3xl font-bold" style={{ color: viewingDashboard?.color }}>
               {data.value}
             </div>
@@ -647,6 +650,7 @@ const AdminBranding: React.FC = () => {
               <CardTitle className="text-white text-sm">{config.title || 'Métrica'}</CardTitle>
             </CardHeader>
             <CardContent>
+              {/* eslint-disable-next-line no-inline-styles */}
               <div className="text-3xl font-bold" style={{ color: config.color || pageForm.primaryColor }}>
                 {config.value || '0'}
               </div>
@@ -818,7 +822,8 @@ const AdminBranding: React.FC = () => {
           <img
             src={config.src}
             alt={config.alt || ''}
-            style={{ width: config.width || '100%', height: config.height || 'auto' }}
+                    // eslint-disable-next-line no-inline-styles
+                    style={{ width: config.width || '100%', height: config.height || 'auto' }}
             className="rounded-lg"
           />
         ) : (
@@ -1035,10 +1040,11 @@ const AdminBranding: React.FC = () => {
             <TabsContent value="preview" className="flex-1 overflow-y-auto p-6">
               <div
                 className="min-h-full p-8 rounded-lg"
+                // eslint-disable-next-line no-inline-styles
                 style={{
-                  backgroundColor: pageForm.backgroundColor,
-                  color: pageForm.textColor,
-                }}
+                      backgroundColor: pageForm.backgroundColor,
+                      color: pageForm.textColor,
+                    }}
               >
                 {pageForm.components.length === 0 ? (
                   <div className="text-center py-12 text-gray-400">
