@@ -660,11 +660,9 @@ const AdminBranding: React.FC = () => {
               <CardTitle className="text-white text-sm">{config.title || 'Métrica'}</CardTitle>
             </CardHeader>
             <CardContent>
-              {/* eslint-disable-next-line no-inline-styles */}
-              {/* eslint-disable-next-line no-inline-styles */}
-              <div className="text-3xl font-bold" style={{ color: config.color || pageForm.primaryColor }}>
-                {config.value || '0'}
-              </div>
+                <DynamicStyle styles={{ color: config.color || pageForm.primaryColor }} className="text-3xl font-bold">
+                  {config.value || '0'}
+                </DynamicStyle>
               <div className="text-sm text-gray-400 mt-1">{config.label || 'Descrição'}</div>
             </CardContent>
           </Card>
