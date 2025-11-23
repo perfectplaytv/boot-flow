@@ -1108,14 +1108,33 @@ const ClientDashboard = () => {
   // Componente SortableCard
   function SortableCard({ id, content, body, onClick }: any) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
-    const style = {
-      transform: CSS.Transform.toString(transform),
-      transition,
-      zIndex: isDragging ? 50 : 1,
-      opacity: isDragging ? 0.8 : 1,
-      cursor: isDragging ? 'grabbing' : 'grab',
+    const localRef = useRef<HTMLDivElement | null>(null);
+
+    // combine the sortable setNodeRef with our local ref so we can set styles imperatively
+    const combinedRef = (el: HTMLDivElement | null) => {
+      localRef.current = el;
+      // call the setNodeRef provided by useSortable
+      try {
+        setNodeRef(el as any);
+      } catch (err) {
+        // ignore if setNodeRef expects a different signature
+      }
     };
-    
+
+    useEffect(() => {
+      const el = localRef.current;
+      if (!el) return;
+      try {
+        el.style.transform = CSS.Transform.toString(transform) || "";
+      } catch (_) {
+        el.style.transform = "";
+      }
+      if (transition) el.style.transition = transition as string;
+      el.style.zIndex = (isDragging ? 50 : 1).toString();
+      el.style.opacity = isDragging ? '0.8' : '1';
+      el.style.cursor = isDragging ? 'grabbing' : 'grab';
+    }, [transform, transition, isDragging]);
+
     const handleClick = (e: React.MouseEvent) => {
       // Prevenir clique durante o drag
       if (isDragging) {
@@ -1139,8 +1158,7 @@ const ClientDashboard = () => {
     
     return (
       <div 
-        ref={setNodeRef} 
-        style={style} 
+        ref={combinedRef} 
         {...attributes} 
         className="select-none touch-manipulation"
         data-card-id={id}
