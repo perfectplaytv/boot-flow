@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -275,36 +275,57 @@ export default function AdminGateways() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-300">Gateway Padrão</label>
-                <select className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2" aria-label="Selecionar gateway padrão">
-                  <option>Selecionar gateway...</option>
-                  <option>Stripe</option>
-                  <option>PayPal</option>
-                  <option>Mercado Pago</option>
-                  <option>PagSeguro</option>
+                <select className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2" aria-label="Selecionar gateway padrão" value={configGeral.gatewayPadrao} onChange={(e) => setConfigGeral({ ...configGeral, gatewayPadrao: e.target.value })}>
+                  <option value="">Selecionar gateway...</option>
+                  <option value="stripe">Stripe</option>
+                  <option value="paypal">PayPal</option>
+                  <option value="mercado-pago">Mercado Pago</option>
+                  <option value="pagseguro">PagSeguro</option>
                 </select>
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-300">Moeda Padrão</label>
-                <select className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2" aria-label="Selecionar moeda padrão">
-                  <option>BRL (R$)</option>
-                  <option>USD ($)</option>
-                  <option>EUR (€)</option>
+                <select className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2" aria-label="Selecionar moeda padrão" value={configGeral.moedaPadrao} onChange={(e) => setConfigGeral({ ...configGeral, moedaPadrao: e.target.value })}>
+                  <option value="BRL">BRL (R$)</option>
+                  <option value="USD">USD ($)</option>
+                  <option value="EUR">EUR (€)</option>
                 </select>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-300">URL do Webhook Global</label>
+                <Input 
+                  placeholder="https://seudominio.com/webhook/pagamentos" 
+                  className="bg-gray-900 border border-gray-700 text-white"
+                  value={configGeral.webhookUrl}
+                  onChange={(e) => setConfigGeral({ ...configGeral, webhookUrl: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-300">Timeout da API (segundos)</label>
+                <Input 
+                  type="number" 
+                  placeholder="30" 
+                  className="bg-gray-900 border border-gray-700 text-white"
+                  value={configGeral.apiTimeout}
+                  onChange={(e) => setConfigGeral({ ...configGeral, apiTimeout: parseInt(e.target.value) || 30 })}
+                />
               </div>
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-300">Configurações Avançadas</label>
               <div className="space-y-3">
                 <label className="flex items-center gap-2">
-                  <input type="checkbox" className="accent-purple-500" />
+                  <input type="checkbox" className="accent-purple-500" checked={configGeral.notificacoes} onChange={(e) => setConfigGeral({ ...configGeral, notificacoes: e.target.checked })} />
                   <span className="text-sm text-gray-300">Habilitar notificações de pagamento</span>
                 </label>
                 <label className="flex items-center gap-2">
-                  <input type="checkbox" className="accent-purple-500" />
+                  <input type="checkbox" className="accent-purple-500" checked={configGeral.processamentoAutomatico} onChange={(e) => setConfigGeral({ ...configGeral, processamentoAutomatico: e.target.checked })} />
                   <span className="text-sm text-gray-300">Processar pagamentos automaticamente</span>
                 </label>
                 <label className="flex items-center gap-2">
-                  <input type="checkbox" className="accent-purple-500" defaultChecked />
+                  <input type="checkbox" className="accent-purple-500" checked={configGeral.validacaoCartao} onChange={(e) => setConfigGeral({ ...configGeral, validacaoCartao: e.target.checked })} />
                   <span className="text-sm text-gray-300">Validar dados do cartão</span>
                 </label>
               </div>
@@ -312,7 +333,7 @@ export default function AdminGateways() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setModal({ type: null })} className="bg-gray-700 text-white">Cancelar</Button>
-            <Button className="bg-purple-600 hover:bg-purple-700 text-white">Salvar Configurações</Button>
+            <Button className="bg-purple-600 hover:bg-purple-700 text-white" onClick={handleSalvarConfigGeral}>Salvar Configurações</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
