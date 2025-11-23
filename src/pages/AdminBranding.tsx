@@ -2244,8 +2244,10 @@ const AdminBranding: React.FC = () => {
               <span className="block text-green-300 font-semibold mb-4 text-lg">Configurações WhiteLabel</span>
               <div className="mb-4">
                 <label className="block text-gray-300 mb-1 font-medium">Remover menção à plataforma original</label>
-                <input type="checkbox" className="accent-green-500" />
-                <span className="ml-2 text-gray-400 text-sm">Oculta qualquer referência à Symphonic Growth Hub</span>
+                <label className="flex items-center gap-2">
+                  <input aria-label="Remover menção à plataforma original" type="checkbox" className="accent-green-500" />
+                  <span className="ml-2 text-gray-400 text-sm">Oculta qualquer referência à Symphonic Growth Hub</span>
+                </label>
               </div>
               <div className="mb-4">
                 <label className="block text-gray-300 mb-1 font-medium">Domínio personalizado exclusivo</label>
@@ -2262,13 +2264,16 @@ const AdminBranding: React.FC = () => {
               <div className="mb-4">
                 <label className="block text-gray-300 mb-1 font-medium">Cores e logotipo exclusivos</label>
                 <div className="flex gap-4 items-center mt-2">
-                  <input type="color" className="w-10 h-10 p-0 border-none bg-transparent" />
+                  <input aria-label="Cor/Logotipo" type="color" className="w-10 h-10 p-0 border-none bg-transparent" />
                   <Button className="bg-green-600 hover:bg-green-700 text-white">Upload Logo</Button>
                 </div>
               </div>
               <div className="mb-4">
                 <label className="block text-gray-300 mb-1 font-medium">Remover links de documentação padrão</label>
-                <input type="checkbox" className="accent-green-500" />
+                <label className="flex items-center gap-2">
+                  <input aria-label="Remover links de documentação padrão" type="checkbox" className="accent-green-500" />
+                  <span className="text-gray-300"> </span>
+                </label>
               </div>
               <div className="flex justify-end gap-2 mt-6">
                 <Button variant="outline" className="bg-gray-700 text-white px-6 py-2 rounded font-semibold">Cancelar</Button>
