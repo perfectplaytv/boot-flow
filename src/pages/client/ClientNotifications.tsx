@@ -706,8 +706,10 @@ export default function ClientNotifications() {
               <span className="text-xs font-semibold">WhatsApp {isConnected ? 'Conectado' : 'Desconectado'} ({connectionStatus})</span>
             </div>
             <div>
-              <label className="block text-gray-300 mb-1 font-medium">Template</label>
+              <label htmlFor="enviar-template" className="block text-gray-300 mb-1 font-medium">Template</label>
               <select 
+                id="enviar-template"
+                aria-label="Selecionar template"
                 className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2 mb-4"
                 value={selectedTemplate?.id || ''}
                 onChange={e => {
