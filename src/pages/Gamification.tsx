@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 
 const Gamification = () => {
   const navigate = useNavigate();
-  const [userLevel] = useState({ level: 5, xp: 2340, nextLevelXp: 3000 });
+  const [userLevel] = useState({ level: 0, xp: 0, nextLevelXp: 0 });
 
   return (
     <div className="min-h-screen bg-background p-3 sm:p-6">
@@ -60,7 +60,7 @@ const Gamification = () => {
                 </div>
                 <div>
                   <p className="text-xs sm:text-sm font-medium text-muted-foreground">Conquistas</p>
-                  <p className="text-lg sm:text-2xl font-bold">12</p>
+                  <p className="text-lg sm:text-2xl font-bold">0</p>
                 </div>
               </div>
             </CardContent>
@@ -74,7 +74,7 @@ const Gamification = () => {
                 </div>
                 <div>
                   <p className="text-xs sm:text-sm font-medium text-muted-foreground">Recompensas</p>
-                  <p className="text-lg sm:text-2xl font-bold">8</p>
+                  <p className="text-lg sm:text-2xl font-bold">0</p>
                 </div>
               </div>
             </CardContent>
@@ -103,11 +103,7 @@ const Gamification = () => {
               <CardTitle>Conquistas Recentes</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {[
-                { name: "Primeiro Login", xp: 100, unlocked: true },
-                { name: "IA Configurada", xp: 250, unlocked: true },
-                { name: "10 Campanhas", xp: 500, unlocked: false },
-              ].map((achievement, index) => (
+              {[].map((achievement, index) => (
                 <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
                   <div className="flex items-center gap-3">
                     <Trophy className={`h-5 w-5 ${achievement.unlocked ? 'text-warning' : 'text-muted-foreground'}`} />
@@ -131,8 +127,8 @@ const Gamification = () => {
             </CardHeader>
             <CardContent>
               <div className="text-center py-8">
-                <div className="text-3xl font-bold text-primary mb-2">#15</div>
-                <p className="text-muted-foreground">de 1.247 usuários</p>
+                <div className="text-3xl font-bold text-primary mb-2">#0</div>
+                <p className="text-muted-foreground">de 0 usuários</p>
               </div>
             </CardContent>
           </Card>

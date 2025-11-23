@@ -29,21 +29,9 @@ interface Leaderboard {
 }
 
 export default function ClientGames() {
-  const [achievements, setAchievements] = useState<Achievement[]>([
-    { id: 1, name: "Primeiro Login", description: "Faça seu primeiro login no sistema", points: 10, icon: "🎯", unlocked: 156, total: 156 },
-    { id: 2, name: "Comprador Frequente", description: "Realize 10 compras", points: 50, icon: "🛒", unlocked: 45, total: 156 },
-    { id: 3, name: "Suporte Ativo", description: "Use o suporte 5 vezes", points: 30, icon: "💬", unlocked: 78, total: 156 },
-    { id: 4, name: "Streamer", description: "Assista 100 horas de conteúdo", points: 100, icon: "📺", unlocked: 23, total: 156 },
-    { id: 5, name: "Mestre da IA", description: "Interaja 50 vezes com a IA", points: 75, icon: "🤖", unlocked: 12, total: 156 },
-  ]);
+  const [achievements, setAchievements] = useState<Achievement[]>([]);
 
-  const [leaderboard, setLeaderboard] = useState<Leaderboard[]>([
-    { id: 1, name: "João Silva", points: 1250, level: 15, achievements: 8, rank: 1 },
-    { id: 2, name: "Maria Santos", points: 980, level: 12, achievements: 6, rank: 2 },
-    { id: 3, name: "Pedro Oliveira", points: 850, level: 10, achievements: 5, rank: 3 },
-    { id: 4, name: "Ana Costa", points: 720, level: 9, achievements: 4, rank: 4 },
-    { id: 5, name: "Carlos Lima", points: 650, level: 8, achievements: 3, rank: 5 },
-  ]);
+  const [leaderboard, setLeaderboard] = useState<Leaderboard[]>([]);
 
   const [gamificationConfig, setGamificationConfig] = useState({
     enabled: true,
