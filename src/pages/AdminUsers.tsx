@@ -1126,23 +1126,25 @@ export default function AdminUsers() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {/* Servidor */}
                       <div className="col-span-1">
-                        <label className="block text-gray-300 mb-1 font-medium">
-                          Servidor *
-                        </label>
-                        <Input
-                          type="text"
-                          value={newUser.server || ""}
-                          onChange={(e) => setNewUser({ ...newUser, server: e.target.value })}
-                          placeholder="Digite o nome do servidor"
-                          className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                        />
+                        <label htmlFor="add-server" className="block text-gray-300 mb-1 font-medium">
+                            Servidor *
+                          </label>
+                          <Input
+                            id="add-server"
+                            type="text"
+                            value={newUser.server || ""}
+                            onChange={(e) => setNewUser({ ...newUser, server: e.target.value })}
+                            placeholder="Digite o nome do servidor"
+                            className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+                          />
                       </div>
                       {/* Plano */}
                       <div className="col-span-1">
-                        <label className="block text-gray-300 mb-1 font-medium">
+                        <label htmlFor="add-plan" className="block text-gray-300 mb-1 font-medium">
                           Plano *
                         </label>
                         <select
+                          id="add-plan"
                           className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                           value={newUser.plan}
                           onChange={(e) =>
@@ -1160,10 +1162,11 @@ export default function AdminUsers() {
                       {/* Preço */}
                       {newUser.plan && (
                         <div className="col-span-1">
-                          <label className="block text-gray-300 mb-1 font-medium">
+                          <label htmlFor="add-price" className="block text-gray-300 mb-1 font-medium">
                             Preço *
                           </label>
                           <select
+                            id="add-price"
                             className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                             value={newUser.price}
                             onChange={(e) =>
@@ -1181,10 +1184,11 @@ export default function AdminUsers() {
                       )}
                       {/* Nome */}
                       <div className="col-span-1">
-                        <label className="block text-gray-300 mb-1 font-medium">
+                        <label htmlFor="add-name" className="block text-gray-300 mb-1 font-medium">
                           Nome *
                         </label>
                         <Input
+                          id="add-name"
                           placeholder="Nome completo do cliente"
                           className="bg-[#23272f] border border-gray-700 text-white"
                           value={newUser.name}
@@ -1195,10 +1199,11 @@ export default function AdminUsers() {
                       </div>
                       {/* Email */}
                       <div className="col-span-1">
-                        <label className="block text-gray-300 mb-1 font-medium">
+                        <label htmlFor="add-email" className="block text-gray-300 mb-1 font-medium">
                           Email *
                         </label>
                         <Input
+                          id="add-email"
                           placeholder="email@exemplo.com"
                           className="bg-[#23272f] border border-gray-700 text-white"
                           value={newUser.email}
@@ -1209,10 +1214,11 @@ export default function AdminUsers() {
                       </div>
                       {/* Status */}
                       <div className="col-span-1">
-                        <label className="block text-gray-300 mb-1 font-medium">
+                        <label htmlFor="add-status" className="block text-gray-300 mb-1 font-medium">
                           Status *
                         </label>
                         <select
+                          id="add-status"
                           className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                           value={newUser.status}
                           onChange={(e) =>
@@ -1227,10 +1233,11 @@ export default function AdminUsers() {
                       </div>
                       {/* Data de Expiração */}
                       <div className="col-span-1">
-                        <label className="block text-gray-300 mb-1 font-medium">
+                        <label htmlFor="add-expiration" className="block text-gray-300 mb-1 font-medium">
                           Data de Expiração *
                         </label>
                         <Input
+                          id="add-expiration"
                           type="date"
                           className="bg-[#23272f] border border-gray-700 text-white"
                           value={newUser.expirationDate}
@@ -1247,18 +1254,19 @@ export default function AdminUsers() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {/* Dispositivos */}
                       <div className="col-span-1">
-                        <label className="block text-gray-300 mb-1 font-medium">
+                        <label htmlFor="add-devices" className="block text-gray-300 mb-1 font-medium">
                           Dispositivos
                         </label>
-                        <Input
-                          type="number"
-                          placeholder="0"
-                          className="bg-[#23272f] border border-gray-700 text-white"
-                          value={newUser.devices}
-                          onChange={(e) =>
-                            setNewUser({ ...newUser, devices: parseInt(e.target.value) || 0 })
-                          }
-                        />
+                          <Input
+                            id="add-devices"
+                            type="number"
+                            placeholder="0"
+                            className="bg-[#23272f] border border-gray-700 text-white"
+                            value={newUser.devices}
+                            onChange={(e) =>
+                              setNewUser({ ...newUser, devices: parseInt(e.target.value) || 0 })
+                            }
+                          />
                       </div>
                       {/* Créditos */}
                       <div className="col-span-1">
@@ -2308,20 +2316,22 @@ export default function AdminUsers() {
                     </div>
                     {/* Plano */}
                     <div>
-                      <label className="block text-gray-300 mb-1 font-medium">
+                      <label htmlFor="edit-small-plan" className="block text-gray-300 mb-1 font-medium">
                         Plano
                       </label>
-                      <select className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2">
+                      <select id="edit-small-plan" aria-label="Plano" className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2">
                         <option value="mensal">Mensal</option>
                         <option value="anual">Anual</option>
                       </select>
                     </div>
                     {/* Status */}
                     <div>
-                      <label className="block text-gray-300 mb-1 font-medium">
+                      <label htmlFor="edit-small-status" className="block text-gray-300 mb-1 font-medium">
                         Status
                       </label>
                       <select
+                        id="edit-small-status"
+                        aria-label="Status"
                         value={editingUser.status}
                         onChange={(e) =>
                           setEditingUser({
@@ -2371,10 +2381,11 @@ export default function AdminUsers() {
                     </div>
                     {/* Número de Dispositivos */}
                     <div>
-                      <label className="block text-gray-300 mb-1 font-medium">
+                      <label htmlFor="edit-devices" className="block text-gray-300 mb-1 font-medium">
                         Número de Dispositivos
                       </label>
                       <input
+                        id="edit-devices"
                         type="number"
                         min={1}
                         value={editingUser.devices || 0}
@@ -2389,7 +2400,7 @@ export default function AdminUsers() {
                     </div>
                     {/* Créditos */}
                     <div>
-                      <label className="block text-gray-300 mb-1 font-medium">
+                      <label htmlFor="edit-credits" className="block text-gray-300 mb-1 font-medium">
                         Créditos
                       </label>
                       <div className="flex items-center gap-2">
@@ -2400,6 +2411,7 @@ export default function AdminUsers() {
                           -
                         </button>
                         <input
+                          id="edit-credits"
                           type="number"
                           min={0}
                           value={editingUser.credits || 0}
