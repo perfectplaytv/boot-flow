@@ -1247,7 +1247,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">{revendas.length}</div>
+            <div className="text-2xl font-bold text-white">{shouldShow ? (revendas.length).toLocaleString() : '0'}</div>
             <div className="text-xs text-gray-400 mt-1">Revendedores cadastrados</div>
           </CardContent>
         </Card>
@@ -1260,7 +1260,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-400">{revendas.filter(r => r.status === 'active').length}</div>
+            <div className="text-2xl font-bold text-green-400">{shouldShow ? (revendas.filter(r => r.status === 'active').length).toLocaleString() : '0'}</div>
             <div className="text-xs text-gray-400 mt-1">Revendedores com acesso</div>
           </CardContent>
         </Card>
@@ -1273,7 +1273,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-400">{revendas.filter(r => r.permission === 'admin').length}</div>
+            <div className="text-2xl font-bold text-blue-400">{shouldShow ? (revendas.filter(r => r.permission === 'admin').length).toLocaleString() : '0'}</div>
             <div className="text-xs text-gray-400 mt-1">Contas de administrador</div>
           </CardContent>
         </Card>
@@ -1286,7 +1286,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-400">5</div>
+            <div className="text-2xl font-bold text-yellow-400">{shouldShow ? '5' : '0'}</div>
             <div className="text-xs text-gray-400 mt-1">Novos revendedores</div>
           </CardContent>
         </Card>
