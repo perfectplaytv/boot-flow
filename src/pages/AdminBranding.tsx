@@ -375,6 +375,7 @@ const AdminBranding: React.FC = () => {
           </div>
         </CardContent>
       </Card>
+      </DynamicStyle>
     );
   };
 
