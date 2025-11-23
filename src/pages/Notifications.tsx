@@ -54,60 +54,9 @@ type HistoricoItem = {
   data: string;
 };
 
-const templatesMock: Template[] = [
-  { 
-    id: 1, 
-    nome: 'Confirmação de Agendamento', 
-    texto: 'Olá {nome}, seu agendamento para {servico} foi confirmado para {data} às {hora}. Aguardamos você!', 
-    variaveis: ['nome', 'servico', 'data', 'hora'], 
-    status: 'Ativo', 
-    envios: 1247, 
-    taxa: 98.5 
-  },
-  { 
-    id: 2, 
-    nome: 'Lembrete de Agendamento', 
-    texto: 'Oi {nome}! Lembrete: você tem um agendamento amanhã às {hora} para {servico}. Confirme sua presença!', 
-    variaveis: ['nome', 'servico', 'hora'], 
-    status: 'Ativo', 
-    envios: 892, 
-    taxa: 97.2 
-  },
-  { 
-    id: 3, 
-    nome: 'Cobrança Pendente', 
-    texto: 'Olá {nome}, você tem uma cobrança pendente de {valor} para {servico}. Pague via PIX: {pix}. Obrigado!', 
-    variaveis: ['nome', 'valor', 'servico', 'pix'], 
-    status: 'Ativo', 
-    envios: 445, 
-    taxa: 96.8 
-  },
-  { 
-    id: 4, 
-    nome: 'Promoção Especial', 
-    texto: 'Olá {nome}, temos uma promoção especial para você! {promocao} com {desconto}% de desconto. Válido até {validade}.', 
-    variaveis: ['nome', 'promocao', 'desconto', 'validade'], 
-    status: 'Inativo', 
-    envios: 234, 
-    taxa: 95.1 
-  },
-  { 
-    id: 5, 
-    nome: 'Aniversário', 
-    texto: 'Parabéns {nome}! Que seu dia seja especial! Como presente, você tem {desconto}% de desconto em qualquer serviço. Aproveite!', 
-    variaveis: ['nome', 'desconto'], 
-    status: 'Ativo', 
-    envios: 67, 
-    taxa: 99.2 
-  },
-];
-
-const historicoMock: HistoricoItem[] = [
-  { id: 1, nome: 'Maria Silva', template: 'Confirmação de Agendamento', status: 'Entregue', data: '15/01/2025, 07:30' },
-  { id: 2, nome: 'João Santos', template: 'Lembrete de Agendamento', status: 'Lido', data: '15/01/2025, 06:15' },
-  { id: 3, nome: 'Ana Costa', template: 'Cobrança Pendente', status: 'Entregue', data: '15/01/2025, 05:45' },
-  { id: 4, nome: 'Pedro Lima', template: 'Promoção Especial', status: 'Falha', data: '14/01/2025, 18:00' },
-];
+// Removed mocks: initial state will be empty and UI will show zeros until real data exists
+const templatesMock: Template[] = [];
+const historicoMock: HistoricoItem[] = [];
 
 type FormData = {
   nome: string;
@@ -141,8 +90,8 @@ interface Revenda {
 }
 
 export default function Notifications() {
-  const [templates, setTemplates] = useState<Template[]>(templatesMock);
-  const [historico, setHistorico] = useState<HistoricoItem[]>(historicoMock);
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [historico, setHistorico] = useState<HistoricoItem[]>([]);
   const [modal, setModal] = useState<{ type: null | 'novo' | 'editar' | 'enviar', template?: Template }>({ type: null });
   const [form, setForm] = useState<FormData>({ 
     nome: '', 
@@ -161,6 +110,14 @@ export default function Notifications() {
   const { isConnected, connectionStatus } = useWhatsAppStatus();
   
   const variaveisSugeridas = ['nome', 'servico', 'data', 'hora', 'valor', 'desconto', 'validade', 'pix', 'promocao'] as const;
+
+  // Gating: só mostrar dados reais se houver pelo menos um envio registrado
+  const hasSentMessages = templates.some(t => Number(t.envios) > 0) || historico.length > 0;
+  const enviados = hasSentMessages ? templates.reduce((acc, t) => acc + Number(t.envios || 0), 0) : 0;
+  const entregues = hasSentMessages ? historico.filter(h => h.status === 'Entregue').length : 0;
+  const lidos = hasSentMessages ? historico.filter(h => h.status === 'Lido').length : 0;
+  const falhas = hasSentMessages ? historico.filter(h => h.status === 'Falha').length : 0;
+  const taxaEntrega = hasSentMessages && enviados ? ((entregues / enviados) * 100).toFixed(1) : '0.0';
 
   // Função para lidar com upload de imagem
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
