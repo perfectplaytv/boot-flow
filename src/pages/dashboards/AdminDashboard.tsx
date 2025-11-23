@@ -393,6 +393,8 @@ const AdminDashboard = () => {
 
   // Mapear clientes e revendedores para atividade recente
   const recentActivityUnified = useMemo(() => {
+    if (!showRealData) return [];
+
     const clientesAtividades = clientes.slice(0, 5).map((cliente, index) => ({
       id: `c-${cliente.id}`,
       type: 'user',
