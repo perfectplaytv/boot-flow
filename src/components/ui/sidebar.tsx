@@ -24,6 +24,8 @@ const SIDEBAR_WIDTH_MOBILE = "18rem"
 const SIDEBAR_WIDTH_ICON = "3rem"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
+const SHEET_MOBILE_STYLE = { "--sidebar-width": SIDEBAR_WIDTH_MOBILE } as React.CSSProperties;
+
 type SidebarContext = {
   state: "expanded" | "collapsed"
   open: boolean

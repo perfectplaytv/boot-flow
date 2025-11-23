@@ -617,19 +617,10 @@ export default function ClientBranding() {
               <div className="mt-6">
                 <span className="block text-gray-400 mb-2">Preview</span>
                 <div className="rounded-lg bg-[#181e29] p-4 flex items-center gap-4">
-                  <div 
-                    className="w-10 h-10 rounded-full" 
-                    style={{ backgroundColor: primaryColor }}
-                  />
+                  <DynamicStyle styles={{ backgroundColor: primaryColor }} className="w-10 h-10 rounded-full" />
                   <div className="flex-1">
-                    <div 
-                      className="h-3 w-2/3 rounded mb-1" 
-                      style={{ backgroundColor: primaryColor, opacity: 0.8 }}
-                    />
-                    <div 
-                      className="h-3 w-1/2 rounded" 
-                      style={{ backgroundColor: secondaryColor, opacity: 0.6 }}
-                    />
+                    <DynamicStyle styles={{ backgroundColor: primaryColor, opacity: 0.8 }} className="h-3 w-2/3 rounded mb-1" />
+                    <DynamicStyle styles={{ backgroundColor: secondaryColor, opacity: 0.6 }} className="h-3 w-1/2 rounded" />
                   </div>
                 </div>
               </div>
