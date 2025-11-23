@@ -2737,6 +2737,7 @@ const AdminBranding: React.FC = () => {
                     className="w-16 h-12 rounded border border-gray-700 cursor-pointer"
                   />
                   <Input
+                    aria-label="Cor do tema (hex)"
                     value={dashboardForm.color}
                     onChange={(e) => setDashboardForm({ ...dashboardForm, color: e.target.value })}
                     className="flex-1 bg-gray-900 border border-gray-700 text-white focus:border-purple-500"
@@ -2960,6 +2961,7 @@ const AdminBranding: React.FC = () => {
                       className="w-12 h-12 rounded border border-gray-700 cursor-pointer"
                     />
                     <Input
+                      aria-label="Cor de fundo (hex)"
                       value={pageForm.backgroundColor}
                       onChange={(e) => setPageForm({ ...pageForm, backgroundColor: e.target.value })}
                       className="flex-1 bg-gray-900 border border-gray-700 text-white focus:border-blue-500"
@@ -2980,6 +2982,7 @@ const AdminBranding: React.FC = () => {
                       className="w-12 h-12 rounded border border-gray-700 cursor-pointer"
                     />
                     <Input
+                      aria-label="Cor do texto (hex)"
                       value={pageForm.textColor}
                       onChange={(e) => setPageForm({ ...pageForm, textColor: e.target.value })}
                       className="flex-1 bg-gray-900 border border-gray-700 text-white focus:border-blue-500"
@@ -3000,6 +3003,7 @@ const AdminBranding: React.FC = () => {
                       className="w-12 h-12 rounded border border-gray-700 cursor-pointer"
                     />
                     <Input
+                      aria-label="Cor primária (hex)"
                       value={pageForm.primaryColor}
                       onChange={(e) => setPageForm({ ...pageForm, primaryColor: e.target.value })}
                       className="flex-1 bg-gray-900 border border-gray-700 text-white focus:border-blue-500"
