@@ -1258,6 +1258,9 @@ const AdminDashboard = () => {
     };
     
     return (
+      <>
+      {/* style prop required by dnd-kit for drag transforms; disabling lint for this line */}
+      {/* eslint-disable-next-line */}
       <div 
         ref={setNodeRef} 
         style={style} 
