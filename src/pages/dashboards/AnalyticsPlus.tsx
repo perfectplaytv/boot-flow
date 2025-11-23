@@ -60,6 +60,8 @@ export const AnalyticsPlus = () => {
     valor: cliente.price ? parseFloat(cliente.price.toString()) : 0,
   }));
 
+  const TOOLTIP_STYLE = { backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '8px' } as const;
+
   return (
     <div className={`space-y-6 p-6 transition-all duration-300 ${focusMode ? 'bg-slate-950' : ''}`}>
       <div className="flex items-center justify-between">
@@ -198,9 +200,7 @@ export const AnalyticsPlus = () => {
                   <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
                   <XAxis dataKey="month" stroke="#64748b" />
                   <YAxis stroke="#64748b" />
-                  <Tooltip
-                    contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '8px' }}
-                  />
+                  <Tooltip contentStyle={TOOLTIP_STYLE} />
                   <Area
                     type="monotone"
                     dataKey="receita"
@@ -225,9 +225,7 @@ export const AnalyticsPlus = () => {
                   <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
                   <XAxis dataKey="name" stroke="#64748b" angle={-45} textAnchor="end" height={100} />
                   <YAxis stroke="#64748b" />
-                  <Tooltip
-                    contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '8px' }}
-                  />
+                  <Tooltip contentStyle={TOOLTIP_STYLE} />
                   <Bar dataKey="valor" fill="#6366f1" radius={[8, 8, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -246,9 +244,7 @@ export const AnalyticsPlus = () => {
                   <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
                   <XAxis dataKey="name" stroke="#64748b" />
                   <YAxis stroke="#64748b" />
-                  <Tooltip
-                    contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '8px' }}
-                  />
+                  <Tooltip contentStyle={TOOLTIP_STYLE} />
                   <Line type="monotone" dataKey="valor" stroke="#8b5cf6" strokeWidth={2} />
                 </LineChart>
               </ResponsiveContainer>

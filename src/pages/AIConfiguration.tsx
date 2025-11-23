@@ -292,7 +292,7 @@ const AIConfiguration: React.FC = () => {
       </div>
 
       {/* Configurações Avançadas */}
-      <Card className="border-gray-700" style={{ backgroundColor: '#1F2937' }}>
+      <Card className="border-gray-700 bg-[#1F2937]">
         <CardHeader>
           <CardTitle className="text-white">Configurações Avançadas</CardTitle>
           <p className="text-sm text-gray-400">Configurações técnicas e de performance</p>
