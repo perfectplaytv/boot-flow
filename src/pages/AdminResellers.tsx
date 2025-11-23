@@ -49,6 +49,35 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
 
   const { user } = useAuth();
 
+  // Mostrar dados reais somente após ação vinda da página de Revendas
+  const [showRealData, setShowRealData] = useState(false);
+  useEffect(() => {
+    try {
+      const flag = localStorage.getItem('dashboard-refresh') || localStorage.getItem('reseller-created');
+      if (flag) setShowRealData(true);
+    } catch (err) {
+      // ignore
+    }
+
+    const handler = (e: any) => {
+      try {
+        const source = e?.detail?.source;
+        if (source === 'resellers') setShowRealData(true);
+      } catch (err) {
+        // ignore
+      }
+    };
+
+    window.addEventListener('refresh-dashboard', handler as EventListener);
+    window.addEventListener('reseller-created', handler as EventListener);
+    return () => {
+      window.removeEventListener('refresh-dashboard', handler as EventListener);
+      window.removeEventListener('reseller-created', handler as EventListener);
+    };
+  }, []);
+
+  const shouldShow = (user?.user_metadata?.role === 'reseller') ? showRealData : true;
+
   const filteredRevendas = revendas
     .filter(revenda =>
       revenda.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
