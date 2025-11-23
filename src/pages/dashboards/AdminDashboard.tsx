@@ -119,6 +119,9 @@ const AdminDashboard = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'kanban'>('grid');
   // Mostrar dados reais somente após ação vinda da página de Revendas
   const [showRealData, setShowRealData] = useState(false);
+  // Para usuários com role 'reseller' devemos respeitar a flag showRealData;
+  // administradores e outros roles sempre podem ver os dados.
+  const shouldShow = (user?.user_metadata?.role === 'reseller') ? showRealData : true;
   // Usando o hook personalizado para gerenciar os dados do dashboard
   const { stats, loading: loadingStats, error: statsError, refresh: refreshStats } = useDashboardData();
 
@@ -259,7 +262,7 @@ const AdminDashboard = () => {
 
   // Calcular total de usuários diretamente dos dados atualizados (usando estados locais que são atualizados em tempo real)
   const totalUsersCount = useMemo(() => {
-    if (!showRealData) return 0;
+    if (!shouldShow) return 0;
     const count = (clientes?.length || 0) + (revendas?.length || 0);
     console.log('🔄 [AdminDashboard] Total de usuários calculado:', {
       clientes: clientes?.length || 0,
@@ -269,7 +272,7 @@ const AdminDashboard = () => {
       revendasArray: revendas
     });
     return count;
-  }, [clientes, revendas]);
+  }, [clientes, revendas, shouldShow]);
 
   // Exibe notificações de erro
   useEffect(() => {
@@ -354,7 +357,7 @@ const AdminDashboard = () => {
 
   // Função para calcular clientes que expiram em 3 dias
   const clientesExpiramEm3Dias = useMemo(() => {
-    if (!showRealData) return 0;
+    if (!shouldShow) return 0;
     if (!clientes || clientes.length === 0) return 0;
     
     const hoje = new Date();
@@ -385,7 +388,7 @@ const AdminDashboard = () => {
     }).length;
     
     return count;
-  }, [clientes]);
+  }, [clientes, shouldShow]);
 
   // Função para formatar valor monetário em formato brasileiro
   const formatCurrency = (value: number): string => {
@@ -397,7 +400,7 @@ const AdminDashboard = () => {
 
   // Mapear clientes e revendedores para atividade recente
   const recentActivityUnified = useMemo(() => {
-    if (!showRealData) return [];
+    if (!shouldShow) return [];
 
     const clientesAtividades = clientes.slice(0, 5).map((cliente, index) => ({
       id: `c-${cliente.id}`,
@@ -423,11 +426,11 @@ const AdminDashboard = () => {
         return timeA - timeB;
       })
       .slice(0, 5); // Limitar a 5 itens
-  }, [clientes, revendas]);
+  }, [clientes, revendas, shouldShow]);
 
   // Mapear clientes e revendedores para usuários online
   const onlineUsersUnified = useMemo(() => {
-    if (!showRealData) return [];
+    if (!shouldShow) return [];
     const clientesOnline = clientes
       .filter(cliente => cliente.status === 'Ativo')
       .slice(0, 10)
@@ -451,7 +454,7 @@ const AdminDashboard = () => {
       }));
 
     return [...clientesOnline, ...revendasOnline].slice(0, 10); // Limitar a 10 itens
-  }, [clientes, revendas]);
+  }, [clientes, revendas, shouldShow]);
 
   // Usar ref para evitar loops infinitos
   const isRefreshingRef = useRef(false);
