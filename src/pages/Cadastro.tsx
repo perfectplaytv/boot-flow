@@ -45,8 +45,9 @@ const Cadastro: React.FC = () => {
         {error && <div className="bg-red-100 text-red-700 rounded px-3 py-2 text-sm">{error}</div>}
         {success && <div className="bg-green-100 text-green-700 rounded px-3 py-2 text-sm">{success}</div>}
         <div>
-          <label className="block text-gray-700 mb-1">Nome completo</label>
+          <label htmlFor="cad-fullname" className="block text-gray-700 mb-1">Nome completo</label>
           <input
+            id="cad-fullname"
             type="text"
             value={fullName}
             onChange={e => setFullName(e.target.value)}
@@ -55,8 +56,9 @@ const Cadastro: React.FC = () => {
           />
         </div>
         <div>
-          <label className="block text-gray-700 mb-1">E-mail</label>
+          <label htmlFor="cad-email" className="block text-gray-700 mb-1">E-mail</label>
           <input
+            id="cad-email"
             type="email"
             value={email}
             onChange={e => setEmail(e.target.value)}
@@ -65,8 +67,9 @@ const Cadastro: React.FC = () => {
           />
         </div>
         <div>
-          <label className="block text-gray-700 mb-1">Senha</label>
+          <label htmlFor="cad-password" className="block text-gray-700 mb-1">Senha</label>
           <input
+            id="cad-password"
             type="password"
             value={password}
             onChange={e => setPassword(e.target.value)}
@@ -75,8 +78,9 @@ const Cadastro: React.FC = () => {
           />
         </div>
         <div>
-          <label className="block text-gray-700 mb-1">Confirmar senha</label>
+          <label htmlFor="cad-confirm" className="block text-gray-700 mb-1">Confirmar senha</label>
           <input
+            id="cad-confirm"
             type="password"
             value={confirmPassword}
             onChange={e => setConfirmPassword(e.target.value)}
