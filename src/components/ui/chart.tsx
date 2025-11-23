@@ -90,6 +90,52 @@ ${colorConfig
   })
   .join("\n")}
 }
+
+// Small helper to avoid inline style props by setting CSS variables on the element via ref.
+function IndicatorSquare({
+  color,
+  indicator,
+  nestLabel,
+}: {
+  color?: string
+  indicator: "dot" | "line" | "dashed"
+  nestLabel?: boolean
+}) {
+  const ref = React.useRef<HTMLDivElement | null>(null)
+
+  React.useEffect(() => {
+    if (!ref.current || !color) return
+    ref.current.style.setProperty("--color-bg", String(color))
+    ref.current.style.setProperty("--color-border", String(color))
+  }, [color])
+
+  return (
+    <div
+      ref={ref}
+      className={cn(
+        "shrink-0 rounded-[2px] border-[--color-border] bg-[--color-bg]",
+        {
+          "h-2.5 w-2.5": indicator === "dot",
+          "w-1": indicator === "line",
+          "w-0 border-[1.5px] border-dashed bg-transparent":
+            indicator === "dashed",
+          "my-0.5": nestLabel && indicator === "dashed",
+        }
+      )}
+    />
+  )
+}
+
+function LegendColorSquare({ color }: { color?: string }) {
+  const ref = React.useRef<HTMLDivElement | null>(null)
+
+  React.useEffect(() => {
+    if (!ref.current) return
+    ref.current.style.backgroundColor = color || "transparent"
+  }, [color])
+
+  return <div ref={ref} className="h-2 w-2 shrink-0 rounded-[2px]" />
+}
 `
           )
           .join("\n"),
@@ -204,23 +250,10 @@ const ChartTooltipContent = React.forwardRef<
                       <itemConfig.icon />
                     ) : (
                       !hideIndicator && (
-                        <div
-                          className={cn(
-                            "shrink-0 rounded-[2px] border-[--color-border] bg-[--color-bg]",
-                            {
-                              "h-2.5 w-2.5": indicator === "dot",
-                              "w-1": indicator === "line",
-                              "w-0 border-[1.5px] border-dashed bg-transparent":
-                                indicator === "dashed",
-                              "my-0.5": nestLabel && indicator === "dashed",
-                            }
-                          )}
-                          style={
-                            {
-                              "--color-bg": indicatorColor,
-                              "--color-border": indicatorColor,
-                            } as React.CSSProperties
-                          }
+                        <IndicatorSquare
+                          color={indicatorColor}
+                          indicator={indicator}
+                          nestLabel={nestLabel}
                         />
                       )
                     )}
@@ -297,12 +330,7 @@ const ChartLegendContent = React.forwardRef<
               {itemConfig?.icon && !hideIcon ? (
                 <itemConfig.icon />
               ) : (
-                <div
-                  className="h-2 w-2 shrink-0 rounded-[2px]"
-                  style={{
-                    backgroundColor: item.color,
-                  }}
-                />
+                <LegendColorSquare color={item.color} />
               )}
               {itemConfig?.label}
             </div>
