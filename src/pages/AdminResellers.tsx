@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Users, Plus, Search, Edit, Trash2, Eye, User, Mail, Calendar, Shield, Activity, CheckCircle, RefreshCw, Maximize2, Moon } from "lucide-react";
 import { useRevendas } from '@/hooks/useRevendas';
+import { useAuth } from '@/contexts/AuthContext';
 import { RLSErrorBannerResellers } from '@/components/RLSErrorBannerResellers';
 
 export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?: boolean }) {
@@ -46,11 +47,33 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
   const [addResellerSuccess, setAddResellerSuccess] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
-  const filteredRevendas = revendas.filter(revenda =>
-    revenda.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    revenda.personal_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    revenda.email?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const { user } = useAuth();
+
+  const filteredRevendas = revendas
+    .filter(revenda =>
+      revenda.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      revenda.personal_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      revenda.email?.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    // Se o usuário logado for um revendedor, não mostrar a própria conta na lista
+    .filter(revenda => {
+      try {
+        const role = user?.user_metadata?.role || user?.role || null;
+        if (role === 'reseller') {
+          // Evitar mostrar o próprio revendedor (comparar por email quando disponível)
+          if (user?.email && revenda.email && revenda.email.toLowerCase() === user.email.toLowerCase()) {
+            return false;
+          }
+          // Também evitar comparar por username se for igual ao email local part
+          if (user?.email && revenda.username && revenda.username.toLowerCase() === user.email.split('@')[0].toLowerCase()) {
+            return false;
+          }
+        }
+      } catch (err) {
+        // Em caso de erro, não filtrar adicionalmente
+      }
+      return true;
+    });
 
   // Listener para atualizar a lista quando um revendedor é criado em outro lugar (ex: modal do Dashboard)
   useEffect(() => {
