@@ -44,7 +44,6 @@ const colorClasses = {
   },
   green: {
     from: 'from-green-900/50',
-                    <DynamicStyle styles={{ backgroundColor: primaryColor, opacity: 0.8 }} className="h-3 w-2/3 rounded mb-1" />
     border: 'border-green-700/40',
     hoverBorder: 'hover:border-green-500',
     icon: 'text-green-400',
@@ -53,16 +52,13 @@ const colorClasses = {
 };
 
 export default function ClientBranding() {
-                    <DynamicStyle styles={{ backgroundColor: primaryColor }} className="w-10 h-10 rounded-full" />
   const [brand, setBrand] = useState(initialBrand);
   const [originalBrand, setOriginalBrand] = useState(initialBrand);
   const [hasChanges, setHasChanges] = useState(false);
   const [logoModal, setLogoModal] = useState(false);
-                    <DynamicStyle styles={{ backgroundColor: primaryColor, opacity: 0.8 }} className="h-3 w-2/3 rounded mb-1" />
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [faviconFile, setFaviconFile] = useState<File | null>(null);
   const [primaryColor, setPrimaryColor] = useState('#7c3aed');
-                    <DynamicStyle styles={{ backgroundColor: secondaryColor, opacity: 0.6 }} className="h-3 w-1/2 rounded" />
   const [font, setFont] = useState('Inter');
   const [darkMode, setDarkMode] = useState(false);
   const [customDomain, setCustomDomain] = useState('');
