@@ -3336,6 +3336,7 @@ const AdminBranding: React.FC = () => {
               {viewingPage.customCSS && (
                 <style>{viewingPage.customCSS}</style>
               )}
+            </DynamicStyle>
             </div>
           </div>
         </div>
