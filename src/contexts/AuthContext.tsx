@@ -116,23 +116,26 @@ export const AuthProvider = ({ children, navigate }: AuthProviderProps) => {
         // Se o perfil não existir (primeiro login com OAuth), cria um perfil básico
         if (!userProfile && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
           try {
-            const fullName = session.user.user_metadata?.full_name || 
-                           session.user.user_metadata?.name || 
-                           session.user.email?.split('@')[0] || 
-                           'Usuário';
-            
-            const { data: newProfile, error: profileError } = await supabase
-              .from('profiles')
-              .insert([
-                {
-                  id: session.user.id,
-                  email: session.user.email?.toLowerCase() || '',
-                  full_name: fullName,
-                  role: 'client', // Role padrão para novos usuários OAuth
-                },
-              ])
-              .select()
-              .single();
+                const fullName = session.user.user_metadata?.full_name ||
+                               session.user.user_metadata?.name ||
+                               session.user.email?.split('@')[0] ||
+                               'Usuário';
+
+                // Prefere a role passada no user_metadata (por exemplo durante signUp com metadata.role = 'reseller')
+                const metadataRole = session.user.user_metadata && (session.user.user_metadata as any).role;
+
+                const { data: newProfile, error: profileError } = await supabase
+                  .from('profiles')
+                  .insert([
+                    {
+                      id: session.user.id,
+                      email: session.user.email?.toLowerCase() || '',
+                      full_name: fullName,
+                      role: metadataRole || 'client', // use metadata role when available
+                    },
+                  ])
+                  .select()
+                  .single();
             
             if (profileError) {
               console.error('Erro ao criar perfil para usuário OAuth:', profileError);
