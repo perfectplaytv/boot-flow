@@ -828,14 +828,13 @@ const AdminBranding: React.FC = () => {
 
       case 'image':
         return config.src ? (
-          <img
-            src={config.src}
-            alt={config.alt || ''}
-                    // eslint-disable-next-line no-inline-styles
-                    // eslint-disable-next-line no-inline-styles
-                    style={{ width: config.width || '100%', height: config.height || 'auto' }}
-            className="rounded-lg"
-          />
+          <DynamicStyle
+              as="img"
+              src={config.src}
+              alt={config.alt || ''}
+              styles={{ width: config.width || '100%', height: config.height || 'auto' }}
+              className="rounded-lg"
+            />
         ) : (
           <div className="border-2 border-dashed border-gray-700 rounded-lg p-8 text-center text-gray-400">
             <Image className="w-12 h-12 mx-auto mb-2 opacity-50" />
@@ -1048,14 +1047,9 @@ const AdminBranding: React.FC = () => {
             </TabsContent>
 
             <TabsContent value="preview" className="flex-1 overflow-y-auto p-6">
-              <div
+              <DynamicStyle
                 className="min-h-full p-8 rounded-lg"
-                // eslint-disable-next-line no-inline-styles
-                // eslint-disable-next-line no-inline-styles
-                style={{
-                  backgroundColor: pageForm.backgroundColor,
-                  color: pageForm.textColor,
-                }}
+                styles={{ backgroundColor: pageForm.backgroundColor, color: pageForm.textColor }}
               >
                 {pageForm.components.length === 0 ? (
                   <div className="text-center py-12 text-gray-400">
@@ -1710,11 +1704,7 @@ const AdminBranding: React.FC = () => {
               </Button>
               <div>
                 <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-                  <div 
-                    className="w-4 h-4 rounded-full"
-                    // eslint-disable-next-line no-inline-styles
-                    style={{ backgroundColor: viewingDashboard.color }}
-                  />
+                  <DynamicStyle styles={{ backgroundColor: viewingDashboard.color }} className="w-4 h-4 rounded-full" />
                   {viewingDashboard.name}
                 </h1>
                 <p className="text-gray-400 text-sm mt-1">
