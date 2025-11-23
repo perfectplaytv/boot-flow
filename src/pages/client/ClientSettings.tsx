@@ -7,18 +7,12 @@ import { DialogWrapper } from '@/components/ui/DialogWrapper';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { User, Bell, Link, CreditCard, Shield } from 'lucide-react';
 
-const perfisMock = {
-  nome: 'João',
-  sobrenome: 'Silva',
-  email: 'joao@exemplo.com',
-  empresa: 'Minha Empresa LTDA',
-  telefone: '+55 11 99999-9999',
-  fuso: 'América/São Paulo',
-};
+// Perfil padrão vazio (mock removido)
+const defaultPerfil = { nome: '', sobrenome: '', email: '', empresa: '', telefone: '', fuso: '' };
 
 export default function ClientSettings() {
   const [tab, setTab] = useState('perfil');
-  const [perfil, setPerfil] = useState(perfisMock);
+  const [perfil, setPerfil] = useState(defaultPerfil);
   // Notificações
   const [notificacoes, setNotificacoes] = useState({ email: true, whatsapp: true, push: false, sms: false, clientes: true, cobrancas: true, promocoes: false });
   // Integrações
