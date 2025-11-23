@@ -1078,7 +1078,7 @@ const AdminBranding: React.FC = () => {
                     </SortableContext>
                   </DndContext>
                 )}
-              </div>
+              </DynamicStyle>
             </TabsContent>
           </Tabs>
 
@@ -3336,7 +3336,6 @@ const AdminBranding: React.FC = () => {
               {viewingPage.customCSS && (
                 <style>{viewingPage.customCSS}</style>
               )}
-            </DynamicStyle>
             </div>
           </div>
         </div>
