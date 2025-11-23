@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useLocation } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -95,6 +96,8 @@ const AdminResellersWrapper = ({ onResellerCreated, onCloseModal }: { onReseller
 const AdminDashboard = () => {
   // Obter o admin logado para filtrar dados
   const { user } = useAuth();
+  const location = useLocation();
+  const isResellerRoute = location?.pathname?.includes('/dashboard/revendas');
   
   // --- Estados para integração APIBrasil QR Code ---
   const [apiBrasilConfig, setApiBrasilConfig] = useState(() => {
@@ -1331,8 +1334,8 @@ const AdminDashboard = () => {
           <div className="space-y-6">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div className="text-center sm:text-left">
-                <h1 className="text-2xl sm:text-3xl font-bold text-white">Dashboard Admin</h1>
+                <div className="text-center sm:text-left">
+                <h1 className="text-2xl sm:text-3xl font-bold text-white">{isResellerRoute ? 'Dashboard Revenda' : 'Dashboard Admin'}</h1>
                 <p className="text-gray-400 text-sm sm:text-base">Visão geral do sistema</p>
               </div>
               <div className="flex flex-row items-center gap-2 w-full sm:w-auto justify-center sm:justify-end">
@@ -2172,8 +2175,8 @@ const AdminDashboard = () => {
             {currentPage === "dashboard" && (
               <>
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  <div className="text-center sm:text-left">
-                    <h1 className="text-2xl sm:text-3xl font-bold text-white">Dashboard Admin</h1>
+                    <div className="text-center sm:text-left">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-white">{isResellerRoute ? 'Dashboard Revenda' : 'Dashboard Admin'}</h1>
                     <p className="text-gray-400 text-sm sm:text-base">Visão geral do sistema</p>
                   </div>
                   <div className="flex flex-row items-center gap-2">
