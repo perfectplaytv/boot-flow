@@ -848,7 +848,7 @@ const AdminBranding: React.FC = () => {
           <div className={config.ordered ? 'list-decimal list-inside' : 'list-disc list-inside'}>
             {config.items?.length > 0 ? (
               config.items.map((item: string, idx: number) => (
-                <li key={idx} className="text-white mb-1">{item}</li>
+                <div key={idx} className="text-white mb-1">{item}</div>
               ))
             ) : (
               <p className="text-gray-400 text-sm">Nenhum item na lista. Edite o componente para adicionar itens.</p>
@@ -1191,6 +1191,7 @@ const AdminBranding: React.FC = () => {
             <div className="space-y-2">
               <Label className="text-gray-300">Colunas</Label>
               <select
+                aria-label="Selecionar número de colunas"
                 value={config.columns || 3}
                 onChange={(e) => updateConfig('columns', parseInt(e.target.value))}
                 className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2"
@@ -1239,6 +1240,7 @@ const AdminBranding: React.FC = () => {
             <div className="space-y-2">
               <Label className="text-gray-300">Variante</Label>
               <select
+                aria-label="Selecionar variante do botão"
                 value={config.variant || 'primary'}
                 onChange={(e) => updateConfig('variant', e.target.value)}
                 className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2"
@@ -1274,6 +1276,7 @@ const AdminBranding: React.FC = () => {
             <div className="space-y-2">
               <Label className="text-gray-300">Tamanho</Label>
               <select
+                aria-label="Selecionar tamanho do texto"
                 value={config.size || 'medium'}
                 onChange={(e) => updateConfig('size', e.target.value)}
                 className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2"
@@ -1287,6 +1290,7 @@ const AdminBranding: React.FC = () => {
             <div className="space-y-2">
               <Label className="text-gray-300">Alinhamento</Label>
               <select
+                aria-label="Selecionar alinhamento do texto"
                 value={config.align || 'left'}
                 onChange={(e) => updateConfig('align', e.target.value)}
                 className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2"
