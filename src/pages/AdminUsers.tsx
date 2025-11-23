@@ -1428,7 +1428,7 @@ export default function AdminUsers() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-white">
-              {(users || []).length}
+              {shouldShow ? (users || []).length : 0}
             </div>
             <div className="text-xs text-gray-400 mt-1">
               Usuários cadastrados
@@ -1445,7 +1445,7 @@ export default function AdminUsers() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-400">
-              {(users || []).filter((u) => u.status === "Ativo").length}
+              {shouldShow ? (users || []).filter((u) => u.status === "Ativo").length : 0}
             </div>
             <div className="text-xs text-gray-400 mt-1">
               Usuários com acesso
@@ -1462,7 +1462,7 @@ export default function AdminUsers() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-400">
-              {(users || []).filter((u) => u.status === "Inativo").length}
+              {shouldShow ? (users || []).filter((u) => u.status === "Inativo").length : 0}
             </div>
             <div className="text-xs text-gray-400 mt-1">
               Usuários bloqueados
@@ -1478,7 +1478,7 @@ export default function AdminUsers() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-400">12</div>
+            <div className="text-2xl font-bold text-blue-400">{shouldShow ? 12 : 0}</div>
             <div className="text-xs text-gray-400 mt-1">Novos usuários</div>
           </CardContent>
         </Card>
