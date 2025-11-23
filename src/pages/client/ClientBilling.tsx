@@ -101,13 +101,8 @@ export default function ClientBilling() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  // Gateways configurados
-  const [gateways] = useState<GatewayConfig[]>([
-    { id: 'pix', nome: 'PIX', tipo: 'PIX', status: 'Ativo', taxa: '0.99%', limite: 'R$ 10.000', configurado: true },
-    { id: 'stripe', nome: 'Stripe', tipo: 'Cartão', status: 'Ativo', taxa: '2.99% + R$ 0,30', limite: 'R$ 50.000', configurado: true },
-    { id: 'mercadopago', nome: 'Mercado Pago', tipo: 'Cartão', status: 'Ativo', taxa: '1.99% + R$ 0,60', limite: 'R$ 25.000', configurado: true },
-    { id: 'boleto', nome: 'Boleto', tipo: 'Boleto', status: 'Inativo', taxa: '1.99% + R$ 2,00', limite: 'R$ 5.000', configurado: false },
-  ]);
+  // Gateways configurados (sem mocks — estado inicial vazio; dados reais virão do backend)
+  const [gateways] = useState<GatewayConfig[]>([]);
 
   // Gerar cobranças virtuais baseadas em clientes (limitado a MAX_COBRANCAS)
   useEffect(() => {
