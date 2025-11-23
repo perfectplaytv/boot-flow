@@ -607,7 +607,9 @@ export default function ClientBranding() {
                     type="checkbox" 
                     checked={darkMode}
                     onChange={e => setDarkMode(e.target.checked)}
-                    className="accent-blue-500" 
+                    className="accent-blue-500"
+                    aria-label="Ativar modo escuro"
+                  />
                   />
                   <span className="text-gray-300">Modo escuro</span>
                 </div>
@@ -670,7 +672,9 @@ export default function ClientBranding() {
                   type="checkbox" 
                   checked={enableCDN}
                   onChange={e => setEnableCDN(e.target.checked)}
-                  className="accent-green-500" 
+                  className="accent-green-500"
+                  aria-label="Habilitar CDN"
+                />
                 />
                 <span className="text-gray-300">Ativar CDN de performance</span>
               </div>
