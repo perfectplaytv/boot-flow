@@ -2320,11 +2320,7 @@ const AdminBranding: React.FC = () => {
                             <CardTitle className="text-white text-base mb-1">{dashboard.name}</CardTitle>
                             <p className="text-xs text-gray-400">Layout: {dashboard.layout}</p>
                           </div>
-                          <div 
-                            className="w-4 h-4 rounded-full border-2 border-white"
-                            // eslint-disable-next-line no-inline-styles
-                            style={{ backgroundColor: dashboard.color }}
-                          />
+                          <DynamicStyle styles={{ backgroundColor: dashboard.color }} className="w-4 h-4 rounded-full border-2 border-white" />
                         </div>
                       </CardHeader>
                       <CardContent className="pt-0">
@@ -3197,10 +3193,9 @@ const AdminBranding: React.FC = () => {
                                   <CardTitle className="text-white text-sm">{config.title || 'Métrica'}</CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                  {/* eslint-disable-next-line no-inline-styles */}
-                                  <div className="text-3xl font-bold" style={{ color: config.color || viewingPage.primaryColor }}>
+                                  <DynamicStyle styles={{ color: config.color || viewingPage.primaryColor }} className="text-3xl font-bold">
                                     {config.value || '0'}
-                                  </div>
+                                  </DynamicStyle>
                                   <div className="text-sm text-gray-400 mt-1">{config.label || 'Descrição'}</div>
                                 </CardContent>
                               </Card>
@@ -3306,9 +3301,9 @@ const AdminBranding: React.FC = () => {
                             const textSizes: any = { small: 'text-sm', medium: 'text-base', large: 'text-lg', xlarge: 'text-2xl' };
                             const textAligns: any = { left: 'text-left', center: 'text-center', right: 'text-right' };
                             return (
-                              <div className={`${textSizes[config.size || 'medium']} ${textAligns[config.align || 'left']}`} style={{ color: viewingPage.textColor }}>
+                              <DynamicStyle styles={{ color: viewingPage.textColor }} className={`${textSizes[config.size || 'medium']} ${textAligns[config.align || 'left']} text-white`}>
                                 {config.content || 'Digite seu texto aqui'}
-                              </div>
+                              </DynamicStyle>
                             );
                           default:
                             return renderComponent(comp);
@@ -3323,17 +3318,18 @@ const AdminBranding: React.FC = () => {
                 </div>
               ) : (
                 /* Fallback para conteúdo HTML se não houver componentes */
-                <div 
+                <DynamicStyle
+                  as="div"
+                  className="prose prose-invert max-w-none"
+                  styles={{ color: viewingPage.textColor }}
                   dangerouslySetInnerHTML={{ __html: viewingPage.content || '<p>Nenhum conteúdo adicionado ainda.</p>' }}
-                  // eslint-disable-next-line no-inline-styles
-                  style={{ color: viewingPage.textColor }}
                 />
               )}
               
               {viewingPage.showFooter && (
-                <footer className="mt-8 pt-4 border-t" style={{ borderColor: viewingPage.primaryColor }}>
+                <DynamicStyle as="footer" className="mt-8 pt-4 border-t" styles={{ borderColor: viewingPage.primaryColor }}>
                   <p className="text-sm opacity-60">© {new Date().getFullYear()} {brand.name || 'Sua Empresa'}</p>
-                </footer>
+                </DynamicStyle>
               )}
               {viewingPage.customCSS && (
                 <style>{viewingPage.customCSS}</style>
