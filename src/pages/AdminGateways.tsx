@@ -32,7 +32,7 @@ export default function AdminGateways() {
   const ativos = gateways.filter(g => g.status === 'Ativo').length;
   const configurados = gateways.filter(g => g.configurado).length;
   const volumeMensal = '0';
-  const transacoes = 5777;
+  const transacoes = 0;
 
   // Funções dos modais
   const handleTestar = () => {
