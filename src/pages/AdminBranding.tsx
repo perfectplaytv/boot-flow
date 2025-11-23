@@ -2735,6 +2735,7 @@ const AdminBranding: React.FC = () => {
                   <input
                     type="color"
                     id="dashboard-color"
+                    aria-label="Selecionar cor do tema"
                     value={dashboardForm.color}
                     onChange={(e) => setDashboardForm({ ...dashboardForm, color: e.target.value })}
                     className="w-16 h-12 rounded border border-gray-700 cursor-pointer"
@@ -2959,6 +2960,7 @@ const AdminBranding: React.FC = () => {
                     <input
                       type="color"
                       id="page-bg-color"
+                      aria-label="Selecionar cor de fundo"
                       value={pageForm.backgroundColor}
                       onChange={(e) => setPageForm({ ...pageForm, backgroundColor: e.target.value })}
                       className="w-12 h-12 rounded border border-gray-700 cursor-pointer"
@@ -2980,6 +2982,7 @@ const AdminBranding: React.FC = () => {
                     <input
                       type="color"
                       id="page-text-color"
+                      aria-label="Selecionar cor do texto"
                       value={pageForm.textColor}
                       onChange={(e) => setPageForm({ ...pageForm, textColor: e.target.value })}
                       className="w-12 h-12 rounded border border-gray-700 cursor-pointer"
@@ -3001,6 +3004,7 @@ const AdminBranding: React.FC = () => {
                     <input
                       type="color"
                       id="page-primary-color"
+                      aria-label="Selecionar cor primária"
                       value={pageForm.primaryColor}
                       onChange={(e) => setPageForm({ ...pageForm, primaryColor: e.target.value })}
                       className="w-12 h-12 rounded border border-gray-700 cursor-pointer"
