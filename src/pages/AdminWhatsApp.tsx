@@ -110,6 +110,15 @@ const AdminWhatsApp: React.FC = () => {
   const [qrCodeData, setQrCodeData] = useState<string | null>(null);
   const [isLoadingQR, setIsLoadingQR] = useState(false);
 
+  // Gating dos cards: só mostra dados reais se houver pelo menos um template
+  const showRealData = templates.length > 0;
+  const totalEnviados = showRealData ? templates.reduce((acc, tpl) => acc + (tpl.sent || 0), 0) : 0;
+  const entregues = showRealData ? templates.reduce((acc, tpl) => acc + Math.round((tpl.sent || 0) * (tpl.delivery || 0) / 100), 0) : 0;
+  // lidos e falhas: ajuste conforme sua fonte de dados, aqui ficam zerados
+  const lidos = 0;
+  const falhas = 0;
+  const taxaEntrega = showRealData && totalEnviados ? ((entregues / totalEnviados) * 100).toFixed(1) : '0.0';
+
   // Função para enviar mensagem via API Brasil
   const sendWhatsAppMessage = async (phoneNumber: string, message: string) => {
     // Validação dos campos obrigatórios
@@ -583,6 +592,50 @@ const AdminWhatsApp: React.FC = () => {
               Novo Template
             </Button>
           </div>
+        </div>
+
+        {/* Cards de Métricas WhatsApp */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+          <Card className="bg-[#23272f] border border-gray-700">
+            <CardHeader>
+              <CardTitle className="text-sm text-gray-300">Total Enviados</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">{totalEnviados}</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-[#23272f] border border-gray-700">
+            <CardHeader>
+              <CardTitle className="text-sm text-gray-300">Entregues</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-400">{entregues}</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-[#23272f] border border-gray-700">
+            <CardHeader>
+              <CardTitle className="text-sm text-gray-300">Lidos</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-blue-400">{lidos}</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-[#23272f] border border-gray-700">
+            <CardHeader>
+              <CardTitle className="text-sm text-gray-300">Falhas</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-red-400">{falhas}</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-[#23272f] border border-gray-700">
+            <CardHeader>
+              <CardTitle className="text-sm text-gray-300">Taxa Entrega</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-yellow-400">{taxaEntrega}%</div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Modal de Configuração */}
