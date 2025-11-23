@@ -8,6 +8,7 @@ import { bootFlowChatAgent, ChatMessage } from '@/modules/ai/chatAgent';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToastFeedback } from '@/hooks/useToastFeedback.agent';
 import ReactMarkdown from 'react-markdown';
+import DynamicStyle from '@/components/ui/dynamic-style';
 
 export interface BootFlowAIChatProps {
   autoSave?: boolean;
@@ -112,7 +113,8 @@ export const BootFlowAIChat = ({
   };
 
   return (
-    <Card className={`flex flex-col ${className ?? ''}`.trim()} style={{ maxHeight }}>
+    <DynamicStyle styles={{ maxHeight }}>
+      <Card className={`flex flex-col ${className ?? ''}`.trim()}>
       <CardHeader className="flex-shrink-0 border-b border-slate-800 bg-gradient-to-r from-slate-900 to-slate-800">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -231,7 +233,8 @@ export const BootFlowAIChat = ({
           </Button>
         </div>
       </div>
-    </Card>
+      </Card>
+    </DynamicStyle>
   );
 };
 
