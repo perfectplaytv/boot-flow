@@ -2323,7 +2323,6 @@ export default function ClientClients() {
                           })
                         }
                         className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                        title="Selecione o plano"
                         title="Selecione o status"
                       >
                         <option value="Ativo">Ativo</option>
