@@ -2668,12 +2668,16 @@ function VencimentoDatePicker() {
             placeholder="Selecione a data"
             className="w-1/2 bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 cursor-pointer"
             onClick={() => setOpen(true)}
+            aria-label="Data de vencimento"
+            id="edit-expiration-date"
           />
           <input
             type="time"
             value={time}
             onChange={handleTimeChange}
             className="w-1/2 bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+            aria-label="Horário de vencimento"
+            id="edit-expiration-time"
           />
         </div>
       </PopoverTrigger>
