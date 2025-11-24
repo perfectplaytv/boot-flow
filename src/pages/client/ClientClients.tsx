@@ -643,9 +643,10 @@ export default function ClientClients() {
         console.error('❌ [AdminUsers] Erro ao atualizar:', errorMessage);
         alert(`Erro ao atualizar status de pagamento.\n\nDetalhes: ${errorMessage}\n\nVerifique:\n- Se a coluna 'pago' existe na tabela 'users'\n- Se você tem permissão para atualizar\n- Se está conectado à internet`);
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('❌ [AdminUsers] Erro ao atualizar status de pagamento:', error);
-      const errorMessage = error?.message || error?.toString() || 'Erro desconhecido';
+      const errorMessage =
+        error instanceof Error ? error.message : String(error ?? 'Erro desconhecido');
       alert(`Erro ao atualizar status de pagamento.\n\nErro: ${errorMessage}\n\nVerifique o console para mais detalhes.`);
     }
   };
