@@ -26,6 +26,7 @@ export interface Cliente {
   status?: string;
   pago?: boolean;
   admin_id?: string; // ID do admin responsável por este cliente
+  server?: string;
 }
 
 export function useClientes() {
