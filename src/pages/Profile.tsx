@@ -21,11 +21,11 @@ const Profile = () => {
   const [profileData, setProfileData] = useState({
     name: userName,
     email: userEmail,
-    phone: "+55 11 99999-9999",
-    bio: "Administrador da plataforma SaaS",
-    location: "São Paulo, SP",
-    joinDate: "Janeiro 2024",
-    role: "Administrador",
+    phone: "",
+    bio: "",
+    location: "",
+    joinDate: "",
+    role: "",
     notifications: {
       email: true,
       sms: false,
