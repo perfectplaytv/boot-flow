@@ -362,20 +362,20 @@ export default function ClientClients() {
     }
 
     // Validação básica
-    if (!editingUser.realName?.trim() && !editingUser.name?.trim()) {
+    if (!editingUser.real_name?.trim() && !editingUser.name?.trim()) {
       alert("Por favor, preencha o nome do cliente.");
       return;
     }
 
     console.log("=== DEBUG: Salvando alterações ===");
     console.log("Usuário completo:", editingUser);
-    console.log("Campo realName do editingUser:", editingUser.realName);
-    console.log("Tipo do realName:", typeof editingUser.realName);
+    console.log("Campo real_name do editingUser:", editingUser.real_name);
+    console.log("Tipo do real_name:", typeof editingUser.real_name);
     console.log("Todos os campos do editingUser:", Object.keys(editingUser));
 
     // Preparar dados para atualização no Neon
     const updatedUserData = {
-      name: editingUser.realName || editingUser.name, // Usar o nome real como name principal
+      name: editingUser.real_name || editingUser.name, // Usar o nome real como name principal
       email: editingUser.email,
       password: editingUser.password || "",
       plan: editingUser.plan || "", // Campo plan
@@ -383,9 +383,9 @@ export default function ClientClients() {
       server: editingUser.server || "", // Campo server
       m3u_url: editingUser.m3u_url || "", // Campo m3u_url separado
       bouquets: editingUser.bouquets || "",
-      expiration_date: editingUser.expirationDate || null,
+      expiration_date: editingUser.expiration_date || null,
       observations: editingUser.observations || "",
-      real_name: editingUser.realName || "", // Manter também no real_name
+      real_name: editingUser.real_name || "", // Manter também no real_name
       telegram: editingUser.telegram || "", // Campo telegram
       whatsapp: editingUser.whatsapp || "", // Campo whatsapp
       status: editingUser.status || "Ativo", // Campo status
@@ -2426,7 +2426,7 @@ export default function ClientClients() {
                   </Button>
                   <Button
                     onClick={handleEditUser}
-                    disabled={!editingUser || (!editingUser.realName?.trim() && !editingUser.name?.trim())}
+                    disabled={!editingUser || (!editingUser.real_name?.trim() && !editingUser.name?.trim())}
                     className="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-2 rounded font-semibold disabled:bg-gray-600 disabled:cursor-not-allowed"
                   >
                     Salvar Alterações
