@@ -2031,7 +2031,6 @@ export default function ClientClients() {
                         placeholder="Digite o nome do servidor"
                         className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                         title="Selecione o plano"
-                        title="Selecione o plano"
                       />
                     </div>
                     {/* Plano */}
