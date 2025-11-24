@@ -697,6 +697,7 @@ export default function ClientClients() {
       const username = urlObj.searchParams.get("username") || "";
       const password = urlObj.searchParams.get("password") || "";
       const baseUrl = `${urlObj.protocol}//${urlObj.host}`;
+      const server = baseUrl;
 
       if (!username || !password) {
         throw new Error(
@@ -745,10 +746,11 @@ export default function ClientClients() {
             console.log("Sucesso com acesso direto!");
 
             // Aplicar dados extraídos ao formulário
-            const extractedData = {
+            const extractedData: typeof newUser = {
               name: data.user_info.username,
               email: `${data.user_info.username}@iptv.com`,
               plan: data.user_info.is_trial === "1" ? "Trial" : "Premium",
+              price: newUser.price,
               status: data.user_info.status === "Active" ? "Ativo" : "Inativo",
               telegram: data.user_info.username
                 ? `@${data.user_info.username}`
@@ -768,6 +770,8 @@ export default function ClientClients() {
                 : 1, // Dispositivos baseado em max_connections
               credits: 0, // Campo créditos
               notes: "", // Campo anotações
+              server,
+              m3u_url: m3uUrl,
             };
 
             // Aplicar aos formulários baseado no modal aberto
@@ -780,7 +784,6 @@ export default function ClientClients() {
             setExtractionResult({
               success: true,
               message: `Dados extraídos com sucesso! Usuário: ${data.user_info.username}`,
-              data: data,
             });
 
             setExtractionError("");
@@ -861,10 +864,11 @@ export default function ClientClients() {
             observations.push(`Ativas: ${data.user_info.active_cons}`);
 
           // Aplicar dados extraídos ao formulário
-          const extractedData = {
+          const extractedData: typeof newUser = {
             name: data.user_info.username || username,
             email: `${data.user_info.username || username}@iptv.com`,
             plan: data.user_info.is_trial === "1" ? "Trial" : "Premium",
+            price: newUser.price,
             status: data.user_info.status === "Active" ? "Ativo" : "Inativo",
             telegram: data.user_info.username
               ? `@${data.user_info.username}`
@@ -887,6 +891,8 @@ export default function ClientClients() {
               : 1, // Dispositivos baseado em max_connections
             credits: 0, // Campo créditos
             notes: "", // Campo anotações
+            server,
+            m3u_url: m3uUrl,
           };
 
           // Aplicar aos formulários baseado no modal aberto
@@ -899,7 +905,6 @@ export default function ClientClients() {
           setExtractionResult({
             success: true,
             message: `Dados extraídos com sucesso! Usuário: ${data.user_info.username}`,
-            data: data,
           });
 
           setExtractionError("");
@@ -913,10 +918,11 @@ export default function ClientClients() {
             setExtractionError("Proxies falharam, usando dados simulados...");
 
             // Simular dados baseados na URL
-            const extractedData = {
+            const extractedData: typeof newUser = {
               name: username,
               email: `${username}@iptv.com`,
               plan: "Premium",
+              price: newUser.price,
               status: "Ativo",
               telegram: `@${username}`,
               observations: `Usuário: ${username} | Senha: ${password} | Dados simulados`,
@@ -928,6 +934,8 @@ export default function ClientClients() {
               devices: 1, // Campo dispositivos
               credits: 0, // Campo créditos
               notes: "", // Campo anotações
+              server,
+              m3u_url: m3uUrl,
             };
 
             // Aplicar aos formulários baseado no modal aberto
@@ -940,7 +948,6 @@ export default function ClientClients() {
             setExtractionResult({
               success: true,
               message: `Dados simulados aplicados! Usuário: ${username}`,
-              data: { user_info: { username, password } },
             });
 
             setExtractionError("");
