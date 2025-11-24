@@ -2031,12 +2031,7 @@ export default function ClientClients() {
                         placeholder="Digite o nome do servidor"
                         className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                         title="Selecione o plano"
-                        value={newUser.plan}
-                        onChange={(e) =>
-                          setNewUser({ ...newUser, plan: e.target.value, price: "" })
-                        }
-                      >
-                        title="Selecione o plano"
+                        title="Digite o nome do servidor"
                       />
                     </div>
                     {/* Plano */}
