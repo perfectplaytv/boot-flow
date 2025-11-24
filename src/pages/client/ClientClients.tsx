@@ -2861,6 +2861,8 @@ function VencimentoDatePickerEdit({
             value={time}
             onChange={handleTimeChange}
             className="w-1/2 bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+            title="Selecione o horário"
+            placeholder="hh:mm"
           />
         </div>
       </PopoverTrigger>
