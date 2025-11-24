@@ -324,7 +324,7 @@ export default function ClientClients() {
           setIsAddDialogOpen(false);
           setAddUserSuccess(false);
         }, 1000);
-      } catch (error: any) {
+      } catch (error) {
         console.error("❌ [DEBUG] Erro ao adicionar usuário:", error);
         
         // Cancelar timeout de segurança já que houve erro
@@ -501,12 +501,12 @@ export default function ClientClients() {
     }
   };
 
-  const openViewModal = (user: any) => {
+  const openViewModal = (user: Cliente) => {
     setViewingUser(user);
     setIsViewDialogOpen(true);
   };
 
-  const openEditModal = (user: any) => {
+  const openEditModal = (user: Cliente) => {
     console.log("=== DEBUG: Abrindo modal de edição ===");
     console.log("Dados do usuário vindos do banco:", user);
     console.log("Campo real_name do banco:", user.real_name);
@@ -544,12 +544,12 @@ export default function ClientClients() {
     setIsEditDialogOpen(true);
   };
 
-  const openDeleteModal = (user: any) => {
+  const openDeleteModal = (user: Cliente) => {
     setDeletingUser(user);
     setIsDeleteDialogOpen(true);
   };
 
-  const openPagoModal = (user: any) => {
+  const openPagoModal = (user: Cliente) => {
     setPagoUser(user);
     setIsPagoDialogOpen(true);
   };
