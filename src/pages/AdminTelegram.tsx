@@ -3184,6 +3184,156 @@ Com o Broadcast, você pode alcançar todos os seus leads de uma só vez, com ap
                         </div>
                     </div>
                 </TabsContent>
+
+                {/* Tab: IA Copy */}
+                <TabsContent value="aicopy" className="space-y-6">
+                    {/* Banner Informativo */}
+                    <div className="bg-gradient-to-r from-indigo-600 to-blue-600 rounded-lg p-4 text-white text-center">
+                        <p className="text-lg font-medium">
+                            🤖 Integre com a sua API do CHATGPT e crie textos incríveis e persuasivos, diretamente na tela do BootFlow.
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {/* Coluna 1: Configuração da IA */}
+                        <Card>
+                            <CardHeader className="pb-3">
+                                <CardTitle className="text-sm flex items-center gap-2">
+                                    <Sparkles className="w-4 h-4" />
+                                    Configuração da IA
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                {/* Nome do produto */}
+                                <div className="space-y-2">
+                                    <Label className="text-xs">Qual o nome do produto ou serviço?</Label>
+                                    <Input
+                                        placeholder="Grupo Mestres da Roleta"
+                                        value={aiCopyConfig.productName}
+                                        onChange={(e) => setAiCopyConfig(prev => ({ ...prev, productName: e.target.value }))}
+                                        className="h-8 text-sm"
+                                    />
+                                </div>
+
+                                {/* Palavras-chave */}
+                                <div className="space-y-2">
+                                    <Label className="text-xs">Palavras-chave relacionadas (ou descrição do produto):</Label>
+                                    <textarea
+                                        className="w-full min-h-[80px] rounded-md border border-input bg-background px-3 py-2 text-xs"
+                                        placeholder="Grupo free, sinais assertivos, estratégias e dicas, gestão de banca"
+                                        value={aiCopyConfig.keywords}
+                                        onChange={(e) => setAiCopyConfig(prev => ({ ...prev, keywords: e.target.value }))}
+                                    />
+                                </div>
+
+                                {/* Comando */}
+                                <div className="space-y-2">
+                                    <Label className="text-xs">Digite um comando:</Label>
+                                    <textarea
+                                        className="w-full min-h-[80px] rounded-md border border-input bg-background px-3 py-2 text-xs"
+                                        placeholder="escreva uma copy para vender meu produto"
+                                        value={aiCopyConfig.command}
+                                        onChange={(e) => setAiCopyConfig(prev => ({ ...prev, command: e.target.value }))}
+                                    />
+                                </div>
+
+                                {/* Tamanho */}
+                                <div className="space-y-2">
+                                    <Label className="text-xs">Tamanho da mensagem:</Label>
+                                    <Select
+                                        value={aiCopyConfig.messageSize}
+                                        onValueChange={(v) => setAiCopyConfig(prev => ({ ...prev, messageSize: v as any }))}
+                                    >
+                                        <SelectTrigger className="h-8 text-sm">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="short">Curta</SelectItem>
+                                            <SelectItem value="medium">Média</SelectItem>
+                                            <SelectItem value="long">Longa</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                {/* Botão Gerar */}
+                                <Button
+                                    className="w-full gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white"
+                                    onClick={generateAICopy}
+                                    disabled={aiCopyConfig.isLoading}
+                                >
+                                    {aiCopyConfig.isLoading ? (
+                                        <>
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                            Gerando texto...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Bot className="w-4 h-4" />
+                                            Gerar com IA
+                                        </>
+                                    )}
+                                </Button>
+                            </CardContent>
+                        </Card>
+
+                        {/* Coluna 2: Resposta */}
+                        <Card>
+                            <CardHeader className="pb-3">
+                                <CardTitle className="text-sm flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <Bot className="w-4 h-4" />
+                                        Resposta
+                                    </div>
+                                    {aiCopyConfig.response && (
+                                        <Button size="sm" variant="ghost" className="h-6 text-xs gap-1" onClick={copyAIResponse}>
+                                            <Copy className="w-3 h-3" />
+                                            Copiar
+                                        </Button>
+                                    )}
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="h-full">
+                                <div className="relative h-full min-h-[350px]">
+                                    <textarea
+                                        className="w-full h-full min-h-[350px] rounded-md border border-input bg-background px-3 py-2 text-xs font-mono resize-none focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                                        placeholder="O texto gerado pela IA aparecerá aqui..."
+                                        value={aiCopyConfig.response}
+                                        onChange={(e) => setAiCopyConfig(prev => ({ ...prev, response: e.target.value }))}
+                                        readOnly={false}
+                                    />
+
+                                    <div className="absolute bottom-2 right-2 text-[10px] text-muted-foreground bg-background/80 px-2 py-1 rounded">
+                                        {aiCopyConfig.response.length} caracteres
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    {/* Botões de Ação */}
+                    <div className="flex justify-between items-center">
+                        <div className="flex gap-2">
+                            <Button variant="outline" className="gap-1">
+                                <Download className="w-4 h-4" />
+                                Exportar
+                            </Button>
+                            <Button variant="outline" className="gap-1">
+                                <Upload className="w-4 h-4" />
+                                Importar
+                            </Button>
+                        </div>
+                        <div className="flex gap-2">
+                            <Button variant="outline" className="gap-1">
+                                <Play className="w-4 h-4" />
+                                Enviar agora
+                            </Button>
+                            <Button className="gap-1" onClick={saveAICopy}>
+                                <Save className="w-4 h-4" />
+                                Salvar
+                            </Button>
+                        </div>
+                    </div>
+                </TabsContent>
             </Tabs>
 
             {/* Saved Audiences Section */}
