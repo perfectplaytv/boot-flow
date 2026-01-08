@@ -2877,6 +2877,229 @@ export default function AdminTelegram() {
                         </div>
                     </div>
                 </TabsContent>
+
+                {/* Tab: Broadcast */}
+                <TabsContent value="broadcast" className="space-y-6">
+                    {/* Banner Informativo */}
+                    <div className="bg-gradient-to-r from-pink-600 to-purple-600 rounded-lg p-4 text-white text-center">
+                        <p className="text-lg font-medium">
+                            📢 Transmita milhares de mensagens para seus leads capturados. Um verdadeiro Remarketing ilimitado!
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {/* Coluna 1: Configuração do Broadcast */}
+                        <Card>
+                            <CardHeader className="pb-3">
+                                <CardTitle className="text-sm flex items-center gap-2">
+                                    <Radio className="w-4 h-4" />
+                                    Configuração do Broadcast
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                {/* Nome do Broadcast */}
+                                <div className="space-y-2">
+                                    <Label className="text-xs">Nome do Broadcast:</Label>
+                                    <Input
+                                        placeholder="Transmissão para todos os Leads"
+                                        value={broadcastConfig.name}
+                                        onChange={(e) => setBroadcastConfig(prev => ({ ...prev, name: e.target.value }))}
+                                        className="h-8 text-sm"
+                                    />
+                                </div>
+
+                                {/* Transmitir para */}
+                                <div className="space-y-2">
+                                    <Label className="text-xs">Transmitir a mensagem para:</Label>
+                                    <div className="flex gap-4">
+                                        <label className="flex items-center gap-2 cursor-pointer">
+                                            <input
+                                                type="radio"
+                                                checked={broadcastConfig.targetType === 'all'}
+                                                onChange={() => setBroadcastConfig(prev => ({ ...prev, targetType: 'all' }))}
+                                                className="w-3 h-3"
+                                            />
+                                            <span className="text-xs">Todos os Leads</span>
+                                        </label>
+                                        <label className="flex items-center gap-2 cursor-pointer">
+                                            <input
+                                                type="radio"
+                                                checked={broadcastConfig.targetType === 'custom'}
+                                                onChange={() => setBroadcastConfig(prev => ({ ...prev, targetType: 'custom' }))}
+                                                className="w-3 h-3"
+                                            />
+                                            <span className="text-xs">Personalizado</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                {/* Chatbot */}
+                                <div className="space-y-2">
+                                    <Label className="text-xs">Transmitir para Leads que interagiram com o chatbot:</Label>
+                                    <Select
+                                        value={broadcastConfig.chatbotId}
+                                        onValueChange={(v) => setBroadcastConfig(prev => ({ ...prev, chatbotId: v }))}
+                                    >
+                                        <SelectTrigger className="h-8 text-sm">
+                                            <SelectValue placeholder="Selecione um chatbot" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {chatbotRules.map(rule => (
+                                                <SelectItem key={rule.id} value={rule.id}>{rule.name}</SelectItem>
+                                            ))}
+                                            {chatbotRules.length === 0 && (
+                                                <SelectItem value="" disabled>Nenhum chatbot configurado</SelectItem>
+                                            )}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                {/* Agendar */}
+                                <label className="flex items-center gap-2 cursor-pointer pt-2">
+                                    <input
+                                        type="checkbox"
+                                        checked={broadcastConfig.scheduleEnabled}
+                                        onChange={(e) => setBroadcastConfig(prev => ({ ...prev, scheduleEnabled: e.target.checked }))}
+                                        className="w-3 h-3"
+                                    />
+                                    <span className="text-xs">Agendar início da transmissão</span>
+                                </label>
+
+                                {broadcastConfig.scheduleEnabled && (
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <Input
+                                            type="date"
+                                            value={broadcastConfig.scheduleDate}
+                                            onChange={(e) => setBroadcastConfig(prev => ({ ...prev, scheduleDate: e.target.value }))}
+                                            className="h-8 text-xs"
+                                        />
+                                        <Input
+                                            type="time"
+                                            value={broadcastConfig.scheduleTime}
+                                            onChange={(e) => setBroadcastConfig(prev => ({ ...prev, scheduleTime: e.target.value }))}
+                                            className="h-8 text-xs"
+                                        />
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+
+                        {/* Coluna 2: Mensagem de Envio */}
+                        <Card>
+                            <CardHeader className="pb-3">
+                                <CardTitle className="text-sm">Mensagem para envio:</CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-3">
+                                {/* Textarea */}
+                                <textarea
+                                    className="w-full min-h-[200px] rounded-md border border-input bg-background px-3 py-2 text-xs"
+                                    placeholder="✨ Olá {nome}!
+
+Com o Broadcast, você pode alcançar todos os seus leads de uma só vez, com apenas um clique! é simplesmente maravilhoso! 🚀
+
+🔥 Seja para compartilhar uma novidade, divulgar um produto, serviço, comunicado ou promoção. Essa função Broadcast permite um envio em MASSA e ILIMITADO de mensagens para seus leads.
+
+#AutomatizeSeuSucesso #BroadcastNoTelegram"
+                                    value={broadcastConfig.message}
+                                    onChange={(e) => setBroadcastConfig(prev => ({ ...prev, message: e.target.value.slice(0, 4096) }))}
+                                    maxLength={4096}
+                                />
+
+                                {/* Botões da mensagem */}
+                                {broadcastConfig.buttons.length > 0 && (
+                                    <div className="space-y-1">
+                                        {broadcastConfig.buttons.map((btn, i) => (
+                                            <div key={i} className="flex items-center gap-2 text-xs p-2 bg-blue-950/30 rounded border border-blue-800/50">
+                                                <span className="flex-1">[{btn.label} - {btn.url}]</span>
+                                                <Button size="icon" variant="ghost" className="h-5 w-5 text-red-500" onClick={() => removeBroadcastButton(i)}>
+                                                    <X className="w-3 h-3" />
+                                                </Button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {/* Contador */}
+                                <div className="text-[10px] text-muted-foreground text-right">
+                                    {broadcastConfig.message.length}/4096 caracteres
+                                </div>
+
+                                {/* Adicionar Botão */}
+                                {showBroadcastButton ? (
+                                    <div className="border rounded-lg p-3 bg-muted/30 space-y-2">
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <Input
+                                                placeholder="Texto do botão"
+                                                value={newBroadcastButton.label}
+                                                onChange={(e) => setNewBroadcastButton(prev => ({ ...prev, label: e.target.value }))}
+                                                className="h-7 text-xs"
+                                            />
+                                            <Input
+                                                placeholder="https://..."
+                                                value={newBroadcastButton.url}
+                                                onChange={(e) => setNewBroadcastButton(prev => ({ ...prev, url: e.target.value }))}
+                                                className="h-7 text-xs"
+                                            />
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <Button size="sm" className="h-7 text-xs" onClick={addBroadcastButton}>Adicionar</Button>
+                                            <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => setShowBroadcastButton(false)}>Cancelar</Button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="flex gap-2">
+                                        <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => broadcastInsertVariable('nome')}>
+                                            + Variável
+                                        </Button>
+                                        <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setShowBroadcastButton(true)}>
+                                            Botão
+                                        </Button>
+                                        <Button size="sm" variant="outline" className="h-7 text-xs">
+                                            <Paperclip className="w-3 h-3 mr-1" />
+                                            Anexo
+                                        </Button>
+                                    </div>
+                                )}
+
+                                {/* Intervalo */}
+                                <div className="flex items-center gap-2 pt-2">
+                                    <Label className="text-xs">Intervalo entre cada mensagem:</Label>
+                                    <Input
+                                        type="number"
+                                        value={broadcastConfig.interval}
+                                        onChange={(e) => setBroadcastConfig(prev => ({ ...prev, interval: parseInt(e.target.value) || 0 }))}
+                                        className="h-7 w-16 text-xs text-center"
+                                    />
+                                    <span className="text-xs">s</span>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    {/* Botões de Ação */}
+                    <div className="flex justify-between items-center">
+                        <div className="flex gap-2">
+                            <Button variant="outline" className="gap-1">
+                                <Download className="w-4 h-4" />
+                                Exportar
+                            </Button>
+                            <Button variant="outline" className="gap-1">
+                                <Upload className="w-4 h-4" />
+                                Importar
+                            </Button>
+                        </div>
+                        <div className="flex gap-2">
+                            <Button variant="outline" className="gap-1">
+                                <Play className="w-4 h-4" />
+                                Enviar agora
+                            </Button>
+                            <Button className="gap-1" onClick={saveBroadcast}>
+                                <Save className="w-4 h-4" />
+                                Salvar
+                            </Button>
+                        </div>
+                    </div>
+                </TabsContent>
             </Tabs>
 
             {/* Saved Audiences Section */}
