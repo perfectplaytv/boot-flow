@@ -325,7 +325,7 @@ export default function AdminUsers() {
         setIsAddDialogOpen(false);
         setAddUserSuccess(false);
       }, 1000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("❌ [DEBUG] Erro ao adicionar usuário:", error);
 
       // Cancelar timeout de segurança já que houve erro
@@ -333,7 +333,7 @@ export default function AdminUsers() {
         clearTimeout(timeoutId);
       }
 
-      const errorMessage = error?.message || error || "Erro desconhecido ao adicionar usuário.";
+      const errorMessage = error instanceof Error ? error.message : "Erro desconhecido ao adicionar usuário.";
 
       // Mensagens específicas para diferentes tipos de erro
       if (errorMessage.includes("duplicate key value") || errorMessage.includes("unique constraint")) {
@@ -501,12 +501,12 @@ export default function AdminUsers() {
     }
   };
 
-  const openViewModal = (user: any) => {
+  const openViewModal = (user: Cliente) => {
     setViewingUser(user);
     setIsViewDialogOpen(true);
   };
 
-  const openEditModal = (user: any) => {
+  const openEditModal = (user: Cliente) => {
     console.log("=== DEBUG: Abrindo modal de edição ===");
     console.log("Dados do usuário vindos do banco:", user);
     console.log("Campo real_name do banco:", user.real_name);
@@ -544,12 +544,12 @@ export default function AdminUsers() {
     setIsEditDialogOpen(true);
   };
 
-  const openDeleteModal = (user: any) => {
+  const openDeleteModal = (user: Cliente) => {
     setDeletingUser(user);
     setIsDeleteDialogOpen(true);
   };
 
-  const openPagoModal = (user: any) => {
+  const openPagoModal = (user: Cliente) => {
     setPagoUser(user);
     setIsPagoDialogOpen(true);
   };
@@ -643,9 +643,9 @@ export default function AdminUsers() {
         console.error('❌ [AdminUsers] Erro ao atualizar:', errorMessage);
         alert(`Erro ao atualizar status de pagamento.\n\nDetalhes: ${errorMessage}\n\nVerifique:\n- Se a coluna 'pago' existe na tabela 'users'\n- Se você tem permissão para atualizar\n- Se está conectado à internet`);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('❌ [AdminUsers] Erro ao atualizar status de pagamento:', error);
-      const errorMessage = error?.message || error?.toString() || 'Erro desconhecido';
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
       alert(`Erro ao atualizar status de pagamento.\n\nErro: ${errorMessage}\n\nVerifique o console para mais detalhes.`);
     }
   };
@@ -686,8 +686,8 @@ export default function AdminUsers() {
           password: user.password || "",
           m3u_url: user.plan || "",
           bouquets: user.bouquets || "",
-          expiration_date: (user as any).expirationDate || (user as any).renewalDate || null,
-          observations: user.observations || (user as any).notes || "",
+          expiration_date: (user as unknown as { expirationDate?: string }).expirationDate || (user as unknown as { renewalDate?: string }).renewalDate || null,
+          observations: user.observations || (user as unknown as { notes?: string }).notes || "",
         };
 
         console.log(
@@ -2809,8 +2809,8 @@ function VencimentoDatePickerEdit({
   editingUser,
   setEditingUser,
 }: {
-  editingUser: any | null;
-  setEditingUser: (user: any) => void;
+  editingUser: Partial<Cliente> | null;
+  setEditingUser: (user: Partial<Cliente> | null) => void;
 }) {
   const [open, setOpen] = React.useState(false);
   // Função auxiliar para criar data local a partir de string YYYY-MM-DD
