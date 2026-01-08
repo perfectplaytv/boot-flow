@@ -7,19 +7,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useClientes } from '@/hooks/useClientes';
 import { useRevendas } from '@/hooks/useRevendas';
-import { useRealtimeClientes, useRealtimeRevendas } from '@/hooks/useRealtime';
 import useDashboardData from '@/hooks/useDashboardData';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
-import { 
-  Brain, 
-  Users, 
-  Tv, 
-  Radio, 
-  ShoppingCart, 
-  BarChart3, 
-  Settings, 
+import {
+  Brain,
+  Users,
+  Tv,
+  Radio,
+  ShoppingCart,
+  BarChart3,
+  Settings,
   Plus,
   MessageSquare,
   Gamepad2,
@@ -72,22 +70,22 @@ const AdminResellersWrapper = ({ onResellerCreated, onCloseModal }: { onReseller
     const handleResellerCreated = () => {
       onResellerCreated();
     };
-    
+
     const handleCloseModal = () => {
       onCloseModal();
     };
-    
+
     // Escutar evento de revendedor criado
     window.addEventListener('reseller-created', handleResellerCreated);
     // Escutar evento para fechar modal
     window.addEventListener('close-reseller-modal', handleCloseModal);
-    
+
     return () => {
       window.removeEventListener('reseller-created', handleResellerCreated);
       window.removeEventListener('close-reseller-modal', handleCloseModal);
     };
   }, [onResellerCreated, onCloseModal]);
-  
+
   return <AdminResellers autoOpenForm={true} />;
 };
 
@@ -98,7 +96,7 @@ const AdminDashboard = () => {
   const { user } = useAuth();
   const location = useLocation();
   const isResellerRoute = location?.pathname?.includes('/dashboard/revendas');
-  
+
   // --- Estados para integração APIBrasil QR Code ---
   const [apiBrasilConfig, setApiBrasilConfig] = useState(() => {
     const saved = localStorage.getItem('apiBrasilConfig');
@@ -174,14 +172,10 @@ const AdminDashboard = () => {
   const [extractionError, setExtractionError] = useState("");
   const [isAddingUser, setIsAddingUser] = useState(false);
 
-  // Hooks para dados de usuários e revendedores com atualização em tempo real
-  const { data: realtimeClientes, error: clientesError, isConnected: clientesConnected } = useRealtimeClientes();
-  const { data: realtimeRevendas, error: revendasError, isConnected: revendasConnected } = useRealtimeRevendas();
-  
   // Hooks para funções de atualização e dados
   const { clientes: clientesFromHook, fetchClientes, addCliente: addClienteHook } = useClientes();
-  const { revendas: revendasFromHook, fetchRevendas } = useRevendas();
-  
+  const { revendas: revendasFromHook, fetchRevendas, addRevenda: addRevendaHook } = useRevendas();
+
   // Estados locais para os dados
   // Tipos explícitos para clientes e revendas
   interface Cliente {
@@ -198,14 +192,13 @@ const AdminDashboard = () => {
   const [revendas, setRevendas] = useState<Revenda[]>([]);
   const [loadingClientes, setLoadingClientes] = useState(true);
   const [loadingRevendas, setLoadingRevendas] = useState(true);
-  
-  // Atualiza os estados locais quando os dados em tempo real mudam OU quando os dados dos hooks mudam
+
+  // Atualiza os estados locais quando os dados dos hooks mudam
   useEffect(() => {
-    console.log('🔄 [AdminDashboard] useEffect sincronização - revendasFromHook:', revendasFromHook?.length, 'realtimeRevendas:', realtimeRevendas?.length);
-    // Priorizar dados do hook se disponíveis, caso contrário usar dados em tempo real
-    let clientesToUse = clientesFromHook && clientesFromHook.length > 0 ? clientesFromHook : realtimeClientes;
-    let revendasToUse = revendasFromHook && revendasFromHook.length > 0 ? revendasFromHook : realtimeRevendas;
-    
+    // Priorizar dados do hook 
+    let clientesToUse = clientesFromHook;
+    let revendasToUse = revendasFromHook;
+
     // Filtrar por admin_id se houver admin logado (garantir que apenas dados do admin sejam exibidos)
     if (user?.id) {
       if (clientesToUse && Array.isArray(clientesToUse)) {
@@ -218,21 +211,19 @@ const AdminDashboard = () => {
           return revenda.admin_id === user.id || revenda.admin_id === null || revenda.admin_id === undefined;
         });
       }
-      console.log('🔄 [AdminDashboard] Dados filtrados por admin_id:', user.id, 'Clientes:', clientesToUse?.length, 'Revendas:', revendasToUse?.length);
     }
-    
+
     if (clientesToUse) {
       setClientes(clientesToUse as Cliente[]);
       setLoadingClientes(false);
     }
-    
+
     if (revendasToUse) {
-      console.log('✅ [AdminDashboard] Atualizando estado revendas com', revendasToUse.length, 'revendedores');
       setRevendas(revendasToUse as Revenda[]);
       setLoadingRevendas(false);
     }
-  }, [realtimeClientes, realtimeRevendas, clientesFromHook, revendasFromHook, user?.id]);
-  
+  }, [clientesFromHook, revendasFromHook, user?.id]);
+
   // Buscar dados iniciais ao montar o componente (apenas uma vez)
   useEffect(() => {
     // Não buscar dados automaticamente na montagem — somente quando habilitado
@@ -286,28 +277,21 @@ const AdminDashboard = () => {
     return count;
   }, [clientes, revendas, shouldShow]);
 
-  // Exibe notificações de erro
+  // Exibe notificações de erro (simplificado)
   useEffect(() => {
-    if (clientesError) {
-      console.error('Erro na conexão em tempo real de clientes:', clientesError);
-      toast.error('Erro ao conectar com atualizações em tempo real de clientes');
-    }
-    
-    if (revendasError) {
-      console.error('Erro na conexão em tempo real de revendas:', revendasError);
-      toast.error('Erro ao conectar com atualizações em tempo real de revendas');
-    }
-  }, [clientesError, revendasError]);
-  
+    // Erros podem ser tratados aqui se necessário, 
+    // mas os hooks já mostram toasts de erro.
+  }, []);
+
   // Função para adicionar um novo cliente (usa o hook useClientes)
   // Use Record<string, unknown> for generic data
   const addCliente = useCallback(async (clienteData: Record<string, unknown>) => {
     try {
       console.log('🔄 [AdminDashboard] addCliente wrapper chamado com:', clienteData);
-      
+
       // Chamar diretamente o hook sem verificar sessão (o hook já faz isso)
       const success = await addClienteHook(clienteData);
-      
+
       if (success) {
         toast.success('Cliente adicionado com sucesso!');
         return true;
@@ -329,32 +313,36 @@ const AdminDashboard = () => {
       return false;
     }
   }, [addClienteHook]);
-  
+
   // Função para adicionar um novo revendedor
   const addRevenda = useCallback(async (revendaData: Record<string, unknown>) => {
     try {
-      const { data, error } = await (supabase
-        .from('revendas') as any)
-        .insert([revendaData] as any)
-        .select();
-        
-      if (error) throw error;
-      
-      toast.success('Revendedor adicionado com sucesso!');
-      return { data, error: null };
+      if (!addRevendaHook) {
+        toast.error("Função de adicionar revenda não disponível");
+        return false;
+      }
+      // @ts-ignore - adaptação de tipos
+      const success = await addRevendaHook(revendaData);
+
+      if (success) {
+        toast.success('Revendedor adicionado com sucesso!');
+        return true;
+      } else {
+        return false;
+      }
     } catch (error) {
       console.error('Erro ao adicionar revendedor:', error);
       toast.error('Erro ao adicionar revendedor');
-      return { data: null, error };
+      return false;
     }
-  }, []);
+  }, [addRevendaHook]);
 
   // Função para formatar a data relativa
   const formatTimeAgo = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-    
+
     if (diffInSeconds < 60) return 'Agora';
     if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} min atrás`;
     if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} horas atrás`;
@@ -377,26 +365,26 @@ const AdminDashboard = () => {
   const clientesExpiramEm3Dias = useMemo(() => {
     if (!shouldShow) return 0;
     if (!clientes || clientes.length === 0) return 0;
-    
+
     const hoje = new Date();
     hoje.setHours(0, 0, 0, 0);
-    
+
     // Data de expiração em 3 dias (incluindo hoje, então são 3 dias a partir de hoje)
     const em3Dias = new Date();
     em3Dias.setDate(hoje.getDate() + 3);
     em3Dias.setHours(0, 0, 0, 0);
-    
+
     const count = clientes.filter(cliente => {
       if (!cliente.expiration_date) return false;
-      
+
       try {
         const expirationDate = new Date(cliente.expiration_date);
         expirationDate.setHours(0, 0, 0, 0);
-        
+
         // Calcular diferença em dias
         const diffTime = expirationDate.getTime() - hoje.getTime();
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
+
         // Clientes que expiram em 3 dias ou menos (0, 1, 2 ou 3 dias)
         return diffDays >= 0 && diffDays <= 3;
       } catch (error) {
@@ -404,7 +392,7 @@ const AdminDashboard = () => {
         return false;
       }
     }).length;
-    
+
     return count;
   }, [clientes, shouldShow]);
 
@@ -487,16 +475,16 @@ const AdminDashboard = () => {
     }
     isRefreshingRef.current = true;
     lastRefreshRef.current = now;
-    
+
     if (fetchClientes) {
       fetchClientes();
     }
-    
+
     setTimeout(() => {
       isRefreshingRef.current = false;
     }, 1000);
   }, [fetchClientes]);
-  
+
   // Função para atualizar revendas
   const refreshResellers = useCallback(() => {
     // Evitar múltiplas chamadas simultâneas
@@ -506,11 +494,11 @@ const AdminDashboard = () => {
     }
     isRefreshingRef.current = true;
     lastRefreshRef.current = now;
-    
+
     if (fetchRevendas) {
       fetchRevendas();
     }
-    
+
     setTimeout(() => {
       isRefreshingRef.current = false;
     }, 1000);
@@ -520,7 +508,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     // Usando refreshStats para atualizar as estatísticas
     refreshStats();
-    
+
     // Se precisar atualizar estatísticas locais, use o estado existente
     // ou adicione um estado local se necessário
   }, [clientes, revendas, refreshStats]);
@@ -610,34 +598,34 @@ const AdminDashboard = () => {
 
             console.log("Sucesso com acesso direto!");
 
-          // Aplicar dados extraídos ao formulário
-          const extractedData = {
-            name: data.user_info.username,
-            email: `${data.user_info.username}@iptv.com`,
-            plan: data.user_info.is_trial === "1" ? "Trial" : "Premium",
-            price: "",
-            status: data.user_info.status === "Active" ? "Ativo" : "Inativo",
-            telegram: data.user_info.username
-              ? `@${data.user_info.username}`
-              : "",
-            observations: `Usuário: ${data.user_info.username} | Acesso direto`,
-            expirationDate: data.user_info.exp_date
-              ? new Date(parseInt(data.user_info.exp_date) * 1000)
+            // Aplicar dados extraídos ao formulário
+            const extractedData = {
+              name: data.user_info.username,
+              email: `${data.user_info.username}@iptv.com`,
+              plan: data.user_info.is_trial === "1" ? "Trial" : "Premium",
+              price: "",
+              status: data.user_info.status === "Active" ? "Ativo" : "Inativo",
+              telegram: data.user_info.username
+                ? `@${data.user_info.username}`
+                : "",
+              observations: `Usuário: ${data.user_info.username} | Acesso direto`,
+              expirationDate: data.user_info.exp_date
+                ? new Date(parseInt(data.user_info.exp_date) * 1000)
                   .toISOString()
                   .split("T")[0]
-              : "",
-            password: data.user_info.password || password,
-            bouquets: "",
-            realName: "",
-            whatsapp: "",
-            devices: data.user_info.max_connections
-              ? parseInt(data.user_info.max_connections)
-              : 1,
-            credits: 0,
-            notes: "",
-            server: "",
-            m3u_url: "",
-          };
+                : "",
+              password: data.user_info.password || password,
+              bouquets: "",
+              realName: "",
+              whatsapp: "",
+              devices: data.user_info.max_connections
+                ? parseInt(data.user_info.max_connections)
+                : 1,
+              credits: 0,
+              notes: "",
+              server: "",
+              m3u_url: "",
+            };
 
             setNewUser(extractedData as typeof newUser);
 
@@ -731,8 +719,8 @@ const AdminDashboard = () => {
               observations.length > 0 ? observations.join(" | ") : "",
             expirationDate: data.user_info.exp_date
               ? new Date(parseInt(data.user_info.exp_date) * 1000)
-                  .toISOString()
-                  .split("T")[0]
+                .toISOString()
+                .split("T")[0]
               : "",
             password: data.user_info.password || password,
             bouquets: "Premium, Sports, Movies",
@@ -812,7 +800,7 @@ const AdminDashboard = () => {
   const handleAddUser = async () => {
     console.log("🔵 [AdminDashboard] handleAddUser chamado");
     console.log("🔵 [AdminDashboard] Estado newUser:", newUser);
-    
+
     // Validação completa dos campos obrigatórios
     if (!newUser.name || !newUser.email || !newUser.plan) {
       console.log("❌ [AdminDashboard] Validação falhou: campos obrigatórios não preenchidos");
@@ -878,7 +866,7 @@ const AdminDashboard = () => {
       }
 
       console.log("✅ [AdminDashboard] Cliente adicionado com sucesso!");
-      
+
       // Cancelar timeout de segurança já que a operação foi bem-sucedida
       if (timeoutId) {
         clearTimeout(timeoutId);
@@ -950,7 +938,7 @@ const AdminDashboard = () => {
 
   const handleAddReseller = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!newReseller.username || !newReseller.password || !newReseller.permission) {
       alert("Por favor, preencha todos os campos obrigatórios.");
       return;
@@ -961,7 +949,7 @@ const AdminDashboard = () => {
       const success = await addRevenda({
         username: newReseller.username,
         password: newReseller.password,
-        force_password_change: newReseller.force_password_change?.toString(),
+        force_password_change: newReseller.force_password_change,
         permission: newReseller.permission as 'admin' | 'reseller' | 'subreseller',
         credits: newReseller.credits,
         servers: newReseller.servers || undefined,
@@ -993,16 +981,16 @@ const AdminDashboard = () => {
           whatsapp: "",
           observations: ""
         });
-        
+
         // Fechar modal
         setResellerModal(false);
-        
+
         // Navegar para a página de Gerenciamento de Revendedores
         setCurrentPage("resellers");
-        
+
         // Atualizar dados
         refreshResellers();
-        
+
         // Atualizar dashboard
         setRefreshTrigger(prev => prev + 1);
       }
@@ -1063,49 +1051,49 @@ const AdminDashboard = () => {
       title: 'Serviços Principais',
       color: 'bg-blue-600',
       cards: [
-    {
-      id: 'clientes',
-      content: (
-        <CardHeader className="bg-gradient-to-r from-purple-700 to-purple-500 rounded-t-lg">
-          <div className="flex items-center space-x-2">
-            <Users className="w-6 h-6 text-purple-200" />
-            <CardTitle className="text-white">Clientes</CardTitle>
-          </div>
-        </CardHeader>
-      ),
-      body: (
-        <CardContent className="bg-[#1f2937] rounded-b-lg">
-          <p className="text-gray-300 mb-4">Gerencie todos os seus clientes cadastrados</p>
-          <div className="space-y-2">
-            <div className="flex justify-between"><span className="text-sm text-gray-400">Total de Clientes:</span><span className="text-sm font-semibold text-white">{shouldShow ? (clientes?.length || 0).toLocaleString() : '0'}</span></div>
-            <div className="flex justify-between"><span className="text-sm text-gray-400">Clientes Ativos:</span><span className="text-sm font-semibold text-white">{shouldShow ? stats.activeClients.toLocaleString() : '0'}</span></div>
-            <div className="flex justify-between"><span className="text-sm text-gray-400">Novos este mês:</span><span className="text-sm font-semibold text-green-400">{shouldShow ? `+${stats.monthlyGrowth}%` : '+0%'}</span></div>
-          </div>
-        </CardContent>
-      ),
-      onClick: () => handlePageChange("users")
-    },
-    {
-      id: 'revendas',
-      content: (
-        <CardHeader className="bg-gradient-to-r from-green-700 to-green-500 rounded-t-lg">
-          <div className="flex items-center space-x-2">
-            <UserPlus className="w-6 h-6 text-green-200" />
-            <CardTitle className="text-white">Revendas</CardTitle>
-          </div>
-        </CardHeader>
-      ),
-      body: (
-        <CardContent className="bg-[#1f2937] rounded-b-lg">
-          <p className="text-gray-300 mb-4">Gerencie suas revendas e parceiros</p>
-          <div className="space-y-2">
-            <div className="flex justify-between"><span className="text-sm text-gray-400">Revendedores Ativos:</span><span className="text-sm font-semibold text-white">{stats.activeResellers}</span></div>
-            <div className="flex justify-between"><span className="text-sm text-gray-400">Novos este mês:</span><span className="text-sm font-semibold text-green-400">{shouldShow ? '+8' : '+0'}</span></div>
-          </div>
-        </CardContent>
-      ),
-      onClick: () => handlePageChange("resellers")
-    }
+        {
+          id: 'clientes',
+          content: (
+            <CardHeader className="bg-gradient-to-r from-purple-700 to-purple-500 rounded-t-lg">
+              <div className="flex items-center space-x-2">
+                <Users className="w-6 h-6 text-purple-200" />
+                <CardTitle className="text-white">Clientes</CardTitle>
+              </div>
+            </CardHeader>
+          ),
+          body: (
+            <CardContent className="bg-[#1f2937] rounded-b-lg">
+              <p className="text-gray-300 mb-4">Gerencie todos os seus clientes cadastrados</p>
+              <div className="space-y-2">
+                <div className="flex justify-between"><span className="text-sm text-gray-400">Total de Clientes:</span><span className="text-sm font-semibold text-white">{shouldShow ? (clientes?.length || 0).toLocaleString() : '0'}</span></div>
+                <div className="flex justify-between"><span className="text-sm text-gray-400">Clientes Ativos:</span><span className="text-sm font-semibold text-white">{shouldShow ? stats.activeClients.toLocaleString() : '0'}</span></div>
+                <div className="flex justify-between"><span className="text-sm text-gray-400">Novos este mês:</span><span className="text-sm font-semibold text-green-400">{shouldShow ? `+${stats.monthlyGrowth}%` : '+0%'}</span></div>
+              </div>
+            </CardContent>
+          ),
+          onClick: () => handlePageChange("users")
+        },
+        {
+          id: 'revendas',
+          content: (
+            <CardHeader className="bg-gradient-to-r from-green-700 to-green-500 rounded-t-lg">
+              <div className="flex items-center space-x-2">
+                <UserPlus className="w-6 h-6 text-green-200" />
+                <CardTitle className="text-white">Revendas</CardTitle>
+              </div>
+            </CardHeader>
+          ),
+          body: (
+            <CardContent className="bg-[#1f2937] rounded-b-lg">
+              <p className="text-gray-300 mb-4">Gerencie suas revendas e parceiros</p>
+              <div className="space-y-2">
+                <div className="flex justify-between"><span className="text-sm text-gray-400">Revendedores Ativos:</span><span className="text-sm font-semibold text-white">{stats.activeResellers}</span></div>
+                <div className="flex justify-between"><span className="text-sm text-gray-400">Novos este mês:</span><span className="text-sm font-semibold text-green-400">{shouldShow ? '+8' : '+0'}</span></div>
+              </div>
+            </CardContent>
+          ),
+          onClick: () => handlePageChange("resellers")
+        }
       ]
     },
     'personalizacao': {
@@ -1113,27 +1101,27 @@ const AdminDashboard = () => {
       title: 'Cobrança',
       color: 'bg-purple-600',
       cards: [
-    {
-      id: 'cobranca',
-      content: (
-        <CardHeader className="bg-gradient-to-r from-blue-700 to-blue-500 rounded-t-lg">
-          <div className="flex items-center space-x-2">
-            <DollarSign className="w-6 h-6 text-blue-200" />
-            <CardTitle className="text-white">Cobrança</CardTitle>
-          </div>
-        </CardHeader>
-      ),
-      body: (
-        <CardContent className="bg-[#1f2937] rounded-b-lg">
-          <p className="text-gray-300 mb-4">Controle e visualize cobranças e pagamentos</p>
-          <div className="space-y-2">
-            <div className="flex justify-between"><span className="text-sm text-gray-400">Receita Total:</span><span className="text-sm font-semibold text-white">R$ {formatCurrency(shouldShow ? stats.totalRevenue : 0)}</span></div>
-            <div className="flex justify-between"><span className="text-sm text-gray-400">Pagamentos este mês:</span><span className="text-sm font-semibold text-green-400">+15</span></div>
-          </div>
-        </CardContent>
-      ),
-      onClick: () => handlePageChange("cobrancas")
-    }
+        {
+          id: 'cobranca',
+          content: (
+            <CardHeader className="bg-gradient-to-r from-blue-700 to-blue-500 rounded-t-lg">
+              <div className="flex items-center space-x-2">
+                <DollarSign className="w-6 h-6 text-blue-200" />
+                <CardTitle className="text-white">Cobrança</CardTitle>
+              </div>
+            </CardHeader>
+          ),
+          body: (
+            <CardContent className="bg-[#1f2937] rounded-b-lg">
+              <p className="text-gray-300 mb-4">Controle e visualize cobranças e pagamentos</p>
+              <div className="space-y-2">
+                <div className="flex justify-between"><span className="text-sm text-gray-400">Receita Total:</span><span className="text-sm font-semibold text-white">R$ {formatCurrency(shouldShow ? stats.totalRevenue : 0)}</span></div>
+                <div className="flex justify-between"><span className="text-sm text-gray-400">Pagamentos este mês:</span><span className="text-sm font-semibold text-green-400">+15</span></div>
+              </div>
+            </CardContent>
+          ),
+          onClick: () => handlePageChange("cobrancas")
+        }
       ]
     },
     'analytics': {
@@ -1143,46 +1131,46 @@ const AdminDashboard = () => {
       cards: [
         {
           id: 'notificacoes',
-      content: (
-        <CardHeader className="bg-gradient-to-r from-red-700 to-red-500 rounded-t-lg">
-          <div className="flex items-center space-x-2">
-            <Bell className="w-6 h-6 text-red-200" />
-            <CardTitle className="text-white">Notificações</CardTitle>
-          </div>
-        </CardHeader>
-      ),
-      body: (
-        <CardContent className="bg-[#1f2937] rounded-b-lg">
-          <p className="text-gray-300 mb-4">Gerencie alertas e notificações do sistema</p>
-          <div className="space-y-2">
-            <div className="flex justify-between"><span className="text-sm text-gray-400">Notificações Enviadas:</span><span className="text-sm font-semibold text-white">2.345</span></div>
-            <div className="flex justify-between"><span className="text-sm text-gray-400">Novas este mês:</span><span className="text-sm font-semibold text-green-400">+120</span></div>
-          </div>
-        </CardContent>
-      ),
-      onClick: () => handlePageChange("notificacoes")
-    },
-    {
-      id: 'whatsapp',
-      content: (
-        <CardHeader className="bg-gradient-to-r from-green-800 to-green-600 rounded-t-lg">
-          <div className="flex items-center space-x-2">
-            <MessageSquare className="w-6 h-6 text-green-200" />
-            <CardTitle className="text-white">WhatsApp</CardTitle>
-          </div>
-        </CardHeader>
-      ),
-      body: (
-        <CardContent className="bg-[#1f2937] rounded-b-lg">
-          <p className="text-gray-300 mb-4">Gerencie integrações e campanhas de WhatsApp</p>
-          <div className="space-y-2">
-            <div className="flex justify-between"><span className="text-sm text-gray-400">Campanhas Ativas:</span><span className="text-sm font-semibold text-white">8</span></div>
-            <div className="flex justify-between"><span className="text-sm text-gray-400">Mensagens este mês:</span><span className="text-sm font-semibold text-green-400">+1.200</span></div>
-          </div>
-        </CardContent>
-      ),
-      onClick: () => handlePageChange("whatsapp")
-    }
+          content: (
+            <CardHeader className="bg-gradient-to-r from-red-700 to-red-500 rounded-t-lg">
+              <div className="flex items-center space-x-2">
+                <Bell className="w-6 h-6 text-red-200" />
+                <CardTitle className="text-white">Notificações</CardTitle>
+              </div>
+            </CardHeader>
+          ),
+          body: (
+            <CardContent className="bg-[#1f2937] rounded-b-lg">
+              <p className="text-gray-300 mb-4">Gerencie alertas e notificações do sistema</p>
+              <div className="space-y-2">
+                <div className="flex justify-between"><span className="text-sm text-gray-400">Notificações Enviadas:</span><span className="text-sm font-semibold text-white">2.345</span></div>
+                <div className="flex justify-between"><span className="text-sm text-gray-400">Novas este mês:</span><span className="text-sm font-semibold text-green-400">+120</span></div>
+              </div>
+            </CardContent>
+          ),
+          onClick: () => handlePageChange("notificacoes")
+        },
+        {
+          id: 'whatsapp',
+          content: (
+            <CardHeader className="bg-gradient-to-r from-green-800 to-green-600 rounded-t-lg">
+              <div className="flex items-center space-x-2">
+                <MessageSquare className="w-6 h-6 text-green-200" />
+                <CardTitle className="text-white">WhatsApp</CardTitle>
+              </div>
+            </CardHeader>
+          ),
+          body: (
+            <CardContent className="bg-[#1f2937] rounded-b-lg">
+              <p className="text-gray-300 mb-4">Gerencie integrações e campanhas de WhatsApp</p>
+              <div className="space-y-2">
+                <div className="flex justify-between"><span className="text-sm text-gray-400">Campanhas Ativas:</span><span className="text-sm font-semibold text-white">8</span></div>
+                <div className="flex justify-between"><span className="text-sm text-gray-400">Mensagens este mês:</span><span className="text-sm font-semibold text-green-400">+1.200</span></div>
+              </div>
+            </CardContent>
+          ),
+          onClick: () => handlePageChange("whatsapp")
+        }
       ]
     },
     'analises': {
@@ -1210,7 +1198,7 @@ const AdminDashboard = () => {
             </CardContent>
           ),
           onClick: () => handlePageChange("analytics")
-    }
+        }
       ]
     }
   });
@@ -1314,7 +1302,7 @@ const AdminDashboard = () => {
         // ignore DOM write errors
       }
     }, [transform, transition, isDragging]);
-    
+
     const handleClick = (e: React.MouseEvent) => {
       // Prevenir clique durante o drag
       if (isDragging) {
@@ -1322,10 +1310,10 @@ const AdminDashboard = () => {
         e.stopPropagation();
         return;
       }
-      
+
       // Adicionar log para debug
       console.log('Card clicked:', id, 'isDragging:', isDragging);
-      
+
       if (onClick) {
         onClick();
         // Mostrar toast de confirmação
@@ -1335,7 +1323,7 @@ const AdminDashboard = () => {
         });
       }
     };
-    
+
     return (
       <div
         ref={combinedRef}
@@ -1343,11 +1331,10 @@ const AdminDashboard = () => {
         className="select-none touch-manipulation sortable-card"
         data-card-id={id}
       >
-        <Card 
-          className={`cursor-grab active:cursor-grabbing hover:shadow-glow hover:scale-105 transition-all duration-300 transform relative group ${
-            isDragging ? 'shadow-2xl scale-110 rotate-2 z-50' : ''
-          }`} 
-          onClick={handleClick} 
+        <Card
+          className={`cursor-grab active:cursor-grabbing hover:shadow-glow hover:scale-105 transition-all duration-300 transform relative group ${isDragging ? 'shadow-2xl scale-110 rotate-2 z-50' : ''
+            }`}
+          onClick={handleClick}
           onMouseDown={(e) => {
             // Aplicar listeners de drag apenas no mouse down
             if (listeners.onMouseDown) {
@@ -1370,11 +1357,11 @@ const AdminDashboard = () => {
           <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
             <div className="w-6 h-6 bg-gray-600/80 rounded-full flex items-center justify-center backdrop-blur-sm">
               <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M8 6h8v2H8V6zm0 5h8v2H8v-2zm0 5h8v2H8v-2z"/>
+                <path d="M8 6h8v2H8V6zm0 5h8v2H8v-2zm0 5h8v2H8v-2z" />
               </svg>
             </div>
           </div>
-          
+
           {/* Click indicator */}
           <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
             <div className="w-6 h-6 bg-blue-600/80 rounded-full flex items-center justify-center backdrop-blur-sm">
@@ -1390,10 +1377,10 @@ const AdminDashboard = () => {
           )}
           {/* Hover effect */}
           <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 to-purple-500/0 hover:from-blue-500/10 hover:to-purple-500/10 rounded-lg transition-all duration-300 pointer-events-none"></div>
-          
+
           {/* Click effect */}
           <div className="absolute inset-0 bg-blue-500/0 hover:bg-blue-500/5 rounded-lg transition-all duration-200 pointer-events-none"></div>
-          
+
           {/* Border highlight on hover */}
           <div className="absolute inset-0 border-2 border-transparent hover:border-blue-500/30 rounded-lg transition-all duration-300 pointer-events-none"></div>
         </Card>
@@ -1409,7 +1396,7 @@ const AdminDashboard = () => {
           <div className="space-y-6">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div className="text-center sm:text-left">
+              <div className="text-center sm:text-left">
                 <h1 className="text-2xl sm:text-3xl font-bold text-white">{isResellerRoute ? 'Dashboard Revenda' : 'Dashboard Admin'}</h1>
                 <p className="text-gray-400 text-sm sm:text-base">Visão geral do sistema</p>
                 {!shouldShow && (
@@ -1434,9 +1421,9 @@ const AdminDashboard = () => {
                       <div className="flex items-center justify-between mb-6">
                         <h2 className="text-2xl font-bold">Adicionar um Cliente</h2>
                         <div className="flex items-center gap-2">
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
+                          <Button
+                            variant="ghost"
+                            size="sm"
                             className="text-gray-400 hover:text-white"
                             onClick={() => setClientModal(false)}
                           >
@@ -1446,18 +1433,18 @@ const AdminDashboard = () => {
                           </Button>
                         </div>
                       </div>
-                      
-                      <form onSubmit={async (e) => { 
-                        e.preventDefault(); 
+
+                      <form onSubmit={async (e) => {
+                        e.preventDefault();
                         e.stopPropagation();
                         console.log("🔵 [AdminDashboard] Form submit disparado!");
-                        await handleAddUser(); 
+                        await handleAddUser();
                       }} className="space-y-6 flex-1 overflow-y-auto">
                         <div className="flex items-center gap-2 mb-4">
                           <span className="text-green-400 text-xs font-medium">• Campos obrigatórios marcados com *</span>
                           <span className="text-blue-400 text-xs font-medium">• Dados serão sincronizados automaticamente</span>
                         </div>
-                        
+
                         {/* Extração M3U */}
                         <div className="bg-blue-900/30 border border-blue-800 rounded-lg p-4 mb-6">
                           <div className="flex items-center justify-between mb-1">
@@ -1475,7 +1462,7 @@ const AdminDashboard = () => {
                             <div className="bg-green-900/40 border border-green-700 text-green-300 text-xs rounded p-2 mb-2">✅ {extractionResult.message}</div>
                           )}
                         </div>
-                        
+
                         {/* Informações Básicas */}
                         <div className="bg-[#23272f] border border-gray-700 rounded-lg p-4 mb-6">
                           <span className="block text-white font-semibold mb-4">Informações Básicas</span>
@@ -1600,7 +1587,7 @@ const AdminDashboard = () => {
                             </div>
                           </div>
                         </div>
-                        
+
                         {/* Configuração de Serviço */}
                         <div className="bg-[#23272f] border border-gray-700 rounded-lg p-4 mb-6">
                           <span className="block text-white font-semibold mb-4">Configuração de Serviço</span>
@@ -1665,7 +1652,7 @@ const AdminDashboard = () => {
                             </div>
                           </div>
                         </div>
-                        
+
                         {/* Informações Adicionais */}
                         <div className="hidden md:block bg-[#23272f] border border-gray-700 rounded-lg p-4 mb-6">
                           <span className="block text-white font-semibold mb-4">Informações Adicionais</span>
@@ -1742,7 +1729,7 @@ const AdminDashboard = () => {
                             </div>
                           </div>
                         </div>
-                        
+
                         {/* Botões de Ação */}
                         <div className="flex justify-end gap-3 pt-4 border-t border-gray-700">
                           <Button
@@ -1765,7 +1752,7 @@ const AdminDashboard = () => {
                     </div>
                   </DialogContent>
                 </Dialog>
-                
+
                 <Dialog open={resellerModal} onOpenChange={setResellerModal}>
                   <DialogContent className="bg-[#1f2937] text-white max-w-4xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col max-h-[90vh] overflow-y-auto scrollbar-hide">
                     <DialogHeader className="sr-only">
@@ -1776,9 +1763,9 @@ const AdminDashboard = () => {
                       <div className="flex items-center justify-between mb-6">
                         <h2 className="text-2xl font-bold">Adicionar um Revenda</h2>
                         <div className="flex items-center gap-2">
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
+                          <Button
+                            variant="ghost"
+                            size="sm"
                             className="text-gray-400 hover:text-white"
                             onClick={() => setResellerModal(false)}
                           >
@@ -1788,10 +1775,10 @@ const AdminDashboard = () => {
                           </Button>
                         </div>
                       </div>
-                      
+
                       {/* Usar componente AdminResellers dentro do modal */}
                       <div className="flex-1 overflow-y-auto">
-                        <AdminResellersWrapper 
+                        <AdminResellersWrapper
                           onResellerCreated={() => {
                             console.log('🔄 [AdminDashboard] Revendedor criado, preparando navegação...');
                             // Garantir que a flag esteja definida antes de navegar
@@ -1802,7 +1789,7 @@ const AdminDashboard = () => {
                             } catch (error) {
                               console.error('❌ [AdminDashboard] Erro ao definir flags:', error);
                             }
-                            
+
                             // Fechar modal após criar revendedor com sucesso
                             setTimeout(() => {
                               setResellerModal(false);
@@ -1886,8 +1873,8 @@ const AdminDashboard = () => {
                     {viewMode === 'kanban' ? 'Sistema Kanban' : 'Serviços do Sistema'}
                   </h2>
                   <p className="text-gray-400 text-sm sm:text-base">
-                    {viewMode === 'kanban' 
-                      ? 'Organize seus serviços por categoria' 
+                    {viewMode === 'kanban'
+                      ? 'Organize seus serviços por categoria'
                       : 'Acesse todos os serviços do sistema'
                     }
                   </p>
@@ -1941,7 +1928,7 @@ const AdminDashboard = () => {
                   )}
                 </div>
               </div>
-              
+
               {viewMode === 'kanban' ? (
                 <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                   <SortableContext items={Object.values(kanbanColumns).flatMap(column => column.cards).map(card => card.id)} strategy={rectSortingStrategy}>
@@ -1958,24 +1945,24 @@ const AdminDashboard = () => {
                               <Badge className="bg-white/20 text-white font-medium">{column.cards.length}</Badge>
                             </div>
                           </div>
-                          
+
                           {/* Column Cards */}
-                          <div 
+                          <div
                             className="space-y-4 min-h-[200px] bg-[#1f2937]/50 rounded-lg p-4 border border-gray-700 transition-all duration-200 hover:border-gray-600"
                             data-column-id={column.id}
                             data-droppable="true"
                           >
                             {column.cards.map(card => (
-                              <SortableCard 
-                                key={card.id} 
-                                id={card.id} 
-                                content={card.content} 
-                                body={card.body} 
-                                onClick={card.onClick} 
+                              <SortableCard
+                                key={card.id}
+                                id={card.id}
+                                content={card.content}
+                                body={card.body}
+                                onClick={card.onClick}
                               />
                             ))}
                             {column.cards.length === 0 && (
-                              <div 
+                              <div
                                 className="flex items-center justify-center h-32 text-gray-500 border-2 border-dashed border-gray-600 rounded-lg transition-all duration-200 hover:border-blue-500 hover:text-blue-400 group"
                                 data-droppable="true"
                                 data-column-id={column.id}
@@ -1998,19 +1985,19 @@ const AdminDashboard = () => {
                 /* Layout Grid Original */
                 <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                   <SortableContext items={Object.values(kanbanColumns).flatMap(column => column.cards).map(card => card.id)} strategy={rectSortingStrategy}>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
                       {Object.values(kanbanColumns).flatMap(column => column.cards).map(card => (
-                        <SortableCard 
-                          key={card.id} 
-                          id={card.id} 
-                          content={card.content} 
-                          body={card.body} 
-                          onClick={card.onClick} 
+                        <SortableCard
+                          key={card.id}
+                          id={card.id}
+                          content={card.content}
+                          body={card.body}
+                          onClick={card.onClick}
                         />
-                  ))}
-                </div>
-              </SortableContext>
-            </DndContext>
+                      ))}
+                    </div>
+                  </SortableContext>
+                </DndContext>
               )}
             </div>
 
@@ -2057,23 +2044,23 @@ const AdminDashboard = () => {
     if (typeof event !== 'object' || event === null) return;
     // Type assertion for dnd-kit event
     const { active, over } = event as { active?: { id: string }, over?: { id: string } };
-    
+
     if (!active || !over) return;
-    
+
     const activeId = active.id;
     const overId = over.id;
-    
+
     console.log('Drag ended:', { activeId, overId }); // Debug log
-    
+
     // Se o card foi solto sobre outro card ou área vazia
     if (activeId !== overId) {
       setKanbanColumns(prevColumns => {
         const newColumns = { ...prevColumns };
-        
+
         // Encontrar a coluna de origem
         let sourceColumnId = null;
         let sourceCardIndex = -1;
-        
+
         Object.keys(newColumns).forEach(columnId => {
           const cardIndex = newColumns[columnId].cards.findIndex(card => card.id === activeId);
           if (cardIndex !== -1) {
@@ -2081,22 +2068,22 @@ const AdminDashboard = () => {
             sourceCardIndex = cardIndex;
           }
         });
-        
+
         if (!sourceColumnId) {
           console.log('Source column not found for card:', activeId);
           return newColumns;
         }
-        
+
         const cardToMove = newColumns[sourceColumnId].cards[sourceCardIndex];
         console.log('Moving card:', cardToMove.id, 'from column:', sourceColumnId);
-        
+
         // Remover da coluna de origem
         newColumns[sourceColumnId].cards.splice(sourceCardIndex, 1);
-        
+
         // Verificar se foi solto sobre outro card
         let targetColumnId = null;
         let targetCardIndex = -1;
-        
+
         Object.keys(newColumns).forEach(columnId => {
           const cardIndex = newColumns[columnId].cards.findIndex(card => card.id === overId);
           if (cardIndex !== -1) {
@@ -2104,7 +2091,7 @@ const AdminDashboard = () => {
             targetCardIndex = cardIndex;
           }
         });
-        
+
         if (targetColumnId) {
           // Solto sobre outro card
           console.log('Dropped on card in column:', targetColumnId, 'at position:', targetCardIndex);
@@ -2119,7 +2106,7 @@ const AdminDashboard = () => {
           // Solto em área vazia - tentar encontrar a coluna pelo data-column-id
           const columnElement = over.data?.current?.columnId || over.id;
           console.log('Dropped in empty area, trying column:', columnElement);
-          
+
           if (columnElement && newColumns[columnElement]) {
             // Adicionar no final da coluna
             newColumns[columnElement].cards.push(cardToMove);
@@ -2130,15 +2117,15 @@ const AdminDashboard = () => {
             newColumns[sourceColumnId].cards.splice(sourceCardIndex, 0, cardToMove);
           }
         }
-        
+
         console.log('New columns state:', newColumns);
-        
+
         // Mostrar toast de sucesso
         toast.success(`Card movido com sucesso!`, {
           description: `Card reorganizado no sistema Kanban`,
           duration: 2000,
         });
-        
+
         return newColumns;
       });
     }
@@ -2170,7 +2157,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     const handleRefresh = (event: CustomEvent) => {
       console.log('🔄 Dashboard: Evento refresh-dashboard recebido, atualizando dados...');
-      
+
       // Atualizar dados baseado na fonte sem disparar refreshTrigger novamente
       if (event.detail?.source === 'users' || !event.detail?.source) {
         console.log('🔄 Atualizando dados de usuários...');
@@ -2190,7 +2177,7 @@ const AdminDashboard = () => {
           refreshStats();
         }
       }
-      
+
       // Apenas atualiza o trigger se realmente necessário
       if (!event.detail?.source || event.detail?.forceRefresh) {
         setRefreshTrigger(prev => prev + 1);
@@ -2216,7 +2203,7 @@ const AdminDashboard = () => {
         }
       }
     };
-    
+
     const checkForRefresh = () => {
       const refreshFlag = localStorage.getItem('dashboard-refresh');
       if (refreshFlag) {
@@ -2232,10 +2219,10 @@ const AdminDashboard = () => {
         }
       }
     };
-    
+
     window.addEventListener('storage', handleStorageChange);
     checkForRefresh(); // Verificar ao montar o componente
-    
+
     return () => {
       window.removeEventListener('storage', handleStorageChange);
     };
@@ -2253,13 +2240,13 @@ const AdminDashboard = () => {
         <div className="lg:hidden fixed top-4 left-4 z-50">
           <AdminSidebar onPageChange={handlePageChange} currentPage={currentPage} isMobile onClose={() => setDrawerOpen(false)} />
         </div>
-        
+
         <main className="flex-1 p-6 max-w-full w-full overflow-x-auto">
           <div className="max-w-7xl mx-auto space-y-6">
             {currentPage === "dashboard" && (
               <>
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div className="text-center sm:text-left">
+                  <div className="text-center sm:text-left">
                     <h1 className="text-2xl sm:text-3xl font-bold text-white">{isResellerRoute ? 'Dashboard Revenda' : 'Dashboard Admin'}</h1>
                     <p className="text-gray-400 text-sm sm:text-base">Visão geral do sistema</p>
                   </div>
@@ -2282,9 +2269,9 @@ const AdminDashboard = () => {
                           <div className="flex items-center justify-between mb-6">
                             <h2 className="text-2xl font-bold">Adicionar um Cliente</h2>
                             <div className="flex items-center gap-2">
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
+                              <Button
+                                variant="ghost"
+                                size="sm"
                                 className="text-gray-400 hover:text-white"
                                 onClick={() => setClientModal(false)}
                               >
@@ -2294,18 +2281,18 @@ const AdminDashboard = () => {
                               </Button>
                             </div>
                           </div>
-                          
-                          <form onSubmit={async (e) => { 
-                        e.preventDefault(); 
-                        e.stopPropagation();
-                        console.log("🔵 [AdminDashboard] Form submit disparado!");
-                        await handleAddUser(); 
-                      }} className="space-y-6 flex-1 overflow-y-auto">
+
+                          <form onSubmit={async (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            console.log("🔵 [AdminDashboard] Form submit disparado!");
+                            await handleAddUser();
+                          }} className="space-y-6 flex-1 overflow-y-auto">
                             <div className="flex items-center gap-2 mb-4">
                               <span className="text-green-400 text-xs font-medium">• Campos obrigatórios marcados com *</span>
                               <span className="text-blue-400 text-xs font-medium">• Dados serão sincronizados automaticamente</span>
                             </div>
-                            
+
                             {/* Extração M3U */}
                             <div className="bg-blue-900/30 border border-blue-800 rounded-lg p-4 mb-6">
                               <div className="flex items-center justify-between mb-1">
@@ -2323,7 +2310,7 @@ const AdminDashboard = () => {
                                 <div className="bg-green-900/40 border border-green-700 text-green-300 text-xs rounded p-2 mb-2">✅ {extractionResult.message}</div>
                               )}
                             </div>
-                            
+
                             {/* Informações Básicas */}
                             <div className="bg-[#23272f] border border-gray-700 rounded-lg p-4 mb-6">
                               <span className="block text-white font-semibold mb-4">Informações Básicas</span>
@@ -2448,7 +2435,7 @@ const AdminDashboard = () => {
                                 </div>
                               </div>
                             </div>
-                            
+
                             {/* Configuração de Serviço */}
                             <div className="bg-[#23272f] border border-gray-700 rounded-lg p-4 mb-6">
                               <span className="block text-white font-semibold mb-4">Configuração de Serviço</span>
@@ -2513,7 +2500,7 @@ const AdminDashboard = () => {
                                 </div>
                               </div>
                             </div>
-                            
+
                             {/* Informações Adicionais */}
                             <div className="hidden md:block bg-[#23272f] border border-gray-700 rounded-lg p-4 mb-6">
                               <span className="block text-white font-semibold mb-4">Informações Adicionais</span>
@@ -2590,7 +2577,7 @@ const AdminDashboard = () => {
                                 </div>
                               </div>
                             </div>
-                            
+
                             {/* Botões de Ação */}
                             <div className="flex justify-end gap-3 pt-4 border-t border-gray-700">
                               <Button
@@ -2613,7 +2600,7 @@ const AdminDashboard = () => {
                         </div>
                       </DialogContent>
                     </Dialog>
-                    
+
                     <Dialog open={resellerModal} onOpenChange={setResellerModal}>
                       <DialogContent className="bg-[#1f2937] text-white max-w-4xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col max-h-[90vh] overflow-y-auto scrollbar-hide">
                         <DialogHeader className="sr-only">
@@ -2624,9 +2611,9 @@ const AdminDashboard = () => {
                           <div className="flex items-center justify-between mb-6">
                             <h2 className="text-2xl font-bold">Adicionar um Revenda</h2>
                             <div className="flex items-center gap-2">
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
+                              <Button
+                                variant="ghost"
+                                size="sm"
                                 className="text-gray-400 hover:text-white"
                                 onClick={() => setResellerModal(false)}
                               >
@@ -2636,7 +2623,7 @@ const AdminDashboard = () => {
                               </Button>
                             </div>
                           </div>
-                          
+
                           <form onSubmit={handleAddReseller} className="space-y-6 flex-1 overflow-y-auto">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                               <div className="space-y-2">
@@ -2647,7 +2634,7 @@ const AdminDashboard = () => {
                                   className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
                                   placeholder="Obrigatório"
                                   value={newReseller.username}
-                                  onChange={(e) => setNewReseller({...newReseller, username: e.target.value})}
+                                  onChange={(e) => setNewReseller({ ...newReseller, username: e.target.value })}
                                   required
                                 />
                                 <div className="space-y-1">
@@ -2661,7 +2648,7 @@ const AdminDashboard = () => {
                                   </div>
                                 </div>
                               </div>
-                              
+
                               <div className="space-y-2">
                                 <Label className="text-sm font-medium text-white">
                                   Senha <span className="text-red-500">*</span>
@@ -2672,7 +2659,7 @@ const AdminDashboard = () => {
                                     className="bg-[#23272f] border-gray-600 text-white flex-1 placeholder-gray-400 focus:border-blue-500"
                                     placeholder="Digite a senha"
                                     value={newReseller.password}
-                                    onChange={(e) => setNewReseller({...newReseller, password: e.target.value})}
+                                    onChange={(e) => setNewReseller({ ...newReseller, password: e.target.value })}
                                     required
                                   />
                                   <Button type="button" variant="outline" size="sm" className="border-gray-600 text-gray-400 hover:text-white">
@@ -2704,7 +2691,7 @@ const AdminDashboard = () => {
                                 id="forcePasswordChange"
                                 className="rounded border-gray-600 bg-[#23272f] text-blue-500 focus:ring-blue-500"
                                 checked={newReseller.force_password_change}
-                                onChange={(e) => setNewReseller({...newReseller, force_password_change: e.target.checked})}
+                                onChange={(e) => setNewReseller({ ...newReseller, force_password_change: e.target.checked })}
                               />
                               <Label htmlFor="forcePasswordChange" className="text-sm text-gray-300">
                                 Forçar revenda a mudar a senha no próximo login
@@ -2716,12 +2703,12 @@ const AdminDashboard = () => {
                                 <Label htmlFor="resellerPermission" className="text-sm font-medium text-white">
                                   Permissão <span className="text-red-500">*</span>
                                 </Label>
-                                <select 
+                                <select
                                   id="resellerPermission"
                                   aria-label="Permissão do revendedor"
                                   className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                                   value={newReseller.permission}
-                                  onChange={(e) => setNewReseller({...newReseller, permission: e.target.value})}
+                                  onChange={(e) => setNewReseller({ ...newReseller, permission: e.target.value })}
                                   required
                                 >
                                   <option value="">Selecione</option>
@@ -2730,18 +2717,18 @@ const AdminDashboard = () => {
                                   <option value="subreseller">Sub-Revendedor</option>
                                 </select>
                               </div>
-                              
+
                               <div className="space-y-2">
                                 <Label className="text-sm font-medium text-white">
                                   Créditos <span className="text-red-500">*</span>
                                 </Label>
                                 <div className="flex items-center gap-2">
-                                  <Button 
-                                    type="button" 
-                                    variant="outline" 
-                                    size="sm" 
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
                                     className="border-gray-600 text-gray-400 hover:text-white"
-                                    onClick={() => setNewReseller({...newReseller, credits: Math.max(0, newReseller.credits - 1)})}
+                                    onClick={() => setNewReseller({ ...newReseller, credits: Math.max(0, newReseller.credits - 1) })}
                                   >
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
@@ -2752,15 +2739,15 @@ const AdminDashboard = () => {
                                     className="bg-[#23272f] border-gray-600 text-white text-center placeholder-gray-400 focus:border-blue-500"
                                     placeholder="0"
                                     value={newReseller.credits}
-                                    onChange={(e) => setNewReseller({...newReseller, credits: parseInt(e.target.value) || 0})}
+                                    onChange={(e) => setNewReseller({ ...newReseller, credits: parseInt(e.target.value) || 0 })}
                                     min="10"
                                   />
-                                  <Button 
-                                    type="button" 
-                                    variant="outline" 
-                                    size="sm" 
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
                                     className="border-gray-600 text-gray-400 hover:text-white"
-                                    onClick={() => setNewReseller({...newReseller, credits: newReseller.credits + 1})}
+                                    onClick={() => setNewReseller({ ...newReseller, credits: newReseller.credits + 1 })}
                                   >
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -2773,12 +2760,12 @@ const AdminDashboard = () => {
 
                             <div className="space-y-2">
                               <Label htmlFor="reseller-servers" className="text-sm font-medium text-white">Servidores (Opcional)</Label>
-                              <select 
+                              <select
                                 id="reseller-servers"
                                 aria-label="Servidores permitidos"
                                 className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                                 value={newReseller.servers}
-                                onChange={(e) => setNewReseller({...newReseller, servers: e.target.value})}
+                                onChange={(e) => setNewReseller({ ...newReseller, servers: e.target.value })}
                               >
                                 <option value="">Opcional</option>
                                 <option value="none">Opcional</option>
@@ -2798,21 +2785,21 @@ const AdminDashboard = () => {
                                   className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
                                   placeholder="Nome da revenda master"
                                   value={newReseller.master_reseller}
-                                  onChange={(e) => setNewReseller({...newReseller, master_reseller: e.target.value})}
+                                  onChange={(e) => setNewReseller({ ...newReseller, master_reseller: e.target.value })}
                                 />
                               </div>
-                              
+
                               <div className="space-y-2">
                                 <Label className="text-sm font-medium text-white">
                                   Desativar login se não recarregar - em dias
                                 </Label>
                                 <div className="flex items-center gap-2">
-                                  <Button 
-                                    type="button" 
-                                    variant="outline" 
-                                    size="sm" 
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
                                     className="border-gray-600 text-gray-400 hover:text-white"
-                                    onClick={() => setNewReseller({...newReseller, disable_login_days: Math.max(0, newReseller.disable_login_days - 1)})}
+                                    onClick={() => setNewReseller({ ...newReseller, disable_login_days: Math.max(0, newReseller.disable_login_days - 1) })}
                                   >
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
@@ -2823,15 +2810,15 @@ const AdminDashboard = () => {
                                     className="bg-[#23272f] border-gray-600 text-white text-center placeholder-gray-400 focus:border-blue-500"
                                     placeholder="0"
                                     value={newReseller.disable_login_days}
-                                    onChange={(e) => setNewReseller({...newReseller, disable_login_days: parseInt(e.target.value) || 0})}
+                                    onChange={(e) => setNewReseller({ ...newReseller, disable_login_days: parseInt(e.target.value) || 0 })}
                                     min="0"
                                   />
-                                  <Button 
-                                    type="button" 
-                                    variant="outline" 
-                                    size="sm" 
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
                                     className="border-gray-600 text-gray-400 hover:text-white"
-                                    onClick={() => setNewReseller({...newReseller, disable_login_days: newReseller.disable_login_days + 1})}
+                                    onClick={() => setNewReseller({ ...newReseller, disable_login_days: newReseller.disable_login_days + 1 })}
                                   >
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -2849,7 +2836,7 @@ const AdminDashboard = () => {
                                   id="monthlyReseller"
                                   className="rounded border-gray-600 bg-[#23272f] text-blue-500 focus:ring-blue-500"
                                   checked={newReseller.monthly_reseller}
-                                  onChange={(e) => setNewReseller({...newReseller, monthly_reseller: e.target.checked})}
+                                  onChange={(e) => setNewReseller({ ...newReseller, monthly_reseller: e.target.checked })}
                                 />
                                 <Label htmlFor="monthlyReseller" className="text-sm text-gray-300">
                                   Configuração de Revenda Mensalista
@@ -2871,10 +2858,10 @@ const AdminDashboard = () => {
                                     className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
                                     placeholder="Nome completo"
                                     value={newReseller.personal_name}
-                                    onChange={(e) => setNewReseller({...newReseller, personal_name: e.target.value})}
+                                    onChange={(e) => setNewReseller({ ...newReseller, personal_name: e.target.value })}
                                   />
                                 </div>
-                                
+
                                 <div className="space-y-2">
                                   <Label className="text-sm font-medium text-white">E-mail</Label>
                                   <Input
@@ -2882,27 +2869,27 @@ const AdminDashboard = () => {
                                     className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
                                     placeholder="email@exemplo.com"
                                     value={newReseller.email}
-                                    onChange={(e) => setNewReseller({...newReseller, email: e.target.value})}
+                                    onChange={(e) => setNewReseller({ ...newReseller, email: e.target.value })}
                                   />
                                 </div>
-                                
+
                                 <div className="space-y-2">
                                   <Label className="text-sm font-medium text-white">Telegram</Label>
                                   <Input
                                     className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
                                     placeholder="@usuario"
                                     value={newReseller.telegram}
-                                    onChange={(e) => setNewReseller({...newReseller, telegram: e.target.value})}
+                                    onChange={(e) => setNewReseller({ ...newReseller, telegram: e.target.value })}
                                   />
                                 </div>
-                                
+
                                 <div className="space-y-2">
                                   <Label className="text-sm font-medium text-white">WhatsApp</Label>
                                   <Input
                                     className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
                                     placeholder="55 11 99999 3333"
                                     value={newReseller.whatsapp}
-                                    onChange={(e) => setNewReseller({...newReseller, whatsapp: e.target.value})}
+                                    onChange={(e) => setNewReseller({ ...newReseller, whatsapp: e.target.value })}
                                   />
                                   <div className="text-blue-400 text-xs">
                                     Incluindo o código do país - com ou sem espaço e traços - ex. 55 11 99999 3333
@@ -2918,7 +2905,7 @@ const AdminDashboard = () => {
                                 placeholder="Adicione observações sobre este revendedor..."
                                 className="w-full bg-[#23272f] border border-gray-600 text-white rounded-md px-3 py-2 focus:border-blue-500 focus:outline-none placeholder-gray-400 resize-none"
                                 value={newReseller.observations}
-                                onChange={(e) => setNewReseller({...newReseller, observations: e.target.value})}
+                                onChange={(e) => setNewReseller({ ...newReseller, observations: e.target.value })}
                               />
                             </div>
 
@@ -3015,8 +3002,8 @@ const AdminDashboard = () => {
                         {viewMode === 'kanban' ? 'Sistema Kanban' : 'Serviços do Sistema'}
                       </h2>
                       <p className="text-gray-400 text-sm sm:text-base">
-                        {viewMode === 'kanban' 
-                          ? 'Organize seus serviços por categoria' 
+                        {viewMode === 'kanban'
+                          ? 'Organize seus serviços por categoria'
                           : 'Acesse todos os serviços do sistema'
                         }
                       </p>
@@ -3070,9 +3057,9 @@ const AdminDashboard = () => {
                       )}
                     </div>
                   </div>
-                  
+
                   {viewMode === 'kanban' ? (
-                <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                    <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                       <SortableContext items={Object.values(kanbanColumns).flatMap(column => column.cards).map(card => card.id)} strategy={rectSortingStrategy}>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
                           {Object.values(kanbanColumns).map(column => (
@@ -3087,19 +3074,19 @@ const AdminDashboard = () => {
                                   <Badge className="bg-white/20 text-white font-medium">{column.cards.length}</Badge>
                                 </div>
                               </div>
-                              
+
                               {/* Column Cards */}
-                              <div 
+                              <div
                                 className="space-y-4 min-h-[200px] bg-[#1f2937]/50 rounded-lg p-4 border border-gray-700 transition-all duration-200 hover:border-gray-600"
                                 data-column-id={column.id}
                               >
                                 {column.cards.map(card => (
-                                  <SortableCard 
-                                    key={card.id} 
-                                    id={card.id} 
-                                    content={card.content} 
-                                    body={card.body} 
-                                    onClick={card.onClick} 
+                                  <SortableCard
+                                    key={card.id}
+                                    id={card.id}
+                                    content={card.content}
+                                    body={card.body}
+                                    onClick={card.onClick}
                                   />
                                 ))}
                                 {column.cards.length === 0 && (
@@ -3114,22 +3101,22 @@ const AdminDashboard = () => {
                                 )}
                               </div>
                             </div>
-                      ))}
-                    </div>
-                  </SortableContext>
-                </DndContext>
+                          ))}
+                        </div>
+                      </SortableContext>
+                    </DndContext>
                   ) : (
                     /* Layout Grid Original */
                     <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                       <SortableContext items={Object.values(kanbanColumns).flatMap(column => column.cards).map(card => card.id)} strategy={rectSortingStrategy}>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
                           {Object.values(kanbanColumns).flatMap(column => column.cards).map(card => (
-                            <SortableCard 
-                              key={card.id} 
-                              id={card.id} 
-                              content={card.content} 
-                              body={card.body} 
-                              onClick={card.onClick} 
+                            <SortableCard
+                              key={card.id}
+                              id={card.id}
+                              content={card.content}
+                              body={card.body}
+                              onClick={card.onClick}
                             />
                           ))}
                         </div>
@@ -3217,9 +3204,9 @@ const AdminDashboard = () => {
         </main>
 
         {/* Modals */}
-        <AIModalManager 
-          activeModal={activeModal} 
-          onClose={handleModalClose} 
+        <AIModalManager
+          activeModal={activeModal}
+          onClose={handleModalClose}
           onAddReseller={handleAddReseller}
         />
 
@@ -3708,8 +3695,8 @@ const AdminDashboard = () => {
                     <label className="text-sm font-medium text-white">
                       Usuário <span className="text-red-500">*</span>
                     </label>
-                    <Input 
-                      placeholder="Obrigatório" 
+                    <Input
+                      placeholder="Obrigatório"
                       className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
                     />
                     <div className="space-y-1">
@@ -3729,11 +3716,11 @@ const AdminDashboard = () => {
                     <label className="text-sm font-medium text-white">
                       Senha <span className="text-red-500">*</span>
                     </label>
-                                         <div className="flex gap-2">
-                       <Input 
-                         placeholder="Digite a senha"
-                         className="bg-[#23272f] border-gray-600 text-white flex-1 placeholder-gray-400 focus:border-blue-500"
-                       />
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="Digite a senha"
+                        className="bg-[#23272f] border-gray-600 text-white flex-1 placeholder-gray-400 focus:border-blue-500"
+                      />
                       <Button type="button" variant="outline" size="sm" className="border-gray-600 text-gray-400 hover:text-white">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -3791,10 +3778,10 @@ const AdminDashboard = () => {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
                         </svg>
                       </Button>
-                                             <Input 
-                         placeholder="0"
-                         className="bg-[#23272f] border-gray-600 text-white text-center placeholder-gray-400 focus:border-blue-500"
-                       />
+                      <Input
+                        placeholder="0"
+                        className="bg-[#23272f] border-gray-600 text-white text-center placeholder-gray-400 focus:border-blue-500"
+                      />
                       <Button type="button" variant="outline" size="sm" className="border-gray-600 text-gray-400 hover:text-white">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -3824,10 +3811,10 @@ const AdminDashboard = () => {
                   {/* Revenda Master */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-white">Revenda Master</label>
-                                         <Input 
-                       placeholder="Nome da revenda master"
-                       className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
-                     />
+                    <Input
+                      placeholder="Nome da revenda master"
+                      className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
+                    />
                   </div>
 
                   {/* Desativar login se não recarregar */}
@@ -3841,10 +3828,10 @@ const AdminDashboard = () => {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
                         </svg>
                       </Button>
-                                             <Input 
-                         placeholder="0"
-                         className="bg-[#23272f] border-gray-600 text-white text-center placeholder-gray-400 focus:border-blue-500"
-                       />
+                      <Input
+                        placeholder="0"
+                        className="bg-[#23272f] border-gray-600 text-white text-center placeholder-gray-400 focus:border-blue-500"
+                      />
                       <Button type="button" variant="outline" size="sm" className="border-gray-600 text-gray-400 hover:text-white">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -3876,28 +3863,28 @@ const AdminDashboard = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-white">Nome</label>
-                      <Input 
+                      <Input
                         placeholder="Nome completo"
                         className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
                       />
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-white">E-mail</label>
-                      <Input 
+                      <Input
                         placeholder="email@exemplo.com"
                         className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
                       />
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-white">Telegram</label>
-                      <Input 
+                      <Input
                         placeholder="@usuario"
                         className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
                       />
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-white">WhatsApp</label>
-                      <Input 
+                      <Input
                         placeholder="55 11 99999 3333"
                         className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
                       />
@@ -3911,7 +3898,7 @@ const AdminDashboard = () => {
                 {/* Observações */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-white">Observações (Opcional)</label>
-                  <textarea 
+                  <textarea
                     rows={4}
                     placeholder="Adicione observações sobre este revendedor..."
                     className="w-full bg-[#23272f] border border-gray-600 text-white rounded-md px-3 py-2 focus:border-blue-500 focus:outline-none placeholder-gray-400 resize-none"
@@ -3920,16 +3907,16 @@ const AdminDashboard = () => {
 
                 {/* Botões */}
                 <div className="flex items-center justify-between pt-6 border-t border-gray-700">
-                  <Button 
-                    type="button" 
-                    variant="outline" 
+                  <Button
+                    type="button"
+                    variant="outline"
                     onClick={() => setActiveModal(null)}
                     className="border-gray-600 text-gray-400 hover:text-white"
                   >
                     Cancelar
                   </Button>
-                  <Button 
-                    type="submit" 
+                  <Button
+                    type="submit"
                     className="bg-blue-600 hover:bg-blue-700 text-white"
                   >
                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

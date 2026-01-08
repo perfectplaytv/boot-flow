@@ -1,9 +1,7 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { useRealtime } from './useRealtime';
-import { supabase } from '@/lib/supabase';
+
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 
-// Definindo tipos genéricos para usuários e revendedores
 type UserRow = {
   id: string | number;
   name?: string;
@@ -12,8 +10,9 @@ type UserRow = {
   plan?: string;
   price?: string;
   m3u_url?: string;
-  pago?: boolean;
-  [key: string]: any; // Para propriedades adicionais
+  pago?: boolean | string | number;
+  admin_id?: string;
+  [key: string]: any;
 };
 
 type ResellerRow = {
@@ -23,7 +22,8 @@ type ResellerRow = {
   status?: string;
   credits?: number;
   price?: string;
-  [key: string]: any; // Para propriedades adicionais
+  admin_id?: string;
+  [key: string]: any;
 };
 
 export interface DashboardStats {
@@ -37,18 +37,17 @@ export interface DashboardStats {
   aiInteractions: number;
 }
 
-function useDashboardData() {
-  // Obter o admin logado e seu role
+const parsePrice = (price: string | number | undefined): number => {
+  if (!price) return 0;
+  if (typeof price === 'number') return price;
+  const priceString = String(price).replace(/\./g, '').replace(',', '.');
+  const parsed = parseFloat(priceString);
+  return isNaN(parsed) ? 0 : parsed;
+};
+
+export function useDashboardData() {
   const { user, userRole } = useAuth();
-  
-  // Estados para os dados em tempo real
-  // Usando o hook useRealtime para buscar dados em tempo real
-  // Nota: Estamos usando 'any' temporariamente para evitar erros de tipo
-  const { data: clientes = [], error: clientesError, refresh: refreshClientes } = useRealtime<any>({ table: 'users' });
-  const { data: revendas = [], error: revendasError, refresh: refreshRevendas } = useRealtime<any>({ table: 'resellers' });
-  const [loading, setLoading] = useState(true);
-  
-  // Estado para as estatísticas do dashboard
+
   const [stats, setStats] = useState<DashboardStats>({
     totalUsers: 0,
     totalRevenue: 0,
@@ -60,371 +59,105 @@ function useDashboardData() {
     aiInteractions: 0
   });
 
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
-  // Proteção contra múltiplas chamadas simultâneas
-  const isCalculatingRef = useRef(false);
-  const lastCalculationRef = useRef<{ clientesLength: number; revendasLength: number; userId: string | undefined; userRole: 'admin' | 'reseller' | 'client' | null } | null>(null);
-  const refreshTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Função para calcular as estatísticas
-  const calculateStats = useCallback(async () => {
-    // Proteção contra múltiplas chamadas simultâneas
-    if (isCalculatingRef.current) {
-      console.log('🔄 [useDashboardData] calculateStats já em execução, ignorando chamada');
-      return;
-    }
+  const fetchData = useCallback(async () => {
+    if (!user) return;
 
-    // Verificar se os dados realmente mudaram
-    const currentState = {
-      clientesLength: clientes.length,
-      revendasLength: revendas.length,
-      userId: user?.id,
-      userRole: userRole
-    };
-    
-    if (lastCalculationRef.current) {
-      const hasChanged = 
-        lastCalculationRef.current.clientesLength !== currentState.clientesLength ||
-        lastCalculationRef.current.revendasLength !== currentState.revendasLength ||
-        lastCalculationRef.current.userId !== currentState.userId ||
-        lastCalculationRef.current.userRole !== currentState.userRole;
-      
-      if (!hasChanged) {
-        console.log('🔄 [useDashboardData] Dados não mudaram, ignorando cálculo');
-        return;
-      }
-    }
-
-    isCalculatingRef.current = true;
     try {
       setLoading(true);
-      
-      // Se for admin, usar TODOS os clientes (sem filtrar por admin_id)
-      // Se for cliente ou revendedor, filtrar apenas os seus clientes
+      setError(null);
+
+      const [usersRes, resellersRes] = await Promise.all([
+        fetch('/api/users'),
+        fetch('/api/resellers')
+      ]);
+
+      const clientesData = usersRes.ok ? await usersRes.json() : [];
+      const revendasData = resellersRes.ok ? await resellersRes.json() : [];
+
+      const clientes = Array.isArray(clientesData) ? clientesData : [];
+      const revendas = Array.isArray(revendasData) ? revendasData : [];
+
+      // Filtragem por permissão
       const clientesDoAdmin = userRole === 'admin'
-        ? clientes // Admin vê todos os clientes
-        : user?.id 
-          ? clientes.filter((cliente) => {
-              const clienteRow = cliente as UserRow & { admin_id?: string };
-              // Incluir clientes associados ao admin logado ou clientes sem admin (NULL)
-              return clienteRow.admin_id === user.id || clienteRow.admin_id === null || clienteRow.admin_id === undefined;
-            })
-          : clientes;
-      
-      // Contagem de clientes ativos (apenas do admin logado)
-      const activeClients = clientesDoAdmin.filter(cliente => {
-        const status = (cliente as UserRow).status?.toLowerCase();
-        return status === 'ativo' || status === 'active';
-      }).length;
+        ? clientes
+        : clientes.filter((c: UserRow) => c.admin_id === user.id || c.admin_id === null);
 
-      // Se for admin, usar TODAS as revendas (sem filtrar por admin_id)
-      // Se for cliente ou revendedor, filtrar apenas as suas revendas
       const revendasDoAdmin = userRole === 'admin'
-        ? revendas // Admin vê todas as revendas
-        : user?.id 
-          ? revendas.filter((revenda) => {
-              const revendaRow = revenda as ResellerRow & { admin_id?: string };
-              // Incluir revendas associados ao admin logado ou revendas sem admin (NULL)
-              return revendaRow.admin_id === user.id || revendaRow.admin_id === null || revendaRow.admin_id === undefined;
-            })
-          : revendas;
-      
-      // Contagem de revendedores ativos (apenas do admin logado)
-      const activeResellers = revendasDoAdmin.filter(revenda => {
-        const status = (revenda as ResellerRow).status?.toLowerCase();
-        return status === 'ativo' || status === 'active';
-      }).length;
+        ? revendas
+        : revendas.filter((r: ResellerRow) => r.admin_id === user.id || r.admin_id === null);
 
-      // Total de usuários (clientes do admin + revendas do admin)
+      // Metricas
+      const activeClients = clientesDoAdmin.filter((c: UserRow) =>
+        c.status?.toLowerCase() === 'ativo' || c.status?.toLowerCase() === 'active'
+      ).length;
+
+      const activeResellers = revendasDoAdmin.filter((r: ResellerRow) =>
+        r.status?.toLowerCase() === 'ativo' || r.status?.toLowerCase() === 'active'
+      ).length;
+
       const totalUsers = clientesDoAdmin.length + revendasDoAdmin.length;
 
-      // Função auxiliar para converter preço de string (formato brasileiro) para número
-      const parsePrice = (price: string | number | undefined): number => {
-        if (!price) return 0;
-        if (typeof price === 'number') return price;
-        
-        // Converte formato brasileiro "30,00" para número
-        const priceString = String(price).replace(/\./g, '').replace(',', '.');
-        const parsed = parseFloat(priceString);
-        return isNaN(parsed) ? 0 : parsed;
-      };
+      // Receita Clientes
+      const revenueFromClientes = clientesDoAdmin
+        .filter((c: UserRow) => c.pago === true || c.pago === "true" || c.pago === 1)
+        .reduce((sum: number, c: UserRow) => sum + parsePrice(c.price), 0);
 
-      console.log(`💰 [useDashboardData] Admin logado: ${user?.id}, Total de clientes: ${clientes.length}, Clientes do admin: ${clientesDoAdmin.length}`);
+      // Receita Revendas
+      const revenueFromRevendas = revendasDoAdmin.reduce((sum: number, r: ResellerRow) => {
+        if (r.price) return sum + parsePrice(r.price);
+        if (r.credits) return sum + (typeof r.credits === 'number' ? r.credits : parseFloat(String(r.credits)) || 0);
+        return sum;
+      }, 0);
 
-      // Calcular receita total dos clientes marcados como pagos (soma dos preços)
-      // Usar clientesDoAdmin que já foi filtrado acima
-      let revenueFromClientes = 0;
-      try {
-        const clientesPagos = clientesDoAdmin.filter((cliente) => {
-          const clienteRow = cliente as UserRow;
-          // Verificar se o cliente está marcado como pago
-          // Pode ser true, "true", 1, ou qualquer valor truthy
-          const isPago = clienteRow.pago === true || 
-                        clienteRow.pago === "true" || 
-                        clienteRow.pago === 1 ||
-                        clienteRow.pago === "1";
-          return isPago;
-        });
-        
-        console.log(`💰 [useDashboardData] Total de clientes do admin: ${clientesDoAdmin.length}, Clientes pagos: ${clientesPagos.length}`);
-        
-        revenueFromClientes = clientesPagos.reduce((sum, cliente) => {
-          const clienteRow = cliente as UserRow;
-          const price = clienteRow.price;
-          const parsedPrice = parsePrice(price);
-          console.log(`💰 [useDashboardData] Cliente ${clienteRow.name}: pago=${clienteRow.pago}, price=${price}, parsed=${parsedPrice}, admin_id=${(cliente as UserRow & { admin_id?: string }).admin_id}`);
-          return sum + parsedPrice;
-        }, 0);
-        
-        console.log('💰 [useDashboardData] Receita dos clientes pagos do admin:', revenueFromClientes, {
-          adminId: user?.id,
-          totalClientes: clientes.length,
-          clientesDoAdmin: clientesDoAdmin.length,
-          clientesPagos: clientesPagos.length,
-          detalhes: clientesPagos.map(c => ({ name: c.name, price: c.price, pago: c.pago, admin_id: (c as UserRow & { admin_id?: string }).admin_id }))
-        });
-      } catch (error) {
-        console.error('Erro ao calcular receita dos clientes:', error);
-      }
+      // Cobranças (Mockado por enquanto pois não há API, evita erro de rede)
+      const revenueFromCobrancas = 0;
+      const monthlyGrowth = 0;
 
-      // Calcular receita total das revendas (soma dos créditos ou preços se houver) - apenas do admin
-      let revenueFromRevendas = 0;
-      try {
-        revenueFromRevendas = revendasDoAdmin.reduce((sum, revenda) => {
-          // Primeiro tenta usar o campo price, depois credits
-          const price = (revenda as ResellerRow).price;
-          const credits = (revenda as ResellerRow).credits || 0;
-          
-          if (price) {
-            return sum + parsePrice(price);
-          } else if (credits) {
-            // Se não tiver price, usa credits como valor
-            return sum + (typeof credits === 'number' ? credits : parseFloat(String(credits)) || 0);
-          }
-          return sum;
-        }, 0);
-        console.log('💰 [useDashboardData] Receita das revendas:', revenueFromRevendas);
-      } catch (error) {
-        console.error('Erro ao calcular receita das revendas:', error);
-      }
-
-      // Buscar dados adicionais do Supabase (cobranças)
-      let revenueFromCobrancas = 0;
-      let monthlyGrowth = 0;
-      
-      try {
-        // Busca todas as cobranças pagas do último mês e soma os valores
-        const { data: revenueData } = await supabase
-          .from('cobrancas')
-          .select('valor')
-          .eq('status', 'pago')
-          .gte('data_vencimento', new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString().split('T')[0]);
-          
-        revenueFromCobrancas = revenueData?.reduce((sum, item) => sum + (parseFloat(String(item.valor)) || 0), 0) || 0;
-        console.log('💰 [useDashboardData] Receita das cobranças:', revenueFromCobrancas);
-        
-        // Cálculo simples de crescimento (pode ser aprimorado)
-        const lastMonthStart = new Date(new Date().setMonth(new Date().getMonth() - 2)).toISOString().split('T')[0];
-        const lastMonthEnd = new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString().split('T')[0];
-        
-        const { data: lastMonthData } = await supabase
-          .from('cobrancas')
-          .select('valor')
-          .eq('status', 'pago')
-          .gte('data_vencimento', lastMonthStart)
-          .lt('data_vencimento', lastMonthEnd);
-          
-        const lastMonthRevenue = lastMonthData?.reduce((sum, item) => sum + (parseFloat(String(item.valor)) || 0), 0) || 0;
-        monthlyGrowth = lastMonthRevenue > 0 
-          ? ((revenueFromCobrancas - lastMonthRevenue) / lastMonthRevenue) * 100 
-          : 0;
-      } catch (error) {
-        console.error('Erro ao buscar dados financeiros:', error);
-      }
-
-      // Receita total = clientes + revendas + cobranças
       const totalRevenue = revenueFromClientes + revenueFromRevendas + revenueFromCobrancas;
-      console.log('💰 [useDashboardData] Receita Total:', totalRevenue, {
-        clientes: revenueFromClientes,
-        revendas: revenueFromRevendas,
-        cobrancas: revenueFromCobrancas
+
+      const iptvUsers = clientesDoAdmin.filter((c: UserRow) =>
+        c.plan?.toLowerCase().includes('iptv') || c.m3u_url
+      ).length;
+
+      const radioListeners = clientesDoAdmin.filter((c: UserRow) =>
+        c.plan?.toLowerCase().includes('radio')
+      ).length;
+
+      setStats({
+        totalUsers,
+        totalRevenue,
+        activeResellers,
+        activeClients,
+        monthlyGrowth,
+        iptvUsers,
+        radioListeners,
+        aiInteractions: 0
       });
 
-      // Contar usuários de IPTV e Rádio baseado no plano (apenas do admin logado)
-      const iptvUsers = clientesDoAdmin.filter(cliente => {
-        const plan = (cliente as UserRow).plan?.toLowerCase();
-        // Verifica se o plano contém 'iptv' ou se o cliente tem URL M3U
-        return plan?.includes('iptv') || (cliente as UserRow).m3u_url;
-      }).length;
-      
-      const radioListeners = clientesDoAdmin.filter(cliente => {
-        const plan = (cliente as UserRow).plan?.toLowerCase();
-        // Implemente a lógica para verificar se o plano é de Rádio
-        return plan?.includes('radio');
-      }).length;
-      
-      console.log(`💰 [useDashboardData] Admin logado: ${user?.id}, Total de revendas: ${revendas.length}, Revendas do admin: ${revendasDoAdmin.length}`);
-
-      // Atualiza as estatísticas
-      setStats(prevStats => {
-        const newStats = {
-          ...prevStats,
-          totalUsers,
-          totalRevenue,
-          activeResellers,
-          activeClients,
-          monthlyGrowth,
-          iptvUsers,
-          radioListeners,
-          aiInteractions: 0 // Implementar contagem de interações com IA se necessário
-        };
-        
-        // Verificar se realmente mudou para evitar re-renderizações desnecessárias
-        const hasChanged = 
-          prevStats.totalUsers !== newStats.totalUsers ||
-          prevStats.totalRevenue !== newStats.totalRevenue ||
-          prevStats.activeResellers !== newStats.activeResellers ||
-          prevStats.activeClients !== newStats.activeClients;
-        
-        if (!hasChanged) {
-          console.log('🔄 [useDashboardData] Estatísticas não mudaram, mantendo estado anterior');
-          return prevStats;
-        }
-        
-        return newStats;
-      });
-      
-      // Atualizar referência do último cálculo
-      lastCalculationRef.current = currentState;
-
-    } catch (err) {
-      console.error('Erro ao calcular estatísticas do dashboard:', err);
-      setError('Erro ao carregar dados do dashboard');
+    } catch (err: unknown) {
+      console.error('Erro ao carregar dashboard:', err);
+      setError(err instanceof Error ? err.message : 'Erro desconhecido');
     } finally {
       setLoading(false);
-      isCalculatingRef.current = false;
     }
-  }, [clientes, revendas, user?.id, userRole]);
+  }, [user, userRole]);
 
-  // Atualiza as estatísticas quando os dados mudam (com debounce)
   useEffect(() => {
-    // Limpar timeout anterior se houver
-    if (refreshTimeoutRef.current) {
-      clearTimeout(refreshTimeoutRef.current);
-    }
-    
-    // Aguardar um pouco antes de recalcular para evitar chamadas muito frequentes
-    refreshTimeoutRef.current = setTimeout(() => {
-      // Só recalcular se os dados realmente mudaram
-      const currentState = {
-        clientesLength: clientes.length,
-        revendasLength: revendas.length,
-        userId: user?.id,
-        userRole: userRole
-      };
-      
-      if (!lastCalculationRef.current || 
-          lastCalculationRef.current.clientesLength !== currentState.clientesLength ||
-          lastCalculationRef.current.revendasLength !== currentState.revendasLength ||
-          lastCalculationRef.current.userId !== currentState.userId ||
-          lastCalculationRef.current.userRole !== currentState.userRole) {
-        console.log('🔄 [useDashboardData] Dados mudaram, recalculando estatísticas...');
-        calculateStats();
-      }
-    }, 500); // Debounce de 500ms
-    
-    return () => {
-      if (refreshTimeoutRef.current) {
-        clearTimeout(refreshTimeoutRef.current);
-      }
+    fetchData();
+
+    // Listen for refresh events
+    const handleRefresh = (e: CustomEvent) => {
+      console.log('🔄 Refresh manual solicitado via evento', e.detail);
+      fetchData();
     };
-  }, [clientes.length, revendas.length, user?.id, userRole, calculateStats]);
+    window.addEventListener('refresh-dashboard', handleRefresh);
+    return () => window.removeEventListener('refresh-dashboard', handleRefresh);
+  }, [fetchData]);
 
-  // Função de refresh que atualiza os dados e recalcula as estatísticas
-  const refresh = useCallback(async () => {
-    // Proteção contra múltiplas chamadas simultâneas
-    if (isCalculatingRef.current) {
-      console.log('🔄 [useDashboardData] Refresh já em execução, ignorando chamada');
-      return;
-    }
-    
-    console.log('🔄 [useDashboardData] Refresh manual chamado');
-    try {
-      // Forçar atualização dos dados do useRealtime
-      if (refreshClientes) {
-        console.log('🔄 [useDashboardData] Atualizando clientes...');
-        await refreshClientes();
-      }
-      if (refreshRevendas) {
-        console.log('🔄 [useDashboardData] Atualizando revendas...');
-        await refreshRevendas();
-      }
-      // Não chamar calculateStats aqui - o useEffect vai detectar a mudança e recalcular
-      // Isso evita loops infinitos
-    } catch (error) {
-      console.error('❌ [useDashboardData] Erro no refresh:', error);
-    }
-  }, [refreshClientes, refreshRevendas]);
-
-  // Listener para eventos de atualização (sem dependências que causam loops)
-  useEffect(() => {
-    let eventTimeout: NodeJS.Timeout | null = null;
-    
-    const handleRefreshEvent = (event: CustomEvent) => {
-      // Limpar timeout anterior se houver
-      if (eventTimeout) {
-        clearTimeout(eventTimeout);
-      }
-      
-      console.log('🔄 [useDashboardData] Evento refresh-dashboard recebido:', event.detail);
-      
-      // Só processar eventos relevantes
-      if (event.detail?.field === 'pago' || event.detail?.forceRefresh || event.detail?.source === 'users' || event.detail?.source === 'resellers') {
-        console.log('🔄 [useDashboardData] Evento relevante detectado, agendando atualização...');
-        
-        // Debounce: aguardar um pouco antes de atualizar para evitar múltiplas chamadas
-        eventTimeout = setTimeout(async () => {
-          try {
-            // Forçar refresh apenas dos dados relevantes
-            if (event.detail?.source === 'users' || event.detail?.field === 'pago') {
-              if (refreshClientes) {
-                console.log('🔄 [useDashboardData] Atualizando clientes...');
-                await refreshClientes();
-              }
-            }
-            
-            if (event.detail?.source === 'resellers') {
-              if (refreshRevendas) {
-                console.log('🔄 [useDashboardData] Atualizando revendas...');
-                await refreshRevendas();
-              }
-            }
-            
-            // Não chamar calculateStats aqui - o useEffect vai detectar a mudança e recalcular
-            // Isso evita loops infinitos
-          } catch (error) {
-            console.error('❌ [useDashboardData] Erro ao atualizar:', error);
-          }
-        }, 300); // Debounce de 300ms
-      }
-    };
-
-    window.addEventListener('refresh-dashboard', handleRefreshEvent as EventListener);
-    return () => {
-      window.removeEventListener('refresh-dashboard', handleRefreshEvent as EventListener);
-      if (eventTimeout) {
-        clearTimeout(eventTimeout);
-      }
-    };
-  }, [refreshClientes, refreshRevendas]); // Removido refresh e calculateStats para evitar loops
-
-  return {
-    stats,
-    loading,
-    error: error || clientesError?.message || revendasError?.message,
-    refresh
-  };
+  return { stats, loading, error, refresh: fetchData };
 }
 
 export default useDashboardData;
