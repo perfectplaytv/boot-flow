@@ -247,6 +247,161 @@ export default function AdminTelegram() {
         return count;
     };
 
+    // Phase 4: ChatBot States
+    interface ChatbotSequence {
+        id: string;
+        message: string;
+        delay: number;
+        buttons: Array<{ label: string, url: string }>;
+    }
+
+    interface ChatbotRule {
+        id: string;
+        name: string;
+        applyTo: 'private' | 'group' | 'channel';
+        keywords: string[];
+        compareMethod: 'equal' | 'contains' | 'startsWith';
+        flowId: string;
+        sendOnNewChat: boolean;
+        pausePerLead: boolean;
+        active: boolean;
+        sequences: ChatbotSequence[];
+        createdAt: string;
+    }
+
+    const [chatbotRules, setChatbotRules] = useState<ChatbotRule[]>([]);
+    const [currentRule, setCurrentRule] = useState<Partial<ChatbotRule>>({
+        name: '',
+        applyTo: 'private',
+        keywords: [],
+        compareMethod: 'equal',
+        flowId: '',
+        sendOnNewChat: false,
+        pausePerLead: false,
+        active: true,
+        sequences: [{ id: '1', message: '', delay: 10, buttons: [] }]
+    });
+    const [keywordsInput, setKeywordsInput] = useState('');
+    const [activeSequence, setActiveSequence] = useState(0);
+    const [showSeqButton, setShowSeqButton] = useState(false);
+    const [newSeqButton, setNewSeqButton] = useState({ label: '', url: '' });
+
+    // Phase 4: Add sequence to chatbot
+    const addChatbotSequence = () => {
+        setCurrentRule(prev => ({
+            ...prev,
+            sequences: [
+                ...(prev.sequences || []),
+                { id: Date.now().toString(), message: '', delay: 10, buttons: [] }
+            ]
+        }));
+        setActiveSequence((currentRule.sequences?.length || 1));
+    };
+
+    // Phase 4: Update sequence message
+    const updateSequenceMessage = (index: number, message: string) => {
+        setCurrentRule(prev => ({
+            ...prev,
+            sequences: prev.sequences?.map((seq, i) =>
+                i === index ? { ...seq, message: message.slice(0, 4096) } : seq
+            ) || []
+        }));
+    };
+
+    // Phase 4: Update sequence delay
+    const updateSequenceDelay = (index: number, delay: number) => {
+        setCurrentRule(prev => ({
+            ...prev,
+            sequences: prev.sequences?.map((seq, i) =>
+                i === index ? { ...seq, delay } : seq
+            ) || []
+        }));
+    };
+
+    // Phase 4: Add button to sequence
+    const addButtonToSequence = (index: number) => {
+        if (!newSeqButton.label.trim() || !newSeqButton.url.trim()) {
+            toast.error("Preencha o texto e URL do botão");
+            return;
+        }
+        setCurrentRule(prev => ({
+            ...prev,
+            sequences: prev.sequences?.map((seq, i) =>
+                i === index ? { ...seq, buttons: [...seq.buttons, newSeqButton] } : seq
+            ) || []
+        }));
+        setNewSeqButton({ label: '', url: '' });
+        setShowSeqButton(false);
+    };
+
+    // Phase 4: Remove sequence
+    const removeSequence = (index: number) => {
+        if ((currentRule.sequences?.length || 0) <= 1) {
+            toast.error("Deve haver pelo menos uma sequência");
+            return;
+        }
+        setCurrentRule(prev => ({
+            ...prev,
+            sequences: prev.sequences?.filter((_, i) => i !== index) || []
+        }));
+        setActiveSequence(Math.max(0, activeSequence - 1));
+    };
+
+    // Phase 4: Save chatbot rule
+    const saveChatbotRule = () => {
+        if (!currentRule.name?.trim()) {
+            toast.error("Digite um nome para a regra");
+            return;
+        }
+        if (!keywordsInput.trim()) {
+            toast.error("Digite as palavras-chave");
+            return;
+        }
+
+        const rule: ChatbotRule = {
+            id: Date.now().toString(),
+            name: currentRule.name || '',
+            applyTo: currentRule.applyTo || 'private',
+            keywords: keywordsInput.split(',').map(k => k.trim()).filter(Boolean),
+            compareMethod: currentRule.compareMethod || 'equal',
+            flowId: currentRule.flowId || '',
+            sendOnNewChat: currentRule.sendOnNewChat || false,
+            pausePerLead: currentRule.pausePerLead || false,
+            active: currentRule.active ?? true,
+            sequences: currentRule.sequences || [],
+            createdAt: new Date().toISOString()
+        };
+
+        const updated = [...chatbotRules, rule];
+        setChatbotRules(updated);
+        localStorage.setItem('telegram_chatbot_rules', JSON.stringify(updated));
+
+        // Reset form
+        setCurrentRule({
+            name: '',
+            applyTo: 'private',
+            keywords: [],
+            compareMethod: 'equal',
+            flowId: '',
+            sendOnNewChat: false,
+            pausePerLead: false,
+            active: true,
+            sequences: [{ id: '1', message: '', delay: 10, buttons: [] }]
+        });
+        setKeywordsInput('');
+        setActiveSequence(0);
+
+        toast.success(`Regra "${rule.name}" salva!`);
+    };
+
+    // Phase 4: Load chatbot rules from localStorage
+    useEffect(() => {
+        const savedRules = localStorage.getItem('telegram_chatbot_rules');
+        if (savedRules) {
+            try { setChatbotRules(JSON.parse(savedRules)); } catch (e) { console.error(e); }
+        }
+    }, []);
+
     const fetchSessions = useCallback(async () => {
         try {
             const response = await fetch(`${TELEGRAM_API_URL}/sessions`);
