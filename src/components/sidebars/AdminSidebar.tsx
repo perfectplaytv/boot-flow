@@ -1,11 +1,11 @@
-import { 
-  Brain, 
-  Users, 
-  Tv, 
-  Radio, 
-  ShoppingCart, 
-  BarChart3, 
-  Settings, 
+import {
+  Brain,
+  Users,
+  Tv,
+  Radio,
+  ShoppingCart,
+  BarChart3,
+  Settings,
   Gamepad2,
   Zap,
   Home,
@@ -54,6 +54,7 @@ interface AdminSidebarProps {
 const menuItems = [
   { title: "Dashboard", page: "dashboard", icon: Home },
   { title: "Clientes", page: "users", icon: Users },
+  { title: "Importar Telegram", page: "telegram", icon: UserPlus },
   { title: "Revendas", page: "resellers", icon: Building2 },
   { title: "Cobranças", page: "cobrancas", icon: BarChart3 },
   { title: "Notificações", page: "notificacoes", icon: MessageSquare },
@@ -98,7 +99,7 @@ export function AdminSidebar({ onPageChange, currentPage, isMobile = false, onCl
           <SidebarMenu>
             {menuItems.map((item) => (
               <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton 
+                <SidebarMenuButton
                   onClick={() => handlePageChange(item.page)}
                   className={`${currentPage === item.page ? "bg-primary text-primary-foreground" : "hover:bg-accent"} h-10 sm:h-auto`}
                 >
