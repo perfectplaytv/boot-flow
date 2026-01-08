@@ -29,8 +29,8 @@ interface AuthContextType {
   updateProfile: (updates: Partial<User>) => Promise<{ error: Error | null }>;
   refreshSession: () => Promise<void>;
   signInWithGoogle: () => Promise<{ error: Error | null }>;
-  profile: any;
-  session: any;
+  profile: Record<string, unknown> | null;
+  session: Record<string, unknown> | null;
 }
 
 interface AuthProviderProps {
@@ -114,10 +114,11 @@ export const AuthProvider = ({ children, navigate }: AuthProviderProps) => {
       redirectBasedOnRole(userData.role);
 
       return { error: null };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Login error:', error);
-      toast.error(error.message);
-      return { error };
+      const message = error instanceof Error ? error.message : 'Erro desconhecido';
+      toast.error(message);
+      return { error: error instanceof Error ? error : new Error(message) };
     } finally {
       setLoading(false);
     }
@@ -157,9 +158,10 @@ export const AuthProvider = ({ children, navigate }: AuthProviderProps) => {
       redirectBasedOnRole(newUser.role);
 
       return { error: null };
-    } catch (error: any) {
-      toast.error(error.message);
-      return { error };
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Erro desconhecido';
+      toast.error(message);
+      return { error: error instanceof Error ? error : new Error(message) };
     } finally {
       setLoading(false);
     }
