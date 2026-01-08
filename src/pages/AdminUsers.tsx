@@ -2829,7 +2829,7 @@ function VencimentoDatePickerEdit({
       const year = selected.getFullYear();
       const month = String(selected.getMonth() + 1).padStart(2, '0');
       const day = String(selected.getDate()).padStart(2, '0');
-      const localDate = `${year} -${month} -${day} `;
+      const localDate = `${year}-${month}-${day}`;
       setEditingUser({ ...editingUser, expirationDate: localDate });
     } else if (editingUser) {
       setEditingUser({ ...editingUser, expirationDate: "" });
