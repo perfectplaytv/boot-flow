@@ -38,6 +38,41 @@ interface TelegramMember {
     selected: boolean;
 }
 
+// API Response Types
+interface SessionStatusResponse {
+    logged_in: boolean;
+    user?: { first_name: string; username: string };
+    error?: string;
+}
+
+interface LoginResponse {
+    success?: boolean;
+    message?: string;
+    detail?: string;
+}
+
+interface VerifyResponse {
+    success?: boolean;
+    message?: string;
+    user?: { id: number; first_name: string; username: string };
+    detail?: string;
+}
+
+interface ExtractMembersResponse {
+    success: boolean;
+    group?: string;
+    total_members?: number;
+    members?: Array<{
+        id: string;
+        username: string;
+        first_name: string;
+        last_name: string;
+        phone: string;
+        is_bot: boolean;
+    }>;
+    detail?: string;
+}
+
 // URL da API do Telegram (Railway) - Configure no .env
 const TELEGRAM_API_URL = import.meta.env.VITE_TELEGRAM_API_URL || "";
 
