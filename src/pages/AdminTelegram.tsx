@@ -1292,6 +1292,170 @@ export default function AdminTelegram() {
                 )}
             </Card>
 
+            {/* Phase 2: Bulk Send Section */}
+            {members.length > 0 && selectedCount > 0 && (
+                <Card className="border-blue-800/50 bg-blue-950/10">
+                    <CardHeader>
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <CardTitle className="flex items-center gap-2">
+                                    <Send className="w-5 h-5" />
+                                    Envio no Privado
+                                    <Badge className="bg-blue-600">{selectedCount} selecionados</Badge>
+                                </CardTitle>
+                                <CardDescription>
+                                    Envie mensagens privadas para os membros selecionados
+                                </CardDescription>
+                            </div>
+                            <Button
+                                variant={showBulkSend ? "secondary" : "default"}
+                                onClick={() => setShowBulkSend(!showBulkSend)}
+                            >
+                                {showBulkSend ? "Fechar" : "Configurar Envio"}
+                            </Button>
+                        </div>
+                    </CardHeader>
+
+                    {showBulkSend && (
+                        <CardContent className="space-y-6">
+                            {/* Message Variations */}
+                            <div className="space-y-3">
+                                <div className="flex items-center justify-between">
+                                    <Label className="text-base font-medium">Variações de Mensagem (Anti-Bloqueio)</Label>
+                                    <Button size="sm" variant="outline" onClick={addMessageVariation}>
+                                        + Adicionar Variação
+                                    </Button>
+                                </div>
+                                <p className="text-xs text-muted-foreground">
+                                    Variáveis disponíveis: {"{nome}"}, {"{sobrenome}"}, {"{username}"}, {"{id}"}
+                                </p>
+                                {bulkSendConfig.messages.map((msg, index) => (
+                                    <div key={index} className="flex gap-2">
+                                        <textarea
+                                            className="flex-1 min-h-[80px] rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                            placeholder={`Mensagem ${index + 1}...`}
+                                            value={msg}
+                                            onChange={(e) => updateMessageVariation(index, e.target.value)}
+                                        />
+                                        {bulkSendConfig.messages.length > 1 && (
+                                            <Button
+                                                size="icon"
+                                                variant="ghost"
+                                                className="text-red-500"
+                                                onClick={() => removeMessageVariation(index)}
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </Button>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Send Configuration */}
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-4 border-t">
+                                <div className="space-y-2">
+                                    <Label>Intervalo Mín (seg)</Label>
+                                    <Input
+                                        type="number"
+                                        value={bulkSendConfig.intervalMin}
+                                        onChange={(e) => setBulkSendConfig(prev => ({ ...prev, intervalMin: parseInt(e.target.value) || 30 }))}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Intervalo Máx (seg)</Label>
+                                    <Input
+                                        type="number"
+                                        value={bulkSendConfig.intervalMax}
+                                        onChange={(e) => setBulkSendConfig(prev => ({ ...prev, intervalMax: parseInt(e.target.value) || 60 }))}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Limite Diário/Conta</Label>
+                                    <Input
+                                        type="number"
+                                        value={bulkSendConfig.dailyLimit}
+                                        onChange={(e) => setBulkSendConfig(prev => ({ ...prev, dailyLimit: parseInt(e.target.value) || 50 }))}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Contas</Label>
+                                    <Select
+                                        value={bulkSendConfig.useAllAccounts ? "all" : "selected"}
+                                        onValueChange={(v) => setBulkSendConfig(prev => ({ ...prev, useAllAccounts: v === "all" }))}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">Usar Todas ({sessions.filter(s => !s.is_restricted).length})</SelectItem>
+                                            <SelectItem value="selected">Apenas Selecionada</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+
+                            {/* Send Progress */}
+                            {isSending && (
+                                <div className="bg-muted/30 rounded-lg p-4 space-y-3">
+                                    <div className="flex items-center justify-between">
+                                        <span className="font-medium">Enviando...</span>
+                                        <Button size="sm" variant="destructive" onClick={handleStopSending}>
+                                            Parar
+                                        </Button>
+                                    </div>
+                                    <div className="w-full bg-gray-700 rounded-full h-3">
+                                        <div
+                                            className="bg-blue-500 h-3 rounded-full transition-all duration-300"
+                                            style={{ width: `${(sendProgress.current / sendProgress.total) * 100}%` }}
+                                        />
+                                    </div>
+                                    <div className="flex justify-between text-sm text-muted-foreground">
+                                        <span>{sendProgress.current} / {sendProgress.total}</span>
+                                        <span className="text-green-400">✓ {sendProgress.success}</span>
+                                        <span className="text-red-400">✗ {sendProgress.failed}</span>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Send Logs */}
+                            {sendLogs.length > 0 && (
+                                <div className="max-h-[200px] overflow-auto bg-gray-900 rounded-lg p-3 font-mono text-xs">
+                                    {sendLogs.slice(-20).map((log, i) => (
+                                        <div key={i} className={`py-1 ${log.status === 'success' ? 'text-green-400' : 'text-red-400'}`}>
+                                            [{log.time}] {log.user}: {log.status === 'success' ? '✓ Enviado' : `✗ ${log.message}`}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            {/* Send Button */}
+                            <div className="flex justify-end gap-3 pt-4 border-t">
+                                <Button variant="outline" onClick={() => setShowBulkSend(false)}>
+                                    Cancelar
+                                </Button>
+                                <Button
+                                    onClick={handleBulkSend}
+                                    disabled={isSending || selectedCount === 0}
+                                    className="gap-2"
+                                >
+                                    {isSending ? (
+                                        <>
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                            Enviando...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Send className="w-4 h-4" />
+                                            Iniciar Envio ({selectedCount})
+                                        </>
+                                    )}
+                                </Button>
+                            </div>
+                        </CardContent>
+                    )}
+                </Card>
+            )}
+
             {/* Import Config - Always visible when there are members */}
             {members.length > 0 && (
                 <Card>
