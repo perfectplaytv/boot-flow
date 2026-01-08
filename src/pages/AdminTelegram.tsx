@@ -1355,27 +1355,30 @@ export default function AdminTelegram() {
 
             {/* Tabs para métodos de importação */}
             <Tabs defaultValue="automatic" className="w-full">
-                <TabsList className="grid w-full grid-cols-5 mb-6">
-                    <TabsTrigger value="automatic" className="flex items-center gap-2 text-xs">
-                        <Link className="w-4 h-4" />
+                <TabsList className="grid w-full grid-cols-6 mb-6">
+                    <TabsTrigger value="automatic" className="flex items-center gap-1 text-[10px]">
+                        <Link className="w-3 h-3" />
                         Extração
-                        {apiConfigured && <Badge variant="secondary" className="text-[10px]">API</Badge>}
                     </TabsTrigger>
-                    <TabsTrigger value="campaigns" className="flex items-center gap-2 text-xs">
-                        <Calendar className="w-4 h-4" />
+                    <TabsTrigger value="campaigns" className="flex items-center gap-1 text-[10px]">
+                        <Calendar className="w-3 h-3" />
                         Campanhas
                     </TabsTrigger>
-                    <TabsTrigger value="buttons" className="flex items-center gap-2 text-xs">
-                        <Link className="w-4 h-4" />
+                    <TabsTrigger value="buttons" className="flex items-center gap-1 text-[10px]">
+                        <Link className="w-3 h-3" />
                         Botões
                     </TabsTrigger>
-                    <TabsTrigger value="chatbots" className="flex items-center gap-2 text-xs">
-                        <Bot className="w-4 h-4" />
+                    <TabsTrigger value="chatbots" className="flex items-center gap-1 text-[10px]">
+                        <Bot className="w-3 h-3" />
                         ChatBots
                     </TabsTrigger>
-                    <TabsTrigger value="private" className="flex items-center gap-2 text-xs">
-                        <Send className="w-4 h-4" />
+                    <TabsTrigger value="private" className="flex items-center gap-1 text-[10px]">
+                        <Send className="w-3 h-3" />
                         Privado
+                    </TabsTrigger>
+                    <TabsTrigger value="broadcast" className="flex items-center gap-1 text-[10px]">
+                        <Radio className="w-3 h-3" />
+                        Broadcast
                     </TabsTrigger>
                 </TabsList>
 
