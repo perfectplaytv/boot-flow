@@ -26,7 +26,14 @@ import {
     LogIn,
     LogOut,
     Key,
-    Phone
+    Phone,
+    RefreshCw,
+    Save,
+    FolderOpen,
+    Filter,
+    Zap,
+    Shield,
+    Clock
 } from "lucide-react";
 
 interface TelegramMember {
@@ -52,6 +59,27 @@ interface TelegramSession {
 interface SessionsResponse {
     sessions: TelegramSession[];
     error?: string;
+}
+
+// Saved Audience type
+interface SavedAudience {
+    id: string;
+    name: string;
+    createdAt: string;
+    source: string;
+    totalMembers: number;
+    withUsername: number;
+    withPhone: number;
+    members: TelegramMember[];
+}
+
+// Account status types
+type AccountStatus = 'connected' | 'flood' | 'restricted' | 'free' | 'checking';
+
+interface AccountStatusInfo {
+    status: AccountStatus;
+    lastCheck?: string;
+    message?: string;
 }
 
 interface LoginResponse {
@@ -115,6 +143,15 @@ export default function AdminTelegram() {
     const [loginCode, setLoginCode] = useState("");
     const [loginStep, setLoginStep] = useState<"phone" | "code">("phone");
     const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+    // Phase 1: New states
+    const [savedAudiences, setSavedAudiences] = useState<SavedAudience[]>([]);
+    const [accountStatuses, setAccountStatuses] = useState<Record<string, AccountStatusInfo>>({});
+    const [isVerifyingAccounts, setIsVerifyingAccounts] = useState(false);
+    const [verifyProgress, setVerifyProgress] = useState(0);
+    const [memberFilter, setMemberFilter] = useState<'all' | 'with_username' | 'without_username' | 'with_phone'>('all');
+    const [showSavedAudiences, setShowSavedAudiences] = useState(false);
+    const [audienceName, setAudienceName] = useState("");
 
     const fetchSessions = useCallback(async () => {
         try {
