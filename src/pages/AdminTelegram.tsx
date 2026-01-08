@@ -727,13 +727,48 @@ export default function AdminTelegram() {
                             {/* Login Card */}
                             <Card>
                                 <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                        <Users className="w-5 h-5" />
-                                        Contas Conectadas
-                                    </CardTitle>
-                                    <CardDescription>
-                                        Gerencie suas contas do Telegram para extração
-                                    </CardDescription>
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <CardTitle className="flex items-center gap-2">
+                                                <Users className="w-5 h-5" />
+                                                Contas Conectadas
+                                                {sessions.length > 0 && (
+                                                    <Badge variant="secondary">{sessions.length}</Badge>
+                                                )}
+                                            </CardTitle>
+                                            <CardDescription>
+                                                Gerencie suas contas do Telegram para extração
+                                            </CardDescription>
+                                        </div>
+                                        {sessions.length > 0 && (
+                                            <Button
+                                                size="sm"
+                                                variant="outline"
+                                                onClick={handleVerifyAllAccounts}
+                                                disabled={isVerifyingAccounts}
+                                            >
+                                                {isVerifyingAccounts ? (
+                                                    <>
+                                                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                                        {verifyProgress}%
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <RefreshCw className="w-4 h-4 mr-2" />
+                                                        Verificar Todas
+                                                    </>
+                                                )}
+                                            </Button>
+                                        )}
+                                    </div>
+                                    {isVerifyingAccounts && (
+                                        <div className="w-full bg-gray-700 rounded-full h-2 mt-3">
+                                            <div
+                                                className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                                                style={{ width: `${verifyProgress}%` }}
+                                            />
+                                        </div>
+                                    )}
                                 </CardHeader>
                                 <CardContent className="space-y-4">
                                     {/* Lista de Contas */}
@@ -754,17 +789,20 @@ export default function AdminTelegram() {
                                                                 <p className="font-medium text-sm">
                                                                     {session.first_name} {session.username ? `(@${session.username})` : ''}
                                                                 </p>
-                                                                {session.is_restricted && (
-                                                                    <Badge variant="destructive" className="text-[10px] h-5 px-1">
-                                                                        RESTRITO
-                                                                    </Badge>
-                                                                )}
+                                                                {accountStatuses[session.clean_phone] ?
+                                                                    getStatusBadge(accountStatuses[session.clean_phone].status) :
+                                                                    session.is_restricted && (
+                                                                        <Badge variant="destructive" className="text-[10px] h-5 px-1">
+                                                                            RESTRITO
+                                                                        </Badge>
+                                                                    )
+                                                                }
                                                             </div>
                                                             <p className="text-xs text-muted-foreground">
                                                                 {session.phone}
-                                                                {session.is_restricted && session.restriction_reason && (
-                                                                    <span className="text-red-400 block mt-0.5 text-[10px]">
-                                                                        {session.restriction_reason}
+                                                                {accountStatuses[session.clean_phone]?.lastCheck && (
+                                                                    <span className="text-gray-500 ml-2">
+                                                                        • Verificado: {new Date(accountStatuses[session.clean_phone].lastCheck!).toLocaleTimeString('pt-BR')}
                                                                     </span>
                                                                 )}
                                                             </p>
