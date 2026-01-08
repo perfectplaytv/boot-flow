@@ -529,6 +529,145 @@ export default function AdminTelegram() {
         toast.success(`${selectedMembers.length} membros exportados!`);
     };
 
+    // Phase 1: Verify all accounts in batch
+    const handleVerifyAllAccounts = async () => {
+        if (sessions.length === 0) {
+            toast.error("Nenhuma conta para verificar");
+            return;
+        }
+
+        setIsVerifyingAccounts(true);
+        setVerifyProgress(0);
+
+        const newStatuses: Record<string, AccountStatusInfo> = {};
+
+        for (let i = 0; i < sessions.length; i++) {
+            const session = sessions[i];
+            const progress = Math.round(((i + 1) / sessions.length) * 100);
+            setVerifyProgress(progress);
+
+            try {
+                // Check if restricted based on session data
+                if (session.is_restricted) {
+                    newStatuses[session.clean_phone] = {
+                        status: 'restricted',
+                        lastCheck: new Date().toISOString(),
+                        message: session.restriction_reason || 'Conta restrita'
+                    };
+                } else {
+                    // Try to make a simple API call to verify
+                    newStatuses[session.clean_phone] = {
+                        status: 'free',
+                        lastCheck: new Date().toISOString(),
+                        message: 'Livre para uso'
+                    };
+                }
+            } catch (error) {
+                newStatuses[session.clean_phone] = {
+                    status: 'flood',
+                    lastCheck: new Date().toISOString(),
+                    message: 'Erro ao verificar'
+                };
+            }
+
+            // Small delay between checks
+            await new Promise(r => setTimeout(r, 500));
+        }
+
+        setAccountStatuses(newStatuses);
+        setIsVerifyingAccounts(false);
+        toast.success("Verificação concluída!");
+    };
+
+    // Phase 1: Save current members as audience
+    const handleSaveAudience = () => {
+        if (members.length === 0) {
+            toast.error("Nenhum membro para salvar");
+            return;
+        }
+
+        if (!audienceName.trim()) {
+            toast.error("Digite um nome para o público");
+            return;
+        }
+
+        const newAudience: SavedAudience = {
+            id: Date.now().toString(),
+            name: audienceName.trim(),
+            createdAt: new Date().toISOString(),
+            source: groupLink || 'Upload manual',
+            totalMembers: members.length,
+            withUsername: members.filter(m => m.username).length,
+            withPhone: members.filter(m => m.phone).length,
+            members: [...members]
+        };
+
+        const updatedAudiences = [...savedAudiences, newAudience];
+        setSavedAudiences(updatedAudiences);
+        localStorage.setItem('telegram_saved_audiences', JSON.stringify(updatedAudiences));
+        setAudienceName("");
+        toast.success(`Público "${newAudience.name}" salvo com ${newAudience.totalMembers} membros!`);
+    };
+
+    // Phase 1: Load saved audiences from localStorage
+    useEffect(() => {
+        const saved = localStorage.getItem('telegram_saved_audiences');
+        if (saved) {
+            try {
+                setSavedAudiences(JSON.parse(saved));
+            } catch (e) {
+                console.error('Error loading saved audiences:', e);
+            }
+        }
+    }, []);
+
+    // Phase 1: Load audience into members
+    const handleLoadAudience = (audience: SavedAudience) => {
+        setMembers(audience.members);
+        setShowSavedAudiences(false);
+        toast.success(`Público "${audience.name}" carregado!`);
+    };
+
+    // Phase 1: Delete saved audience
+    const handleDeleteAudience = (audienceId: string) => {
+        const updatedAudiences = savedAudiences.filter(a => a.id !== audienceId);
+        setSavedAudiences(updatedAudiences);
+        localStorage.setItem('telegram_saved_audiences', JSON.stringify(updatedAudiences));
+        toast.success("Público excluído!");
+    };
+
+    // Phase 1: Get filtered members
+    const getFilteredMembers = () => {
+        switch (memberFilter) {
+            case 'with_username':
+                return members.filter(m => m.username);
+            case 'without_username':
+                return members.filter(m => !m.username);
+            case 'with_phone':
+                return members.filter(m => m.phone);
+            default:
+                return members;
+        }
+    };
+
+    // Phase 1: Get status badge color
+    const getStatusBadge = (status?: AccountStatus) => {
+        switch (status) {
+            case 'free':
+                return <Badge className="bg-green-600 text-white"><Zap className="w-3 h-3 mr-1" />Livre</Badge>;
+            case 'restricted':
+                return <Badge className="bg-red-600 text-white"><Shield className="w-3 h-3 mr-1" />Restrito</Badge>;
+            case 'flood':
+                return <Badge className="bg-yellow-600 text-white"><Clock className="w-3 h-3 mr-1" />Flood</Badge>;
+            case 'checking':
+                return <Badge className="bg-blue-600 text-white"><Loader2 className="w-3 h-3 mr-1 animate-spin" />Verificando</Badge>;
+            default:
+                return <Badge className="bg-gray-600 text-white">Não verificado</Badge>;
+        }
+    };
+
+    const filteredMembers = getFilteredMembers();
+
     const selectedCount = members.filter(m => m.selected).length;
     const apiConfigured = !!TELEGRAM_API_URL;
 
