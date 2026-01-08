@@ -195,7 +195,7 @@ export default function AdminUsers() {
   const handleAddUser = async () => {
     console.log("🔵 [DEBUG] handleAddUser chamado");
     console.log("🔵 [DEBUG] Estado newUser:", newUser);
-    
+
     // Validação completa dos campos obrigatórios
     if (!newUser.name || !newUser.email || !newUser.plan) {
       console.log("❌ [DEBUG] Validação falhou: campos obrigatórios não preenchidos");
@@ -265,95 +265,95 @@ export default function AdminUsers() {
 
       console.log("✅ [DEBUG] Cliente adicionado com sucesso!");
       setAddUserSuccess(true);
-      
+
       // Cancelar timeout de segurança já que a operação foi bem-sucedida
       if (timeoutId) {
         clearTimeout(timeoutId);
       }
 
-        // Atualizar Dashboard instantaneamente
-        console.log(
-          "📤 Clientes: Disparando evento refresh-dashboard após criar usuário"
+      // Atualizar Dashboard instantaneamente
+      console.log(
+        "📤 Clientes: Disparando evento refresh-dashboard após criar usuário"
+      );
+      try {
+        window.dispatchEvent(
+          new CustomEvent("refresh-dashboard", {
+            detail: { source: "users", action: "create" },
+          })
         );
-        try {
-          window.dispatchEvent(
-            new CustomEvent("refresh-dashboard", {
-              detail: { source: "users", action: "create" },
-            })
-          );
-          console.log("✅ Evento disparado com sucesso");
-        } catch (error) {
-          console.error("❌ Erro ao disparar evento:", error);
-        }
-
-        // Usar localStorage como fallback
-        try {
-          localStorage.setItem("dashboard-refresh", Date.now().toString());
-          console.log("✅ Flag localStorage definida");
-        } catch (error) {
-          console.error("❌ Erro ao definir flag localStorage:", error);
-        }
-
-        // Limpar formulário
-        setNewUser({
-          name: "",
-          email: "",
-          plan: "",
-          price: "",
-          status: "Ativo",
-          telegram: "",
-          observations: "",
-          expirationDate: "",
-          password: "",
-          bouquets: "",
-          realName: "", // Limpando também o campo realName
-          whatsapp: "",
-          devices: 0,
-          credits: 0,
-          notes: "",
-          server: "",
-          m3u_url: "",
-        });
-
-        // Limpar dados de extração
-        setM3uUrl("");
-        setExtractionResult(null);
-        setExtractionError("");
-
-        // Fechar modal após 1 segundo
-        setTimeout(() => {
-          setIsAddDialogOpen(false);
-          setAddUserSuccess(false);
-        }, 1000);
-      } catch (error: any) {
-        console.error("❌ [DEBUG] Erro ao adicionar usuário:", error);
-        
-        // Cancelar timeout de segurança já que houve erro
-        if (timeoutId) {
-          clearTimeout(timeoutId);
-        }
-        
-        const errorMessage = error?.message || error || "Erro desconhecido ao adicionar usuário.";
-        
-        // Mensagens específicas para diferentes tipos de erro
-        if (errorMessage.includes("duplicate key value") || errorMessage.includes("unique constraint")) {
-          alert("❌ Já existe um usuário com este e-mail!");
-        } else if (errorMessage.includes("row-level security") || errorMessage.includes("RLS")) {
-          alert("❌ Erro de permissão: Verifique se você está autenticado e se as políticas RLS estão configuradas corretamente.");
-        } else if (errorMessage.includes("autenticação") || errorMessage.includes("sessão expirou")) {
-          alert("❌ Sua sessão expirou. Por favor, faça login novamente.");
-        } else if (errorMessage.includes("NOT NULL") || errorMessage.includes("null value")) {
-          alert("❌ Erro: Alguns campos obrigatórios não foram preenchidos corretamente.");
-        } else {
-          alert(`❌ Erro ao adicionar usuário: ${errorMessage}`);
-        }
-      } finally {
-        console.log("🔄 [DEBUG] Finalizando processo (finally)...");
-        if (timeoutId) {
-          clearTimeout(timeoutId);
-        }
-        setIsAddingUser(false);
+        console.log("✅ Evento disparado com sucesso");
+      } catch (error) {
+        console.error("❌ Erro ao disparar evento:", error);
       }
+
+      // Usar localStorage como fallback
+      try {
+        localStorage.setItem("dashboard-refresh", Date.now().toString());
+        console.log("✅ Flag localStorage definida");
+      } catch (error) {
+        console.error("❌ Erro ao definir flag localStorage:", error);
+      }
+
+      // Limpar formulário
+      setNewUser({
+        name: "",
+        email: "",
+        plan: "",
+        price: "",
+        status: "Ativo",
+        telegram: "",
+        observations: "",
+        expirationDate: "",
+        password: "",
+        bouquets: "",
+        realName: "", // Limpando também o campo realName
+        whatsapp: "",
+        devices: 0,
+        credits: 0,
+        notes: "",
+        server: "",
+        m3u_url: "",
+      });
+
+      // Limpar dados de extração
+      setM3uUrl("");
+      setExtractionResult(null);
+      setExtractionError("");
+
+      // Fechar modal após 1 segundo
+      setTimeout(() => {
+        setIsAddDialogOpen(false);
+        setAddUserSuccess(false);
+      }, 1000);
+    } catch (error: any) {
+      console.error("❌ [DEBUG] Erro ao adicionar usuário:", error);
+
+      // Cancelar timeout de segurança já que houve erro
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+
+      const errorMessage = error?.message || error || "Erro desconhecido ao adicionar usuário.";
+
+      // Mensagens específicas para diferentes tipos de erro
+      if (errorMessage.includes("duplicate key value") || errorMessage.includes("unique constraint")) {
+        alert("❌ Já existe um usuário com este e-mail!");
+      } else if (errorMessage.includes("row-level security") || errorMessage.includes("RLS")) {
+        alert("❌ Erro de permissão: Verifique se você está autenticado e se as políticas RLS estão configuradas corretamente.");
+      } else if (errorMessage.includes("autenticação") || errorMessage.includes("sessão expirou")) {
+        alert("❌ Sua sessão expirou. Por favor, faça login novamente.");
+      } else if (errorMessage.includes("NOT NULL") || errorMessage.includes("null value")) {
+        alert("❌ Erro: Alguns campos obrigatórios não foram preenchidos corretamente.");
+      } else {
+        alert(`❌ Erro ao adicionar usuário: ${errorMessage}`);
+      }
+    } finally {
+      console.log("🔄 [DEBUG] Finalizando processo (finally)...");
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      setIsAddingUser(false);
+    }
   };
 
   const handleEditUser = async () => {
@@ -454,12 +454,12 @@ export default function AdminUsers() {
   const handleDeleteUser = async () => {
     if (deletingUser) {
       console.log("🔄 [AdminUsers] Iniciando exclusão do usuário:", deletingUser.id);
-      
+
       const success = await deleteUser(deletingUser.id);
 
       if (success) {
         console.log("✅ [AdminUsers] Usuário deletado com sucesso do Supabase");
-        
+
         // Atualizar Dashboard instantaneamente
         console.log(
           "📤 [AdminUsers] Disparando evento refresh-dashboard após deletar usuário"
@@ -485,14 +485,14 @@ export default function AdminUsers() {
 
         // Forçar atualização da lista local removendo o usuário deletado
         console.log("🔄 [AdminUsers] Atualizando lista local de usuários");
-        
+
         // Fechar modal
         setDeletingUser(null);
         setIsDeleteDialogOpen(false);
-        
+
         // Mostrar mensagem de sucesso
         alert("✅ Cliente excluído com sucesso!");
-        
+
         console.log("✅ [AdminUsers] Processo de exclusão concluído");
       } else {
         const errorMsg = error || "Erro ao deletar usuário. Verifique se você tem permissão no Supabase ou se há policies bloqueando a exclusão.";
@@ -569,16 +569,16 @@ export default function AdminUsers() {
         tipoPagoAtual: typeof pagoUser.pago,
         tipoPagoNovo: typeof newPagoStatus
       });
-      
+
       // Garantir que o valor seja boolean
       const pagoValue = Boolean(newPagoStatus);
       console.log(`🔄 [AdminUsers] Valor boolean garantido:`, pagoValue);
-      
+
       const success = await updateUser(pagoUser.id, { pago: pagoValue });
-      
+
       if (success) {
         console.log(`✅ [AdminUsers] Cliente ${pagoUser.name} marcado como ${newPagoStatus ? 'Pago' : 'Não Pago'}`);
-        
+
         // Fechar o modal
         setIsPagoDialogOpen(false);
         const userInfo = { ...pagoUser, pago: newPagoStatus };
@@ -589,9 +589,9 @@ export default function AdminUsers() {
         try {
           window.dispatchEvent(
             new CustomEvent("refresh-dashboard", {
-              detail: { 
-                source: "users", 
-                action: "update", 
+              detail: {
+                source: "users",
+                action: "update",
                 field: "pago",
                 userId: userInfo.id,
                 pago: newPagoStatus,
@@ -604,7 +604,7 @@ export default function AdminUsers() {
         } catch (error) {
           console.error("❌ [AdminUsers] Erro ao disparar evento:", error);
         }
-        
+
         // Usar localStorage como fallback
         try {
           localStorage.setItem("dashboard-refresh", Date.now().toString());
@@ -617,20 +617,20 @@ export default function AdminUsers() {
           setTimeout(async () => {
             console.log('🔄 [AdminUsers] Forçando atualização da lista após delay...');
             await fetchClientes();
-            
+
             // Disparar eventos adicionais para garantir atualização do dashboard
             setTimeout(() => {
               window.dispatchEvent(
                 new CustomEvent("refresh-dashboard", {
-                  detail: { 
-                    source: "users", 
-                    action: "update", 
+                  detail: {
+                    source: "users",
+                    action: "update",
                     field: "pago",
                     forceRefresh: true
                   },
                 })
               );
-              
+
               // Última tentativa de atualização
               if (fetchClientes) {
                 fetchClientes();
@@ -834,8 +834,8 @@ export default function AdminUsers() {
               observations: `Usuário: ${data.user_info.username} | Acesso direto`,
               expirationDate: data.user_info.exp_date
                 ? new Date(parseInt(data.user_info.exp_date) * 1000)
-                    .toISOString()
-                    .split("T")[0]
+                  .toISOString()
+                  .split("T")[0]
                 : "",
               password: data.user_info.password || password,
               bouquets: "",
@@ -951,8 +951,8 @@ export default function AdminUsers() {
               observations.length > 0 ? observations.join(" | ") : "",
             expirationDate: data.user_info.exp_date
               ? new Date(parseInt(data.user_info.exp_date) * 1000)
-                  .toISOString()
-                  .split("T")[0]
+                .toISOString()
+                .split("T")[0]
               : "",
             password: data.user_info.password || password,
             bouquets: Array.isArray(bouquetsData)
@@ -1061,9 +1061,8 @@ export default function AdminUsers() {
           <p className="text-gray-400 text-sm sm:text-base">
             {loading
               ? "Carregando..."
-              : `Gerencie todos os usuários do sistema (${
-                  (users || []).length
-                } usuários)`}
+              : `Gerencie todos os usuários do sistema (${(users || []).length
+              } usuários)`}
           </p>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
@@ -1080,9 +1079,9 @@ export default function AdminUsers() {
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-2xl font-bold">Adicionar um Cliente</h2>
                   <div className="flex items-center gap-2">
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       className="text-gray-400 hover:text-white"
                       onClick={() => setIsAddDialogOpen(false)}
                     >
@@ -1092,12 +1091,12 @@ export default function AdminUsers() {
                     </Button>
                   </div>
                 </div>
-                
-                <form onSubmit={async (e) => { 
-                  e.preventDefault(); 
+
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
                   e.stopPropagation();
                   console.log("🔵 [AdminUsers] Form submit disparado!");
-                  await handleAddUser(); 
+                  await handleAddUser();
                 }} className="space-y-6 flex-1 overflow-y-auto">
                   <div className="flex items-center gap-2 mb-4">
                     <span className="text-green-400 text-xs font-medium">• Campos obrigatórios marcados com *</span>
@@ -1108,11 +1107,28 @@ export default function AdminUsers() {
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-blue-300 font-medium">Extração M3U</span>
                       <div className="flex gap-2">
-                        <Button className="bg-blue-600 text-white hover:bg-blue-700 px-4 py-1 rounded text-sm" onClick={extractM3UData} disabled={isExtracting}>Extrair</Button>
+                        <button
+                          className="inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-10 bg-blue-600 text-white hover:bg-blue-700 px-4 py-1 rounded text-sm"
+                          type="button"
+                          onClick={extractM3UData}
+                          disabled={isExtracting}
+                        >
+                          {isExtracting ? (
+                            <>
+                              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
+                              Extraindo...
+                            </>
+                          ) : "Extrair"}
+                        </button>
                       </div>
                     </div>
                     <p className="text-xs text-blue-300 mb-2">Serve para importar dados automaticamente a partir de uma URL.</p>
-                    <Input placeholder="Insira a URL do M3U para extrair automaticamente os dados do cliente..." className="bg-[#1f2937] border border-blue-800 text-white mb-2" value={m3uUrl} onChange={e => setM3uUrl(e.target.value)} />
+                    <input
+                      className="flex h-10 w-full rounded-md px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-[#1f2937] border border-blue-800 text-white mb-2"
+                      placeholder="Insira a URL do M3U para extrair automaticamente os dados do cliente..."
+                      value={m3uUrl}
+                      onChange={e => setM3uUrl(e.target.value)}
+                    />
                     {extractionError && (
                       <div className="bg-red-900/40 border border-red-700 text-red-300 text-xs rounded p-2 mb-2">❌ {extractionError}</div>
                     )}
@@ -1127,16 +1143,16 @@ export default function AdminUsers() {
                       {/* Servidor */}
                       <div className="col-span-1">
                         <label htmlFor="add-server" className="block text-gray-300 mb-1 font-medium">
-                            Servidor *
-                          </label>
-                          <Input
-                            id="add-server"
-                            type="text"
-                            value={newUser.server || ""}
-                            onChange={(e) => setNewUser({ ...newUser, server: e.target.value })}
-                            placeholder="Digite o nome do servidor"
-                            className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                          />
+                          Servidor *
+                        </label>
+                        <Input
+                          id="add-server"
+                          type="text"
+                          value={newUser.server || ""}
+                          onChange={(e) => setNewUser({ ...newUser, server: e.target.value })}
+                          placeholder="Digite o nome do servidor"
+                          className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+                        />
                       </div>
                       {/* Plano */}
                       <div className="col-span-1">
@@ -1257,16 +1273,16 @@ export default function AdminUsers() {
                         <label htmlFor="add-devices" className="block text-gray-300 mb-1 font-medium">
                           Dispositivos
                         </label>
-                          <Input
-                            id="add-devices"
-                            type="number"
-                            placeholder="0"
-                            className="bg-[#23272f] border border-gray-700 text-white"
-                            value={newUser.devices}
-                            onChange={(e) =>
-                              setNewUser({ ...newUser, devices: parseInt(e.target.value) || 0 })
-                            }
-                          />
+                        <Input
+                          id="add-devices"
+                          type="number"
+                          placeholder="0"
+                          className="bg-[#23272f] border border-gray-700 text-white"
+                          value={newUser.devices}
+                          onChange={(e) =>
+                            setNewUser({ ...newUser, devices: parseInt(e.target.value) || 0 })
+                          }
+                        />
                       </div>
                       {/* Créditos */}
                       <div className="col-span-1">
@@ -1389,7 +1405,7 @@ export default function AdminUsers() {
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Botões de Ação */}
                   <div className="flex justify-end gap-3 pt-4 border-t border-gray-700">
                     <Button
@@ -1576,15 +1592,14 @@ export default function AdminUsers() {
                   </TableCell>
                   <TableCell>
                     <Badge
-                      className={`text-xs ${
-                        user.status === "Ativo"
+                      className={`text-xs ${user.status === "Ativo"
                           ? "bg-green-700 text-green-200"
                           : user.status === "Inativo"
-                          ? "bg-red-700 text-red-200"
-                          : user.status === "Pendente"
-                          ? "bg-yellow-700 text-yellow-200"
-                          : "bg-gray-700 text-gray-300"
-                      }`}
+                            ? "bg-red-700 text-red-200"
+                            : user.status === "Pendente"
+                              ? "bg-yellow-700 text-yellow-200"
+                              : "bg-gray-700 text-gray-300"
+                        }`}
                     >
                       {user.status}
                     </Badge>
@@ -1593,7 +1608,7 @@ export default function AdminUsers() {
                     {user.devices || 0}
                   </TableCell>
                   <TableCell className="hidden lg:table-cell text-gray-300 text-xs sm:text-sm">
-                    {user.expiration_date 
+                    {user.expiration_date
                       ? new Date(user.expiration_date).toLocaleDateString('pt-BR')
                       : "-"}
                   </TableCell>
@@ -1626,11 +1641,10 @@ export default function AdminUsers() {
                       <Button
                         size="sm"
                         variant={user.pago ? "default" : "outline"}
-                        className={`${
-                          user.pago
+                        className={`${user.pago
                             ? "bg-green-600 text-white hover:bg-green-700 border-green-600"
                             : "border-green-600 text-green-400 hover:bg-green-600 hover:text-white bg-background"
-                        } h-8 w-8 sm:h-9 sm:w-9 p-0 rounded-md`}
+                          } h-8 w-8 sm:h-9 sm:w-9 p-0 rounded-md`}
                         onClick={() => openPagoModal(user)}
                         title={user.pago ? "Marcar como Não Pago" : "Marcar como Pago"}
                       >
@@ -1742,10 +1756,10 @@ export default function AdminUsers() {
                           viewingUser.status === "Ativo"
                             ? "bg-green-600 text-white"
                             : viewingUser.status === "Inativo"
-                            ? "bg-red-600 text-white"
-                            : viewingUser.status === "Pendente"
-                            ? "bg-yellow-600 text-white"
-                            : "bg-gray-600 text-white"
+                              ? "bg-red-600 text-white"
+                              : viewingUser.status === "Pendente"
+                                ? "bg-yellow-600 text-white"
+                                : "bg-gray-600 text-white"
                         }
                       >
                         {viewingUser.status}
@@ -1796,44 +1810,44 @@ export default function AdminUsers() {
                 {(viewingUser.phone ||
                   viewingUser.telegram ||
                   viewingUser.whatsapp) && (
-                  <div className="bg-[#23272f] rounded-lg p-4">
-                    <h3 className="text-lg font-semibold text-white mb-4">
-                      Contatos
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {viewingUser.phone && (
-                        <div>
-                          <Label className="text-gray-400 text-sm">
-                            Telefone
-                          </Label>
-                          <p className="text-white font-medium">
-                            {viewingUser.phone}
-                          </p>
-                        </div>
-                      )}
-                      {viewingUser.telegram && (
-                        <div>
-                          <Label className="text-gray-400 text-sm">
-                            Telegram
-                          </Label>
-                          <p className="text-white font-medium">
-                            {viewingUser.telegram}
-                          </p>
-                        </div>
-                      )}
-                      {viewingUser.whatsapp && (
-                        <div>
-                          <Label className="text-gray-400 text-sm">
-                            WhatsApp
-                          </Label>
-                          <p className="text-white font-medium">
-                            {viewingUser.whatsapp}
-                          </p>
-                        </div>
-                      )}
+                    <div className="bg-[#23272f] rounded-lg p-4">
+                      <h3 className="text-lg font-semibold text-white mb-4">
+                        Contatos
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {viewingUser.phone && (
+                          <div>
+                            <Label className="text-gray-400 text-sm">
+                              Telefone
+                            </Label>
+                            <p className="text-white font-medium">
+                              {viewingUser.phone}
+                            </p>
+                          </div>
+                        )}
+                        {viewingUser.telegram && (
+                          <div>
+                            <Label className="text-gray-400 text-sm">
+                              Telegram
+                            </Label>
+                            <p className="text-white font-medium">
+                              {viewingUser.telegram}
+                            </p>
+                          </div>
+                        )}
+                        {viewingUser.whatsapp && (
+                          <div>
+                            <Label className="text-gray-400 text-sm">
+                              WhatsApp
+                            </Label>
+                            <p className="text-white font-medium">
+                              {viewingUser.whatsapp}
+                            </p>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
                 {/* Observações */}
                 {(viewingUser.notes || viewingUser.observations) && (
@@ -1851,43 +1865,43 @@ export default function AdminUsers() {
                 {(viewingUser.password ||
                   viewingUser.expirationDate ||
                   viewingUser.bouquets) && (
-                  <div className="bg-[#23272f] rounded-lg p-4">
-                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                      <Activity className="w-5 h-5 text-purple-400" />
-                      Dados Extras
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {viewingUser.password && (
-                        <div>
-                          <Label className="text-gray-400 text-sm">Senha</Label>
-                          <p className="text-white font-medium">
-                            {viewingUser.password}
-                          </p>
-                        </div>
-                      )}
-                      {viewingUser.expirationDate && (
-                        <div>
-                          <Label className="text-gray-400 text-sm">
-                            Data de Vencimento
-                          </Label>
-                          <p className="text-white font-medium">
-                            {viewingUser.expirationDate}
-                          </p>
-                        </div>
-                      )}
-                      {viewingUser.bouquets && (
-                        <div>
-                          <Label className="text-gray-400 text-sm">
-                            Bouquets
-                          </Label>
-                          <p className="text-white font-medium">
-                            {viewingUser.bouquets}
-                          </p>
-                        </div>
-                      )}
+                    <div className="bg-[#23272f] rounded-lg p-4">
+                      <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                        <Activity className="w-5 h-5 text-purple-400" />
+                        Dados Extras
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {viewingUser.password && (
+                          <div>
+                            <Label className="text-gray-400 text-sm">Senha</Label>
+                            <p className="text-white font-medium">
+                              {viewingUser.password}
+                            </p>
+                          </div>
+                        )}
+                        {viewingUser.expirationDate && (
+                          <div>
+                            <Label className="text-gray-400 text-sm">
+                              Data de Vencimento
+                            </Label>
+                            <p className="text-white font-medium">
+                              {viewingUser.expirationDate}
+                            </p>
+                          </div>
+                        )}
+                        {viewingUser.bouquets && (
+                          <div>
+                            <Label className="text-gray-400 text-sm">
+                              Bouquets
+                            </Label>
+                            <p className="text-white font-medium">
+                              {viewingUser.bouquets}
+                            </p>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
               </div>
             )}
 
@@ -1978,11 +1992,10 @@ export default function AdminUsers() {
                   {/* Status de extração */}
                   {extractionError && (
                     <div
-                      className={`border text-xs rounded p-2 mb-2 ${
-                        extractionError.includes("Testando proxy")
+                      className={`border text-xs rounded p-2 mb-2 ${extractionError.includes("Testando proxy")
                           ? "bg-blue-900/40 border-blue-700 text-blue-300"
                           : "bg-red-900/40 border-red-700 text-red-300"
-                      }`}
+                        }`}
                     >
                       {extractionError.includes("Testando proxy") ? "🔄" : "❌"}{" "}
                       {extractionError}
@@ -2557,9 +2570,8 @@ export default function AdminUsers() {
         <AlertDialogContent className="bg-[#1f2937] text-white border border-gray-700">
           <AlertDialogHeader>
             <div className="flex items-center gap-3 mb-4">
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                pagoUser?.pago ? "bg-yellow-600" : "bg-green-600"
-              }`}>
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${pagoUser?.pago ? "bg-yellow-600" : "bg-green-600"
+                }`}>
                 <DollarSign className="w-6 h-6 text-white" />
               </div>
               <div>
@@ -2567,7 +2579,7 @@ export default function AdminUsers() {
                   {pagoUser?.pago ? "Desmarcar Pagamento" : "Confirmar Pagamento"}
                 </AlertDialogTitle>
                 <AlertDialogDescription className="text-gray-400">
-                  {pagoUser?.pago 
+                  {pagoUser?.pago
                     ? "Deseja realmente desmarcar o pagamento deste cliente? A receita será atualizada no dashboard."
                     : "Confirme se este cliente realizou o pagamento. O valor será adicionado à receita total no dashboard."
                   }
@@ -2607,11 +2619,10 @@ export default function AdminUsers() {
               </div>
 
               {pagoUser.price && (
-                <div className={`rounded-lg p-4 border-2 ${
-                  pagoUser.pago 
-                    ? "bg-yellow-900/20 border-yellow-600/50" 
+                <div className={`rounded-lg p-4 border-2 ${pagoUser.pago
+                    ? "bg-yellow-900/20 border-yellow-600/50"
                     : "bg-green-900/20 border-green-600/50"
-                }`}>
+                  }`}>
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-gray-400 text-sm">
@@ -2623,16 +2634,14 @@ export default function AdminUsers() {
                         </span>
                       </p>
                     </div>
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                      pagoUser.pago ? "bg-yellow-600/20" : "bg-green-600/20"
-                    }`}>
-                      <DollarSign className={`w-6 h-6 ${
-                        pagoUser.pago ? "text-yellow-400" : "text-green-400"
-                      }`} />
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${pagoUser.pago ? "bg-yellow-600/20" : "bg-green-600/20"
+                      }`}>
+                      <DollarSign className={`w-6 h-6 ${pagoUser.pago ? "text-yellow-400" : "text-green-400"
+                        }`} />
                     </div>
                   </div>
                   <p className="text-xs text-gray-400 mt-2">
-                    {pagoUser.pago 
+                    {pagoUser.pago
                       ? "Este valor será subtraído da Receita Total no Dashboard."
                       : "Este valor será adicionado à Receita Total no Dashboard."
                     }
@@ -2643,7 +2652,7 @@ export default function AdminUsers() {
           )}
 
           <AlertDialogFooter>
-            <AlertDialogCancel 
+            <AlertDialogCancel
               className="bg-gray-700 text-white border border-gray-600 hover:bg-gray-600"
               onClick={() => {
                 setIsPagoDialogOpen(false);
@@ -2654,11 +2663,10 @@ export default function AdminUsers() {
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmTogglePago}
-              className={`${
-                pagoUser?.pago 
-                  ? "bg-yellow-600 hover:bg-yellow-700" 
+              className={`${pagoUser?.pago
+                  ? "bg-yellow-600 hover:bg-yellow-700"
                   : "bg-green-600 hover:bg-green-700"
-              } text-white`}
+                } text-white`}
             >
               {pagoUser?.pago ? "Desmarcar Pagamento" : "Confirmar Pagamento"}
             </AlertDialogAction>
