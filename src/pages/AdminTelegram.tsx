@@ -114,14 +114,7 @@ export default function AdminTelegram() {
     const [loginStep, setLoginStep] = useState<"phone" | "code">("phone");
     const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-    // Verificar status da sessão ao carregar
-    useEffect(() => {
-        if (TELEGRAM_API_URL) {
-            checkSessionStatus();
-        }
-    }, []);
-
-    const fetchSessions = async () => {
+    const fetchSessions = useCallback(async () => {
         try {
             const response = await fetch(`${TELEGRAM_API_URL}/sessions`);
             const data = await response.json() as SessionsResponse;
@@ -129,21 +122,21 @@ export default function AdminTelegram() {
             if (data.sessions) {
                 setSessions(data.sessions);
                 // Select first session if none selected
-                if (data.sessions.length > 0 && !activeSessionPhone) {
-                    setActiveSessionPhone(data.sessions[0].clean_phone);
+                if (data.sessions.length > 0) {
+                    setActiveSessionPhone(prev => prev || data.sessions[0].clean_phone);
                 }
             }
         } catch (error) {
             console.error("Erro ao buscar sessões:", error);
         }
-    };
+    }, []);
 
     // Verificar status da sessão ao carregar
     useEffect(() => {
         if (TELEGRAM_API_URL) {
             fetchSessions();
         }
-    }, []);
+    }, [fetchSessions]);
 
     // Iniciar login
     const handleStartLogin = async () => {
