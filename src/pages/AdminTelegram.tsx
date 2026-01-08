@@ -460,6 +460,38 @@ export default function AdminTelegram() {
         setImportResults(null);
     };
 
+    // Export members to CSV
+    const handleExportCSV = () => {
+        const selectedMembers = members.filter(m => m.selected);
+        if (selectedMembers.length === 0) {
+            toast.error("Selecione pelo menos um membro para exportar.");
+            return;
+        }
+
+        const headers = ['ID', 'Username', 'Nome', 'Sobrenome', 'Telefone'];
+        const csvData = selectedMembers.map(m => [
+            m.id,
+            m.username ? `@${m.username}` : '',
+            m.firstName,
+            m.lastName,
+            m.phone
+        ]);
+
+        const csvContent = [headers, ...csvData]
+            .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+            .join('\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `telegram_membros_${new Date().toISOString().split('T')[0]}.csv`;
+        link.click();
+        URL.revokeObjectURL(url);
+
+        toast.success(`${selectedMembers.length} membros exportados!`);
+    };
+
     const selectedCount = members.filter(m => m.selected).length;
     const apiConfigured = !!TELEGRAM_API_URL;
 
@@ -888,6 +920,10 @@ export default function AdminTelegram() {
                             </Button>
                             <Button variant="outline" size="sm" onClick={() => toggleAll(false)}>
                                 Desmarcar Todos
+                            </Button>
+                            <Button variant="secondary" size="sm" onClick={handleExportCSV}>
+                                <Download className="w-4 h-4 mr-1" />
+                                Exportar CSV
                             </Button>
                             <Button variant="destructive" size="sm" onClick={handleClear}>
                                 <Trash2 className="w-4 h-4" />
