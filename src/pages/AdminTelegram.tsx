@@ -899,100 +899,174 @@ export default function AdminTelegram() {
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                             {/* Login Card */}
                             <Card>
-                                <CardHeader>
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <CardTitle className="flex items-center gap-2">
-                                                <Users className="w-5 h-5" />
-                                                Contas Conectadas
-                                                {sessions.length > 0 && (
-                                                    <Badge variant="secondary">{sessions.length}</Badge>
-                                                )}
-                                            </CardTitle>
-                                            <CardDescription>
-                                                Gerencie suas contas do Telegram para extração
-                                            </CardDescription>
+                                <CardHeader className="pb-3">
+                                    <div className="flex flex-col gap-4">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <CardTitle className="flex items-center gap-2 text-xl">
+                                                    <Users className="w-6 h-6" />
+                                                    Gerenciar Contas
+                                                    {sessions.length > 0 && (
+                                                        <Badge variant="secondary" className="text-sm">{sessions.length}</Badge>
+                                                    )}
+                                                </CardTitle>
+                                                <CardDescription>
+                                                    Conecte múltiplas contas para automação
+                                                </CardDescription>
+                                            </div>
                                         </div>
-                                        {sessions.length > 0 && (
+
+                                        {/* Action Bar */}
+                                        <div className="flex flex-wrap gap-2">
+                                            <Button size="sm" className="bg-green-600 hover:bg-green-700" onClick={() => setIsAddingAccount(true)}>
+                                                <UserPlus className="w-4 h-4 mr-1" />
+                                                Adicionar
+                                            </Button>
+                                            <Button size="sm" variant="destructive" disabled={sessions.length === 0}>
+                                                <Trash2 className="w-4 h-4 mr-1" />
+                                                Remover
+                                            </Button>
+                                            <Button size="sm" variant="outline" disabled={sessions.length === 0}>
+                                                <Download className="w-4 h-4 mr-1" />
+                                                Exportar
+                                            </Button>
+                                            <Button size="sm" variant="outline">
+                                                <Upload className="w-4 h-4 mr-1" />
+                                                Importar
+                                            </Button>
                                             <Button
                                                 size="sm"
-                                                variant="outline"
+                                                className="bg-blue-600 hover:bg-blue-700"
                                                 onClick={handleVerifyAllAccounts}
-                                                disabled={isVerifyingAccounts}
+                                                disabled={isVerifyingAccounts || sessions.length === 0}
                                             >
-                                                {isVerifyingAccounts ? (
-                                                    <>
-                                                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                                        {verifyProgress}%
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <RefreshCw className="w-4 h-4 mr-2" />
-                                                        Verificar Todas
-                                                    </>
-                                                )}
+                                                <RefreshCw className={`w-4 h-4 mr-1 ${isVerifyingAccounts ? 'animate-spin' : ''}`} />
+                                                Verificar contas ({sessions.length})
                                             </Button>
-                                        )}
-                                    </div>
-                                    {isVerifyingAccounts && (
-                                        <div className="w-full bg-gray-700 rounded-full h-2 mt-3">
-                                            <div
-                                                className="bg-blue-500 h-2 rounded-full transition-all duration-300"
-                                                style={{ width: `${verifyProgress}%` }}
-                                            />
                                         </div>
-                                    )}
+                                    </div>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
-                                    {/* Lista de Contas */}
-                                    {sessions.length > 0 && (
-                                        <div className="space-y-2 mb-4">
-                                            {sessions.map((session) => (
-                                                <div key={session.clean_phone} className={`flex items-center justify-between p-3 rounded-lg border ${activeSessionPhone === session.clean_phone ? 'border-primary bg-primary/10' : 'border-border'}`}>
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="bg-blue-500/20 p-2 rounded-full">
-                                                            {session.is_restricted ? (
-                                                                <AlertCircle className="w-4 h-4 text-red-500" />
-                                                            ) : (
-                                                                <CheckCircle className="w-4 h-4 text-blue-500" />
-                                                            )}
-                                                        </div>
-                                                        <div>
-                                                            <div className="flex items-center gap-2">
-                                                                <p className="font-medium text-sm">
-                                                                    {session.first_name} {session.username ? `(@${session.username})` : ''}
-                                                                </p>
-                                                                {accountStatuses[session.clean_phone] ?
-                                                                    getStatusBadge(accountStatuses[session.clean_phone].status) :
-                                                                    session.is_restricted && (
-                                                                        <Badge variant="destructive" className="text-[10px] h-5 px-1">
-                                                                            RESTRITO
-                                                                        </Badge>
-                                                                    )
-                                                                }
-                                                            </div>
-                                                            <p className="text-xs text-muted-foreground">
-                                                                {session.phone}
-                                                                {accountStatuses[session.clean_phone]?.lastCheck && (
-                                                                    <span className="text-gray-500 ml-2">
-                                                                        • Verificado: {new Date(accountStatuses[session.clean_phone].lastCheck!).toLocaleTimeString('pt-BR')}
-                                                                    </span>
-                                                                )}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                    <div className="flex gap-2">
-                                                        {activeSessionPhone !== session.clean_phone && (
-                                                            <Button size="sm" variant="ghost" onClick={() => setActiveSessionPhone(session.clean_phone)}>
-                                                                Selecionar
-                                                            </Button>
-                                                        )}
-                                                        <Button size="icon" variant="ghost" className="text-red-500 hover:text-red-600 hover:bg-red-500/10" onClick={() => handleLogout(session.clean_phone)}>
-                                                            <Trash2 className="w-4 h-4" />
-                                                        </Button>
-                                                    </div>
-                                                </div>
-                                            ))}
+                                    {/* Verification Progress Modal */}
+                                    {isVerifyingAccounts && (
+                                        <div className="bg-blue-950/30 border border-blue-800/50 rounded-lg p-4 space-y-3">
+                                            <div className="flex items-center justify-between">
+                                                <h4 className="font-medium">Verificando contas</h4>
+                                                <span className="text-sm text-muted-foreground">{verifyProgress}%</span>
+                                            </div>
+                                            <div className="w-full bg-gray-700 rounded-full h-3">
+                                                <div
+                                                    className="bg-green-500 h-3 rounded-full transition-all duration-300"
+                                                    style={{ width: `${verifyProgress}%` }}
+                                                />
+                                            </div>
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-xs text-muted-foreground">
+                                                    Verificando conta {Math.ceil((verifyProgress / 100) * sessions.length)}/{sessions.length}...
+                                                </span>
+                                                <Button size="sm" variant="destructive" onClick={() => setIsVerifyingAccounts(false)}>
+                                                    Cancelar
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Accounts Table */}
+                                    {sessions.length > 0 ? (
+                                        <div className="rounded-md border overflow-hidden">
+                                            <Table>
+                                                <TableHeader>
+                                                    <TableRow className="bg-muted/50">
+                                                        <TableHead className="w-12">Cód.</TableHead>
+                                                        <TableHead>Nº Telefone</TableHead>
+                                                        <TableHead>Status</TableHead>
+                                                        <TableHead>Nome</TableHead>
+                                                        <TableHead>Última Verificação</TableHead>
+                                                        <TableHead>Detalhes</TableHead>
+                                                        <TableHead className="w-20">Ações</TableHead>
+                                                    </TableRow>
+                                                </TableHeader>
+                                                <TableBody>
+                                                    {sessions.map((session, index) => {
+                                                        const status = accountStatuses[session.clean_phone];
+                                                        return (
+                                                            <TableRow
+                                                                key={session.clean_phone}
+                                                                className={activeSessionPhone === session.clean_phone ? 'bg-blue-950/30' : ''}
+                                                            >
+                                                                <TableCell className="font-mono text-xs">{index + 1}</TableCell>
+                                                                <TableCell className="font-mono">{session.phone}</TableCell>
+                                                                <TableCell>
+                                                                    {session.is_restricted ? (
+                                                                        <Badge className="bg-red-600">Restrito</Badge>
+                                                                    ) : status?.status === 'flood' ? (
+                                                                        <Badge className="bg-yellow-600">Flood</Badge>
+                                                                    ) : (
+                                                                        <Badge className="bg-green-600">Conectada</Badge>
+                                                                    )}
+                                                                </TableCell>
+                                                                <TableCell>
+                                                                    {session.first_name || '-'} {session.username ? `(@${session.username})` : ''}
+                                                                </TableCell>
+                                                                <TableCell className="text-xs text-muted-foreground">
+                                                                    {status?.lastCheck
+                                                                        ? new Date(status.lastCheck).toLocaleString('pt-BR')
+                                                                        : '-'
+                                                                    }
+                                                                </TableCell>
+                                                                <TableCell>
+                                                                    {session.is_restricted ? (
+                                                                        <span className="flex items-center gap-1 text-red-400 text-xs">
+                                                                            <AlertCircle className="w-3 h-3" />
+                                                                            Conta com restrição
+                                                                        </span>
+                                                                    ) : status?.status === 'flood' ? (
+                                                                        <span className="flex items-center gap-1 text-yellow-400 text-xs">
+                                                                            <Clock className="w-3 h-3" />
+                                                                            Restrição temporária
+                                                                        </span>
+                                                                    ) : (
+                                                                        <span className="flex items-center gap-1 text-green-400 text-xs">
+                                                                            <CheckCircle className="w-3 h-3" />
+                                                                            A conta está livre para uso
+                                                                        </span>
+                                                                    )}
+                                                                </TableCell>
+                                                                <TableCell>
+                                                                    <div className="flex gap-1">
+                                                                        {activeSessionPhone !== session.clean_phone && (
+                                                                            <Button
+                                                                                size="icon"
+                                                                                variant="ghost"
+                                                                                className="h-7 w-7"
+                                                                                onClick={() => setActiveSessionPhone(session.clean_phone)}
+                                                                                title="Selecionar"
+                                                                            >
+                                                                                <CheckCircle className="w-4 h-4 text-blue-400" />
+                                                                            </Button>
+                                                                        )}
+                                                                        <Button
+                                                                            size="icon"
+                                                                            variant="ghost"
+                                                                            className="h-7 w-7 text-red-500 hover:text-red-400"
+                                                                            onClick={() => handleLogout(session.clean_phone)}
+                                                                            title="Remover"
+                                                                        >
+                                                                            <Trash2 className="w-4 h-4" />
+                                                                        </Button>
+                                                                    </div>
+                                                                </TableCell>
+                                                            </TableRow>
+                                                        );
+                                                    })}
+                                                </TableBody>
+                                            </Table>
+                                        </div>
+                                    ) : (
+                                        <div className="text-center py-8 text-muted-foreground">
+                                            <Users className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                                            <p>Nenhuma conta conectada</p>
+                                            <p className="text-xs">Clique em "Adicionar" para conectar sua primeira conta</p>
                                         </div>
                                     )}
 
