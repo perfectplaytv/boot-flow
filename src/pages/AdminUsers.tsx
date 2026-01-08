@@ -136,16 +136,16 @@ export default function AdminUsers() {
   // Estados para a extração M3U
   const [m3uUrl, setM3uUrl] = useState("");
   const [isExtracting, setIsExtracting] = useState(false);
-  const [extractionResult, setExtractionResult] = useState<any>(null);
+  const [extractionResult, setExtractionResult] = useState<{ success: boolean; message: string; data: unknown } | null>(null);
   const [extractionError, setExtractionError] = useState("");
-  const [extractedUsers, setExtractedUsers] = useState<any[]>([]);
-  const [selectedExtractedUser, setSelectedExtractedUser] = useState<any>(null);
+  const [extractedUsers, setExtractedUsers] = useState<unknown[]>([]);
+  const [selectedExtractedUser, setSelectedExtractedUser] = useState<unknown | null>(null);
 
   // Estados para os modais de ação
-  const [editingUser, setEditingUser] = useState<any | null>(null);
-  const [viewingUser, setViewingUser] = useState<any | null>(null);
-  const [deletingUser, setDeletingUser] = useState<any | null>(null);
-  const [pagoUser, setPagoUser] = useState<any | null>(null);
+  const [editingUser, setEditingUser] = useState<Partial<Cliente> | null>(null);
+  const [viewingUser, setViewingUser] = useState<Cliente | null>(null);
+  const [deletingUser, setDeletingUser] = useState<Cliente | null>(null);
+  const [pagoUser, setPagoUser] = useState<Cliente | null>(null);
 
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
