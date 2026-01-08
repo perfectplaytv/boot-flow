@@ -1198,10 +1198,10 @@ export default function AdminTelegram() {
 
             {/* Tabs para métodos de importação */}
             <Tabs defaultValue="automatic" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 mb-6">
+                <TabsList className="grid w-full grid-cols-4 mb-6">
                     <TabsTrigger value="automatic" className="flex items-center gap-2">
                         <Link className="w-4 h-4" />
-                        Extração Automática
+                        Extração
                         {apiConfigured && <Badge variant="secondary" className="text-xs">API</Badge>}
                     </TabsTrigger>
                     <TabsTrigger value="campaigns" className="flex items-center gap-2">
@@ -1212,6 +1212,11 @@ export default function AdminTelegram() {
                     <TabsTrigger value="buttons" className="flex items-center gap-2">
                         <Link className="w-4 h-4" />
                         Botões
+                    </TabsTrigger>
+                    <TabsTrigger value="chatbots" className="flex items-center gap-2">
+                        <Bot className="w-4 h-4" />
+                        ChatBots
+                        {chatbotRules.length > 0 && <Badge variant="secondary" className="text-xs">{chatbotRules.length}</Badge>}
                     </TabsTrigger>
                 </TabsList>
 
