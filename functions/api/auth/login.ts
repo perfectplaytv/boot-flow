@@ -13,7 +13,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     const db = getDb(context.env.DB);
 
     try {
-        const { email, password } = await context.request.json() as any;
+        const { email, password } = await context.request.json() as { email?: string; password?: string };
 
         if (!email || !password) {
             return new Response(JSON.stringify({ error: 'Email e senha obrigatórios' }), { status: 400 });

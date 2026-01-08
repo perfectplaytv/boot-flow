@@ -13,7 +13,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     const db = getDb(context.env.DB);
 
     try {
-        const { email, password, name, plan } = await context.request.json() as any;
+        const { email, password, name, plan } = await context.request.json() as { email?: string; password?: string; name?: string; plan?: string };
 
         if (!email || !password || !name) {
             return new Response(JSON.stringify({ error: 'Dados incompletos' }), { status: 400 });
