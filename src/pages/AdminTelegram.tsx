@@ -1539,6 +1539,105 @@ export default function AdminTelegram() {
                                     </div>
                                 )}
 
+                                {/* Grid de Cronograma (se cronograma) */}
+                                {newSchedule.mode === 'cron' && (
+                                    <div className="space-y-4 pt-3 border-t">
+                                        <div className="flex items-center justify-between">
+                                            <h4 className="font-medium text-sm">Programação de envio da mensagem</h4>
+                                            <Badge variant="secondary">{countScheduledSlots()} slots</Badge>
+                                        </div>
+
+                                        {/* Grid Table */}
+                                        <div className="overflow-x-auto">
+                                            <div className="min-w-[600px]">
+                                                {/* Header - Hours */}
+                                                <div className="flex">
+                                                    <div className="w-12 flex-shrink-0"></div>
+                                                    {Array.from({ length: 24 }, (_, i) => (
+                                                        <div key={i} className="flex-1 text-center text-[10px] text-muted-foreground font-mono">
+                                                            {i}h
+                                                        </div>
+                                                    ))}
+                                                </div>
+
+                                                {/* Days */}
+                                                {[
+                                                    { key: 'seg', label: 'Seg' },
+                                                    { key: 'ter', label: 'Ter' },
+                                                    { key: 'qua', label: 'Qua' },
+                                                    { key: 'qui', label: 'Qui' },
+                                                    { key: 'sex', label: 'Sex' },
+                                                    { key: 'sab', label: 'Sab' },
+                                                    { key: 'dom', label: 'Dom' }
+                                                ].map(({ key, label }) => (
+                                                    <div key={key} className="flex items-center">
+                                                        <div className="w-12 flex-shrink-0 text-xs font-medium text-muted-foreground">
+                                                            {label}
+                                                        </div>
+                                                        {Array.from({ length: 24 }, (_, hour) => (
+                                                            <button
+                                                                key={hour}
+                                                                type="button"
+                                                                onClick={() => toggleCronCell(key, hour)}
+                                                                className={`flex-1 h-6 border border-gray-700 transition-all ${cronSchedule[key]?.[hour]
+                                                                        ? 'bg-blue-500 hover:bg-blue-600'
+                                                                        : 'bg-gray-800 hover:bg-gray-700'
+                                                                    }`}
+                                                                title={`${label} ${hour}h`}
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {/* Date Range Options */}
+                                        <div className="grid grid-cols-2 gap-4 pt-3">
+                                            <div className="space-y-2">
+                                                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={useStartDate}
+                                                        onChange={(e) => setUseStartDate(e.target.checked)}
+                                                        className="w-4 h-4"
+                                                    />
+                                                    Definir data de início
+                                                </label>
+                                                {useStartDate && (
+                                                    <Input
+                                                        type="date"
+                                                        value={cronStartDate}
+                                                        onChange={(e) => setCronStartDate(e.target.value)}
+                                                    />
+                                                )}
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={useEndDate}
+                                                        onChange={(e) => setUseEndDate(e.target.checked)}
+                                                        className="w-4 h-4"
+                                                    />
+                                                    Definir data de término
+                                                </label>
+                                                {useEndDate && (
+                                                    <Input
+                                                        type="date"
+                                                        value={cronEndDate}
+                                                        onChange={(e) => setCronEndDate(e.target.value)}
+                                                    />
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Banner */}
+                                        <div className="bg-gradient-to-r from-blue-600 to-cyan-600 rounded-lg p-3 text-white text-center text-sm">
+                                            Crie uma programação de postagens automática. Antecipe a postagem de toda a semana! Menos esforço e Mais tempo livre!
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* Botões de Ação */}
                                 <div className="flex gap-2 pt-4">
                                     <Button variant="outline" className="flex-1 gap-1">
