@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -17,27 +18,8 @@ export default function Login() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Verificar se o AuthProvider está disponível
-  let authContext;
-  try {
-    authContext = useAuth();
-  } catch (err) {
-    console.error('AuthContext não disponível:', err);
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted/20">
-        <div className="text-center p-8">
-          <h1 className="text-2xl font-bold mb-4">Erro de Configuração</h1>
-          <p className="text-muted-foreground mb-4">O sistema de autenticação não está disponível.</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90"
-          >
-            Recarregar Página
-          </button>
-        </div>
-      </div>
-    );
-  }
+  // Hook deve ser incondicional
+  const authContext = useAuth();
 
   const { signIn, signInWithGoogle } = authContext;
 
@@ -55,7 +37,6 @@ export default function Login() {
       if (error) throw error;
 
       // O redirecionamento será feito automaticamente pelo AuthContext baseado no role
-      // Não precisa navegar manualmente aqui
     } catch (error: any) {
       setError(error.message || "Erro ao fazer login. Tente novamente.");
     } finally {

@@ -10,6 +10,12 @@ export interface User {
   role: 'admin' | 'reseller' | 'client';
 }
 
+interface AuthResponse {
+  user: User;
+  token: string;
+  error?: string;
+}
+
 interface AuthContextType {
   user: User | null;
   token: string | null;
@@ -19,13 +25,12 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string, userData: { full_name: string; role?: 'admin' | 'reseller' | 'client' }) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
-  // Métodos simplificados ou removemos se não usar mais
   resetPassword: (email: string) => Promise<{ error: Error | null }>;
   updateProfile: (updates: Partial<User>) => Promise<{ error: Error | null }>;
   refreshSession: () => Promise<void>;
-  signInWithGoogle: () => Promise<{ error: Error | null }>; // Placeholder por enquanto
-  profile: any; // Mantendo para compatibilidade
-  session: any; // Mantendo para compatibilidade
+  signInWithGoogle: () => Promise<{ error: Error | null }>;
+  profile: any;
+  session: any;
 }
 
 interface AuthProviderProps {
@@ -48,7 +53,6 @@ export const AuthProvider = ({ children, navigate }: AuthProviderProps) => {
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Helper para navegação segura
   const safeNavigate = useCallback((path: string) => {
     if (window.location.pathname !== path) {
       if (navigate) navigate(path);
@@ -65,7 +69,6 @@ export const AuthProvider = ({ children, navigate }: AuthProviderProps) => {
     }
   }, [safeNavigate]);
 
-  // Carregar sessão do LocalStorage ao iniciar
   useEffect(() => {
     const loadSession = () => {
       const storedToken = localStorage.getItem('auth_token');
@@ -80,7 +83,6 @@ export const AuthProvider = ({ children, navigate }: AuthProviderProps) => {
     loadSession();
   }, []);
 
-  // LOGIN
   const signIn = async (email: string, password: string) => {
     try {
       setLoading(true);
@@ -91,23 +93,20 @@ export const AuthProvider = ({ children, navigate }: AuthProviderProps) => {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
+      const data = await response.json() as AuthResponse;
 
       if (!response.ok) {
         throw new Error(data.error || 'Falha ao fazer login');
       }
 
-      // Sucesso
       const userData = data.user;
       const authToken = data.token;
 
-      // Ajuste para garantir que role existe
       if (!userData.role) userData.role = 'client';
 
       setUser(userData);
       setToken(authToken);
 
-      // Persistir
       localStorage.setItem('auth_token', authToken);
       localStorage.setItem('auth_user', JSON.stringify(userData));
 
@@ -124,7 +123,6 @@ export const AuthProvider = ({ children, navigate }: AuthProviderProps) => {
     }
   };
 
-  // REGISTRO
   const signUp = async (email: string, password: string, userData: { full_name: string; role?: 'admin' | 'reseller' | 'client' }) => {
     try {
       setLoading(true);
@@ -140,13 +138,12 @@ export const AuthProvider = ({ children, navigate }: AuthProviderProps) => {
         }),
       });
 
-      const data = await response.json();
+      const data = await response.json() as AuthResponse;
 
       if (!response.ok) {
         throw new Error(data.error || 'Falha no registro');
       }
 
-      // Auto-login após registro
       const newUser = data.user;
       const newToken = data.token;
       if (!newUser.role) newUser.role = userData.role || 'client';
@@ -168,7 +165,6 @@ export const AuthProvider = ({ children, navigate }: AuthProviderProps) => {
     }
   };
 
-  // LOGOUT
   const signOut = async () => {
     setUser(null);
     setToken(null);
@@ -178,8 +174,6 @@ export const AuthProvider = ({ children, navigate }: AuthProviderProps) => {
     toast.success('Logout realizado.');
   };
 
-  // MÉTODOS NÃO IMPLEMENTADOS (PLACEHOLDERS)
-  // Para manter compatibilidade e não quebrar componentes que chamam isso
   const signInWithGoogle = async () => {
     toast.info('Login com Google desativado nesta versão.');
     return { error: null };
@@ -189,7 +183,6 @@ export const AuthProvider = ({ children, navigate }: AuthProviderProps) => {
     return { error: null };
   };
   const updateProfile = async (updates: Partial<User>) => {
-    // Aqui poderíamos chamar uma API /api/users/me (PUT)
     toast.success('Dados salvos localmente (Demo).');
     if (user) {
       const newUser = { ...user, ...updates };
