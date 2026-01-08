@@ -1052,6 +1052,10 @@ export default function AdminTelegram() {
                         Campanhas
                         {scheduledMessages.length > 0 && <Badge variant="secondary" className="text-xs">{scheduledMessages.length}</Badge>}
                     </TabsTrigger>
+                    <TabsTrigger value="buttons" className="flex items-center gap-2">
+                        <Link className="w-4 h-4" />
+                        Botões
+                    </TabsTrigger>
                 </TabsList>
 
                 {/* Tab: Extração Automática */}
@@ -1580,8 +1584,8 @@ export default function AdminTelegram() {
                                                                 type="button"
                                                                 onClick={() => toggleCronCell(key, hour)}
                                                                 className={`flex-1 h-6 border border-gray-700 transition-all ${cronSchedule[key]?.[hour]
-                                                                        ? 'bg-blue-500 hover:bg-blue-600'
-                                                                        : 'bg-gray-800 hover:bg-gray-700'
+                                                                    ? 'bg-blue-500 hover:bg-blue-600'
+                                                                    : 'bg-gray-800 hover:bg-gray-700'
                                                                     }`}
                                                                 title={`${label} ${hour}h`}
                                                             />
