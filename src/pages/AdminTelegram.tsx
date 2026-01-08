@@ -897,8 +897,8 @@ export default function AdminTelegram() {
                         </Card>
                     ) : (
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            {/* Login Card */}
-                            <Card>
+                            {/* Accounts Table Card - Full Width */}
+                            <Card className="lg:col-span-3">
                                 <CardHeader className="pb-3">
                                     <div className="flex flex-col gap-4">
                                         <div className="flex items-center justify-between">
@@ -1070,13 +1070,8 @@ export default function AdminTelegram() {
                                         </div>
                                     )}
 
-                                    {/* Botão Adicionar Conta */}
-                                    {!isAddingAccount ? (
-                                        <Button variant="outline" className="w-full border-dashed" onClick={() => setIsAddingAccount(true)}>
-                                            <UserPlus className="w-4 h-4 mr-2" />
-                                            Adicionar Nova Conta
-                                        </Button>
-                                    ) : (
+                                    {/* Add Account Form */}
+                                    {isAddingAccount && (
                                         <div className="border rounded-lg p-4 space-y-4 bg-muted/30">
                                             <div className="flex justify-between items-center mb-2">
                                                 <h4 className="text-sm font-medium">Nova Conexão</h4>
