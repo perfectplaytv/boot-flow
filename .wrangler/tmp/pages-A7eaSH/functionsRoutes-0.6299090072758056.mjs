@@ -6,6 +6,7 @@ import { onRequestPatch as __api_resellers__id__ts_onRequestPatch } from "D:\\bo
 import { onRequestDelete as __api_users__id__ts_onRequestDelete } from "D:\\boot-flow\\functions\\api\\users\\[id].ts"
 import { onRequestPatch as __api_users__id__ts_onRequestPatch } from "D:\\boot-flow\\functions\\api\\users\\[id].ts"
 import { onRequestGet as __api_storage___path___ts_onRequestGet } from "D:\\boot-flow\\functions\\api\\storage\\[[path]].ts"
+import { onRequestGet as __api_proxy_ts_onRequestGet } from "D:\\boot-flow\\functions\\api\\proxy.ts"
 import { onRequestGet as __api_resellers_index_ts_onRequestGet } from "D:\\boot-flow\\functions\\api\\resellers\\index.ts"
 import { onRequestPost as __api_resellers_index_ts_onRequestPost } from "D:\\boot-flow\\functions\\api\\resellers\\index.ts"
 import { onRequestGet as __api_users_index_ts_onRequestGet } from "D:\\boot-flow\\functions\\api\\users\\index.ts"
@@ -67,6 +68,13 @@ export const routes = [
       method: "GET",
       middlewares: [],
       modules: [__api_storage___path___ts_onRequestGet],
+    },
+  {
+      routePath: "/api/proxy",
+      mountPath: "/api",
+      method: "GET",
+      middlewares: [],
+      modules: [__api_proxy_ts_onRequestGet],
     },
   {
       routePath: "/api/resellers",

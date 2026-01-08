@@ -32,7 +32,7 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
-// ../.wrangler/tmp/bundle-QhAfi5/checked-fetch.js
+// ../.wrangler/tmp/bundle-y1pdDF/checked-fetch.js
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
     (typeof request === "string" ? new Request(request, init) : request).url
@@ -50,7 +50,7 @@ function checkURL(request, init) {
 }
 var urls;
 var init_checked_fetch = __esm({
-  "../.wrangler/tmp/bundle-QhAfi5/checked-fetch.js"() {
+  "../.wrangler/tmp/bundle-y1pdDF/checked-fetch.js"() {
     urls = /* @__PURE__ */ new Set();
     __name(checkURL, "checkURL");
     globalThis.fetch = new Proxy(globalThis.fetch, {
@@ -10650,8 +10650,50 @@ var init_path = __esm({
   }
 });
 
+// api/proxy.ts
+async function onRequestGet2(context) {
+  const { request } = context;
+  const url = new URL(request.url);
+  const targetUrl = url.searchParams.get("url");
+  if (!targetUrl) {
+    return new Response(JSON.stringify({ error: "Missing 'url' parameter" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+  try {
+    const response = await fetch(targetUrl, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+      }
+    });
+    const data = await response.text();
+    const contentType = response.headers.get("content-type") || "text/plain";
+    return new Response(data, {
+      status: response.status,
+      headers: {
+        "Content-Type": contentType,
+        "Access-Control-Allow-Origin": "*"
+        // Optional if same origin
+      }
+    });
+  } catch (error) {
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+}
+var init_proxy = __esm({
+  "api/proxy.ts"() {
+    init_functionsRoutes_0_9630232642821417();
+    init_checked_fetch();
+    __name(onRequestGet2, "onRequestGet");
+  }
+});
+
 // api/resellers/index.ts
-var onRequestGet2, onRequestPost4;
+var onRequestGet3, onRequestPost4;
 var init_resellers = __esm({
   "api/resellers/index.ts"() {
     init_functionsRoutes_0_9630232642821417();
@@ -10660,7 +10702,7 @@ var init_resellers = __esm({
     init_schema();
     init_drizzle_orm();
     init_bcryptjs();
-    onRequestGet2 = /* @__PURE__ */ __name(async (context) => {
+    onRequestGet3 = /* @__PURE__ */ __name(async (context) => {
       const db = getDb(context.env.DB);
       try {
         const list = await db.select().from(resellers).all();
@@ -10736,14 +10778,14 @@ var init_resellers = __esm({
 });
 
 // api/users/index.ts
-var onRequestGet3, onRequestPost5;
+var onRequestGet4, onRequestPost5;
 var init_users = __esm({
   "api/users/index.ts"() {
     init_functionsRoutes_0_9630232642821417();
     init_checked_fetch();
     init_db2();
     init_schema();
-    onRequestGet3 = /* @__PURE__ */ __name(async (context) => {
+    onRequestGet4 = /* @__PURE__ */ __name(async (context) => {
       const db = getDb(context.env.DB);
       try {
         const allUsers = await db.select().from(users).all();
@@ -10782,6 +10824,7 @@ var init_functionsRoutes_0_9630232642821417 = __esm({
     init_id2();
     init_id2();
     init_path();
+    init_proxy();
     init_resellers();
     init_resellers();
     init_users();
@@ -10844,11 +10887,18 @@ var init_functionsRoutes_0_9630232642821417 = __esm({
         modules: [onRequestGet]
       },
       {
+        routePath: "/api/proxy",
+        mountPath: "/api",
+        method: "GET",
+        middlewares: [],
+        modules: [onRequestGet2]
+      },
+      {
         routePath: "/api/resellers",
         mountPath: "/api/resellers",
         method: "GET",
         middlewares: [],
-        modules: [onRequestGet2]
+        modules: [onRequestGet3]
       },
       {
         routePath: "/api/resellers",
@@ -10862,7 +10912,7 @@ var init_functionsRoutes_0_9630232642821417 = __esm({
         mountPath: "/api/users",
         method: "GET",
         middlewares: [],
-        modules: [onRequestGet3]
+        modules: [onRequestGet4]
       },
       {
         routePath: "/api/users",
@@ -10875,11 +10925,11 @@ var init_functionsRoutes_0_9630232642821417 = __esm({
   }
 });
 
-// ../.wrangler/tmp/bundle-QhAfi5/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-y1pdDF/middleware-loader.entry.ts
 init_functionsRoutes_0_9630232642821417();
 init_checked_fetch();
 
-// ../.wrangler/tmp/bundle-QhAfi5/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-y1pdDF/middleware-insertion-facade.js
 init_functionsRoutes_0_9630232642821417();
 init_checked_fetch();
 
@@ -11380,7 +11430,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-QhAfi5/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-y1pdDF/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -11414,7 +11464,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-QhAfi5/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-y1pdDF/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

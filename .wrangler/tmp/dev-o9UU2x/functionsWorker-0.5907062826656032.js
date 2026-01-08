@@ -79,7 +79,7 @@ function checkURL2(request, init) {
 __name(checkURL2, "checkURL");
 var urls2;
 var init_checked_fetch = __esm({
-  "../.wrangler/tmp/bundle-w4YAYc/checked-fetch.js"() {
+  "../.wrangler/tmp/bundle-R2bZUU/checked-fetch.js"() {
     urls2 = /* @__PURE__ */ new Set();
     __name2(checkURL2, "checkURL");
     globalThis.fetch = new Proxy(globalThis.fetch, {
@@ -11142,7 +11142,48 @@ var init_path = __esm({
     }, "onRequestGet");
   }
 });
-var onRequestGet2;
+async function onRequestGet2(context) {
+  const { request } = context;
+  const url = new URL(request.url);
+  const targetUrl = url.searchParams.get("url");
+  if (!targetUrl) {
+    return new Response(JSON.stringify({ error: "Missing 'url' parameter" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+  try {
+    const response = await fetch(targetUrl, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+      }
+    });
+    const data = await response.text();
+    const contentType = response.headers.get("content-type") || "text/plain";
+    return new Response(data, {
+      status: response.status,
+      headers: {
+        "Content-Type": contentType,
+        "Access-Control-Allow-Origin": "*"
+        // Optional if same origin
+      }
+    });
+  } catch (error) {
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+}
+__name(onRequestGet2, "onRequestGet2");
+var init_proxy = __esm({
+  "api/proxy.ts"() {
+    init_functionsRoutes_0_6299090072758056();
+    init_checked_fetch();
+    __name2(onRequestGet2, "onRequestGet");
+  }
+});
+var onRequestGet3;
 var onRequestPost4;
 var init_resellers = __esm({
   "api/resellers/index.ts"() {
@@ -11152,7 +11193,7 @@ var init_resellers = __esm({
     init_schema();
     init_drizzle_orm();
     init_bcryptjs();
-    onRequestGet2 = /* @__PURE__ */ __name2(async (context) => {
+    onRequestGet3 = /* @__PURE__ */ __name2(async (context) => {
       const db = getDb(context.env.DB);
       try {
         const list = await db.select().from(resellers).all();
@@ -11226,7 +11267,7 @@ var init_resellers = __esm({
     }, "onRequestPost");
   }
 });
-var onRequestGet3;
+var onRequestGet4;
 var onRequestPost5;
 var init_users = __esm({
   "api/users/index.ts"() {
@@ -11234,7 +11275,7 @@ var init_users = __esm({
     init_checked_fetch();
     init_db2();
     init_schema();
-    onRequestGet3 = /* @__PURE__ */ __name2(async (context) => {
+    onRequestGet4 = /* @__PURE__ */ __name2(async (context) => {
       const db = getDb(context.env.DB);
       try {
         const allUsers = await db.select().from(users).all();
@@ -11271,6 +11312,7 @@ var init_functionsRoutes_0_6299090072758056 = __esm({
     init_id2();
     init_id2();
     init_path();
+    init_proxy();
     init_resellers();
     init_resellers();
     init_users();
@@ -11333,11 +11375,18 @@ var init_functionsRoutes_0_6299090072758056 = __esm({
         modules: [onRequestGet]
       },
       {
+        routePath: "/api/proxy",
+        mountPath: "/api",
+        method: "GET",
+        middlewares: [],
+        modules: [onRequestGet2]
+      },
+      {
         routePath: "/api/resellers",
         mountPath: "/api/resellers",
         method: "GET",
         middlewares: [],
-        modules: [onRequestGet2]
+        modules: [onRequestGet3]
       },
       {
         routePath: "/api/resellers",
@@ -11351,7 +11400,7 @@ var init_functionsRoutes_0_6299090072758056 = __esm({
         mountPath: "/api/users",
         method: "GET",
         middlewares: [],
-        modules: [onRequestGet3]
+        modules: [onRequestGet4]
       },
       {
         routePath: "/api/users",

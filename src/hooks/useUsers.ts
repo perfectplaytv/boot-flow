@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
 
+import { useState, useEffect, useCallback } from 'react';
+
+// Interface compatível com o resto da aplicação
 export interface User {
   id: number;
   name: string;
@@ -22,6 +23,10 @@ export interface User {
   m3u_url?: string;
   real_name?: string;
   updated_at?: string;
+  server?: string;
+  pago?: boolean | number | string;
+  price?: string;
+  admin_id?: string;
 }
 
 export const useUsers = () => {
@@ -29,54 +34,44 @@ export const useUsers = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      
-      const { data, error: fetchError } = await supabase
-        .from('users')
-        .select('*')
-        .order('created_at', { ascending: false });
 
-      if (fetchError) {
-        setError(fetchError.message);
-        console.error('Erro ao buscar usuários:', fetchError);
-        return;
+      const response = await fetch('/api/users');
+      if (!response.ok) {
+        throw new Error(`Erro API: ${response.status}`);
       }
 
-      setUsers(data || []);
+      const data = await response.json();
+      setUsers(Array.isArray(data) ? data : []);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
       setError(errorMessage);
-      console.error('Erro ao buscar usuários:', err);
+      console.error('Erro ao buscar usuários (useUsers):', err);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const addUser = async (user: Omit<User, 'id' | 'created_at' | 'updated_at'>) => {
     try {
       setError(null);
-      
-      const { data, error: insertError } = await supabase
-        .from('users')
-        .insert([{
-          ...user,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }])
-        .select()
-        .single();
+      const response = await fetch('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(user)
+      });
 
-      if (insertError) {
-        setError(insertError.message);
-        console.error('Erro ao adicionar usuário:', insertError);
-        throw insertError;
+      if (!response.ok) {
+        const errData = await response.json() as any;
+        throw new Error(errData.error || 'Erro ao adicionar usuário');
       }
 
-      setUsers(prevUsers => [data, ...prevUsers]);
-      return data;
+      const newUser = await response.json();
+      setUsers(prevUsers => [newUser, ...prevUsers]);
+      return newUser;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
       setError(errorMessage);
@@ -87,27 +82,22 @@ export const useUsers = () => {
   const updateUser = async (id: number, updates: Partial<User>) => {
     try {
       setError(null);
-      
-      const { data, error: updateError } = await supabase
-        .from('users')
-        .update({
-          ...updates,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', id)
-        .select()
-        .single();
+      const response = await fetch(`/api/users/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      });
 
-      if (updateError) {
-        setError(updateError.message);
-        console.error('Erro ao atualizar usuário:', updateError);
-        throw updateError;
+      if (!response.ok) {
+        const errData = await response.json() as any;
+        throw new Error(errData.error || 'Erro ao atualizar usuário');
       }
 
-      setUsers(prevUsers => 
-        prevUsers.map(user => user.id === id ? { ...user, ...data } : user)
+      const updatedUser = await response.json();
+      setUsers(prevUsers =>
+        prevUsers.map(user => user.id === id ? { ...user, ...updatedUser } : user)
       );
-      return data;
+      return updatedUser;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
       setError(errorMessage);
@@ -118,16 +108,12 @@ export const useUsers = () => {
   const deleteUser = async (id: number) => {
     try {
       setError(null);
-      
-      const { error: deleteError } = await supabase
-        .from('users')
-        .delete()
-        .eq('id', id);
+      const response = await fetch(`/api/users/${id}`, {
+        method: 'DELETE'
+      });
 
-      if (deleteError) {
-        setError(deleteError.message);
-        console.error('Erro ao deletar usuário:', deleteError);
-        throw deleteError;
+      if (!response.ok) {
+        throw new Error('Erro ao deletar usuário');
       }
 
       setUsers(prevUsers => prevUsers.filter(user => user.id !== id));
@@ -148,7 +134,7 @@ export const useUsers = () => {
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [fetchUsers]);
 
   return {
     users,
@@ -161,4 +147,4 @@ export const useUsers = () => {
     getUserById,
     refetch: fetchUsers
   };
-}; 
+};

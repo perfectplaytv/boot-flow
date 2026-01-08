@@ -521,21 +521,8 @@ const AdminDashboard = () => {
     }
   }, [statsError]);
 
-  // Sistema de Proxy CORS Multi-Fallback (apenas HTTPS para evitar Mixed Content)
-  const corsProxies = [
-    {
-      name: "api.allorigins.win",
-      url: (targetUrl: string) =>
-        `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
-    },
-    {
-      name: "corsproxy.io",
-      url: (targetUrl: string) =>
-        `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,
-    },
-  ];
 
-  // Função para extrair dados M3U usando o sistema que funcionou
+  // Função para extrair dados M3U usando o proxy local
   const extractM3UData = async () => {
     if (!m3uUrl.trim()) {
       setExtractionError("Por favor, insira uma URL M3U válida.");
@@ -562,231 +549,71 @@ const AdminDashboard = () => {
       // Construir URLs da API
       const apiUrl = `${baseUrl}/player_api.php?username=${username}&password=${password}`;
 
-      // Verificar se é HTTP e avisar sobre Mixed Content
-      if (urlObj.protocol === "http:") {
-        console.log(
-          "URL HTTP detectada - usando proxies para evitar Mixed Content"
-        );
-        setExtractionError("URL HTTP detectada - usando proxies seguros...");
-      } else {
-        // Tentar primeiro sem proxy (se for HTTPS)
-        try {
-          console.log("Tentando acesso direto...");
-          setExtractionError("Tentando acesso direto...");
+      console.log("Tentando acessar via proxy local...");
+      setExtractionError("Acessando...");
 
-          const response = await fetch(apiUrl, {
-            method: "GET",
-            headers: {
-              Accept: "application/json",
-              "Content-Type": "application/json",
-            },
-          });
+      const proxyUrl = `/api/proxy?url=${encodeURIComponent(apiUrl)}`;
 
-          if (response.ok) {
-            const text = await response.text();
-            let data;
+      const response = await fetch(proxyUrl);
 
-            try {
-              data = JSON.parse(text);
-            } catch (parseError) {
-              throw new Error("Resposta não é um JSON válido.");
-            }
-
-            if (!data.user_info) {
-              throw new Error("Dados do usuário não encontrados na resposta.");
-            }
-
-            console.log("Sucesso com acesso direto!");
-
-            // Aplicar dados extraídos ao formulário
-            const extractedData = {
-              name: data.user_info.username,
-              email: `${data.user_info.username}@iptv.com`,
-              plan: data.user_info.is_trial === "1" ? "Trial" : "Premium",
-              price: "",
-              status: data.user_info.status === "Active" ? "Ativo" : "Inativo",
-              telegram: data.user_info.username
-                ? `@${data.user_info.username}`
-                : "",
-              observations: `Usuário: ${data.user_info.username} | Acesso direto`,
-              expirationDate: data.user_info.exp_date
-                ? new Date(parseInt(data.user_info.exp_date) * 1000)
-                  .toISOString()
-                  .split("T")[0]
-                : "",
-              password: data.user_info.password || password,
-              bouquets: "",
-              realName: "",
-              whatsapp: "",
-              devices: data.user_info.max_connections
-                ? parseInt(data.user_info.max_connections)
-                : 1,
-              credits: 0,
-              notes: "",
-              server: "",
-              m3u_url: "",
-            };
-
-            setNewUser(extractedData as typeof newUser);
-
-            setExtractionResult({
-              success: true,
-              message: `Dados extraídos com sucesso! Usuário: ${data.user_info.username}`,
-              data: data,
-            });
-
-            setExtractionError("");
-            return;
-          }
-        } catch (directError) {
-          console.log("Acesso direto falhou, tentando proxies...");
-        }
+      if (!response.ok) {
+        throw new Error(`Erro ao acessar proxy: ${response.status}`);
       }
 
-      // Tentar com diferentes proxies
-      for (let i = 0; i < corsProxies.length; i++) {
-        const proxy = corsProxies[i];
-        const proxiedUrl = `${proxy.url(apiUrl)}`;
+      const text = await response.text();
+      let data;
 
-        try {
-          console.log(
-            `Tentando proxy ${i + 1}/${corsProxies.length}: ${proxy.name}`
-          );
-          setExtractionError(
-            `Testando proxy ${i + 1}/${corsProxies.length}...`
-          );
-
-          const response = await fetch(proxiedUrl, {
-            method: "GET",
-            headers: {
-              Accept: "application/json",
-              "Content-Type": "application/json",
-            },
-            mode: "cors",
-          });
-
-          if (!response.ok) {
-            if (response.status === 403) {
-              throw new Error("Acesso negado. Verifique suas credenciais.");
-            } else if (response.status === 404) {
-              throw new Error("Servidor IPTV não encontrado.");
-            } else {
-              throw new Error(`Erro HTTP: ${response.status}`);
-            }
-          }
-
-          const text = await response.text();
-          let data;
-
-          try {
-            data = JSON.parse(text);
-          } catch (parseError) {
-            throw new Error("Resposta não é um JSON válido.");
-          }
-
-          if (!data.user_info) {
-            throw new Error("Dados do usuário não encontrados na resposta.");
-          }
-
-          console.log(`Sucesso com proxy: ${proxy.name}`);
-
-          // Preparar observações com dados reais
-          const observations = [];
-          if (data.user_info.username)
-            observations.push(`Usuário: ${data.user_info.username}`);
-          if (data.user_info.password)
-            observations.push(`Senha: ${data.user_info.password}`);
-          if (data.user_info.exp_date) {
-            const expDate = new Date(parseInt(data.user_info.exp_date) * 1000);
-            observations.push(`Expira: ${expDate.toLocaleDateString("pt-BR")}`);
-          }
-          if (data.user_info.max_connections)
-            observations.push(`Conexões: ${data.user_info.max_connections}`);
-          if (data.user_info.active_cons)
-            observations.push(`Ativas: ${data.user_info.active_cons}`);
-
-          // Aplicar dados extraídos ao formulário
-          const extractedData = {
-            name: data.user_info.username || username,
-            email: `${data.user_info.username || username}@iptv.com`,
-            plan: data.user_info.is_trial === "1" ? "Trial" : "Premium",
-            price: "",
-            status: data.user_info.status === "Active" ? "Ativo" : "Inativo",
-            telegram: data.user_info.username
-              ? `@${data.user_info.username}`
-              : "",
-            observations:
-              observations.length > 0 ? observations.join(" | ") : "",
-            expirationDate: data.user_info.exp_date
-              ? new Date(parseInt(data.user_info.exp_date) * 1000)
-                .toISOString()
-                .split("T")[0]
-              : "",
-            password: data.user_info.password || password,
-            bouquets: "Premium, Sports, Movies",
-            realName: "",
-            whatsapp: "",
-            devices: data.user_info.max_connections
-              ? parseInt(data.user_info.max_connections)
-              : 1,
-            credits: 0,
-            notes: "",
-            server: "",
-            m3u_url: "",
-          };
-
-          setNewUser(extractedData);
-
-          setExtractionResult({
-            success: true,
-            message: `Dados extraídos com sucesso! Usuário: ${data.user_info.username}`,
-            data: data,
-          });
-
-          setExtractionError("");
-          return;
-        } catch (error) {
-          console.log(`Falha com proxy ${proxy.name}:`, error);
-
-          if (i === corsProxies.length - 1) {
-            // Se todos os proxies falharam, usar dados simulados como fallback
-            console.log("Todos os proxies falharam, usando dados simulados...");
-            setExtractionError("Proxies falharam, usando dados simulados...");
-
-            // Simular dados baseados na URL
-            const extractedData = {
-              name: username,
-              email: `${username}@iptv.com`,
-              plan: "Premium",
-              price: "",
-              status: "Ativo",
-              telegram: `@${username}`,
-              observations: `Usuário: ${username} | Senha: ${password} | Dados simulados`,
-              expirationDate: "",
-              password: password,
-              bouquets: "",
-              realName: "",
-              whatsapp: "",
-              devices: 1,
-              credits: 0,
-              notes: "",
-              server: "",
-              m3u_url: "",
-            };
-
-            setNewUser(extractedData as typeof newUser);
-
-            setExtractionResult({
-              success: true,
-              message: `Dados simulados aplicados! Usuário: ${username}`,
-              data: { user_info: { username, password } },
-            });
-
-            setExtractionError("");
-            return;
-          }
-        }
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        throw new Error("Resposta inválida (não é JSON).");
       }
+
+      if (!data.user_info) {
+        throw new Error("Dados do usuário não encontrados na resposta.");
+      }
+
+      console.log("Sucesso via proxy local!");
+
+      // Aplicar dados extraídos ao formulário
+      const extractedData = {
+        name: data.user_info.username,
+        email: `${data.user_info.username}@iptv.com`,
+        plan: data.user_info.is_trial === "1" ? "Trial" : "Premium",
+        price: "",
+        status: data.user_info.status === "Active" ? "Ativo" : "Inativo",
+        telegram: data.user_info.username
+          ? `@${data.user_info.username}`
+          : "",
+        observations: `Usuário: ${data.user_info.username} | Via Proxy Local`,
+        expirationDate: data.user_info.exp_date
+          ? new Date(parseInt(data.user_info.exp_date) * 1000)
+            .toISOString()
+            .split("T")[0]
+          : "",
+        password: data.user_info.password || password,
+        bouquets: "",
+        realName: "",
+        whatsapp: "",
+        devices: data.user_info.max_connections
+          ? parseInt(data.user_info.max_connections)
+          : 1,
+        credits: 0,
+        notes: "",
+        server: "",
+        m3u_url: "",
+      };
+
+      setNewUser(extractedData as typeof newUser);
+
+      setExtractionResult({
+        success: true,
+        message: `Dados extraídos com sucesso! Usuário: ${data.user_info.username}`,
+        data: data,
+      });
+
+      setExtractionError("");
+
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Erro desconhecido";
