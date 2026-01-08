@@ -1875,7 +1875,10 @@ const AdminDashboard = () => {
   const handleDragEnd = (event: unknown) => {
     if (typeof event !== 'object' || event === null) return;
     // Type assertion for dnd-kit event
-    const { active, over } = event as { active?: { id: string }, over?: { id: string } };
+    const { active, over } = event as {
+      active?: { id: string },
+      over?: { id: string; data?: { current?: Record<string, unknown> } }
+    };
 
     if (!active || !over) return;
 
