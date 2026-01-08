@@ -33,11 +33,22 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 export const onRequestPost: PagesFunction<Env> = async (context) => {
     const db = getDb(context.env.DB);
     try {
-        const body = await context.request.json() as { name?: string; email?: string; password?: string; whatsapp?: string };
-        const { name, email, password, whatsapp } = body;
+        const body = await context.request.json() as {
+            name?: string;
+            username?: string;
+            email?: string;
+            password?: string;
+            whatsapp?: string;
+            credits?: number;
+            status?: string;
+        };
+
+        // Frontend envia 'username', mas banco usa 'name'. Fazemos o fallback.
+        const name = body.name || body.username;
+        const { email, password, whatsapp, credits, status } = body;
 
         if (!email || !password || !name) {
-            return new Response(JSON.stringify({ error: 'Campos obrigatórios faltando' }), { status: 400 });
+            return new Response(JSON.stringify({ error: 'Campos obrigatórios (Usuário/Email/Senha) faltando' }), { status: 400 });
         }
 
         // Verifica se já existe
@@ -50,15 +61,15 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
         // Insere na tabela USERS com o plano 'revenda'
         const result = await db.insert(users).values({
-            name,
+            name, // Salva o username na coluna name
             email,
             password: hashedPassword,
             whatsapp: whatsapp || null,
-            plan: 'revenda', // Isso define que é um revendedor
-            server: 'default', // Valor padrão obrigatório se esquema pedir
-            expiration_date: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(), // 1 ano de validade padrão
-            credits: 0,
-            status: 'Ativo'
+            plan: 'revenda',
+            server: 'default',
+            expiration_date: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+            credits: credits || 0, // Aceita os créditos do formulário
+            status: status || 'Ativo' // Aceita o status
         }).returning();
 
         return new Response(JSON.stringify(result[0]), {
