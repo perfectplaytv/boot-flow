@@ -102,14 +102,58 @@ export function useRevendas() {
     }
   };
 
-  const updateRevenda = async (id: number | string, updates: Partial<Revenda>) => {
-    toast.info('Atualização de revenda em implementação');
-    return true;
+  const updateRevenda = async (id: number | string, updates: Partial<Revenda> & { password?: string }) => {
+    if (!token) return false;
+
+    try {
+      const response = await fetch(`/api/resellers/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(updates)
+      });
+
+      if (!response.ok) {
+        throw new Error('Erro ao atualizar revendedor');
+      }
+
+      toast.success('Revendedor atualizado com sucesso!');
+      fetchRevendas();
+      return true;
+
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Erro ao atualizar';
+      toast.error(msg);
+      return false;
+    }
   };
 
   const deleteRevenda = async (id: number | string) => {
-    toast.info('Deleção de revenda em implementação');
-    return true;
+    if (!token) return false;
+
+    try {
+      const response = await fetch(`/api/resellers/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Erro ao excluir revendedor');
+      }
+
+      toast.success('Revendedor excluído com sucesso!');
+      fetchRevendas();
+      return true;
+
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Erro ao excluir';
+      toast.error(msg);
+      return false;
+    }
   };
 
   const clearError = () => setError(null);
