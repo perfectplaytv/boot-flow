@@ -33,10 +33,26 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
             return new Response(JSON.stringify({ error: 'Credenciais inválidas' }), { status: 401 });
         }
 
-        // Gerar Token
-        const token = await createToken({ id: user.id, email: user.email, role: 'admin' }); // Simplificado
+        // Determinar Role
+        let role = 'client';
+        if (user.plan === 'admin' || user.email === 'pontonois@gmail.com') {
+            role = 'admin';
+        } else if (user.plan === 'revenda') {
+            role = 'reseller';
+        }
 
-        return new Response(JSON.stringify({ token, user: { id: user.id, email: user.email, name: user.name } }), {
+        // Gerar Token com a role correta
+        const token = await createToken({ id: user.id, email: user.email, role: role });
+
+        return new Response(JSON.stringify({
+            token,
+            user: {
+                id: user.id,
+                email: user.email,
+                name: user.name,
+                role: role // AGORA SIM ENVIAMOS A ROLE!
+            }
+        }), {
             headers: { 'Content-Type': 'application/json' }
         });
 
