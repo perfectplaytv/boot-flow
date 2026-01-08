@@ -16,7 +16,7 @@ import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
-import AuthCallback from "./pages/AuthCallback";
+// import AuthCallback from "./pages/AuthCallback"; // Removido
 import NotFound from "./pages/NotFound";
 import Sobre from "./pages/empresa/Sobre";
 import Blog from "./pages/empresa/Blog";
@@ -58,7 +58,7 @@ const AuthProviderWithNavigation = ({ children }: { children: React.ReactNode })
 const App = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState('disconnected');
-  
+
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="system" storageKey="bootflow-ui-theme">
@@ -67,56 +67,56 @@ const App = () => {
             <AuthProviderWithNavigation>
               <WhatsAppStatusContext.Provider value={{ isConnected, setIsConnected, connectionStatus, setConnectionStatus }}>
                 <Routes>
-                {/* Rotas públicas */}
-                <Route path="/" element={<Landing />} />
-                <Route path="/preco" element={<Landing />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/cadastro" element={<Signup />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/auth/callback" element={<AuthCallback />} />
-                <Route path="/termos" element={<Terms />} />
-                <Route path="/privacidade" element={<Privacy />} />
-                <Route path="/ajuda" element={<HelpCenter />} />
-                <Route path="/api" element={<API />} />
-                <Route path="/documentacao" element={<Documentacao />} />
-                <Route path="/integracoes" element={<Integracoes />} />
-                <Route path="/demo" element={<Demo />} />
-                <Route path="/empresa/sobre" element={<Sobre />} />
-                <Route path="/empresa/blog" element={<Blog />} />
+                  {/* Rotas públicas */}
+                  <Route path="/" element={<Landing />} />
+                  <Route path="/preco" element={<Landing />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/cadastro" element={<Signup />} />
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route path="/termos" element={<Terms />} />
+                  <Route path="/privacidade" element={<Privacy />} />
+                  <Route path="/ajuda" element={<HelpCenter />} />
+                  <Route path="/api" element={<API />} />
+                  <Route path="/documentacao" element={<Documentacao />} />
+                  <Route path="/integracoes" element={<Integracoes />} />
+                  <Route path="/demo" element={<Demo />} />
+                  <Route path="/empresa/sobre" element={<Sobre />} />
+                  <Route path="/empresa/blog" element={<Blog />} />
 
-                {/* Dashboard Admin - Acesso direto */}
-                <Route path="/admin" element={<AdminDashboard />} />
-                {/* Dashboard Revendas (protegido: apenas role 'reseller') */}
-                <Route element={<ProtectedRoute allowedRoles={[ 'reseller' ]} />}>
-                  <Route path="/dashboard/revendas" element={<ResellerDashboard />} />
-                </Route>
-                {/* Página de acesso negado */}
-                <Route path="/unauthorized" element={<Unauthorized />} />
-                <Route path="/admin/revendedores" element={<AdminResellers />} />
-                
-                {/* Dashboard Cliente */}
-                <Route path="/dashboard/client" element={<ClientDashboard />} />
-                
-                {/* Redirecionamento para /dashboard */}
-                <Route path="/dashboard" element={<ClientDashboard />} />
-                
-                {/* Outras rotas */}
-                <Route path="/configuracoes" element={<Settings />} />
-                <Route path="/produtos" element={<Products />} />
-                <Route path="/estatisticas" element={<Statistics />} />
-                <Route path="/ecommerce" element={<Ecommerce />} />
-                <Route path="/canais" element={<Channels />} />
-                <Route path="/campanhas-voz" element={<VoiceCampaigns />} />
-                <Route path="/ia-config" element={<AIConfiguration />} />
+                  {/* Dashboard Admin - Acesso direto */}
+                  <Route path="/admin" element={<AdminDashboard />} />
+                  {/* Dashboard Revendas (protegido: apenas role 'reseller') */}
+                  <Route element={<ProtectedRoute allowedRoles={['reseller']} />}>
+                    <Route path="/dashboard/revendas" element={<ResellerDashboard />} />
+                  </Route>
+                  {/* Página de acesso negado */}
+                  <Route path="/unauthorized" element={<Unauthorized />} />
+                  <Route path="/admin/revendedores" element={<AdminResellers />} />
 
-                {/* Rota 404 */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </WhatsAppStatusContext.Provider>
-          </AuthProviderWithNavigation>
-        </BrowserRouter>
-      </TooltipProvider>
-    </ThemeProvider>
+                  {/* Dashboard Cliente */}
+                  <Route path="/dashboard/client" element={<ClientDashboard />} />
+
+                  {/* Redirecionamento para /dashboard */}
+                  <Route path="/dashboard" element={<ClientDashboard />} />
+
+                  {/* Outras rotas */}
+                  <Route path="/configuracoes" element={<Settings />} />
+                  <Route path="/produtos" element={<Products />} />
+                  <Route path="/estatisticas" element={<Statistics />} />
+                  <Route path="/ecommerce" element={<Ecommerce />} />
+                  <Route path="/canais" element={<Channels />} />
+                  <Route path="/campanhas-voz" element={<VoiceCampaigns />} />
+                  <Route path="/ia-config" element={<AIConfiguration />} />
+
+                  {/* Rota 404 */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </WhatsAppStatusContext.Provider>
+            </AuthProviderWithNavigation>
+          </BrowserRouter>
+        </TooltipProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 };
