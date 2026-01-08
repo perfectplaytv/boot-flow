@@ -120,7 +120,8 @@ const AdminDashboard = () => {
   const [showRealData, setShowRealData] = useState(false);
   // Para usuários com role 'reseller' devemos respeitar a flag showRealData;
   // administradores e outros roles sempre podem ver os dados.
-  const shouldShow = (user?.user_metadata?.role === 'reseller') ? showRealData : true;
+  const userRole = (user as { user_metadata?: { role?: string } } | null)?.user_metadata?.role;
+  const shouldShow = (userRole === 'reseller') ? showRealData : true;
   // Usando o hook personalizado para gerenciar os dados do dashboard
   const { stats, loading: loadingStats, error: statsError, refresh: refreshStats } = useDashboardData();
 
@@ -179,18 +180,18 @@ const AdminDashboard = () => {
 
   // Estados locais para os dados
   // Tipos explícitos para clientes e revendas
-  interface Cliente {
-    id: string;
+  interface LocalCliente {
+    id: string | number;
     admin_id?: string | null;
-    [key: string]: any;
+    [key: string]: unknown;
   }
-  interface Revenda {
-    id: string;
+  interface LocalRevenda {
+    id: string | number;
     admin_id?: string | null;
-    [key: string]: any;
+    [key: string]: unknown;
   }
-  const [clientes, setClientes] = useState<Cliente[]>([]);
-  const [revendas, setRevendas] = useState<Revenda[]>([]);
+  const [clientes, setClientes] = useState<LocalCliente[]>([]);
+  const [revendas, setRevendas] = useState<LocalRevenda[]>([]);
   const [loadingClientes, setLoadingClientes] = useState(true);
   const [loadingRevendas, setLoadingRevendas] = useState(true);
 
@@ -203,24 +204,26 @@ const AdminDashboard = () => {
     // Filtrar por admin_id se houver admin logado (garantir que apenas dados do admin sejam exibidos)
     if (user?.id) {
       if (clientesToUse && Array.isArray(clientesToUse)) {
-        clientesToUse = clientesToUse.filter((cliente: Cliente) => {
-          return cliente.admin_id === user.id || cliente.admin_id === null || cliente.admin_id === undefined;
+        clientesToUse = clientesToUse.filter((cliente) => {
+          const adminId = (cliente as { admin_id?: string | null }).admin_id;
+          return adminId === user.id || adminId === null || adminId === undefined;
         });
       }
       if (revendasToUse && Array.isArray(revendasToUse)) {
-        revendasToUse = revendasToUse.filter((revenda: Revenda) => {
-          return revenda.admin_id === user.id || revenda.admin_id === null || revenda.admin_id === undefined;
+        revendasToUse = revendasToUse.filter((revenda) => {
+          const adminId = (revenda as { admin_id?: string | null }).admin_id;
+          return adminId === user.id || adminId === null || adminId === undefined;
         });
       }
     }
 
     if (clientesToUse) {
-      setClientes(clientesToUse as Cliente[]);
+      setClientes(clientesToUse as unknown as LocalCliente[]);
       setLoadingClientes(false);
     }
 
     if (revendasToUse) {
-      setRevendas(revendasToUse as Revenda[]);
+      setRevendas(revendasToUse as unknown as LocalRevenda[]);
       setLoadingRevendas(false);
     }
   }, [clientesFromHook, revendasFromHook, user?.id]);
@@ -241,9 +244,10 @@ const AdminDashboard = () => {
 
   // Escutar eventos globais disparados pela página de Revendas para exibir dados reais
   useEffect(() => {
-    const handler = (e: any) => {
+    const handler = (e: Event) => {
       try {
-        const source = e?.detail?.source;
+        const customEvent = e as CustomEvent<{ source?: string }>;
+        const source = customEvent.detail?.source;
         if (source === 'resellers') {
           // Habilitar dados reais e forçar atualização
           setShowRealData(true);
@@ -291,7 +295,7 @@ const AdminDashboard = () => {
       console.log('🔄 [AdminDashboard] addCliente wrapper chamado com:', clienteData);
 
       // Chamar diretamente o hook sem verificar sessão (o hook já faz isso)
-      const success = await addClienteHook(clienteData);
+      const success = await addClienteHook(clienteData as Parameters<typeof addClienteHook>[0]);
 
       if (success) {
         toast.success('Cliente adicionado com sucesso!');
@@ -322,7 +326,7 @@ const AdminDashboard = () => {
         toast.error("Função de adicionar revenda não disponível");
         return false;
       }
-      // @ts-ignore - adaptação de tipos
+      // @ts-expect-error - adaptação de tipos entre Record e Revenda
       const success = await addRevendaHook(revendaData);
 
       if (success) {
@@ -1065,7 +1069,7 @@ const AdminDashboard = () => {
       }
       return updatedColumns;
     });
-  }, [clientes, stats.activeClients, stats.monthlyGrowth]);
+  }, [clientes, stats.activeClients, stats.monthlyGrowth, shouldShow]);
 
   // Atualizar o card de revendas quando a quantidade mudar
   useEffect(() => {
@@ -1097,7 +1101,7 @@ const AdminDashboard = () => {
       }
       return updatedColumns;
     });
-  }, [revendas, stats.activeResellers]);
+  }, [revendas, stats.activeResellers, shouldShow]);
 
   // Componente SortableCard
   interface SortableCardProps {
@@ -1143,7 +1147,7 @@ const AdminDashboard = () => {
       console.log('Card clicked:', id, 'isDragging:', isDragging);
 
       if (onClick) {
-        onClick();
+        onClick(e);
         // Mostrar toast de confirmação
         toast.success(`Abrindo ${id}...`, {
           description: `Modal aberto com sucesso`,
@@ -1287,7 +1291,7 @@ const AdminDashboard = () => {
                             <div className="bg-red-900/40 border border-red-700 text-red-300 text-xs rounded p-2 mb-2">❌ {extractionError}</div>
                           )}
                           {extractionResult && !extractionError && (
-                            <div className="bg-green-900/40 border border-green-700 text-green-300 text-xs rounded p-2 mb-2">✅ {extractionResult.message}</div>
+                            <div className="bg-green-900/40 border border-green-700 text-green-300 text-xs rounded p-2 mb-2">✅ {(extractionResult as { message?: string }).message || 'Dados extraídos com sucesso'}</div>
                           )}
                         </div>
 
@@ -1932,7 +1936,7 @@ const AdminDashboard = () => {
           }
         } else {
           // Solto em área vazia - tentar encontrar a coluna pelo data-column-id
-          const columnElement = over.data?.current?.columnId || over.id;
+          const columnElement = (over.data?.current as { columnId?: string })?.columnId || over.id;
           console.log('Dropped in empty area, trying column:', columnElement);
 
           if (columnElement && newColumns[columnElement]) {
@@ -2135,7 +2139,7 @@ const AdminDashboard = () => {
                                 <div className="bg-red-900/40 border border-red-700 text-red-300 text-xs rounded p-2 mb-2">❌ {extractionError}</div>
                               )}
                               {extractionResult && !extractionError && (
-                                <div className="bg-green-900/40 border border-green-700 text-green-300 text-xs rounded p-2 mb-2">✅ {extractionResult.message}</div>
+                                <div className="bg-green-900/40 border border-green-700 text-green-300 text-xs rounded p-2 mb-2">✅ {(extractionResult as { message?: string }).message || 'Dados extraídos com sucesso'}</div>
                               )}
                             </div>
 
