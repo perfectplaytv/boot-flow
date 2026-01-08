@@ -231,7 +231,6 @@ export default function AdminUsers() {
         name: newUser.realName || newUser.name,
         email: newUser.email,
         plan: newUser.plan, // Campo obrigatório
-        price: newUser.price || "", // Campo de preço
         status: newUser.status || "Ativo", // Campo obrigatório com default
         expiration_date: newUser.expirationDate, // Campo obrigatório
         password: newUser.password || "",
