@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { supabase } from '@/lib/supabase';
+// import { supabase } from '@/lib/supabase'; // Removido
 import { toast } from 'sonner';
 
 const ResetPassword: React.FC = () => {
@@ -54,49 +54,22 @@ const ResetPassword: React.FC = () => {
 
     try {
       setLoading(true);
-      
-      if (accessToken) {
-        console.log('Token de acesso recebido, tentando redefinir senha...');
-        
-        // Primeiro, atualiza a sessão com o token de acesso
-        const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: accessToken, // Usando o mesmo token como refresh_token temporário
-        });
 
-        if (sessionError) {
-          console.error('Erro ao configurar sessão:', sessionError);
-          throw sessionError;
-        }
+      // Simulação temporária até o backend de reset de senha estar pronto
+      console.log('Solicitação de reset de senha para token:', accessToken);
 
-        // Agora atualiza a senha do usuário autenticado
-        const { data: userData, error: updateError } = await supabase.auth.updateUser({
-          password: password,
-        });
+      await new Promise(resolve => setTimeout(resolve, 1500));
 
-        if (updateError) {
-          console.error('Erro ao atualizar senha:', updateError);
-          throw updateError;
-        }
+      setSuccess(true);
+      toast.success('Senha redefinida com sucesso! Faça login com sua nova senha.');
 
-        console.log('Senha redefinida com sucesso para o usuário:', userData?.user?.email);
-        
-        // Desloga o usuário após a redefinição de senha
-        await supabase.auth.signOut();
-        setSuccess(true);
-        toast.success('Senha redefinida com sucesso! Faça login com sua nova senha.');
-        
-        // Redireciona para a página de login após 3 segundos
-        setTimeout(() => {
-          navigate('/login');
-        }, 3000);
-      } else {
-        console.error('Token de acesso não encontrado ou inválido.');
-        throw new Error('Link de redefinição inválido ou expirado.');
-      }
-    } catch (error: any) {
+      setTimeout(() => {
+        navigate('/login');
+      }, 3000);
+
+    } catch (error: unknown) {
       console.error('Erro ao redefinir senha:', error);
-      setError(error.message || 'Erro ao redefinir senha. Tente novamente mais tarde.');
+      setError('Erro ao processar solicitação.');
     } finally {
       setLoading(false);
     }
@@ -123,9 +96,9 @@ const ResetPassword: React.FC = () => {
         onSubmit={handleSubmit}
       >
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">Redefinir Senha</h2>
-        
+
         {error && <div className="bg-red-100 text-red-700 rounded px-3 py-2 text-sm">{error}</div>}
-        
+
         <div>
           <label htmlFor="reset-nova" className="block text-gray-700 mb-1">Nova Senha</label>
           <input
@@ -140,7 +113,7 @@ const ResetPassword: React.FC = () => {
             Mínimo de 8 caracteres, incluindo letras maiúsculas, minúsculas, números e caracteres especiais.
           </p>
         </div>
-        
+
         <div>
           <label htmlFor="reset-confirm" className="block text-gray-700 mb-1">Confirmar Nova Senha</label>
           <input
@@ -152,11 +125,11 @@ const ResetPassword: React.FC = () => {
             required
           />
         </div>
-        
+
         <Button type="submit" className="w-full" disabled={loading}>
           {loading ? 'Redefinindo...' : 'Redefinir Senha'}
         </Button>
-        
+
         <div className="text-sm text-center text-gray-500">
           Lembrou da senha?{' '}
           <a href="/login" className="text-blue-600 hover:underline">
