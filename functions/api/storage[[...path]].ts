@@ -36,7 +36,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
             headers,
         });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         return new Response('Erro ao recuperar arquivo', { status: 500 });
     }
 };

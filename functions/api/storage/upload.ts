@@ -67,7 +67,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
             headers: { 'Content-Type': 'application/json' }
         });
 
-    } catch (error: any) {
-        return new Response(JSON.stringify({ error: error.message || 'Erro no upload' }), { status: 500 });
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Erro no upload';
+        return new Response(JSON.stringify({ error: message }), { status: 500 });
     }
 };
