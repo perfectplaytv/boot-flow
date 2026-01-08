@@ -40,7 +40,8 @@ import {
     Play,
     X,
     Bot,
-    MessageSquare
+    MessageSquare,
+    Radio
 } from "lucide-react";
 
 interface TelegramMember {
