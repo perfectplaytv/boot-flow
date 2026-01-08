@@ -23,8 +23,9 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
         return new Response(JSON.stringify(list), {
             headers: { 'Content-Type': 'application/json' }
         });
-    } catch (e: any) {
-        return new Response(JSON.stringify({ error: e.message }), { status: 500 });
+    } catch (e: unknown) {
+        const message = e instanceof Error ? e.message : 'Erro desconhecido';
+        return new Response(JSON.stringify({ error: message }), { status: 500 });
     }
 }
 
@@ -32,7 +33,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 export const onRequestPost: PagesFunction<Env> = async (context) => {
     const db = getDb(context.env.DB);
     try {
-        const body = await context.request.json() as any;
+        const body = await context.request.json() as { name?: string; email?: string; password?: string; whatsapp?: string };
         const { name, email, password, whatsapp } = body;
 
         if (!email || !password || !name) {
@@ -65,7 +66,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
             status: 201
         });
 
-    } catch (e: any) {
-        return new Response(JSON.stringify({ error: e.message }), { status: 500 });
+    } catch (e: unknown) {
+        const message = e instanceof Error ? e.message : 'Erro ao criar reseller';
+        return new Response(JSON.stringify({ error: message }), { status: 500 });
     }
 }

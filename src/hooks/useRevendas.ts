@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 export interface Revenda {
   id: number | string;
   name: string;
+  username?: string; // Compatibilidade
   email: string;
   whatsapp?: string;
   plan: string;
@@ -14,6 +15,17 @@ export interface Revenda {
   created_at?: string;
   server?: string;
   expiration_date?: string;
+
+  // Campos legados/opcionais para UI
+  permission?: string;
+  personal_name?: string;
+  servers?: string;
+  master_reseller?: string;
+  disable_login_days?: number;
+  monthly_reseller?: boolean;
+  telegram?: string;
+  observations?: string;
+  force_password_change?: boolean;
 }
 
 export function useRevendas() {
@@ -57,7 +69,7 @@ export function useRevendas() {
     fetchRevendas();
   }, [fetchRevendas]);
 
-  const addRevenda = async (data: { name: string; email: string; password?: string; whatsapp?: string }) => {
+  const addRevenda = async (data: Partial<Revenda> & { password?: string }) => {
     if (!token) {
       toast.error('Você precisa estar logado.');
       return false;
@@ -90,11 +102,26 @@ export function useRevendas() {
     }
   };
 
+  const updateRevenda = async (id: number | string, updates: Partial<Revenda>) => {
+    toast.info('Atualização de revenda em implementação');
+    return true;
+  };
+
+  const deleteRevenda = async (id: number | string) => {
+    toast.info('Deleção de revenda em implementação');
+    return true;
+  };
+
+  const clearError = () => setError(null);
+
   return {
     revendas,
     loading,
     error,
     fetchRevendas,
-    addRevenda
+    addRevenda,
+    updateRevenda,
+    deleteRevenda,
+    clearError
   };
 }
