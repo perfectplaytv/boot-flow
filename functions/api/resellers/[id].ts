@@ -1,6 +1,6 @@
 
 import { getDb } from '../../../db';
-import { users } from '../../../db/schema';
+import { resellers } from '../../../db/schema';
 import { eq } from 'drizzle-orm';
 import * as bcrypt from 'bcryptjs';
 
@@ -18,7 +18,7 @@ export const onRequestDelete: PagesFunction<Env> = async (context) => {
     }
 
     try {
-        await db.delete(users).where(eq(users.id, id)).execute();
+        await db.delete(resellers).where(eq(resellers.id, id)).execute();
         return new Response(JSON.stringify({ success: true }), {
             headers: { 'Content-Type': 'application/json' }
         });
@@ -38,25 +38,25 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
     }
 
     try {
-        const body = await context.request.json() as {
-            name?: string;
-            username?: string;
-            email?: string;
-            password?: string;
-            whatsapp?: string;
-            credits?: number;
-            status?: string;
-        };
+        const body = await context.request.json() as any;
 
         const updates: Record<string, unknown> = {};
 
-        // Mapear campos
-        if (body.name) updates.name = body.name;
-        if (body.username) updates.name = body.username; // Fallback username->name
+        // Mapear campos da tabela resellers
+        if (body.username) updates.username = body.username;
         if (body.email) updates.email = body.email;
-        if (body.whatsapp) updates.whatsapp = body.whatsapp;
+        if (body.permission) updates.permission = body.permission;
         if (body.credits !== undefined) updates.credits = body.credits;
+        if (body.personal_name) updates.personal_name = body.personal_name;
         if (body.status) updates.status = body.status;
+        if (body.force_password_change !== undefined) updates.force_password_change = body.force_password_change;
+        if (body.servers !== undefined) updates.servers = body.servers;
+        if (body.master_reseller !== undefined) updates.master_reseller = body.master_reseller;
+        if (body.disable_login_days !== undefined) updates.disable_login_days = body.disable_login_days;
+        if (body.monthly_reseller !== undefined) updates.monthly_reseller = body.monthly_reseller;
+        if (body.telegram !== undefined) updates.telegram = body.telegram;
+        if (body.whatsapp !== undefined) updates.whatsapp = body.whatsapp;
+        if (body.observations !== undefined) updates.observations = body.observations;
 
         // Se tiver senha, hashear
         if (body.password && body.password.trim() !== '') {
@@ -67,9 +67,9 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
             return new Response(JSON.stringify({ error: 'Nenhum dado para atualizar' }), { status: 400 });
         }
 
-        const result = await db.update(users)
+        const result = await db.update(resellers)
             .set(updates)
-            .where(eq(users.id, id))
+            .where(eq(resellers.id, id))
             .returning();
 
         return new Response(JSON.stringify(result[0]), {

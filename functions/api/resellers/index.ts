@@ -1,7 +1,7 @@
 
 import { getDb } from '../../../db';
-import { users } from '../../../db/schema';
-import { eq, or } from 'drizzle-orm';
+import { resellers } from '../../../db/schema';
+import { eq } from 'drizzle-orm';
 import * as bcrypt from 'bcryptjs';
 
 interface Env {
@@ -12,14 +12,7 @@ interface Env {
 export const onRequestGet: PagesFunction<Env> = async (context) => {
     const db = getDb(context.env.DB);
     try {
-        // Busca usuários que são revenda ou reseller
-        // Ajuste conforme padronizamos roles: plan='revenda' ou role='reseller' se tivermos coluna role
-        // Como o schema atual usa 'plan', vamos filtrar por ele.
-        const list = await db.select().from(users).where(or(
-            eq(users.plan, 'revenda'),
-            eq(users.plan, 'reseller')
-        )).all();
-
+        const list = await db.select().from(resellers).all();
         return new Response(JSON.stringify(list), {
             headers: { 'Content-Type': 'application/json' }
         });
@@ -33,43 +26,60 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 export const onRequestPost: PagesFunction<Env> = async (context) => {
     const db = getDb(context.env.DB);
     try {
-        const body = await context.request.json() as {
-            name?: string;
-            username?: string;
-            email?: string;
-            password?: string;
-            whatsapp?: string;
-            credits?: number;
-            status?: string;
-        };
+        const body = await context.request.json() as any;
 
-        // Frontend envia 'username', mas banco usa 'name'. Fazemos o fallback.
-        const name = body.name || body.username;
-        const { email, password, whatsapp, credits, status } = body;
+        const {
+            username,
+            email,
+            password,
+            permission,
+            credits,
+            personal_name,
+            servers,
+            master_reseller,
+            disable_login_days,
+            monthly_reseller,
+            telegram,
+            whatsapp,
+            observations
+        } = body;
 
-        if (!email || !password || !name) {
-            return new Response(JSON.stringify({ error: 'Campos obrigatórios (Usuário/Email/Senha) faltando' }), { status: 400 });
+        // Validação básica
+        if (!username || !password || !permission) {
+            return new Response(JSON.stringify({ error: 'Campos obrigatórios (Usuário/Senha/Permissão) faltando' }), { status: 400 });
         }
 
-        // Verifica se já existe
-        const existing = await db.select().from(users).where(eq(users.email, email)).limit(1);
-        if (existing.length > 0) {
-            return new Response(JSON.stringify({ error: 'Email já cadastrado' }), { status: 400 });
+        // Verifica se já existe por username ou email
+        const existingUsername = await db.select().from(resellers).where(eq(resellers.username, username)).limit(1);
+        if (existingUsername.length > 0) {
+            return new Response(JSON.stringify({ error: 'Usuário já cadastrado' }), { status: 400 });
+        }
+
+        if (email) {
+            const existingEmail = await db.select().from(resellers).where(eq(resellers.email, email)).limit(1);
+            if (existingEmail.length > 0) {
+                return new Response(JSON.stringify({ error: 'Email já cadastrado' }), { status: 400 });
+            }
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Insere na tabela USERS com o plano 'revenda'
-        const result = await db.insert(users).values({
-            name, // Salva o username na coluna name
-            email,
+        // Insere na tabela RESELLERS
+        const result = await db.insert(resellers).values({
+            username,
+            email: email || `${username}@system.local`, // Fallback se email for opcional no banco, mas unique requer valor
             password: hashedPassword,
+            permission: permission || 'reseller',
+            credits: credits || 0,
+            personal_name: personal_name || null,
+            servers: servers || null,
+            master_reseller: master_reseller || null,
+            disable_login_days: disable_login_days || 0,
+            monthly_reseller: monthly_reseller || false,
+            telegram: telegram || null,
             whatsapp: whatsapp || null,
-            plan: 'revenda',
-            server: 'default',
-            expiration_date: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
-            credits: credits || 0, // Aceita os créditos do formulário
-            status: status || 'Ativo' // Aceita o status
+            observations: observations || null,
+            status: 'Ativo'
         }).returning();
 
         return new Response(JSON.stringify(result[0]), {
@@ -78,6 +88,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         });
 
     } catch (e: unknown) {
+        console.error("Erro criar revenda:", e);
         const message = e instanceof Error ? e.message : 'Erro ao criar reseller';
         return new Response(JSON.stringify({ error: message }), { status: 500 });
     }

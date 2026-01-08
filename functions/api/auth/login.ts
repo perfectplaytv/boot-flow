@@ -1,6 +1,6 @@
 
 import { getDb } from '../../../db';
-import { users } from '../../../db/schema';
+import { users, resellers } from '../../../db/schema';
 import { eq } from 'drizzle-orm';
 import { createToken } from '../../utils/auth';
 import * as bcrypt from 'bcryptjs';
@@ -19,26 +19,56 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
             return new Response(JSON.stringify({ error: 'Email e senha obrigatórios' }), { status: 400 });
         }
 
-        // Buscar usuário
-        const userList = await db.select().from(users).where(eq(users.email, email)).limit(1);
-        const user = userList[0];
+        // Buscar usuário na tabela users
+        let user = await db.select().from(users).where(eq(users.email, email)).get();
+        let isReseller = false;
+
+        // Se não achar, busca na tabela resellers
+        if (!user) {
+            const reseller = await db.select().from(resellers).where(eq(resellers.email, email)).get();
+            if (reseller) {
+                // Adaptar objeto reseller para ter interface compatível (password, id, email, name)
+                user = { ...reseller, name: reseller.username, plan: 'revenda' } as any;
+                isReseller = true;
+            }
+        }
 
         if (!user || !user.password) {
             return new Response(JSON.stringify({ error: 'Credenciais inválidas' }), { status: 401 });
         }
 
         // Verificar Senha
-        const isValid = await bcrypt.compare(password, user.password);
+        // Verificar Senha
+        let isValid = false;
+        if (user.password && user.password.startsWith('$2')) {
+            try {
+                isValid = await bcrypt.compare(password, user.password);
+            } catch (e) {
+                console.error("Erro ao comparar hash bcrypt:", e);
+                isValid = false;
+            }
+        } else {
+            // Fallback para senhas em texto plano (migração/dev)
+            console.log("Aviso: Verificando senha em texto plano para usuário", user.email);
+            isValid = password === user.password;
+        }
+
         if (!isValid) {
             return new Response(JSON.stringify({ error: 'Credenciais inválidas' }), { status: 401 });
         }
 
         // Determinar Role
         let role = 'client';
-        if (user.plan === 'admin' || user.email === 'pontonois@gmail.com') {
-            role = 'admin';
-        } else if (user.plan === 'revenda') {
-            role = 'reseller';
+        if (isReseller) {
+            // Se veio da tabela resellers, usa o campo permission ou define como reseller
+            // @ts-ignore
+            role = user.permission === 'admin' ? 'admin' : (user.permission || 'reseller');
+        } else {
+            if (user.plan === 'admin' || user.email === 'pontonois@gmail.com') {
+                role = 'admin';
+            } else if (user.plan === 'revenda') {
+                role = 'reseller';
+            }
         }
 
         // Gerar Token com a role correta
@@ -57,6 +87,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         });
 
     } catch (error) {
+        console.error("Login Error:", error);
         return new Response(JSON.stringify({ error: error.message }), { status: 500 });
     }
 }

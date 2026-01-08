@@ -32,7 +32,7 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
-// ../.wrangler/tmp/bundle-jJTfX0/checked-fetch.js
+// ../.wrangler/tmp/bundle-w4YAYc/checked-fetch.js
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
     (typeof request === "string" ? new Request(request, init) : request).url
@@ -50,7 +50,7 @@ function checkURL(request, init) {
 }
 var urls;
 var init_checked_fetch = __esm({
-  "../.wrangler/tmp/bundle-jJTfX0/checked-fetch.js"() {
+  "../.wrangler/tmp/bundle-w4YAYc/checked-fetch.js"() {
     urls = /* @__PURE__ */ new Set();
     __name(checkURL, "checkURL");
     globalThis.fetch = new Proxy(globalThis.fetch, {
@@ -10348,20 +10348,42 @@ var init_login = __esm({
         if (!email || !password) {
           return new Response(JSON.stringify({ error: "Email e senha obrigat\xF3rios" }), { status: 400 });
         }
-        const userList = await db.select().from(users).where(eq(users.email, email)).limit(1);
-        const user = userList[0];
+        let user = await db.select().from(users).where(eq(users.email, email)).get();
+        let isReseller = false;
+        if (!user) {
+          const reseller = await db.select().from(resellers).where(eq(resellers.email, email)).get();
+          if (reseller) {
+            user = { ...reseller, name: reseller.username, plan: "revenda" };
+            isReseller = true;
+          }
+        }
         if (!user || !user.password) {
           return new Response(JSON.stringify({ error: "Credenciais inv\xE1lidas" }), { status: 401 });
         }
-        const isValid = await compare(password, user.password);
+        let isValid = false;
+        if (user.password && user.password.startsWith("$2")) {
+          try {
+            isValid = await compare(password, user.password);
+          } catch (e) {
+            console.error("Erro ao comparar hash bcrypt:", e);
+            isValid = false;
+          }
+        } else {
+          console.log("Aviso: Verificando senha em texto plano para usu\xE1rio", user.email);
+          isValid = password === user.password;
+        }
         if (!isValid) {
           return new Response(JSON.stringify({ error: "Credenciais inv\xE1lidas" }), { status: 401 });
         }
         let role = "client";
-        if (user.plan === "admin" || user.email === "pontonois@gmail.com") {
-          role = "admin";
-        } else if (user.plan === "revenda") {
-          role = "reseller";
+        if (isReseller) {
+          role = user.permission === "admin" ? "admin" : user.permission || "reseller";
+        } else {
+          if (user.plan === "admin" || user.email === "pontonois@gmail.com") {
+            role = "admin";
+          } else if (user.plan === "revenda") {
+            role = "reseller";
+          }
         }
         const token = await createToken({ id: user.id, email: user.email, role });
         return new Response(JSON.stringify({
@@ -10377,6 +10399,7 @@ var init_login = __esm({
           headers: { "Content-Type": "application/json" }
         });
       } catch (error) {
+        console.error("Login Error:", error);
         return new Response(JSON.stringify({ error: error.message }), { status: 500 });
       }
     }, "onRequestPost");
@@ -10503,7 +10526,7 @@ var init_id = __esm({
         return new Response(JSON.stringify({ error: "ID inv\xE1lido" }), { status: 400 });
       }
       try {
-        await db.delete(users).where(eq(users.id, id)).execute();
+        await db.delete(resellers).where(eq(resellers.id, id)).execute();
         return new Response(JSON.stringify({ success: true }), {
           headers: { "Content-Type": "application/json" }
         });
@@ -10521,19 +10544,27 @@ var init_id = __esm({
       try {
         const body = await context.request.json();
         const updates = {};
-        if (body.name) updates.name = body.name;
-        if (body.username) updates.name = body.username;
+        if (body.username) updates.username = body.username;
         if (body.email) updates.email = body.email;
-        if (body.whatsapp) updates.whatsapp = body.whatsapp;
+        if (body.permission) updates.permission = body.permission;
         if (body.credits !== void 0) updates.credits = body.credits;
+        if (body.personal_name) updates.personal_name = body.personal_name;
         if (body.status) updates.status = body.status;
+        if (body.force_password_change !== void 0) updates.force_password_change = body.force_password_change;
+        if (body.servers !== void 0) updates.servers = body.servers;
+        if (body.master_reseller !== void 0) updates.master_reseller = body.master_reseller;
+        if (body.disable_login_days !== void 0) updates.disable_login_days = body.disable_login_days;
+        if (body.monthly_reseller !== void 0) updates.monthly_reseller = body.monthly_reseller;
+        if (body.telegram !== void 0) updates.telegram = body.telegram;
+        if (body.whatsapp !== void 0) updates.whatsapp = body.whatsapp;
+        if (body.observations !== void 0) updates.observations = body.observations;
         if (body.password && body.password.trim() !== "") {
           updates.password = await hash(body.password, 10);
         }
         if (Object.keys(updates).length === 0) {
           return new Response(JSON.stringify({ error: "Nenhum dado para atualizar" }), { status: 400 });
         }
-        const result = await db.update(users).set(updates).where(eq(users.id, id)).returning();
+        const result = await db.update(resellers).set(updates).where(eq(resellers.id, id)).returning();
         return new Response(JSON.stringify(result[0]), {
           headers: { "Content-Type": "application/json" }
         });
@@ -10632,10 +10663,7 @@ var init_resellers = __esm({
     onRequestGet2 = /* @__PURE__ */ __name(async (context) => {
       const db = getDb(context.env.DB);
       try {
-        const list = await db.select().from(users).where(or(
-          eq(users.plan, "revenda"),
-          eq(users.plan, "reseller")
-        )).all();
+        const list = await db.select().from(resellers).all();
         return new Response(JSON.stringify(list), {
           headers: { "Content-Type": "application/json" }
         });
@@ -10648,35 +10676,58 @@ var init_resellers = __esm({
       const db = getDb(context.env.DB);
       try {
         const body = await context.request.json();
-        const name = body.name || body.username;
-        const { email, password, whatsapp, credits, status } = body;
-        if (!email || !password || !name) {
-          return new Response(JSON.stringify({ error: "Campos obrigat\xF3rios (Usu\xE1rio/Email/Senha) faltando" }), { status: 400 });
+        const {
+          username,
+          email,
+          password,
+          permission,
+          credits,
+          personal_name,
+          servers,
+          master_reseller,
+          disable_login_days,
+          monthly_reseller,
+          telegram,
+          whatsapp,
+          observations
+        } = body;
+        if (!username || !password || !permission) {
+          return new Response(JSON.stringify({ error: "Campos obrigat\xF3rios (Usu\xE1rio/Senha/Permiss\xE3o) faltando" }), { status: 400 });
         }
-        const existing = await db.select().from(users).where(eq(users.email, email)).limit(1);
-        if (existing.length > 0) {
-          return new Response(JSON.stringify({ error: "Email j\xE1 cadastrado" }), { status: 400 });
+        const existingUsername = await db.select().from(resellers).where(eq(resellers.username, username)).limit(1);
+        if (existingUsername.length > 0) {
+          return new Response(JSON.stringify({ error: "Usu\xE1rio j\xE1 cadastrado" }), { status: 400 });
+        }
+        if (email) {
+          const existingEmail = await db.select().from(resellers).where(eq(resellers.email, email)).limit(1);
+          if (existingEmail.length > 0) {
+            return new Response(JSON.stringify({ error: "Email j\xE1 cadastrado" }), { status: 400 });
+          }
         }
         const hashedPassword = await hash(password, 10);
-        const result = await db.insert(users).values({
-          name,
-          // Salva o username na coluna name
-          email,
+        const result = await db.insert(resellers).values({
+          username,
+          email: email || `${username}@system.local`,
+          // Fallback se email for opcional no banco, mas unique requer valor
           password: hashedPassword,
-          whatsapp: whatsapp || null,
-          plan: "revenda",
-          server: "default",
-          expiration_date: new Date(Date.now() + 365 * 24 * 60 * 60 * 1e3).toISOString(),
+          permission: permission || "reseller",
           credits: credits || 0,
-          // Aceita os créditos do formulário
-          status: status || "Ativo"
-          // Aceita o status
+          personal_name: personal_name || null,
+          servers: servers || null,
+          master_reseller: master_reseller || null,
+          disable_login_days: disable_login_days || 0,
+          monthly_reseller: monthly_reseller || false,
+          telegram: telegram || null,
+          whatsapp: whatsapp || null,
+          observations: observations || null,
+          status: "Ativo"
         }).returning();
         return new Response(JSON.stringify(result[0]), {
           headers: { "Content-Type": "application/json" },
           status: 201
         });
       } catch (e) {
+        console.error("Erro criar revenda:", e);
         const message2 = e instanceof Error ? e.message : "Erro ao criar reseller";
         return new Response(JSON.stringify({ error: message2 }), { status: 500 });
       }
@@ -10824,11 +10875,11 @@ var init_functionsRoutes_0_6299090072758056 = __esm({
   }
 });
 
-// ../.wrangler/tmp/bundle-jJTfX0/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-w4YAYc/middleware-loader.entry.ts
 init_functionsRoutes_0_6299090072758056();
 init_checked_fetch();
 
-// ../.wrangler/tmp/bundle-jJTfX0/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-w4YAYc/middleware-insertion-facade.js
 init_functionsRoutes_0_6299090072758056();
 init_checked_fetch();
 
@@ -11329,7 +11380,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-jJTfX0/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-w4YAYc/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -11363,7 +11414,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-jJTfX0/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-w4YAYc/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
