@@ -1216,14 +1216,33 @@ export default function AdminTelegram() {
                             <CardTitle className="flex items-center gap-2">
                                 <Users className="w-5 h-5" />
                                 Membros Encontrados
-                                <Badge variant="secondary">{members.length}</Badge>
+                                <Badge variant="secondary">{filteredMembers.length}</Badge>
+                                {memberFilter !== 'all' && (
+                                    <Badge variant="outline" className="text-xs">
+                                        Filtrado de {members.length}
+                                    </Badge>
+                                )}
                             </CardTitle>
                             <CardDescription>
-                                {selectedCount} de {members.length} selecionados
+                                {selectedCount} de {filteredMembers.length} selecionados
                             </CardDescription>
                         </div>
 
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 items-center">
+                            {/* Filter Dropdown */}
+                            <Select value={memberFilter} onValueChange={(v: typeof memberFilter) => setMemberFilter(v)}>
+                                <SelectTrigger className="w-40">
+                                    <Filter className="w-4 h-4 mr-2" />
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">Todos</SelectItem>
+                                    <SelectItem value="with_username">Com Username</SelectItem>
+                                    <SelectItem value="without_username">Sem Username</SelectItem>
+                                    <SelectItem value="with_phone">Com Telefone</SelectItem>
+                                </SelectContent>
+                            </Select>
+
                             <Button variant="outline" size="sm" onClick={() => toggleAll(true)}>
                                 Selecionar Todos
                             </Button>
