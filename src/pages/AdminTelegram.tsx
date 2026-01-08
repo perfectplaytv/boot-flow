@@ -41,7 +41,10 @@ import {
     X,
     Bot,
     MessageSquare,
-    Radio
+    Radio,
+    Sparkles,
+    Copy,
+    Loader2
 } from "lucide-react";
 
 interface TelegramMember {
@@ -559,6 +562,83 @@ export default function AdminTelegram() {
             buttons: [],
             interval: 5
         });
+    };
+
+    // Phase 7: AI BlastCopy States
+    const [aiCopyConfig, setAiCopyConfig] = useState({
+        productName: '',
+        keywords: '',
+        command: '',
+        messageSize: 'short' as 'short' | 'medium' | 'long',
+        response: '',
+        isLoading: false
+    });
+
+    // Phase 7: Generate copy with AI (simulated for now)
+    const generateAICopy = async () => {
+        if (!aiCopyConfig.productName.trim()) {
+            toast.error("Digite o nome do produto ou serviço");
+            return;
+        }
+        if (!aiCopyConfig.command.trim()) {
+            toast.error("Digite um comando para a IA");
+            return;
+        }
+
+        setAiCopyConfig(prev => ({ ...prev, isLoading: true }));
+
+        // Simulate AI response (replace with actual API call later)
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        const sizeLimit = aiCopyConfig.messageSize === 'short' ? 300 : aiCopyConfig.messageSize === 'medium' ? 600 : 1000;
+
+        const simulatedResponse = `🎯 Não perca tempo, entre agora mesmo para o ${aiCopyConfig.productName}!
+
+Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, o ${aiCopyConfig.productName} é perfeito para você! 🚀
+
+✅ Acesso exclusivo
+✅ Conteúdo de qualidade
+✅ Suporte dedicado
+✅ Resultados comprovados
+
+👉 Entre agora e transforme sua vida!
+
+#${aiCopyConfig.productName.replace(/\s+/g, '')} #Sucesso`.slice(0, sizeLimit);
+
+        setAiCopyConfig(prev => ({
+            ...prev,
+            response: simulatedResponse,
+            isLoading: false
+        }));
+
+        toast.success("Texto gerado com sucesso!");
+    };
+
+    // Phase 7: Copy response to clipboard
+    const copyAIResponse = () => {
+        if (aiCopyConfig.response) {
+            navigator.clipboard.writeText(aiCopyConfig.response);
+            toast.success("Texto copiado!");
+        }
+    };
+
+    // Phase 7: Save AI generated copy
+    const saveAICopy = () => {
+        if (!aiCopyConfig.response.trim()) {
+            toast.error("Gere um texto primeiro");
+            return;
+        }
+
+        const copies = JSON.parse(localStorage.getItem('telegram_ai_copies') || '[]');
+        copies.push({
+            id: Date.now().toString(),
+            productName: aiCopyConfig.productName,
+            response: aiCopyConfig.response,
+            createdAt: new Date().toISOString()
+        });
+        localStorage.setItem('telegram_ai_copies', JSON.stringify(copies));
+
+        toast.success("Texto salvo!");
     };
 
     const fetchSessions = useCallback(async () => {
