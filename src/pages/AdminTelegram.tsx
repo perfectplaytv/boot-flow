@@ -918,130 +918,127 @@ export default function AdminTelegram() {
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </CardContent>
+                    </CardContent>
                 </Card>
-    )
-}
+            )}
 
-{/* Members Table - Always visible when there are members */ }
-{
-    members.length > 0 && (
-        <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-                <div>
-                    <CardTitle className="flex items-center gap-2">
-                        <Users className="w-5 h-5" />
-                        Membros Encontrados
-                        <Badge variant="secondary">{members.length}</Badge>
-                    </CardTitle>
-                    <CardDescription>
-                        {selectedCount} de {members.length} selecionados
-                    </CardDescription>
-                </div>
-
-                <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={() => toggleAll(true)}>
-                        Selecionar Todos
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => toggleAll(false)}>
-                        Desmarcar Todos
-                    </Button>
-                    <Button variant="secondary" size="sm" onClick={handleExportCSV}>
-                        <Download className="w-4 h-4 mr-1" />
-                        Exportar CSV
-                    </Button>
-                    <Button variant="destructive" size="sm" onClick={handleClear}>
-                        <Trash2 className="w-4 h-4" />
-                    </Button>
-                </div>
-            </CardHeader>
-            <CardContent>
-                <div className="max-h-[400px] overflow-auto rounded-md border">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead className="w-12">
-                                    <Checkbox
-                                        checked={selectedCount === members.length}
-                                        onCheckedChange={(checked) => toggleAll(!!checked)}
-                                    />
-                                </TableHead>
-                                <TableHead>Username</TableHead>
-                                <TableHead>Nome</TableHead>
-                                <TableHead>Telefone</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {members.map((member) => (
-                                <TableRow key={member.id} className={member.selected ? '' : 'opacity-50'}>
-                                    <TableCell>
-                                        <Checkbox
-                                            checked={member.selected}
-                                            onCheckedChange={() => toggleMember(member.id)}
-                                        />
-                                    </TableCell>
-                                    <TableCell className="font-medium">
-                                        {member.username ? `@${member.username}` : '-'}
-                                    </TableCell>
-                                    <TableCell>
-                                        {`${member.firstName} ${member.lastName}`.trim() || '-'}
-                                    </TableCell>
-                                    <TableCell>{member.phone || '-'}</TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </div>
-
-                {/* Import Button */}
-                <div className="mt-4 flex items-center justify-between">
-                    <div className="text-sm text-muted-foreground">
-                        {selectedCount} membro(s) será(ão) importado(s)
-                    </div>
-                    <Button
-                        onClick={handleImport}
-                        disabled={isLoading || selectedCount === 0}
-                        className="bg-gradient-to-r from-blue-600 to-purple-600"
-                    >
-                        <UserPlus className="w-4 h-4 mr-2" />
-                        {isLoading ? 'Importando...' : `Importar ${selectedCount} Cliente(s)`}
-                    </Button>
-                </div>
-
-                {/* Import Results */}
-                {importResults && (
-                    <div className="mt-4 p-4 rounded-lg bg-muted/50 space-y-2">
-                        <h4 className="font-medium">Resultado da Importação</h4>
-                        <div className="flex gap-4">
-                            <div className="flex items-center gap-2 text-green-500">
-                                <CheckCircle className="w-4 h-4" />
-                                {importResults.success} sucesso
-                            </div>
-                            <div className="flex items-center gap-2 text-red-500">
-                                <XCircle className="w-4 h-4" />
-                                {importResults.failed} falha(s)
-                            </div>
+            {/* Members Table - Always visible when there are members */}
+            {members.length > 0 && (
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between">
+                        <div>
+                            <CardTitle className="flex items-center gap-2">
+                                <Users className="w-5 h-5" />
+                                Membros Encontrados
+                                <Badge variant="secondary">{members.length}</Badge>
+                            </CardTitle>
+                            <CardDescription>
+                                {selectedCount} de {members.length} selecionados
+                            </CardDescription>
                         </div>
-                        {importResults.errors.length > 0 && (
-                            <div className="text-sm text-red-400 mt-2">
-                                <p className="font-medium">Erros:</p>
-                                <ul className="list-disc list-inside">
-                                    {importResults.errors.slice(0, 5).map((err, i) => (
-                                        <li key={i}>{err}</li>
+
+                        <div className="flex gap-2">
+                            <Button variant="outline" size="sm" onClick={() => toggleAll(true)}>
+                                Selecionar Todos
+                            </Button>
+                            <Button variant="outline" size="sm" onClick={() => toggleAll(false)}>
+                                Desmarcar Todos
+                            </Button>
+                            <Button variant="secondary" size="sm" onClick={handleExportCSV}>
+                                <Download className="w-4 h-4 mr-1" />
+                                Exportar CSV
+                            </Button>
+                            <Button variant="destructive" size="sm" onClick={handleClear}>
+                                <Trash2 className="w-4 h-4" />
+                            </Button>
+                        </div>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="max-h-[400px] overflow-auto rounded-md border">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead className="w-12">
+                                            <Checkbox
+                                                checked={selectedCount === members.length}
+                                                onCheckedChange={(checked) => toggleAll(!!checked)}
+                                            />
+                                        </TableHead>
+                                        <TableHead>Username</TableHead>
+                                        <TableHead>Nome</TableHead>
+                                        <TableHead>Telefone</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {members.map((member) => (
+                                        <TableRow key={member.id} className={member.selected ? '' : 'opacity-50'}>
+                                            <TableCell>
+                                                <Checkbox
+                                                    checked={member.selected}
+                                                    onCheckedChange={() => toggleMember(member.id)}
+                                                />
+                                            </TableCell>
+                                            <TableCell className="font-medium">
+                                                {member.username ? `@${member.username}` : '-'}
+                                            </TableCell>
+                                            <TableCell>
+                                                {`${member.firstName} ${member.lastName}`.trim() || '-'}
+                                            </TableCell>
+                                            <TableCell>{member.phone || '-'}</TableCell>
+                                        </TableRow>
                                     ))}
-                                    {importResults.errors.length > 5 && (
-                                        <li>... e mais {importResults.errors.length - 5} erros</li>
-                                    )}
-                                </ul>
+                                </TableBody>
+                            </Table>
+                        </div>
+
+                        {/* Import Button */}
+                        <div className="mt-4 flex items-center justify-between">
+                            <div className="text-sm text-muted-foreground">
+                                {selectedCount} membro(s) será(ão) importado(s)
+                            </div>
+                            <Button
+                                onClick={handleImport}
+                                disabled={isLoading || selectedCount === 0}
+                                className="bg-gradient-to-r from-blue-600 to-purple-600"
+                            >
+                                <UserPlus className="w-4 h-4 mr-2" />
+                                {isLoading ? 'Importando...' : `Importar ${selectedCount} Cliente(s)`}
+                            </Button>
+                        </div>
+
+                        {/* Import Results */}
+                        {importResults && (
+                            <div className="mt-4 p-4 rounded-lg bg-muted/50 space-y-2">
+                                <h4 className="font-medium">Resultado da Importação</h4>
+                                <div className="flex gap-4">
+                                    <div className="flex items-center gap-2 text-green-500">
+                                        <CheckCircle className="w-4 h-4" />
+                                        {importResults.success} sucesso
+                                    </div>
+                                    <div className="flex items-center gap-2 text-red-500">
+                                        <XCircle className="w-4 h-4" />
+                                        {importResults.failed} falha(s)
+                                    </div>
+                                </div>
+                                {importResults.errors.length > 0 && (
+                                    <div className="text-sm text-red-400 mt-2">
+                                        <p className="font-medium">Erros:</p>
+                                        <ul className="list-disc list-inside">
+                                            {importResults.errors.slice(0, 5).map((err, i) => (
+                                                <li key={i}>{err}</li>
+                                            ))}
+                                            {importResults.errors.length > 5 && (
+                                                <li>... e mais {importResults.errors.length - 5} erros</li>
+                                            )}
+                                        </ul>
+                                    </div>
+                                )}
                             </div>
                         )}
-                    </div>
-                )}
-            </CardContent>
-        </Card>
-    )
-}
+                    </CardContent>
+                </Card>
+            )
+            }
         </div >
     );
 }
