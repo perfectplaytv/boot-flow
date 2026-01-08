@@ -119,6 +119,27 @@ interface SendPrivateResponse {
     message?: string;
 }
 
+// Phase 3: Campaign & Scheduling
+interface Campaign {
+    id: string;
+    name: string;
+    createdAt: string;
+}
+
+interface ScheduledMessage {
+    id: string;
+    name: string;
+    campaignId: string;
+    message: string;
+    attachment?: string;
+    buttons: Array<{ label: string, url: string }>;
+    mode: 'scheduled' | 'cron' | 'manual';
+    scheduledDate?: string;
+    scheduledTime?: string;
+    status: 'pending' | 'sent' | 'failed';
+    createdAt: string;
+}
+
 // URL da API do Telegram (Railway) - Configure no .env
 const TELEGRAM_API_URL = import.meta.env.VITE_TELEGRAM_API_URL || "";
 
@@ -174,6 +195,23 @@ export default function AdminTelegram() {
     const [isSending, setIsSending] = useState(false);
     const [sendProgress, setSendProgress] = useState({ current: 0, total: 0, success: 0, failed: 0 });
     const [sendLogs, setSendLogs] = useState<Array<{ time: string; user: string; status: string; message?: string }>>([]);
+
+    // Phase 3: Campaign States
+    const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+    const [scheduledMessages, setScheduledMessages] = useState<ScheduledMessage[]>([]);
+    const [newSchedule, setNewSchedule] = useState({
+        name: '',
+        campaignId: '',
+        message: '',
+        attachment: '',
+        buttons: [] as Array<{ label: string, url: string }>,
+        mode: 'scheduled' as 'scheduled' | 'cron' | 'manual',
+        scheduledDate: '',
+        scheduledTime: ''
+    });
+    const [newCampaignName, setNewCampaignName] = useState('');
+    const [showAddButton, setShowAddButton] = useState(false);
+    const [newButton, setNewButton] = useState({ label: '', url: '' });
 
     const fetchSessions = useCallback(async () => {
         try {
