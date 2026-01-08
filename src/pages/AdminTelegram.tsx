@@ -33,7 +33,12 @@ import {
     Filter,
     Zap,
     Shield,
-    Clock
+    Clock,
+    Calendar,
+    Paperclip,
+    Plus,
+    Play,
+    X
 } from "lucide-react";
 
 interface TelegramMember {
@@ -882,6 +887,114 @@ export default function AdminTelegram() {
         toast.info("Envio interrompido");
     };
 
+    // Phase 3: Load campaigns and schedules from localStorage
+    useEffect(() => {
+        const savedCampaigns = localStorage.getItem('telegram_campaigns');
+        const savedSchedules = localStorage.getItem('telegram_scheduled_messages');
+        if (savedCampaigns) {
+            try { setCampaigns(JSON.parse(savedCampaigns)); } catch (e) { console.error(e); }
+        }
+        if (savedSchedules) {
+            try { setScheduledMessages(JSON.parse(savedSchedules)); } catch (e) { console.error(e); }
+        }
+    }, []);
+
+    // Phase 3: Create campaign
+    const handleCreateCampaign = () => {
+        if (!newCampaignName.trim()) {
+            toast.error("Digite o nome da campanha");
+            return;
+        }
+        const campaign: Campaign = {
+            id: Date.now().toString(),
+            name: newCampaignName.trim(),
+            createdAt: new Date().toISOString()
+        };
+        const updated = [...campaigns, campaign];
+        setCampaigns(updated);
+        localStorage.setItem('telegram_campaigns', JSON.stringify(updated));
+        setNewCampaignName('');
+        toast.success(`Campanha "${campaign.name}" criada!`);
+    };
+
+    // Phase 3: Save scheduled message
+    const handleSaveSchedule = () => {
+        if (!newSchedule.name.trim()) {
+            toast.error("Digite o nome do disparo");
+            return;
+        }
+        if (!newSchedule.message.trim()) {
+            toast.error("Digite a mensagem");
+            return;
+        }
+        if (newSchedule.mode === 'scheduled' && (!newSchedule.scheduledDate || !newSchedule.scheduledTime)) {
+            toast.error("Defina a data e horário");
+            return;
+        }
+
+        const schedule: ScheduledMessage = {
+            id: Date.now().toString(),
+            name: newSchedule.name.trim(),
+            campaignId: newSchedule.campaignId,
+            message: newSchedule.message,
+            attachment: newSchedule.attachment,
+            buttons: newSchedule.buttons,
+            mode: newSchedule.mode,
+            scheduledDate: newSchedule.scheduledDate,
+            scheduledTime: newSchedule.scheduledTime,
+            status: 'pending',
+            createdAt: new Date().toISOString()
+        };
+
+        const updated = [...scheduledMessages, schedule];
+        setScheduledMessages(updated);
+        localStorage.setItem('telegram_scheduled_messages', JSON.stringify(updated));
+
+        // Reset form
+        setNewSchedule({
+            name: '',
+            campaignId: '',
+            message: '',
+            attachment: '',
+            buttons: [],
+            mode: 'scheduled',
+            scheduledDate: '',
+            scheduledTime: ''
+        });
+
+        toast.success(`Disparo "${schedule.name}" salvo!`);
+    };
+
+    // Phase 3: Add button to message
+    const handleAddButton = () => {
+        if (!newButton.label.trim() || !newButton.url.trim()) {
+            toast.error("Preencha o texto e URL do botão");
+            return;
+        }
+        setNewSchedule(prev => ({
+            ...prev,
+            buttons: [...prev.buttons, { label: newButton.label, url: newButton.url }]
+        }));
+        setNewButton({ label: '', url: '' });
+        setShowAddButton(false);
+    };
+
+    // Phase 3: Remove button from message
+    const handleRemoveButton = (index: number) => {
+        setNewSchedule(prev => ({
+            ...prev,
+            buttons: prev.buttons.filter((_, i) => i !== index)
+        }));
+    };
+
+    // Phase 3: Delete scheduled message
+    const handleDeleteSchedule = (id: string) => {
+        const updated = scheduledMessages.filter(s => s.id !== id);
+        setScheduledMessages(updated);
+        localStorage.setItem('telegram_scheduled_messages', JSON.stringify(updated));
+        toast.success("Disparo excluído!");
+    };
+
     return (
         <div className="space-y-6 p-4 md:p-6">
             {/* Header */}
@@ -899,7 +1012,7 @@ export default function AdminTelegram() {
 
             {/* Tabs para métodos de importação */}
             <Tabs defaultValue={apiConfigured ? "automatic" : "manual"} className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-6">
+                <TabsList className="grid w-full grid-cols-3 mb-6">
                     <TabsTrigger value="automatic" className="flex items-center gap-2">
                         <Link className="w-4 h-4" />
                         Extração Automática
@@ -908,6 +1021,11 @@ export default function AdminTelegram() {
                     <TabsTrigger value="manual" className="flex items-center gap-2">
                         <Upload className="w-4 h-4" />
                         Upload de Arquivo
+                    </TabsTrigger>
+                    <TabsTrigger value="campaigns" className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4" />
+                        Campanhas
+                        {scheduledMessages.length > 0 && <Badge variant="secondary" className="text-xs">{scheduledMessages.length}</Badge>}
                     </TabsTrigger>
                 </TabsList>
 
