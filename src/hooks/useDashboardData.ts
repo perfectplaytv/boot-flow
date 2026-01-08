@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 
 type UserRow = {
@@ -145,16 +145,26 @@ export function useDashboardData() {
     }
   }, [user, userRole]);
 
+  // Ref para debounce
+  const lastRefreshTime = useRef(0);
+
   useEffect(() => {
     fetchData();
 
     // Listen for refresh events
     const handleRefresh = (e: CustomEvent) => {
-      console.log('🔄 Refresh manual solicitado via evento', e.detail);
-      fetchData();
+      const now = Date.now();
+      if (now - lastRefreshTime.current > 1000) {
+        lastRefreshTime.current = now;
+        console.log('🔄 Refresh manual solicitado via evento', e.detail);
+        fetchData();
+      } else {
+        console.log('⏳ Refresh ignorado (debounce)');
+      }
     };
-    window.addEventListener('refresh-dashboard', handleRefresh);
-    return () => window.removeEventListener('refresh-dashboard', handleRefresh);
+
+    window.addEventListener('refresh-dashboard', handleRefresh as EventListener);
+    return () => window.removeEventListener('refresh-dashboard', handleRefresh as EventListener);
   }, [fetchData]);
 
   return { stats, loading, error, refresh: fetchData };
