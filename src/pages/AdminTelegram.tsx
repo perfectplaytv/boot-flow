@@ -404,6 +404,80 @@ export default function AdminTelegram() {
         }
     }, []);
 
+    // Phase 5: Private Send States
+    const [privateSendConfig, setPrivateSendConfig] = useState({
+        name: '',
+        sourceType: 'group' as 'group' | 'audience',
+        sourceId: '',
+        filterActive: true,
+        filterBy: 'days' as 'status' | 'days',
+        lastSeenDays: 7,
+        messages: [''],
+        selectedAccounts: [] as string[],
+        intervalMin: 10,
+        intervalMax: 20,
+        dailyLimit: 25,
+        scheduleEnabled: false,
+        scheduleDate: '',
+        scheduleTime: ''
+    });
+    const [activeMessageIndex, setActiveMessageIndex] = useState(0);
+
+    // Phase 5: Add message variation
+    const addMessageVariation = () => {
+        setPrivateSendConfig(prev => ({
+            ...prev,
+            messages: [...prev.messages, '']
+        }));
+        setActiveMessageIndex(privateSendConfig.messages.length);
+    };
+
+    // Phase 5: Update message variation
+    const updateMessageVariation = (index: number, text: string) => {
+        setPrivateSendConfig(prev => ({
+            ...prev,
+            messages: prev.messages.map((m, i) => i === index ? text.slice(0, 4096) : m)
+        }));
+    };
+
+    // Phase 5: Remove message variation
+    const removeMessageVariation = (index: number) => {
+        if (privateSendConfig.messages.length <= 1) {
+            toast.error("Deve haver pelo menos uma variação");
+            return;
+        }
+        setPrivateSendConfig(prev => ({
+            ...prev,
+            messages: prev.messages.filter((_, i) => i !== index)
+        }));
+        setActiveMessageIndex(Math.max(0, activeMessageIndex - 1));
+    };
+
+    // Phase 5: Toggle account selection
+    const toggleAccountSelection = (phone: string) => {
+        setPrivateSendConfig(prev => ({
+            ...prev,
+            selectedAccounts: prev.selectedAccounts.includes(phone)
+                ? prev.selectedAccounts.filter(p => p !== phone)
+                : [...prev.selectedAccounts, phone]
+        }));
+    };
+
+    // Phase 5: Select all accounts
+    const selectAllAccounts = () => {
+        const allPhones = sessions.map(s => s.clean_phone);
+        setPrivateSendConfig(prev => ({
+            ...prev,
+            selectedAccounts: prev.selectedAccounts.length === allPhones.length ? [] : allPhones
+        }));
+    };
+
+    // Phase 5: Insert variable into message
+    const insertVariable = (variable: string) => {
+        const currentMsg = privateSendConfig.messages[activeMessageIndex] || '';
+        updateMessageVariation(activeMessageIndex, currentMsg + `{${variable}}`);
+    };
+
     const fetchSessions = useCallback(async () => {
         try {
             const response = await fetch(`${TELEGRAM_API_URL}/sessions`);
