@@ -29,4 +29,4 @@ const mockSupabase = {
 };
 
 export const supabase = mockSupabase;
-export type UserProfile = any;
+export type UserProfile = Record<string, unknown>;
