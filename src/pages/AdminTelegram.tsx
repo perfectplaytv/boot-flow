@@ -218,6 +218,35 @@ export default function AdminTelegram() {
     const [showAddButton, setShowAddButton] = useState(false);
     const [newButton, setNewButton] = useState({ label: '', url: '' });
 
+    // Phase 3: Cron Schedule Grid State
+    const [cronSchedule, setCronSchedule] = useState<Record<string, Record<number, boolean>>>({
+        seg: {}, ter: {}, qua: {}, qui: {}, sex: {}, sab: {}, dom: {}
+    });
+    const [cronStartDate, setCronStartDate] = useState('');
+    const [cronEndDate, setCronEndDate] = useState('');
+    const [useStartDate, setUseStartDate] = useState(false);
+    const [useEndDate, setUseEndDate] = useState(false);
+
+    // Phase 3: Toggle cell in cron grid
+    const toggleCronCell = (day: string, hour: number) => {
+        setCronSchedule(prev => ({
+            ...prev,
+            [day]: {
+                ...prev[day],
+                [hour]: !prev[day][hour]
+            }
+        }));
+    };
+
+    // Phase 3: Count total scheduled slots
+    const countScheduledSlots = () => {
+        let count = 0;
+        Object.values(cronSchedule).forEach(hours => {
+            count += Object.values(hours).filter(Boolean).length;
+        });
+        return count;
+    };
+
     const fetchSessions = useCallback(async () => {
         try {
             const response = await fetch(`${TELEGRAM_API_URL}/sessions`);
