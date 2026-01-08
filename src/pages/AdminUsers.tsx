@@ -1593,12 +1593,12 @@ export default function AdminUsers() {
                   <TableCell>
                     <Badge
                       className={`text-xs ${user.status === "Ativo"
-                          ? "bg-green-700 text-green-200"
-                          : user.status === "Inativo"
-                            ? "bg-red-700 text-red-200"
-                            : user.status === "Pendente"
-                              ? "bg-yellow-700 text-yellow-200"
-                              : "bg-gray-700 text-gray-300"
+                        ? "bg-green-700 text-green-200"
+                        : user.status === "Inativo"
+                          ? "bg-red-700 text-red-200"
+                          : user.status === "Pendente"
+                            ? "bg-yellow-700 text-yellow-200"
+                            : "bg-gray-700 text-gray-300"
                         }`}
                     >
                       {user.status}
@@ -1642,8 +1642,8 @@ export default function AdminUsers() {
                         size="sm"
                         variant={user.pago ? "default" : "outline"}
                         className={`${user.pago
-                            ? "bg-green-600 text-white hover:bg-green-700 border-green-600"
-                            : "border-green-600 text-green-400 hover:bg-green-600 hover:text-white bg-background"
+                          ? "bg-green-600 text-white hover:bg-green-700 border-green-600"
+                          : "border-green-600 text-green-400 hover:bg-green-600 hover:text-white bg-background"
                           } h-8 w-8 sm:h-9 sm:w-9 p-0 rounded-md`}
                         onClick={() => openPagoModal(user)}
                         title={user.pago ? "Marcar como Não Pago" : "Marcar como Pago"}
@@ -1969,24 +1969,30 @@ export default function AdminUsers() {
                       Extração M3U
                     </span>
                     <div className="flex gap-2">
-                      <Button
-                        className="bg-blue-600 text-white hover:bg-blue-700 px-4 py-1 rounded text-sm"
+                      <button
+                        className="inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-10 bg-blue-600 text-white hover:bg-blue-700 px-4 py-1 rounded text-sm"
+                        type="button"
                         onClick={extractM3UData}
                         disabled={isExtracting}
                       >
-                        {isExtracting ? "Extraindo..." : "Extrair"}
-                      </Button>
+                        {isExtracting ? (
+                          <>
+                            <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
+                            Extraindo...
+                          </>
+                        ) : "Extrair"}
+                      </button>
                     </div>
                   </div>
                   <p className="text-xs text-blue-300 mb-2">
                     Serve para importar dados automaticamente a partir de uma
                     URL.
                   </p>
-                  <Input
+                  <input
+                    className="flex h-10 w-full rounded-md px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-[#1f2937] border border-blue-800 text-white mb-2"
                     placeholder="Insira a URL do M3U para extrair automaticamente os dados do cliente..."
-                    className="bg-[#1f2937] border border-blue-800 text-white mb-2"
                     value={m3uUrl}
-                    onChange={(e) => setM3uUrl(e.target.value)}
+                    onChange={e => setM3uUrl(e.target.value)}
                   />
 
                   {/* Status de extração */}
@@ -2490,11 +2496,11 @@ export default function AdminUsers() {
               </>
             )}
           </div>
-        </DialogContent>
-      </Dialog>
+        </DialogContent >
+      </Dialog >
 
       {/* Modal de Confirmação de Exclusão */}
-      <AlertDialog
+      < AlertDialog
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
       >
@@ -2560,10 +2566,10 @@ export default function AdminUsers() {
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
-      </AlertDialog>
+      </AlertDialog >
 
       {/* Modal de Confirmação de Pagamento */}
-      <AlertDialog
+      < AlertDialog
         open={isPagoDialogOpen}
         onOpenChange={setIsPagoDialogOpen}
       >
@@ -2620,8 +2626,8 @@ export default function AdminUsers() {
 
               {pagoUser.price && (
                 <div className={`rounded-lg p-4 border-2 ${pagoUser.pago
-                    ? "bg-yellow-900/20 border-yellow-600/50"
-                    : "bg-green-900/20 border-green-600/50"
+                  ? "bg-yellow-900/20 border-yellow-600/50"
+                  : "bg-green-900/20 border-green-600/50"
                   }`}>
                   <div className="flex items-center justify-between">
                     <div>
@@ -2664,16 +2670,16 @@ export default function AdminUsers() {
             <AlertDialogAction
               onClick={confirmTogglePago}
               className={`${pagoUser?.pago
-                  ? "bg-yellow-600 hover:bg-yellow-700"
-                  : "bg-green-600 hover:bg-green-700"
+                ? "bg-yellow-600 hover:bg-yellow-700"
+                : "bg-green-600 hover:bg-green-700"
                 } text-white`}
             >
               {pagoUser?.pago ? "Desmarcar Pagamento" : "Confirmar Pagamento"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
-      </AlertDialog>
-    </div>
+      </AlertDialog >
+    </div >
   );
 }
 
