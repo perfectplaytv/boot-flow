@@ -1056,6 +1056,78 @@ export default function AdminTelegram() {
                 </TabsContent>
             </Tabs>
 
+            {/* Saved Audiences Section */}
+            <Card className="border-dashed">
+                <CardHeader>
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <CardTitle className="flex items-center gap-2">
+                                <FolderOpen className="w-5 h-5" />
+                                Públicos Salvos
+                                {savedAudiences.length > 0 && (
+                                    <Badge variant="secondary">{savedAudiences.length}</Badge>
+                                )}
+                            </CardTitle>
+                            <CardDescription>
+                                Reutilize extrações salvas anteriormente
+                            </CardDescription>
+                        </div>
+                        {members.length > 0 && (
+                            <div className="flex gap-2">
+                                <Input
+                                    placeholder="Nome do público..."
+                                    value={audienceName}
+                                    onChange={(e) => setAudienceName(e.target.value)}
+                                    className="w-48"
+                                />
+                                <Button onClick={handleSaveAudience} variant="outline" className="gap-2">
+                                    <Save className="w-4 h-4" />
+                                    Salvar
+                                </Button>
+                            </div>
+                        )}
+                    </div>
+                </CardHeader>
+                {savedAudiences.length > 0 && (
+                    <CardContent>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {savedAudiences.map((audience) => (
+                                <div key={audience.id} className="border rounded-lg p-4 space-y-3 bg-muted/30">
+                                    <div className="flex items-center justify-between">
+                                        <h4 className="font-medium text-sm">{audience.name}</h4>
+                                        <Badge variant="outline">{audience.totalMembers}</Badge>
+                                    </div>
+                                    <div className="text-xs text-muted-foreground space-y-1">
+                                        <p>📅 {new Date(audience.createdAt).toLocaleDateString('pt-BR')}</p>
+                                        <p>📂 {audience.source}</p>
+                                        <p>✓ {audience.withUsername} com username | 📞 {audience.withPhone} com telefone</p>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={() => handleLoadAudience(audience)}
+                                            className="flex-1"
+                                        >
+                                            <Download className="w-3 h-3 mr-1" />
+                                            Carregar
+                                        </Button>
+                                        <Button
+                                            size="sm"
+                                            variant="ghost"
+                                            className="text-red-500"
+                                            onClick={() => handleDeleteAudience(audience.id)}
+                                        >
+                                            <Trash2 className="w-3 h-3" />
+                                        </Button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </CardContent>
+                )}
+            </Card>
+
             {/* Import Config - Always visible when there are members */}
             {members.length > 0 && (
                 <Card>
