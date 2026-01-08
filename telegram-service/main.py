@@ -110,13 +110,19 @@ async def list_sessions():
                 client = await get_client(ph)
                 if client and await client.is_user_authorized():
                     me = await client.get_me()
+                    # Check for restrictions
+                    is_restricted = getattr(me, 'restricted', False)
+                    reason = str(me.restriction_reason) if getattr(me, 'restriction_reason', None) else None
+                    
                     sessions.append({
-                        "phone": f"+{ph}", # Add + back for display
+                        "phone": f"+{ph}", 
                         "clean_phone": ph,
                         "id": str(me.id),
                         "username": me.username,
                         "first_name": me.first_name,
-                        "last_name": me.last_name
+                        "last_name": me.last_name,
+                        "is_restricted": is_restricted,
+                        "restriction_reason": reason
                     })
             except Exception as e:
                 print(f"Error loading session {ph}: {e}")
