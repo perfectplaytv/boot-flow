@@ -44,7 +44,6 @@ import {
     Radio,
     Sparkles,
     Copy,
-    Loader2
 } from "lucide-react";
 
 interface TelegramMember {
