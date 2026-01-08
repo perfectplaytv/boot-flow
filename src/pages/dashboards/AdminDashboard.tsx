@@ -326,8 +326,7 @@ const AdminDashboard = () => {
         toast.error("Função de adicionar revenda não disponível");
         return false;
       }
-      // @ts-expect-error - adaptação de tipos entre Record e Revenda
-      const success = await addRevendaHook(revendaData);
+      const success = await addRevendaHook(revendaData as Parameters<typeof addRevendaHook>[0]);
 
       if (success) {
         toast.success('Revendedor adicionado com sucesso!');
@@ -380,10 +379,11 @@ const AdminDashboard = () => {
     em3Dias.setHours(0, 0, 0, 0);
 
     const count = clientes.filter(cliente => {
-      if (!cliente.expiration_date) return false;
+      const expDate = cliente.expiration_date as string | undefined;
+      if (!expDate) return false;
 
       try {
-        const expirationDate = new Date(cliente.expiration_date);
+        const expirationDate = new Date(expDate);
         expirationDate.setHours(0, 0, 0, 0);
 
         // Calcular diferença em dias
@@ -416,16 +416,16 @@ const AdminDashboard = () => {
     const clientesAtividades = clientes.slice(0, 5).map((cliente, index) => ({
       id: `c-${cliente.id}`,
       type: 'user',
-      user: cliente.name || cliente.email,
-      time: cliente.updated_at ? formatTimeAgo(cliente.updated_at) : 'Há muito tempo',
+      user: String(cliente.name || cliente.email || 'Desconhecido'),
+      time: cliente.updated_at ? formatTimeAgo(String(cliente.updated_at)) : 'Há muito tempo',
       status: cliente.status === 'Ativo' ? 'Online' : 'Offline'
     }));
 
     const revendasAtividades = revendas.slice(0, 5).map((revenda, index) => ({
       id: `r-${revenda.id}`,
       type: 'reseller',
-      user: revenda.username || revenda.email,
-      time: revenda.updated_at ? formatTimeAgo(revenda.updated_at) : 'Há muito tempo',
+      user: String(revenda.username || revenda.email || 'Desconhecido'),
+      time: revenda.updated_at ? formatTimeAgo(String(revenda.updated_at)) : 'Há muito tempo',
       status: revenda.status === 'Ativo' ? 'Online' : 'Offline'
     }));
 
@@ -447,10 +447,10 @@ const AdminDashboard = () => {
       .slice(0, 10)
       .map(cliente => ({
         id: `c-${cliente.id}`,
-        name: cliente.name || cliente.email,
+        name: String(cliente.name || cliente.email || 'Desconhecido'),
         type: 'Cliente',
         status: 'Online',
-        lastSeen: cliente.updated_at ? formatTimeAgo(cliente.updated_at) : 'Agora'
+        lastSeen: cliente.updated_at ? formatTimeAgo(String(cliente.updated_at)) : 'Agora'
       }));
 
     const revendasOnline = revendas
@@ -458,10 +458,10 @@ const AdminDashboard = () => {
       .slice(0, 10)
       .map(revenda => ({
         id: `r-${revenda.id}`,
-        name: revenda.username || revenda.email,
+        name: String(revenda.username || revenda.email || 'Desconhecido'),
         type: 'Revendedor',
         status: 'Online',
-        lastSeen: revenda.updated_at ? formatTimeAgo(revenda.updated_at) : 'Agora'
+        lastSeen: revenda.updated_at ? formatTimeAgo(String(revenda.updated_at)) : 'Agora'
       }));
 
     return [...clientesOnline, ...revendasOnline].slice(0, 10); // Limitar a 10 itens
@@ -1936,7 +1936,8 @@ const AdminDashboard = () => {
           }
         } else {
           // Solto em área vazia - tentar encontrar a coluna pelo data-column-id
-          const columnElement = (over.data?.current as { columnId?: string })?.columnId || over.id;
+          const currentData = over.data?.current as Record<string, unknown> | undefined;
+          const columnElement = (currentData?.columnId as string | undefined) || String(over.id);
           console.log('Dropped in empty area, trying column:', columnElement);
 
           if (columnElement && newColumns[columnElement]) {
