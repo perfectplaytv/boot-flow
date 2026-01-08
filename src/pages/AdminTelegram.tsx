@@ -2482,6 +2482,315 @@ export default function AdminTelegram() {
                         </Card>
                     )}
                 </TabsContent>
+
+                {/* Tab: Envio no Privado */}
+                <TabsContent value="private" className="space-y-6">
+                    {/* Banner Informativo */}
+                    <div className="bg-gradient-to-r from-orange-600 to-red-600 rounded-lg p-4 text-white text-center">
+                        <p className="text-lg font-medium">
+                            📩 Dispare mensagens em massa para os membros do grupo ou para uma lista com seus contatos @usernames.
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        {/* Coluna 1: Configuração do Disparo */}
+                        <Card>
+                            <CardHeader className="pb-3">
+                                <CardTitle className="text-sm">Configuração do Disparo</CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                {/* Nome do disparo */}
+                                <div className="space-y-2">
+                                    <Label className="text-xs">Nome do disparo:</Label>
+                                    <Input
+                                        placeholder="Mensagem no PV"
+                                        value={privateSendConfig.name}
+                                        onChange={(e) => setPrivateSendConfig(prev => ({ ...prev, name: e.target.value }))}
+                                        className="h-8 text-sm"
+                                    />
+                                </div>
+
+                                {/* Enviar para membros de */}
+                                <div className="space-y-2">
+                                    <Label className="text-xs">Enviar mensagens para membros de:</Label>
+                                    <div className="flex gap-4">
+                                        <label className="flex items-center gap-2 cursor-pointer">
+                                            <input
+                                                type="radio"
+                                                checked={privateSendConfig.sourceType === 'group'}
+                                                onChange={() => setPrivateSendConfig(prev => ({ ...prev, sourceType: 'group' }))}
+                                                className="w-3 h-3"
+                                            />
+                                            <span className="text-xs">Grupo cadastrado</span>
+                                        </label>
+                                        <label className="flex items-center gap-2 cursor-pointer">
+                                            <input
+                                                type="radio"
+                                                checked={privateSendConfig.sourceType === 'audience'}
+                                                onChange={() => setPrivateSendConfig(prev => ({ ...prev, sourceType: 'audience' }))}
+                                                className="w-3 h-3"
+                                            />
+                                            <span className="text-xs">Público Salvo</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                {/* Selecione grupo/público */}
+                                <div className="space-y-2">
+                                    <Label className="text-xs">
+                                        {privateSendConfig.sourceType === 'group' ? 'Selecione um grupo:' : 'Selecione um público:'}
+                                    </Label>
+                                    <Select
+                                        value={privateSendConfig.sourceId}
+                                        onValueChange={(v) => setPrivateSendConfig(prev => ({ ...prev, sourceId: v }))}
+                                    >
+                                        <SelectTrigger className="h-8 text-sm">
+                                            <SelectValue placeholder="Selecione..." />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {privateSendConfig.sourceType === 'audience'
+                                                ? savedAudiences.map(a => (
+                                                    <SelectItem key={a.id} value={a.id}>{a.name} ({a.members.length})</SelectItem>
+                                                ))
+                                                : <SelectItem value="extracted">Membros extraídos ({members.length})</SelectItem>
+                                            }
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                {/* Filtros */}
+                                <div className="space-y-3 pt-2 border-t">
+                                    <Label className="text-xs font-medium">Filtros</Label>
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={privateSendConfig.filterActive}
+                                            onChange={(e) => setPrivateSendConfig(prev => ({ ...prev, filterActive: e.target.checked }))}
+                                            className="w-3 h-3"
+                                        />
+                                        <span className="text-xs">Filtrar membros ativos</span>
+                                    </label>
+
+                                    {privateSendConfig.filterActive && (
+                                        <>
+                                            <div className="flex gap-4 ml-5">
+                                                <label className="flex items-center gap-2 cursor-pointer">
+                                                    <input
+                                                        type="radio"
+                                                        checked={privateSendConfig.filterBy === 'status'}
+                                                        onChange={() => setPrivateSendConfig(prev => ({ ...prev, filterBy: 'status' }))}
+                                                        className="w-3 h-3"
+                                                    />
+                                                    <span className="text-xs">Por status</span>
+                                                </label>
+                                                <label className="flex items-center gap-2 cursor-pointer">
+                                                    <input
+                                                        type="radio"
+                                                        checked={privateSendConfig.filterBy === 'days'}
+                                                        onChange={() => setPrivateSendConfig(prev => ({ ...prev, filterBy: 'days' }))}
+                                                        className="w-3 h-3"
+                                                    />
+                                                    <span className="text-xs">Por dias</span>
+                                                </label>
+                                            </div>
+
+                                            {privateSendConfig.filterBy === 'days' && (
+                                                <Select
+                                                    value={privateSendConfig.lastSeenDays.toString()}
+                                                    onValueChange={(v) => setPrivateSendConfig(prev => ({ ...prev, lastSeenDays: parseInt(v) }))}
+                                                >
+                                                    <SelectTrigger className="h-8 text-xs ml-5">
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="7">Visto na última semana (até 07 dias)</SelectItem>
+                                                        <SelectItem value="15">Últimos 15 dias</SelectItem>
+                                                        <SelectItem value="30">Últimos 30 dias</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            )}
+                                        </>
+                                    )}
+                                </div>
+
+                                {/* Info extração */}
+                                <div className="text-xs text-muted-foreground flex items-center gap-1 pt-2">
+                                    <Zap className="w-3 h-3 text-yellow-500" />
+                                    Extração padrão: Será realizada uma extração para obter o máximo de membros com Username
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Coluna 2: Variações de Mensagem */}
+                        <Card>
+                            <CardHeader className="pb-3">
+                                <CardTitle className="text-sm">Variações de Mensagem</CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-3">
+                                {/* Tabs de mensagens */}
+                                <div className="flex gap-1 flex-wrap">
+                                    {privateSendConfig.messages.map((_, index) => (
+                                        <Button
+                                            key={index}
+                                            size="sm"
+                                            variant={activeMessageIndex === index ? "default" : "outline"}
+                                            onClick={() => setActiveMessageIndex(index)}
+                                            className="h-7 text-xs relative"
+                                        >
+                                            Msg {index + 1}
+                                            {privateSendConfig.messages.length > 1 && (
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); removeMessageVariation(index); }}
+                                                    className="absolute -top-1 -right-1 bg-red-500 rounded-full w-3 h-3 text-[8px] flex items-center justify-center"
+                                                >
+                                                    ×
+                                                </button>
+                                            )}
+                                        </Button>
+                                    ))}
+                                </div>
+
+                                {/* Textarea */}
+                                <textarea
+                                    className="w-full min-h-[180px] rounded-md border border-input bg-background px-3 py-2 text-xs"
+                                    placeholder="Oi, {nome}! Vi que você está no mesmo grupo que eu, {var5}. Passando aqui rapidinho para te dizer que, se estiver buscando uma ferramenta de ENVIO DE MENSAGEM em massa para os membros do seu GRUPO ou CANAL, o BLASTSEND é, sem dúvida, a melhor opção."
+                                    value={privateSendConfig.messages[activeMessageIndex] || ''}
+                                    onChange={(e) => updateMessageVariation(activeMessageIndex, e.target.value)}
+                                    maxLength={4096}
+                                />
+
+                                {/* Info e botões */}
+                                <div className="flex justify-between items-center">
+                                    <span className="text-[10px] text-muted-foreground">
+                                        {(privateSendConfig.messages[activeMessageIndex] || '').length}/4096 caracteres
+                                    </span>
+                                </div>
+
+                                {/* Botões de ação */}
+                                <div className="flex gap-2">
+                                    <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => insertVariable('nome')}>
+                                        + Variável
+                                    </Button>
+                                    <Button size="sm" variant="outline" className="h-7 text-xs" onClick={addMessageVariation}>
+                                        Nova variação
+                                    </Button>
+                                </div>
+
+                                {/* Dica */}
+                                <p className="text-[10px] text-muted-foreground">
+                                    💡 Dica: crie variações da mensagem para evitar disparos repetidos
+                                </p>
+                            </CardContent>
+                        </Card>
+
+                        {/* Coluna 3: Contas e Configurações */}
+                        <Card>
+                            <CardHeader className="pb-3">
+                                <CardTitle className="text-sm">Contas & Configurações</CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                {/* Lista de contas */}
+                                <div className="space-y-2">
+                                    <div className="flex justify-between items-center">
+                                        <Label className="text-xs">Selecione as contas para disparo:</Label>
+                                        <Button size="sm" variant="ghost" className="h-6 text-[10px]" onClick={selectAllAccounts}>
+                                            {privateSendConfig.selectedAccounts.length === sessions.length ? 'Desmarcar' : 'Selecionar'} todos
+                                        </Button>
+                                    </div>
+                                    <div className="max-h-[120px] overflow-y-auto border rounded p-2 space-y-1">
+                                        {sessions.length === 0 ? (
+                                            <p className="text-xs text-muted-foreground text-center py-2">Nenhuma conta conectada</p>
+                                        ) : (
+                                            sessions.map(session => (
+                                                <label key={session.clean_phone} className="flex items-center gap-2 cursor-pointer hover:bg-muted/50 p-1 rounded">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={privateSendConfig.selectedAccounts.includes(session.clean_phone)}
+                                                        onChange={() => toggleAccountSelection(session.clean_phone)}
+                                                        className="w-3 h-3"
+                                                    />
+                                                    <span className="text-xs">{session.formatted_phone}</span>
+                                                </label>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Intervalo dinâmico */}
+                                <div className="space-y-2">
+                                    <Label className="text-xs">Intervalo dinâmico entre cada mensagem:</Label>
+                                    <div className="flex items-center gap-2">
+                                        <Input
+                                            type="number"
+                                            value={privateSendConfig.intervalMin}
+                                            onChange={(e) => setPrivateSendConfig(prev => ({ ...prev, intervalMin: parseInt(e.target.value) || 0 }))}
+                                            className="h-7 w-16 text-xs text-center"
+                                        />
+                                        <span className="text-xs">à</span>
+                                        <Input
+                                            type="number"
+                                            value={privateSendConfig.intervalMax}
+                                            onChange={(e) => setPrivateSendConfig(prev => ({ ...prev, intervalMax: parseInt(e.target.value) || 0 }))}
+                                            className="h-7 w-16 text-xs text-center"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Limite diário */}
+                                <div className="space-y-2">
+                                    <Label className="text-xs">Limite de mensagens diárias por conta:</Label>
+                                    <Input
+                                        type="number"
+                                        value={privateSendConfig.dailyLimit}
+                                        onChange={(e) => setPrivateSendConfig(prev => ({ ...prev, dailyLimit: parseInt(e.target.value) || 0 }))}
+                                        className="h-7 text-xs"
+                                    />
+                                </div>
+
+                                {/* Ativar agendamento */}
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={privateSendConfig.scheduleEnabled}
+                                        onChange={(e) => setPrivateSendConfig(prev => ({ ...prev, scheduleEnabled: e.target.checked }))}
+                                        className="w-3 h-3"
+                                    />
+                                    <span className="text-xs">Ativar agendamento</span>
+                                </label>
+
+                                {/* Aviso */}
+                                <p className="text-[10px] text-yellow-400 flex items-center gap-1">
+                                    <AlertCircle className="w-3 h-3" />
+                                    O computador precisa estar ligado e conectado durante o horário agendado.
+                                </p>
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    {/* Botões de Ação */}
+                    <div className="flex justify-between items-center">
+                        <div className="flex gap-2">
+                            <Button variant="outline" className="gap-1">
+                                <Download className="w-4 h-4" />
+                                Exportar
+                            </Button>
+                            <Button variant="outline" className="gap-1">
+                                <Upload className="w-4 h-4" />
+                                Importar
+                            </Button>
+                        </div>
+                        <div className="flex gap-2">
+                            <Button variant="outline" className="gap-1">
+                                <Play className="w-4 h-4" />
+                                Enviar agora
+                            </Button>
+                            <Button className="gap-1">
+                                <Save className="w-4 h-4" />
+                                Salvar
+                            </Button>
+                        </div>
+                    </div>
+                </TabsContent>
             </Tabs>
 
             {/* Saved Audiences Section */}
