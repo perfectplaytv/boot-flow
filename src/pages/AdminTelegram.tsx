@@ -2094,6 +2094,318 @@ export default function AdminTelegram() {
                         </Card>
                     </div>
                 </TabsContent>
+
+                {/* Tab: ChatBots */}
+                <TabsContent value="chatbots" className="space-y-6">
+                    {/* Banner Informativo */}
+                    <div className="bg-gradient-to-r from-green-600 to-teal-600 rounded-lg p-4 text-white text-center">
+                        <p className="text-lg font-medium">
+                            🤖 Construa um funil de mensagens usando o chatbot do BootFlow.
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {/* Configuração de Regras */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                    <Bot className="w-5 h-5" />
+                                    Regra do Chatbot
+                                </CardTitle>
+                                <CardDescription>
+                                    Configure palavras-chave e fluxos de resposta
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                {/* Nome da Regra */}
+                                <div className="space-y-2">
+                                    <Label>Nome da regra:</Label>
+                                    <Input
+                                        placeholder="Ex: Boas-vindas"
+                                        value={currentRule.name || ''}
+                                        onChange={(e) => setCurrentRule(prev => ({ ...prev, name: e.target.value }))}
+                                    />
+                                </div>
+
+                                {/* Aplicar em */}
+                                <div className="space-y-2">
+                                    <Label>Aplicar em mensagens originais:</Label>
+                                    <Select
+                                        value={currentRule.applyTo}
+                                        onValueChange={(v: 'private' | 'group' | 'channel') => setCurrentRule(prev => ({ ...prev, applyTo: v }))}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="private">Conversa Privada</SelectItem>
+                                            <SelectItem value="group">Grupo</SelectItem>
+                                            <SelectItem value="channel">Canal</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                {/* Palavras-chave */}
+                                <div className="space-y-2">
+                                    <Label>Palavras-chave (Separe por vírgula):</Label>
+                                    <Input
+                                        placeholder="oi, olá, bom dia, boa tarde"
+                                        value={keywordsInput}
+                                        onChange={(e) => setKeywordsInput(e.target.value)}
+                                    />
+                                </div>
+
+                                {/* Método de comparação */}
+                                <div className="space-y-2">
+                                    <Label>Método de comparação:</Label>
+                                    <Select
+                                        value={currentRule.compareMethod}
+                                        onValueChange={(v: 'equal' | 'contains' | 'startsWith') => setCurrentRule(prev => ({ ...prev, compareMethod: v }))}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="equal">Igual</SelectItem>
+                                            <SelectItem value="contains">Contém</SelectItem>
+                                            <SelectItem value="startsWith">Começa com</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                {/* ID de Fluxo */}
+                                <div className="space-y-2">
+                                    <Label>ID de Fluxo (Não obrigatório):</Label>
+                                    <Input
+                                        placeholder="sim"
+                                        value={currentRule.flowId || ''}
+                                        onChange={(e) => setCurrentRule(prev => ({ ...prev, flowId: e.target.value }))}
+                                    />
+                                </div>
+
+                                {/* Toggles */}
+                                <div className="space-y-3 pt-2">
+                                    <label className="flex items-center gap-3 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={currentRule.sendOnNewChat || false}
+                                            onChange={(e) => setCurrentRule(prev => ({ ...prev, sendOnNewChat: e.target.checked }))}
+                                            className="w-4 h-4"
+                                        />
+                                        <span className="text-sm">Enviar mensagem ao iniciar novo chat</span>
+                                    </label>
+                                    <label className="flex items-center gap-3 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={currentRule.pausePerLead || false}
+                                            onChange={(e) => setCurrentRule(prev => ({ ...prev, pausePerLead: e.target.checked }))}
+                                            className="w-4 h-4"
+                                        />
+                                        <span className="text-sm">Pausar regra por Lead</span>
+                                    </label>
+                                </div>
+
+                                {/* Toggle Ativo */}
+                                <div className="flex items-center justify-between pt-4 border-t">
+                                    <span className="text-sm font-medium">Status da regra:</span>
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                        <span className="text-xs text-muted-foreground">Off</span>
+                                        <input
+                                            type="checkbox"
+                                            checked={currentRule.active ?? true}
+                                            onChange={(e) => setCurrentRule(prev => ({ ...prev, active: e.target.checked }))}
+                                            className="w-10 h-5 rounded-full appearance-none bg-gray-600 checked:bg-green-500 transition-colors relative before:content-[''] before:absolute before:w-4 before:h-4 before:rounded-full before:bg-white before:top-0.5 before:left-0.5 checked:before:left-5 before:transition-all"
+                                        />
+                                        <span className="text-xs text-muted-foreground">On</span>
+                                    </label>
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Sequências de Mensagens */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                    <MessageSquare className="w-5 h-5" />
+                                    Sequência de Mensagens
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                {/* Tabs de Sequências */}
+                                <div className="flex gap-2 flex-wrap">
+                                    {currentRule.sequences?.map((_, index) => (
+                                        <Button
+                                            key={index}
+                                            size="sm"
+                                            variant={activeSequence === index ? "default" : "outline"}
+                                            onClick={() => setActiveSequence(index)}
+                                            className="relative"
+                                        >
+                                            Seq. {index + 1}
+                                            {(currentRule.sequences?.length || 0) > 1 && (
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); removeSequence(index); }}
+                                                    className="absolute -top-1 -right-1 bg-red-500 rounded-full w-4 h-4 text-[10px] flex items-center justify-center"
+                                                >
+                                                    ×
+                                                </button>
+                                            )}
+                                        </Button>
+                                    ))}
+                                    <Button size="sm" variant="ghost" onClick={addChatbotSequence}>
+                                        <Plus className="w-3 h-3 mr-1" />
+                                        Nova
+                                    </Button>
+                                </div>
+
+                                {/* Área da Sequência Ativa */}
+                                {currentRule.sequences?.[activeSequence] && (
+                                    <div className="space-y-3">
+                                        <textarea
+                                            className="w-full min-h-[150px] rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                            placeholder="legal né?! se você quer ter acesso a outras demonstrações, estratégias e dicas. é Só participar do nosso grupo gratuito no telegram."
+                                            value={currentRule.sequences[activeSequence].message}
+                                            onChange={(e) => updateSequenceMessage(activeSequence, e.target.value)}
+                                            maxLength={4096}
+                                        />
+
+                                        {/* Botões da Sequência */}
+                                        {currentRule.sequences[activeSequence].buttons.length > 0 && (
+                                            <div className="space-y-1">
+                                                {currentRule.sequences[activeSequence].buttons.map((btn, i) => (
+                                                    <div key={i} className="text-sm p-2 bg-blue-950/30 rounded border border-blue-800/50">
+                                                        [{btn.label} - {btn.url}]
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+
+                                        {/* Info */}
+                                        <div className="flex justify-between items-center text-xs text-muted-foreground">
+                                            <span>{currentRule.sequences[activeSequence].message.length}/4096 caracteres</span>
+                                            <div className="flex items-center gap-2">
+                                                <Clock className="w-3 h-3" />
+                                                <Input
+                                                    type="number"
+                                                    value={currentRule.sequences[activeSequence].delay}
+                                                    onChange={(e) => updateSequenceDelay(activeSequence, parseInt(e.target.value) || 0)}
+                                                    className="w-16 h-6 text-xs"
+                                                />
+                                                <span>s</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Adicionar Botão à Sequência */}
+                                        {showSeqButton ? (
+                                            <div className="border rounded-lg p-3 bg-muted/30 space-y-2">
+                                                <div className="grid grid-cols-2 gap-2">
+                                                    <Input
+                                                        placeholder="Entrar no Grupo"
+                                                        value={newSeqButton.label}
+                                                        onChange={(e) => setNewSeqButton(prev => ({ ...prev, label: e.target.value }))}
+                                                        className="h-8 text-sm"
+                                                    />
+                                                    <Input
+                                                        placeholder="https://t.me/..."
+                                                        value={newSeqButton.url}
+                                                        onChange={(e) => setNewSeqButton(prev => ({ ...prev, url: e.target.value }))}
+                                                        className="h-8 text-sm"
+                                                    />
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <Button size="sm" onClick={() => addButtonToSequence(activeSequence)}>Adicionar</Button>
+                                                    <Button size="sm" variant="ghost" onClick={() => setShowSeqButton(false)}>Cancelar</Button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="flex gap-2">
+                                                <Button size="sm" variant="outline" onClick={() => { }}>
+                                                    + Variável
+                                                </Button>
+                                                <Button size="sm" variant="outline" onClick={() => setShowSeqButton(true)}>
+                                                    Botão
+                                                </Button>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
+                                {/* Botão Salvar */}
+                                <div className="pt-4">
+                                    <Button className="w-full gap-1" onClick={saveChatbotRule}>
+                                        <Save className="w-4 h-4" />
+                                        Salvar Regra
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    {/* Lista de Regras Salvas */}
+                    {chatbotRules.length > 0 && (
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                    <Bot className="w-5 h-5" />
+                                    Regras Configuradas
+                                    <Badge variant="secondary">{chatbotRules.length}</Badge>
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Nome</TableHead>
+                                            <TableHead>Aplicar em</TableHead>
+                                            <TableHead>Palavras-chave</TableHead>
+                                            <TableHead>Sequências</TableHead>
+                                            <TableHead>Status</TableHead>
+                                            <TableHead>Ações</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {chatbotRules.map((rule) => (
+                                            <TableRow key={rule.id}>
+                                                <TableCell className="font-medium">{rule.name}</TableCell>
+                                                <TableCell>
+                                                    <Badge variant="outline">
+                                                        {rule.applyTo === 'private' && 'Privado'}
+                                                        {rule.applyTo === 'group' && 'Grupo'}
+                                                        {rule.applyTo === 'channel' && 'Canal'}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell className="max-w-[150px] truncate">
+                                                    {rule.keywords.join(', ')}
+                                                </TableCell>
+                                                <TableCell>{rule.sequences.length}</TableCell>
+                                                <TableCell>
+                                                    <Badge className={rule.active ? 'bg-green-600' : 'bg-gray-600'}>
+                                                        {rule.active ? 'Ativo' : 'Inativo'}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Button
+                                                        size="icon"
+                                                        variant="ghost"
+                                                        className="text-red-500"
+                                                        onClick={() => {
+                                                            const updated = chatbotRules.filter(r => r.id !== rule.id);
+                                                            setChatbotRules(updated);
+                                                            localStorage.setItem('telegram_chatbot_rules', JSON.stringify(updated));
+                                                            toast.success("Regra excluída!");
+                                                        }}
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </CardContent>
+                        </Card>
+                    )}
+                </TabsContent>
             </Tabs>
 
             {/* Saved Audiences Section */}
