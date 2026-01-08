@@ -93,7 +93,7 @@ export function useClientes() {
       isFetchingRef.current = false;
       abortControllerRef.current = null;
     }
-  }, [user?.id, userRole]);
+  }, [user?.id]);
 
   async function addCliente(cliente: Omit<Cliente, 'id'>) {
     try {
