@@ -153,6 +153,19 @@ export default function AdminTelegram() {
     const [showSavedAudiences, setShowSavedAudiences] = useState(false);
     const [audienceName, setAudienceName] = useState("");
 
+    // Phase 2: Bulk Send States
+    const [showBulkSend, setShowBulkSend] = useState(false);
+    const [bulkSendConfig, setBulkSendConfig] = useState({
+        messages: [""],  // Message variations
+        intervalMin: 30,
+        intervalMax: 60,
+        dailyLimit: 50,
+        useAllAccounts: true
+    });
+    const [isSending, setIsSending] = useState(false);
+    const [sendProgress, setSendProgress] = useState({ current: 0, total: 0, success: 0, failed: 0 });
+    const [sendLogs, setSendLogs] = useState<Array<{ time: string; user: string; status: string; message?: string }>>([]);
+
     const fetchSessions = useCallback(async () => {
         try {
             const response = await fetch(`${TELEGRAM_API_URL}/sessions`);

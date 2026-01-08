@@ -249,6 +249,112 @@ async def logout(request: LogoutRequest):
         
     return {"success": True}
 
+# Phase 2: Send Private Message Models
+class SendPrivateRequest(BaseModel):
+    phone: str  # Account to use
+    target_user_id: str  # User ID to send to
+    message: str  # Message with variables
+
+class BulkSendRequest(BaseModel):
+    accounts: list  # List of account phone numbers to use
+    targets: list  # List of {user_id, username, first_name}
+    messages: list  # List of message variations
+    interval_min: int = 30  # Min seconds between sends
+    interval_max: int = 60  # Max seconds between sends
+    daily_limit_per_account: int = 50  # Max messages per account per day
+
+# Track daily usage
+daily_usage = {}  # phone -> count
+
+def get_daily_usage(phone: str) -> int:
+    today = asyncio.get_event_loop().time() // 86400
+    key = f"{phone}_{today}"
+    return daily_usage.get(key, 0)
+
+def increment_usage(phone: str):
+    today = asyncio.get_event_loop().time() // 86400
+    key = f"{phone}_{today}"
+    daily_usage[key] = daily_usage.get(key, 0) + 1
+
+def replace_variables(message: str, target: dict) -> str:
+    """Replace variables in message with target data"""
+    result = message
+    result = result.replace("{nome}", target.get("first_name", ""))
+    result = result.replace("{sobrenome}", target.get("last_name", ""))
+    result = result.replace("{username}", target.get("username", ""))
+    result = result.replace("{id}", str(target.get("user_id", "")))
+    return result
+
+@app.post("/send-private")
+async def send_private(request: SendPrivateRequest):
+    """Send a private message to a specific user"""
+    ph = clean_phone(request.phone)
+    client = await get_client(ph)
+    
+    if not client or not await client.is_user_authorized():
+        raise HTTPException(401, "Account not connected")
+    
+    try:
+        # Get user entity
+        user_id = int(request.target_user_id)
+        entity = await client.get_entity(user_id)
+        
+        # Send message
+        await client.send_message(entity, request.message)
+        increment_usage(ph)
+        
+        return {
+            "success": True,
+            "sent_to": request.target_user_id,
+            "account": request.phone
+        }
+    except Exception as e:
+        error_msg = str(e).lower()
+        if "flood" in error_msg:
+            return {"success": False, "error": "FLOOD_WAIT", "message": str(e)}
+        elif "restricted" in error_msg or "banned" in error_msg:
+            return {"success": False, "error": "RESTRICTED", "message": str(e)}
+        elif "peer" in error_msg:
+            return {"success": False, "error": "PEER_FLOOD", "message": str(e)}
+        else:
+            return {"success": False, "error": "UNKNOWN", "message": str(e)}
+
+@app.post("/bulk-send-status")
+async def get_bulk_status():
+    """Get daily usage statistics for all accounts"""
+    stats = {}
+    for key, count in daily_usage.items():
+        phone = key.rsplit("_", 1)[0]
+        if phone not in stats:
+            stats[phone] = 0
+        stats[phone] = max(stats[phone], count)
+    return {"usage": stats}
+
+@app.get("/account-limits")
+async def get_account_limits():
+    """Get current usage limits and status for all accounts"""
+    if not API_ID or not API_HASH:
+        return {"accounts": [], "error": "Missing credentials"}
+    
+    accounts = []
+    files = glob.glob("session_*.session")
+    
+    for path in files:
+        filename = os.path.basename(path)
+        match = re.search(r'session_(\d+)\.session', filename)
+        if match:
+            ph = match.group(1)
+            usage = get_daily_usage(ph)
+            accounts.append({
+                "phone": f"+{ph}",
+                "clean_phone": ph,
+                "daily_usage": usage,
+                "daily_limit": 50,
+                "available": 50 - usage
+            })
+    
+    return {"accounts": accounts}
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", 8000)))
