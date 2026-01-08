@@ -107,7 +107,7 @@ export function useClientes() {
         return false;
       }
 
-      const clienteComAdmin = { ...cliente, admin_id: user.id };
+      const clienteComAdmin = { ...cliente, owner_uid: user.id };
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 15000);
 
