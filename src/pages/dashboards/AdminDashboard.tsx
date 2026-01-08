@@ -63,6 +63,7 @@ import AdminGateways from "../AdminGateways";
 import AdminCobrancas from "../AdminCobrancas";
 import Notifications from "../Notifications";
 import Profile from "../Profile";
+import AdminTelegram from "../AdminTelegram";
 
 // Wrapper para AdminResellers que aceita callback quando um revendedor é criado
 const AdminResellersWrapper = ({ onResellerCreated, onCloseModal }: { onResellerCreated: () => void; onCloseModal: () => void }) => {
@@ -3013,6 +3014,7 @@ const AdminDashboard = () => {
             )}
             {/* Renderização das outras páginas continua igual */}
             {currentPage === "users" && <AdminUsers />}
+            {currentPage === "telegram" && <AdminTelegram />}
             {currentPage === "resellers" && <AdminResellers />}
             {currentPage === "iptv" && <AdminIPTV />}
             {currentPage === "radio" && <AdminRadio />}
