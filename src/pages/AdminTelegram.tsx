@@ -423,8 +423,8 @@ export default function AdminTelegram() {
     });
     const [activeMessageIndex, setActiveMessageIndex] = useState(0);
 
-    // Phase 5: Add message variation
-    const addMessageVariation = () => {
+    // Phase 5: Add message variation for private send
+    const privateAddMessageVariation = () => {
         setPrivateSendConfig(prev => ({
             ...prev,
             messages: [...prev.messages, '']
@@ -432,16 +432,16 @@ export default function AdminTelegram() {
         setActiveMessageIndex(privateSendConfig.messages.length);
     };
 
-    // Phase 5: Update message variation
-    const updateMessageVariation = (index: number, text: string) => {
+    // Phase 5: Update message variation for private send
+    const privateUpdateMessageVariation = (index: number, text: string) => {
         setPrivateSendConfig(prev => ({
             ...prev,
             messages: prev.messages.map((m, i) => i === index ? text.slice(0, 4096) : m)
         }));
     };
 
-    // Phase 5: Remove message variation
-    const removeMessageVariation = (index: number) => {
+    // Phase 5: Remove message variation for private send
+    const privateRemoveMessageVariation = (index: number) => {
         if (privateSendConfig.messages.length <= 1) {
             toast.error("Deve haver pelo menos uma variação");
             return;
@@ -473,9 +473,9 @@ export default function AdminTelegram() {
     };
 
     // Phase 5: Insert variable into message
-    const insertVariable = (variable: string) => {
+    const privateInsertVariable = (variable: string) => {
         const currentMsg = privateSendConfig.messages[activeMessageIndex] || '';
-        updateMessageVariation(activeMessageIndex, currentMsg + `{${variable}}`);
+        privateUpdateMessageVariation(activeMessageIndex, currentMsg + `{${variable}}`);
     };
 
     const fetchSessions = useCallback(async () => {
