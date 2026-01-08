@@ -468,7 +468,7 @@ export default function AdminTelegram() {
                 <div>
                     <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
                         <Send className="w-7 h-7 text-blue-500" />
-                        Importar do Telegram
+                        Importar do Telegram 🤖
                     </h1>
                     <p className="text-muted-foreground mt-1">
                         Importe membros de grupos do Telegram como clientes
