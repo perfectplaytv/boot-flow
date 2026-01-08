@@ -823,10 +823,16 @@ export default function AdminUsers() {
             console.log("Sucesso com acesso direto!");
 
             // Aplicar dados extraídos ao formulário
+            // Tentar inferir o plano baseado no trial ou default para "Mensal"
+            const inferPlan = data.user_info.is_trial === "1" ? "Trial" : "Mensal";
+            // Pegar o servidor da URL
+            const serverName = urlObj.hostname;
+
+            // Aplicar dados extraídos ao formulário
             const extractedData = {
               name: data.user_info.username,
               email: `${data.user_info.username}@iptv.com`,
-              plan: data.user_info.is_trial === "1" ? "Trial" : "Premium",
+              plan: inferPlan,
               status: data.user_info.status === "Active" ? "Ativo" : "Inativo",
               telegram: data.user_info.username
                 ? `@${data.user_info.username}`
@@ -839,15 +845,15 @@ export default function AdminUsers() {
                 : "",
               password: data.user_info.password || password,
               bouquets: "",
-              realName: "", // Campo "Nome" na seção de contato fica vazio
-              whatsapp: "", // Campo whatsapp
+              realName: "",
+              whatsapp: "",
               devices: data.user_info.max_connections
                 ? parseInt(data.user_info.max_connections)
-                : 1, // Dispositivos baseado em max_connections
-              credits: 0, // Campo créditos
-              notes: "", // Campo anotações
-              price: "",
-              server: "",
+                : 1,
+              credits: 0,
+              notes: "",
+              price: inferPlan === "Mensal" ? "35,00" : "", // Preço base para mensal
+              server: serverName,
               m3u_url: m3uUrl
             };
 
