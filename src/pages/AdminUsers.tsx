@@ -162,6 +162,9 @@ export default function AdminUsers() {
   const [copySuccess, setCopySuccess] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedUserIds, setSelectedUserIds] = useState<Set<number>>(new Set());
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false);
+  const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false);
   const itemsPerPage = 10;
   const usersSafe = users || [];
   const filteredUsers = usersSafe.filter(
@@ -505,6 +508,62 @@ export default function AdminUsers() {
         alert(`❌ ${errorMsg}`);
       }
     }
+  };
+
+  // Bulk delete functions
+  const toggleSelectUser = (userId: number) => {
+    setSelectedUserIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(userId)) {
+        newSet.delete(userId);
+      } else {
+        newSet.add(userId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedUserIds.size === filteredUsers.length) {
+      setSelectedUserIds(new Set());
+    } else {
+      setSelectedUserIds(new Set(filteredUsers.map(u => u.id)));
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedUserIds.size === 0) return;
+
+    setIsBulkDeleting(true);
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const userId of selectedUserIds) {
+      try {
+        const success = await deleteUser(userId);
+        if (success) {
+          successCount++;
+        } else {
+          failCount++;
+        }
+      } catch (e) {
+        failCount++;
+      }
+    }
+
+    setIsBulkDeleting(false);
+    setIsBulkDeleteDialogOpen(false);
+    setSelectedUserIds(new Set());
+
+    if (successCount > 0) {
+      window.dispatchEvent(
+        new CustomEvent("refresh-dashboard", {
+          detail: { source: "users", action: "bulk-delete" },
+        })
+      );
+    }
+
+    alert(`✅ ${successCount} usuário(s) excluído(s) com sucesso!${failCount > 0 ? ` ❌ ${failCount} falha(s).` : ''}`);
   };
 
   const openViewModal = (user: Cliente) => {
@@ -1363,15 +1422,34 @@ export default function AdminUsers() {
 
       {/* Tabela de usuários */}
       <Card className="bg-[#1f2937] text-white">
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-lg text-white">
             Lista de Usuários
           </CardTitle>
+          {selectedUserIds.size > 0 && (
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => setIsBulkDeleteDialogOpen(true)}
+              className="gap-2"
+            >
+              <Trash2 className="w-4 h-4" />
+              Excluir {selectedUserIds.size} Selecionado(s)
+            </Button>
+          )}
         </CardHeader>
         <CardContent className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow className="text-gray-400">
+                <TableHead className="w-12">
+                  <input
+                    type="checkbox"
+                    checked={selectedUserIds.size === filteredUsers.length && filteredUsers.length > 0}
+                    onChange={toggleSelectAll}
+                    className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-blue-500"
+                  />
+                </TableHead>
                 <TableHead className="text-xs sm:text-sm">Nome</TableHead>
                 <TableHead className="text-xs sm:text-sm">Plano</TableHead>
                 <TableHead className="text-xs sm:text-sm">Status</TableHead>
@@ -1394,8 +1472,16 @@ export default function AdminUsers() {
               {paginatedUsers.map((user) => (
                 <TableRow
                   key={user.id}
-                  className="hover:bg-[#232a36] transition-colors"
+                  className={`hover:bg-[#232a36] transition-colors ${selectedUserIds.has(user.id) ? 'bg-blue-900/30' : ''}`}
                 >
+                  <TableCell>
+                    <input
+                      type="checkbox"
+                      checked={selectedUserIds.has(user.id)}
+                      onChange={() => toggleSelectUser(user.id)}
+                      className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-blue-500"
+                    />
+                  </TableCell>
                   <TableCell className="text-white font-medium text-xs sm:text-sm">
                     <div className="flex items-center gap-2">
                       {user.name}
@@ -2387,6 +2473,49 @@ export default function AdminUsers() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog >
+
+      {/* Modal de Confirmação de Exclusão em Lote */}
+      <AlertDialog
+        open={isBulkDeleteDialogOpen}
+        onOpenChange={setIsBulkDeleteDialogOpen}
+      >
+        <AlertDialogContent className="bg-[#1f2937] text-white border border-gray-700">
+          <AlertDialogHeader>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center">
+                <Trash2 className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <AlertDialogTitle className="text-xl font-bold text-white">
+                  Excluir {selectedUserIds.size} Usuário(s)
+                </AlertDialogTitle>
+                <AlertDialogDescription className="text-gray-400">
+                  Esta ação não pode ser desfeita. Todos os usuários selecionados serão permanentemente removidos.
+                </AlertDialogDescription>
+              </div>
+            </div>
+          </AlertDialogHeader>
+
+          <div className="bg-[#23272f] rounded-lg p-4 mb-4">
+            <p className="text-yellow-400 text-sm">
+              ⚠️ Você está prestes a excluir <strong>{selectedUserIds.size}</strong> usuário(s).
+            </p>
+          </div>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-gray-700 text-white border border-gray-600 hover:bg-gray-600">
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleBulkDelete}
+              disabled={isBulkDeleting}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {isBulkDeleting ? "Excluindo..." : `Excluir ${selectedUserIds.size} Usuário(s)`}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Modal de Confirmação de Pagamento */}
       < AlertDialog
