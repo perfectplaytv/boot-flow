@@ -27,6 +27,10 @@ export interface Cliente {
   pago?: boolean;
   admin_id?: string;
   server?: string;
+  // Aliases for compatibility with camelCase usage in frontend
+  realName?: string;
+  expirationDate?: string;
+  createdAt?: string;
 }
 
 export function useClientes() {

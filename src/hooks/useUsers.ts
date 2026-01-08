@@ -65,11 +65,11 @@ export const useUsers = () => {
       });
 
       if (!response.ok) {
-        const errData = await response.json() as any;
+        const errData = await response.json() as { error?: string };
         throw new Error(errData.error || 'Erro ao adicionar usuário');
       }
 
-      const newUser = await response.json();
+      const newUser = await response.json() as User;
       setUsers(prevUsers => [newUser, ...prevUsers]);
       return newUser;
     } catch (err) {
@@ -89,11 +89,11 @@ export const useUsers = () => {
       });
 
       if (!response.ok) {
-        const errData = await response.json() as any;
+        const errData = await response.json() as { error?: string };
         throw new Error(errData.error || 'Erro ao atualizar usuário');
       }
 
-      const updatedUser = await response.json();
+      const updatedUser = await response.json() as Partial<User>;
       setUsers(prevUsers =>
         prevUsers.map(user => user.id === id ? { ...user, ...updatedUser } : user)
       );

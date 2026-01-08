@@ -12,7 +12,7 @@ type UserRow = {
   m3u_url?: string;
   pago?: boolean | string | number;
   admin_id?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 };
 
 type ResellerRow = {
@@ -23,7 +23,7 @@ type ResellerRow = {
   credits?: number;
   price?: string;
   admin_id?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 };
 
 export interface DashboardStats {
