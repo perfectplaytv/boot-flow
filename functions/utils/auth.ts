@@ -3,7 +3,7 @@ import { SignJWT, jwtVerify } from 'jose';
 
 const JWT_SECRET = new TextEncoder().encode('bootflow-secret-key-change-this'); // Em produção, usar variável de ambiente
 
-export const createToken = async (payload: any) => {
+export const createToken = async (payload: Record<string, unknown>) => {
     return await new SignJWT(payload)
         .setProtectedHeader({ alg: 'HS256' })
         .setExpirationTime('24h')
