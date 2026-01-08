@@ -822,52 +822,146 @@ export default function AdminUsers() {
 
             console.log("Sucesso com acesso direto!");
 
-          };
-
-          // Aplicar aos formulários baseado no modal aberto
-          if (isEditDialogOpen && editingUser) {
-            setEditingUser({ ...editingUser, ...extractedData });
-          } else {
-            setNewUser(extractedData);
-          }
-          email: `${data.user_info.username}@iptv.com`,
-            plan: data.user_info.is_trial === "1" ? "Trial" : "Premium",
+            // Aplicar dados extraídos ao formulário
+            const extractedData = {
+              name: data.user_info.username,
+              email: `${data.user_info.username}@iptv.com`,
+              plan: data.user_info.is_trial === "1" ? "Trial" : "Premium",
               status: data.user_info.status === "Active" ? "Ativo" : "Inativo",
-                telegram: data.user_info.username
-                  ? `@${data.user_info.username}`
-                  : "",
-                  observations: `Usuário: ${data.user_info.username} | Acesso direto`,
-                    expirationDate: data.user_info.exp_date
-                      ? new Date(parseInt(data.user_info.exp_date) * 1000)
-                        .toISOString()
-                        .split("T")[0]
-                      : "",
-                      password: data.user_info.password || password,
-                        bouquets: "",
-                          realName: "", // Campo "Nome" na seção de contato fica vazio
-                            whatsapp: "", // Campo whatsapp
-                              devices: data.user_info.max_connections
-                                ? parseInt(data.user_info.max_connections)
-                                : 1, // Dispositivos baseado em max_connections
-                                credits: 0, // Campo créditos
-                                  notes: "", // Campo anotações
-              // Aplicar dados extraídos ao formulário
-              const extractedData = {
-            name: data.user_info.username,
-            email: `${data.user_info.username}@iptv.com`,
+              telegram: data.user_info.username
+                ? `@${data.user_info.username}`
+                : "",
+              observations: `Usuário: ${data.user_info.username} | Acesso direto`,
+              expirationDate: data.user_info.exp_date
+                ? new Date(parseInt(data.user_info.exp_date) * 1000)
+                  .toISOString()
+                  .split("T")[0]
+                : "",
+              password: data.user_info.password || password,
+              bouquets: "",
+              realName: "", // Campo "Nome" na seção de contato fica vazio
+              whatsapp: "", // Campo whatsapp
+              devices: data.user_info.max_connections
+                ? parseInt(data.user_info.max_connections)
+                : 1, // Dispositivos baseado em max_connections
+              credits: 0, // Campo créditos
+              notes: "", // Campo anotações
+              price: "",
+              server: "",
+              m3u_url: m3uUrl
+            };
+
+            // Aplicar aos formulários baseado no modal aberto
+            if (isEditDialogOpen && editingUser) {
+              setEditingUser({ ...editingUser, ...extractedData });
+            } else {
+              setNewUser(extractedData);
+            }
+
+            setExtractionResult({
+              success: true,
+              message: `Dados extraídos com sucesso! Usuário: ${data.user_info.username}`,
+              data: data,
+            });
+
+            setExtractionError("");
+            return;
+          }
+        } catch (directError) {
+          console.log("Acesso direto falhou, tentando proxies...");
+        }
+      }
+
+      // Tentar com diferentes proxies
+      for (let i = 0; i < corsProxies.length; i++) {
+        const proxy = corsProxies[i];
+        const proxiedUrl = `${proxy.url(apiUrl)
+          } `;
+
+        try {
+          console.log(
+            `Tentando proxy ${i + 1}/${corsProxies.length}: ${proxy.name}`
+          );
+          setExtractionError(
+            `Testando proxy ${i + 1}/${corsProxies.length}...`
+          );
+
+          const response = await fetch(proxiedUrl, {
+            method: "GET",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+            mode: "cors",
+          });
+
+          if (!response.ok) {
+            if (response.status === 403) {
+              throw new Error("Acesso negado. Verifique suas credenciais.");
+            } else if (response.status === 404) {
+              throw new Error("Servidor IPTV não encontrado.");
+            } else {
+              throw new Error(`Erro HTTP: ${response.status}`);
+            }
+          }
+
+          const text = await response.text();
+          let data;
+
+          try {
+            data = JSON.parse(text);
+          } catch (parseError) {
+            throw new Error("Resposta não é um JSON válido.");
+          }
+
+          if (!data.user_info) {
+            throw new Error("Dados do usuário não encontrados na resposta.");
+          }
+
+          console.log(`Sucesso com proxy: ${proxy.name}`);
+
+          // Bouquets simulados para evitar Mixed Content
+          const bouquetsData = [
+            { category_name: "Premium" },
+            { category_name: "Sports" },
+            { category_name: "Movies" },
+          ];
+
+          // Preparar observações com dados reais
+          const observations = [];
+          if (data.user_info.username)
+            observations.push(`Usuário: ${data.user_info.username}`);
+          if (data.user_info.password)
+            observations.push(`Senha: ${data.user_info.password}`);
+          if (data.user_info.exp_date) {
+            const expDate = new Date(parseInt(data.user_info.exp_date) * 1000);
+            observations.push(`Expira: ${expDate.toLocaleDateString("pt-BR")}`);
+          }
+          if (data.user_info.max_connections)
+            observations.push(`Conexões: ${data.user_info.max_connections}`);
+          if (data.user_info.active_cons)
+            observations.push(`Ativas: ${data.user_info.active_cons}`);
+
+          // Aplicar dados extraídos ao formulário
+          const extractedData = {
+            name: data.user_info.username || username,
+            email: `${data.user_info.username || username}@iptv.com`,
             plan: data.user_info.is_trial === "1" ? "Trial" : "Premium",
             status: data.user_info.status === "Active" ? "Ativo" : "Inativo",
             telegram: data.user_info.username
               ? `@${data.user_info.username}`
               : "",
-            observations: `Usuário: ${data.user_info.username} | Acesso direto`,
+            observations:
+              observations.length > 0 ? observations.join(" | ") : "",
             expirationDate: data.user_info.exp_date
               ? new Date(parseInt(data.user_info.exp_date) * 1000)
                 .toISOString()
                 .split("T")[0]
               : "",
             password: data.user_info.password || password,
-            bouquets: "",
+            bouquets: Array.isArray(bouquetsData)
+              ? bouquetsData.map((b) => b.category_name).join(", ")
+              : "",
             realName: "", // Campo "Nome" na seção de contato fica vazio
             whatsapp: "", // Campo whatsapp
             devices: data.user_info.max_connections
@@ -875,167 +969,6 @@ export default function AdminUsers() {
               : 1, // Dispositivos baseado em max_connections
             credits: 0, // Campo créditos
             notes: "", // Campo anotações
-            price: "", // Valor padrão para preço
-            server: "", // Valor padrão para servidor
-            m3u_url: m3uUrl // Usar a URL atual
-          };
-
-          setExtractionResult({
-            success: true,
-            message: `Dados extraídos com sucesso! Usuário: ${data.user_info.username
-              }`,
-            data: data,
-          });
-
-          setExtractionError("");
-          return;
-        }
-        } catch (directError) {
-        console.log("Acesso direto falhou, tentando proxies...");
-      }
-    }
-
-      // Tentar com diferentes proxies
-      for (let i = 0; i < corsProxies.length; i++) {
-      const proxy = corsProxies[i];
-      const proxiedUrl = `${proxy.url(apiUrl)
-        } `;
-
-      try {
-        console.log(
-          `Tentando proxy ${i + 1}/${corsProxies.length}: ${proxy.name}`
-        );
-        setExtractionError(
-          `Testando proxy ${i + 1}/${corsProxies.length}...`
-        );
-
-        const response = await fetch(proxiedUrl, {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          mode: "cors",
-        });
-
-        if (!response.ok) {
-          if (response.status === 403) {
-            throw new Error("Acesso negado. Verifique suas credenciais.");
-          } else if (response.status === 404) {
-            throw new Error("Servidor IPTV não encontrado.");
-          } else {
-            throw new Error(`Erro HTTP: ${response.status}`);
-          }
-        }
-
-        const text = await response.text();
-        let data;
-
-        try {
-          data = JSON.parse(text);
-        } catch (parseError) {
-          throw new Error("Resposta não é um JSON válido.");
-        }
-
-        if (!data.user_info) {
-          throw new Error("Dados do usuário não encontrados na resposta.");
-        }
-
-        console.log(`Sucesso com proxy: ${proxy.name}`);
-
-        // Bouquets simulados para evitar Mixed Content
-        const bouquetsData = [
-          { category_name: "Premium" },
-          { category_name: "Sports" },
-          { category_name: "Movies" },
-        ];
-
-        // Preparar observações com dados reais
-        const observations = [];
-        if (data.user_info.username)
-          observations.push(`Usuário: ${data.user_info.username}`);
-        if (data.user_info.password)
-          observations.push(`Senha: ${data.user_info.password}`);
-        if (data.user_info.exp_date) {
-          const expDate = new Date(parseInt(data.user_info.exp_date) * 1000);
-          observations.push(`Expira: ${expDate.toLocaleDateString("pt-BR")}`);
-        }
-        if (data.user_info.max_connections)
-          observations.push(`Conexões: ${data.user_info.max_connections}`);
-        if (data.user_info.active_cons)
-          observations.push(`Ativas: ${data.user_info.active_cons}`);
-
-        // Aplicar dados extraídos ao formulário
-        const extractedData = {
-          name: data.user_info.username || username,
-          email: `${data.user_info.username || username}@iptv.com`,
-          plan: data.user_info.is_trial === "1" ? "Trial" : "Premium",
-          status: data.user_info.status === "Active" ? "Ativo" : "Inativo",
-          telegram: data.user_info.username
-            ? `@${data.user_info.username}`
-            : "",
-          observations:
-            observations.length > 0 ? observations.join(" | ") : "",
-          expirationDate: data.user_info.exp_date
-            ? new Date(parseInt(data.user_info.exp_date) * 1000)
-              .toISOString()
-              .split("T")[0]
-            : "",
-          password: data.user_info.password || password,
-          bouquets: Array.isArray(bouquetsData)
-            ? bouquetsData.map((b) => b.category_name).join(", ")
-            : "",
-          realName: "", // Campo "Nome" na seção de contato fica vazio
-          whatsapp: "", // Campo whatsapp
-          devices: data.user_info.max_connections
-            ? parseInt(data.user_info.max_connections)
-            : 1, // Dispositivos baseado em max_connections
-          credits: 0, // Campo créditos
-          notes: "", // Campo anotações
-        };
-
-        // Aplicar aos formulários baseado no modal aberto
-        if (isEditDialogOpen && editingUser) {
-          setEditingUser({ ...editingUser, ...extractedData });
-        } else {
-          setNewUser(extractedData);
-        }
-
-        setExtractionResult({
-          success: true,
-          message: `Dados extraídos com sucesso! Usuário: ${data.user_info.username}`,
-          data: data,
-        });
-
-        setExtractionError("");
-        return;
-      } catch (error) {
-        console.log(`Falha com proxy ${proxy.name}:`, error);
-
-        if (i === corsProxies.length - 1) {
-          // Se todos os proxies falharam, usar dados simulados como fallback
-          console.log("Todos os proxies falharam, usando dados simulados...");
-          setExtractionError("Proxies falharam, usando dados simulados...");
-
-          // Simular dados baseados na URL
-          const extractedData = {
-            name: username,
-            email: `${username}@iptv.com`,
-            plan: "Premium",
-            status: "Ativo",
-            telegram: `@${username}`,
-            observations: `Usuário: ${username} | Senha: ${password} | Dados simulados`,
-            expirationDate: "",
-            password: password,
-            bouquets: "",
-            realName: "", // Campo "Nome" na seção de contato fica vazio
-            whatsapp: "", // Campo whatsapp
-            devices: 1, // Campo dispositivos
-            credits: 0, // Campo créditos
-            notes: "", // Campo anotações
-            price: "", // Valor padrão
-            server: "", // Valor padrão
-            m3u_url: m3uUrl // Valor atual
           };
 
           // Aplicar aos formulários baseado no modal aberto
@@ -1047,95 +980,1001 @@ export default function AdminUsers() {
 
           setExtractionResult({
             success: true,
-            message: `Dados simulados aplicados! Usuário: ${username}`,
-            data: { user_info: { username, password } },
+            message: `Dados extraídos com sucesso! Usuário: ${data.user_info.username}`,
+            data: data,
           });
 
           setExtractionError("");
           return;
+        } catch (error) {
+          console.log(`Falha com proxy ${proxy.name}:`, error);
+
+          if (i === corsProxies.length - 1) {
+            // Se todos os proxies falharam, usar dados simulados como fallback
+            console.log("Todos os proxies falharam, usando dados simulados...");
+            setExtractionError("Proxies falharam, usando dados simulados...");
+
+            // Simular dados baseados na URL
+            const extractedData = {
+              name: username,
+              email: `${username}@iptv.com`,
+              plan: "Premium",
+              status: "Ativo",
+              telegram: `@${username}`,
+              observations: `Usuário: ${username} | Senha: ${password} | Dados simulados`,
+              expirationDate: "",
+              password: password,
+              bouquets: "",
+              realName: "", // Campo "Nome" na seção de contato fica vazio
+              whatsapp: "", // Campo whatsapp
+              devices: 1, // Campo dispositivos
+              credits: 0, // Campo créditos
+              notes: "", // Campo anotações
+              price: "", // Valor padrão
+              server: "", // Valor padrão
+              m3u_url: m3uUrl // Valor atual
+            };
+
+            // Aplicar aos formulários baseado no modal aberto
+            if (isEditDialogOpen && editingUser) {
+              setEditingUser({ ...editingUser, ...extractedData });
+            } else {
+              setNewUser(extractedData);
+            }
+
+            setExtractionResult({
+              success: true,
+              message: `Dados simulados aplicados! Usuário: ${username}`,
+              data: { user_info: { username, password } },
+            });
+
+            setExtractionError("");
+            return;
+          }
         }
       }
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Erro desconhecido";
+      setExtractionError(errorMessage);
+      console.error("Erro na extração M3U:", error);
+    } finally {
+      setIsExtracting(false);
     }
-  } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Erro desconhecido";
-    setExtractionError(errorMessage);
-    console.error("Erro na extração M3U:", error);
-  } finally {
-    setIsExtracting(false);
-  }
-};
+  };
 
-return (
-  <div className="space-y-4 sm:space-y-6 min-h-screen bg-[#09090b] p-3 sm:p-6">
-    {/* Indicadores de status */}
-    {loading && (
-      <div className="bg-blue-900/40 border border-blue-700 text-blue-300 rounded-lg p-4">
-        <div className="flex items-center gap-2">
-          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-300"></div>
-          <span>Carregando usuários do banco de dados...</span>
+  return (
+    <div className="space-y-4 sm:space-y-6 min-h-screen bg-[#09090b] p-3 sm:p-6">
+      {/* Indicadores de status */}
+      {loading && (
+        <div className="bg-blue-900/40 border border-blue-700 text-blue-300 rounded-lg p-4">
+          <div className="flex items-center gap-2">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-300"></div>
+            <span>Carregando usuários do banco de dados...</span>
+          </div>
+        </div>
+      )}
+
+      {/* Banner de erro RLS */}
+      {error && (
+        <RLSErrorBanner error={error} onClearError={clearError} />
+      )}
+
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-white">
+            Gerenciamento de Usuários
+          </h1>
+          <p className="text-gray-400 text-sm sm:text-base">
+            {loading
+              ? "Carregando..."
+              : `Gerencie todos os usuários do sistema(${(users || []).length
+              } usuários)`}
+          </p>
+        </div>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="flex items-center gap-2 bg-[#7e22ce] hover:bg-[#6d1bb7] text-white h-10 sm:h-auto">
+                <Plus className="w-4 h-4" />
+                <span className="hidden sm:inline">Novo Cliente</span>
+                <span className="sm:hidden">Novo</span>
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="bg-[#1f2937] text-white max-w-4xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col max-h-[90vh] overflow-y-auto scrollbar-hide">
+              <div className="p-6 w-full flex flex-col">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold">Adicionar um Cliente</h2>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-gray-400 hover:text-white"
+                      onClick={() => setIsAddDialogOpen(false)}
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </Button>
+                  </div>
+                </div>
+
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log("🔵 [AdminUsers] Form submit disparado!");
+                  await handleAddUser();
+                }} className="space-y-6 flex-1 overflow-y-auto">
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="text-green-400 text-xs font-medium">• Campos obrigatórios marcados com *</span>
+                    <span className="text-blue-400 text-xs font-medium">• Dados serão sincronizados automaticamente</span>
+                  </div>
+                  {/* Extração M3U */}
+                  <div className="bg-blue-900/30 border border-blue-800 rounded-lg p-4 mb-6">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-blue-300 font-medium">Extração M3U</span>
+                      <div className="flex gap-2">
+                        <button
+                          className="inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-10 bg-blue-600 text-white hover:bg-blue-700 px-4 py-1 rounded text-sm"
+                          type="button"
+                          onClick={extractM3UData}
+                          disabled={isExtracting}
+                        >
+                          {isExtracting ? (
+                            <>
+                              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
+                              Extraindo...
+                            </>
+                          ) : "Extrair"}
+                        </button>
+                      </div>
+                    </div>
+                    <p className="text-xs text-blue-300 mb-2">Serve para importar dados automaticamente a partir de uma URL.</p>
+                    <input
+                      className="flex h-10 w-full rounded-md px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-[#1f2937] border border-blue-800 text-white mb-2"
+                      placeholder="Insira a URL do M3U para extrair automaticamente os dados do cliente..."
+                      value={m3uUrl}
+                      onChange={e => setM3uUrl(e.target.value)}
+                    />
+                    {extractionError && (
+                      <div className="bg-red-900/40 border border-red-700 text-red-300 text-xs rounded p-2 mb-2">❌ {extractionError}</div>
+                    )}
+                    {extractionResult && !extractionError && (
+                      <div className="bg-green-900/40 border border-green-700 text-green-300 text-xs rounded p-2 mb-2">✅ {extractionResult.message}</div>
+                    )}
+                  </div>
+                  {/* Informações Básicas */}
+                  <div className="bg-[#23272f] border border-gray-700 rounded-lg p-4 mb-6">
+                    <span className="block text-white font-semibold mb-4">Informações Básicas</span>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Servidor */}
+                      <div className="col-span-1">
+                        <label htmlFor="add-server" className="block text-gray-300 mb-1 font-medium">
+                          Servidor *
+                        </label>
+                        <Input
+                          id="add-server"
+                          type="text"
+                          value={newUser.server || ""}
+                          onChange={(e) => setNewUser({ ...newUser, server: e.target.value })}
+                          placeholder="Digite o nome do servidor"
+                          className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+                        />
+                      </div>
+                      {/* Plano */}
+                      <div className="col-span-1">
+                        <label htmlFor="add-plan" className="block text-gray-300 mb-1 font-medium">
+                          Plano *
+                        </label>
+                        <select
+                          id="add-plan"
+                          className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+                          value={newUser.plan}
+                          onChange={(e) =>
+                            setNewUser({ ...newUser, plan: e.target.value, price: "" })
+                          }
+                        >
+                          <option value="">Selecione um plano</option>
+                          <option value="Mensal">Mensal</option>
+                          <option value="Bimestral">Bimestral</option>
+                          <option value="Trimestral">Trimestral</option>
+                          <option value="Semestral">Semestral</option>
+                          <option value="Anual">Anual</option>
+                        </select>
+                      </div>
+                      {/* Preço */}
+                      {newUser.plan && (
+                        <div className="col-span-1">
+                          <label htmlFor="add-price" className="block text-gray-300 mb-1 font-medium">
+                            Preço *
+                          </label>
+                          <select
+                            id="add-price"
+                            className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+                            value={newUser.price}
+                            onChange={(e) =>
+                              setNewUser({ ...newUser, price: e.target.value })
+                            }
+                          >
+                            <option value="">Selecione um preço</option>
+                            {getPlanPrices(newUser.plan).map((price) => (
+                              <option key={price} value={price}>
+                                R$ {price}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
+                      {/* Nome */}
+                      <div className="col-span-1">
+                        <label htmlFor="add-name" className="block text-gray-300 mb-1 font-medium">
+                          Nome *
+                        </label>
+                        <Input
+                          id="add-name"
+                          placeholder="Nome completo do cliente"
+                          className="bg-[#23272f] border border-gray-700 text-white"
+                          value={newUser.name}
+                          onChange={(e) =>
+                            setNewUser({ ...newUser, name: e.target.value })
+                          }
+                        />
+                      </div>
+                      {/* Email */}
+                      <div className="col-span-1">
+                        <label htmlFor="add-email" className="block text-gray-300 mb-1 font-medium">
+                          Email *
+                        </label>
+                        <Input
+                          id="add-email"
+                          placeholder="email@exemplo.com"
+                          className="bg-[#23272f] border border-gray-700 text-white"
+                          value={newUser.email}
+                          onChange={(e) =>
+                            setNewUser({ ...newUser, email: e.target.value })
+                          }
+                        />
+                      </div>
+                      {/* Status */}
+                      <div className="col-span-1">
+                        <label htmlFor="add-status" className="block text-gray-300 mb-1 font-medium">
+                          Status *
+                        </label>
+                        <select
+                          id="add-status"
+                          className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+                          value={newUser.status}
+                          onChange={(e) =>
+                            setNewUser({ ...newUser, status: e.target.value })
+                          }
+                        >
+                          <option value="Ativo">Ativo</option>
+                          <option value="Inativo">Inativo</option>
+                          <option value="Suspenso">Suspenso</option>
+                          <option value="Pendente">Pendente</option>
+                        </select>
+                      </div>
+                      {/* Data de Expiração */}
+                      <div className="col-span-1">
+                        <label htmlFor="add-expiration" className="block text-gray-300 mb-1 font-medium">
+                          Data de Expiração *
+                        </label>
+                        <Input
+                          id="add-expiration"
+                          type="date"
+                          className="bg-[#23272f] border border-gray-700 text-white"
+                          value={newUser.expirationDate}
+                          onChange={(e) =>
+                            setNewUser({ ...newUser, expirationDate: e.target.value })
+                          }
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  {/* Configuração de Serviço */}
+                  <div className="bg-[#23272f] border border-gray-700 rounded-lg p-4 mb-6">
+                    <span className="block text-white font-semibold mb-4">Configuração de Serviço</span>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Dispositivos */}
+                      <div className="col-span-1">
+                        <label htmlFor="add-devices" className="block text-gray-300 mb-1 font-medium">
+                          Dispositivos
+                        </label>
+                        <Input
+                          id="add-devices"
+                          type="number"
+                          placeholder="0"
+                          className="bg-[#23272f] border border-gray-700 text-white"
+                          value={newUser.devices}
+                          onChange={(e) =>
+                            setNewUser({ ...newUser, devices: parseInt(e.target.value) || 0 })
+                          }
+                        />
+                      </div>
+                      {/* Créditos */}
+                      <div className="col-span-1">
+                        <label className="block text-gray-300 mb-1 font-medium">
+                          Créditos
+                        </label>
+                        <Input
+                          type="number"
+                          placeholder="0"
+                          className="bg-[#23272f] border border-gray-700 text-white"
+                          value={newUser.credits}
+                          onChange={(e) =>
+                            setNewUser({ ...newUser, credits: parseInt(e.target.value) || 0 })
+                          }
+                        />
+                      </div>
+                      {/* Senha */}
+                      <div className="col-span-1">
+                        <label className="block text-gray-300 mb-1 font-medium">
+                          Senha
+                        </label>
+                        <Input
+                          placeholder="Senha do cliente"
+                          className="bg-[#23272f] border border-gray-700 text-white"
+                          value={newUser.password}
+                          onChange={(e) =>
+                            setNewUser({ ...newUser, password: e.target.value })
+                          }
+                        />
+                      </div>
+                      {/* Bouquets */}
+                      <div className="col-span-1">
+                        <label className="block text-gray-300 mb-1 font-medium">
+                          Bouquets
+                        </label>
+                        <Input
+                          placeholder="Bouquets disponíveis"
+                          className="bg-[#23272f] border border-gray-700 text-white"
+                          value={newUser.bouquets}
+                          onChange={(e) =>
+                            setNewUser({ ...newUser, bouquets: e.target.value })
+                          }
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  {/* Informações Adicionais */}
+                  <div className="hidden md:block bg-[#23272f] border border-gray-700 rounded-lg p-4 mb-6">
+                    <span className="block text-white font-semibold mb-4">Informações Adicionais</span>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Nome Real */}
+                      <div className="col-span-1">
+                        <label className="block text-gray-300 mb-1 font-medium">
+                          Nome Real
+                        </label>
+                        <Input
+                          placeholder="Nome real do cliente"
+                          className="bg-[#23272f] border border-gray-700 text-white"
+                          value={newUser.realName}
+                          onChange={(e) =>
+                            setNewUser({ ...newUser, realName: e.target.value })
+                          }
+                        />
+                      </div>
+                      {/* WhatsApp */}
+                      <div className="col-span-1">
+                        <label className="block text-gray-300 mb-1 font-medium">
+                          WhatsApp
+                        </label>
+                        <Input
+                          placeholder="+55 (11) 99999-9999"
+                          className="bg-[#23272f] border border-gray-700 text-white"
+                          value={newUser.whatsapp}
+                          onChange={(e) =>
+                            setNewUser({ ...newUser, whatsapp: e.target.value })
+                          }
+                        />
+                      </div>
+                      {/* Telegram */}
+                      <div className="col-span-1">
+                        <label className="block text-gray-300 mb-1 font-medium">
+                          Telegram
+                        </label>
+                        <Input
+                          placeholder="@username"
+                          className="bg-[#23272f] border border-gray-700 text-white"
+                          value={newUser.telegram}
+                          onChange={(e) =>
+                            setNewUser({ ...newUser, telegram: e.target.value })
+                          }
+                        />
+                      </div>
+                      {/* Observações */}
+                      <div className="col-span-1">
+                        <label className="block text-gray-300 mb-1 font-medium">
+                          Observações
+                        </label>
+                        <Input
+                          placeholder="Observações sobre o cliente"
+                          className="bg-[#23272f] border border-gray-700 text-white"
+                          value={newUser.observations}
+                          onChange={(e) =>
+                            setNewUser({ ...newUser, observations: e.target.value })
+                          }
+                        />
+                      </div>
+                      {/* Notas */}
+                      <div className="col-span-2">
+                        <label className="block text-gray-300 mb-1 font-medium">
+                          Notas
+                        </label>
+                        <textarea
+                          placeholder="Notas adicionais sobre o cliente..."
+                          className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 min-h-[80px] resize-none"
+                          value={newUser.notes}
+                          onChange={(e) =>
+                            setNewUser({ ...newUser, notes: e.target.value })
+                          }
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Botões de Ação */}
+                  <div className="flex justify-end gap-3 pt-4 border-t border-gray-700">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setIsAddDialogOpen(false)}
+                      className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                    >
+                      Cancelar
+                    </Button>
+                    <Button
+                      type="submit"
+                      disabled={isAddingUser}
+                      className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white"
+                    >
+                      {isAddingUser ? "Adicionando..." : "Adicionar Cliente"}
+                    </Button>
+                  </div>
+                  {error && (
+                    <div className="mt-4 p-3 bg-red-900/40 border border-red-700 text-red-300 text-sm rounded">
+                      ❌ {error}
+                    </div>
+                  )}
+                  {addUserSuccess && (
+                    <div className="mt-4 p-3 bg-green-900/40 border border-green-700 text-green-300 text-sm rounded">
+                      ✅ Cliente adicionado com sucesso!
+                    </div>
+                  )}
+                </form>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
-    )}
 
-    {/* Banner de erro RLS */}
-    {error && (
-      <RLSErrorBanner error={error} onClearError={clearError} />
-    )}
+      {/* Estatísticas */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <Card className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 border border-purple-700/40">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-gray-300 flex items-center gap-2">
+              <Users className="w-4 h-4" />
+              Total de Clientes
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-white">
+              {shouldShow ? (users || []).length : 0}
+            </div>
+            <div className="text-xs text-gray-400 mt-1">
+              Usuários cadastrados
+            </div>
+          </CardContent>
+        </Card>
 
-    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-white">
-          Gerenciamento de Usuários
-        </h1>
-        <p className="text-gray-400 text-sm sm:text-base">
-          {loading
-            ? "Carregando..."
-            : `Gerencie todos os usuários do sistema(${(users || []).length
-            } usuários)`}
-        </p>
+        <Card className="bg-gradient-to-br from-green-900/50 to-green-800/30 border border-green-700/40">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-gray-300 flex items-center gap-2">
+              <CheckCircle className="w-4 h-4" />
+              Clientes Ativos
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-400">
+              {shouldShow ? (users || []).filter((u) => u.status === "Ativo").length : 0}
+            </div>
+            <div className="text-xs text-gray-400 mt-1">
+              Usuários com acesso
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-red-900/50 to-red-800/30 border border-red-700/40">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-gray-300 flex items-center gap-2">
+              <Shield className="w-4 h-4" />
+              Clientes Inativos
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-red-400">
+              {shouldShow ? (users || []).filter((u) => u.status === "Inativo").length : 0}
+            </div>
+            <div className="text-xs text-gray-400 mt-1">
+              Usuários bloqueados
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-blue-900/50 to-blue-800/30 border border-blue-700/40">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-gray-300 flex items-center gap-2">
+              <Calendar className="w-4 h-4" />
+              Novos este Mês
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-400">{shouldShow ? 12 : 0}</div>
+            <div className="text-xs text-gray-400 mt-1">Novos usuários</div>
+          </CardContent>
+        </Card>
       </div>
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="flex items-center gap-2 bg-[#7e22ce] hover:bg-[#6d1bb7] text-white h-10 sm:h-auto">
-              <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">Novo Cliente</span>
-              <span className="sm:hidden">Novo</span>
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="bg-[#1f2937] text-white max-w-4xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col max-h-[90vh] overflow-y-auto scrollbar-hide">
-            <div className="p-6 w-full flex flex-col">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold">Adicionar um Cliente</h2>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-gray-400 hover:text-white"
-                    onClick={() => setIsAddDialogOpen(false)}
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </Button>
+
+      {/* Search bar */}
+      <div className="flex items-center gap-4 mb-4">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <Input
+            placeholder="Buscar usuários..."
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1); // Resetar para primeira página ao buscar
+            }}
+            className="pl-10 bg-[#1f2937] border border-gray-700 text-white"
+          />
+        </div>
+        {searchTerm && (
+          <div className="text-sm text-gray-400">
+            {filteredUsers.length} resultado
+            {filteredUsers.length !== 1 ? "s" : ""} encontrado
+            {filteredUsers.length !== 1 ? "s" : ""}
+          </div>
+        )}
+      </div>
+
+      {/* Notificação de sucesso */}
+      {addUserSuccess && (
+        <div className="mb-4 p-4 bg-green-900/40 border border-green-700 text-green-300 rounded-lg">
+          <div className="flex items-center gap-2">
+            <CheckCircle className="w-5 h-5" />
+            <span className="font-medium">Cliente adicionado com sucesso!</span>
+          </div>
+        </div>
+      )}
+
+      {/* Tabela de usuários */}
+      <Card className="bg-[#1f2937] text-white">
+        <CardHeader>
+          <CardTitle className="text-lg text-white">
+            Lista de Usuários
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow className="text-gray-400">
+                <TableHead className="text-xs sm:text-sm">Nome</TableHead>
+                <TableHead className="text-xs sm:text-sm">Plano</TableHead>
+                <TableHead className="text-xs sm:text-sm">Status</TableHead>
+                <TableHead className="hidden md:table-cell text-xs sm:text-sm">
+                  Números de Dispositivos
+                </TableHead>
+                <TableHead className="hidden lg:table-cell text-xs sm:text-sm">
+                  Vencimento
+                </TableHead>
+                <TableHead className="hidden lg:table-cell text-xs sm:text-sm">
+                  Servidor
+                </TableHead>
+                <TableHead className="hidden sm:table-cell text-xs sm:text-sm">
+                  Preço
+                </TableHead>
+                <TableHead className="text-xs sm:text-sm">Ações</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {paginatedUsers.map((user) => (
+                <TableRow
+                  key={user.id}
+                  className="hover:bg-[#232a36] transition-colors"
+                >
+                  <TableCell className="text-white font-medium text-xs sm:text-sm">
+                    <div className="flex items-center gap-2">
+                      {user.name}
+                      {user.pago && (
+                        <Badge className="bg-green-600 text-white text-xs px-1.5 py-0.5">
+                          <CheckCircle className="w-3 h-3 mr-1" />
+                          Pago
+                        </Badge>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-gray-300 text-xs sm:text-sm">
+                    {user.plan}
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      className={`text - xs ${user.status === "Ativo"
+                        ? "bg-green-700 text-green-200"
+                        : user.status === "Inativo"
+                          ? "bg-red-700 text-red-200"
+                          : user.status === "Pendente"
+                            ? "bg-yellow-700 text-yellow-200"
+                            : "bg-gray-700 text-gray-300"
+                        } `}
+                    >
+                      {user.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell text-gray-300 text-xs sm:text-sm">
+                    {user.devices || 0}
+                  </TableCell>
+                  <TableCell className="hidden lg:table-cell text-gray-300 text-xs sm:text-sm">
+                    {user.expiration_date
+                      ? new Date(user.expiration_date).toLocaleDateString('pt-BR')
+                      : "-"}
+                  </TableCell>
+                  <TableCell className="hidden lg:table-cell text-gray-300 text-xs sm:text-sm">
+                    {user.server || "-"}
+                  </TableCell>
+                  <TableCell className="hidden sm:table-cell text-gray-300 text-xs sm:text-sm">
+                    {user.price ? `R$ ${user.price} ` : "-"}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex gap-1 sm:gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="border-blue-600 text-blue-400 hover:bg-blue-600 hover:text-white h-8 w-8 sm:h-9 sm:w-9 p-0"
+                        onClick={() => openViewModal(user)}
+                        title="Visualizar"
+                      >
+                        <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="border-yellow-600 text-yellow-400 hover:bg-yellow-600 hover:text-white h-8 w-8 sm:h-9 sm:w-9 p-0"
+                        onClick={() => openEditModal(user)}
+                        title="Editar"
+                      >
+                        <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant={user.pago ? "default" : "outline"}
+                        className={`${user.pago
+                          ? "bg-green-600 text-white hover:bg-green-700 border-green-600"
+                          : "border-green-600 text-green-400 hover:bg-green-600 hover:text-white bg-background"
+                          } h - 8 w - 8 sm: h - 9 sm: w - 9 p - 0 rounded - md`}
+                        onClick={() => openPagoModal(user)}
+                        title={user.pago ? "Marcar como Não Pago" : "Marcar como Pago"}
+                      >
+                        <DollarSign className="w-3 h-3 sm:w-4 sm:h-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="border-red-600 text-red-400 hover:bg-red-600 hover:text-white h-8 w-8 sm:h-9 sm:w-9 p-0"
+                        onClick={() => openDeleteModal(user)}
+                        title="Remover"
+                      >
+                        <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      {/* Paginação */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-4 mt-4">
+          <Button
+            variant="outline"
+            className="bg-[#23272f] text-white border border-gray-700 px-4 py-2 rounded disabled:opacity-50"
+            onClick={() => setCurrentPage(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            Voltar
+          </Button>
+          <span className="text-white text-sm">
+            Página {currentPage} de {totalPages}
+          </span>
+          <Button
+            variant="outline"
+            className="bg-[#23272f] text-white border border-gray-700 px-4 py-2 rounded disabled:opacity-50"
+            onClick={() => setCurrentPage(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            Próximo
+          </Button>
+        </div>
+      )}
+
+      {/* Modal de Visualização */}
+      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+        <DialogContent className="bg-[#1f2937] text-white max-w-2xl w-full p-0 rounded-xl shadow-xl border border-gray-700">
+          <div className="p-6 max-h-[80vh] overflow-y-auto scrollbar-hide">
+            <DialogHeader>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
+                  <User className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <DialogTitle className="text-xl font-bold text-white">
+                    Detalhes do Usuário
+                  </DialogTitle>
+                  <DialogDescription className="text-gray-400">
+                    Informações completas do usuário selecionado
+                  </DialogDescription>
                 </div>
               </div>
+            </DialogHeader>
 
-              <form onSubmit={async (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log("🔵 [AdminUsers] Form submit disparado!");
-                await handleAddUser();
-              }} className="space-y-6 flex-1 overflow-y-auto">
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="text-green-400 text-xs font-medium">• Campos obrigatórios marcados com *</span>
-                  <span className="text-blue-400 text-xs font-medium">• Dados serão sincronizados automaticamente</span>
+            {viewingUser && (
+              <div className="space-y-6">
+                {/* Informações Básicas */}
+                <div className="bg-[#23272f] rounded-lg p-4">
+                  <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                    <User className="w-5 h-5 text-blue-400" />
+                    Informações Básicas
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-gray-400 text-sm">Nome</Label>
+                      <p className="text-white font-medium">
+                        {viewingUser.name}
+                      </p>
+                    </div>
+                    <div>
+                      <Label className="text-gray-400 text-sm">Email</Label>
+                      <p className="text-white font-medium flex items-center gap-2">
+                        <Mail className="w-4 h-4" />
+                        {viewingUser.email}
+                      </p>
+                    </div>
+                    <div>
+                      <Label className="text-gray-400 text-sm">Plano</Label>
+                      <Badge className="bg-purple-600 text-white">
+                        {viewingUser.plan}
+                      </Badge>
+                    </div>
+                    {viewingUser.price && (
+                      <div>
+                        <Label className="text-gray-400 text-sm">Preço</Label>
+                        <p className="text-white font-medium">
+                          R$ {viewingUser.price}
+                        </p>
+                      </div>
+                    )}
+                    <div>
+                      <Label className="text-gray-400 text-sm">Status</Label>
+                      <Badge
+                        className={
+                          viewingUser.status === "Ativo"
+                            ? "bg-green-600 text-white"
+                            : viewingUser.status === "Inativo"
+                              ? "bg-red-600 text-white"
+                              : viewingUser.status === "Pendente"
+                                ? "bg-yellow-600 text-white"
+                                : "bg-gray-600 text-white"
+                        }
+                      >
+                        {viewingUser.status}
+                      </Badge>
+                    </div>
+                    <div>
+                      <Label className="text-gray-400 text-sm">Status de Pagamento</Label>
+                      <Badge
+                        className={
+                          viewingUser.pago
+                            ? "bg-green-600 text-white flex items-center gap-1 w-fit"
+                            : "bg-gray-600 text-white flex items-center gap-1 w-fit"
+                        }
+                      >
+                        {viewingUser.pago ? (
+                          <>
+                            <CheckCircle className="w-3 h-3" />
+                            Pago
+                          </>
+                        ) : (
+                          "Não Pago"
+                        )}
+                      </Badge>
+                    </div>
+                    <div>
+                      <Label className="text-gray-400 text-sm">
+                        Data de Criação
+                      </Label>
+                      <p className="text-white font-medium flex items-center gap-2">
+                        <Calendar className="w-4 h-4" />
+                        {viewingUser.createdAt}
+                      </p>
+                    </div>
+                    {viewingUser.renewalDate && (
+                      <div>
+                        <Label className="text-gray-400 text-sm">
+                          Data de Renovação
+                        </Label>
+                        <p className="text-white font-medium">
+                          {viewingUser.renewalDate}
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
+
+                {/* Contatos */}
+                {(viewingUser.phone ||
+                  viewingUser.telegram ||
+                  viewingUser.whatsapp) && (
+                    <div className="bg-[#23272f] rounded-lg p-4">
+                      <h3 className="text-lg font-semibold text-white mb-4">
+                        Contatos
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {viewingUser.phone && (
+                          <div>
+                            <Label className="text-gray-400 text-sm">
+                              Telefone
+                            </Label>
+                            <p className="text-white font-medium">
+                              {viewingUser.phone}
+                            </p>
+                          </div>
+                        )}
+                        {viewingUser.telegram && (
+                          <div>
+                            <Label className="text-gray-400 text-sm">
+                              Telegram
+                            </Label>
+                            <p className="text-white font-medium">
+                              {viewingUser.telegram}
+                            </p>
+                          </div>
+                        )}
+                        {viewingUser.whatsapp && (
+                          <div>
+                            <Label className="text-gray-400 text-sm">
+                              WhatsApp
+                            </Label>
+                            <p className="text-white font-medium">
+                              {viewingUser.whatsapp}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                {/* Observações */}
+                {(viewingUser.notes || viewingUser.observations) && (
+                  <div className="bg-[#23272f] rounded-lg p-4">
+                    <h3 className="text-lg font-semibold text-white mb-4">
+                      Observações
+                    </h3>
+                    <p className="text-gray-300">
+                      {viewingUser.observations || viewingUser.notes}
+                    </p>
+                  </div>
+                )}
+
+                {/* Dados Extras */}
+                {(viewingUser.password ||
+                  viewingUser.expirationDate ||
+                  viewingUser.bouquets) && (
+                    <div className="bg-[#23272f] rounded-lg p-4">
+                      <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                        <Activity className="w-5 h-5 text-purple-400" />
+                        Dados Extras
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {viewingUser.password && (
+                          <div>
+                            <Label className="text-gray-400 text-sm">Senha</Label>
+                            <p className="text-white font-medium">
+                              {viewingUser.password}
+                            </p>
+                          </div>
+                        )}
+                        {viewingUser.expirationDate && (
+                          <div>
+                            <Label className="text-gray-400 text-sm">
+                              Data de Vencimento
+                            </Label>
+                            <p className="text-white font-medium">
+                              {viewingUser.expirationDate}
+                            </p>
+                          </div>
+                        )}
+                        {viewingUser.bouquets && (
+                          <div>
+                            <Label className="text-gray-400 text-sm">
+                              Bouquets
+                            </Label>
+                            <p className="text-white font-medium">
+                              {viewingUser.bouquets}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+              </div>
+            )}
+
+            <DialogFooter className="mt-6">
+              <Button
+                variant="outline"
+                onClick={() => setIsViewDialogOpen(false)}
+                className="bg-gray-700 text-white"
+              >
+                Fechar
+              </Button>
+            </DialogFooter>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal de Edição */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="bg-[#1f2937] text-white max-w-4xl w-full p-0 rounded-xl shadow-xl border border-gray-700">
+          <div className="p-6 max-h-[90vh] overflow-y-auto scrollbar-hide">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Users className="w-6 h-6 text-yellow-500" />
+                <span className="text-lg font-semibold text-white">
+                  Editar Cliente
+                </span>
+                <span className="ml-2 px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-400 text-xs font-semibold">
+                  Editar
+                </span>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  className="bg-[#1f2937] text-white border border-gray-700 px-3 py-1 rounded text-sm"
+                >
+                  Importar
+                </Button>
+                <Button
+                  variant="outline"
+                  className="bg-[#1f2937] text-white border border-gray-700 px-3 py-1 rounded text-sm"
+                >
+                  Modelo
+                </Button>
+              </div>
+            </div>
+            <p className="text-gray-400 text-sm mb-2">
+              Modifique os dados do cliente para atualizar suas informações na
+              base de dados
+            </p>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-green-400 text-xs font-medium">
+                • Campos obrigatórios marcados com *
+              </span>
+              <span className="text-blue-400 text-xs font-medium">
+                • Dados serão sincronizados automaticamente
+              </span>
+            </div>
+
+            {editingUser && (
+              <>
                 {/* Extração M3U */}
-                <div className="bg-blue-900/30 border border-blue-800 rounded-lg p-4 mb-6">
+                <div className="bg-blue-900/30 border border-blue-800 rounded-lg p-4 mb-4">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-blue-300 font-medium">Extração M3U</span>
+                    <span className="text-blue-300 font-medium">
+                      Extração M3U
+                    </span>
                     <div className="flex gap-2">
                       <button
                         className="inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-10 bg-blue-600 text-white hover:bg-blue-700 px-4 py-1 rounded text-sm"
@@ -1152,49 +1991,108 @@ return (
                       </button>
                     </div>
                   </div>
-                  <p className="text-xs text-blue-300 mb-2">Serve para importar dados automaticamente a partir de uma URL.</p>
+                  <p className="text-xs text-blue-300 mb-2">
+                    Serve para importar dados automaticamente a partir de uma
+                    URL.
+                  </p>
                   <input
                     className="flex h-10 w-full rounded-md px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-[#1f2937] border border-blue-800 text-white mb-2"
                     placeholder="Insira a URL do M3U para extrair automaticamente os dados do cliente..."
                     value={m3uUrl}
                     onChange={e => setM3uUrl(e.target.value)}
                   />
+
+                  {/* Status de extração */}
                   {extractionError && (
-                    <div className="bg-red-900/40 border border-red-700 text-red-300 text-xs rounded p-2 mb-2">❌ {extractionError}</div>
+                    <div
+                      className={`border text - xs rounded p - 2 mb - 2 ${extractionError.includes("Testando proxy")
+                        ? "bg-blue-900/40 border-blue-700 text-blue-300"
+                        : "bg-red-900/40 border-red-700 text-red-300"
+                        } `}
+                    >
+                      {extractionError.includes("Testando proxy") ? "🔄" : "❌"}{" "}
+                      {extractionError}
+                    </div>
                   )}
+
+                  {/* Resultado da extração */}
                   {extractionResult && !extractionError && (
-                    <div className="bg-green-900/40 border border-green-700 text-green-300 text-xs rounded p-2 mb-2">✅ {extractionResult.message}</div>
+                    <div className="bg-green-900/40 border border-green-700 text-green-300 text-xs rounded p-2 mb-2">
+                      ✅ {extractionResult.message}
+                    </div>
+                  )}
+
+                  {/* Dados extraídos aplicados ao formulário */}
+                  {extractionResult && extractionResult.success && (
+                    <div className="bg-green-900/40 border border-green-700 text-green-300 text-xs rounded p-2">
+                      <div className="font-medium mb-1">
+                        ✅ Dados aplicados ao formulário:
+                      </div>
+                      <div className="space-y-1">
+                        <div>• Nome: {editingUser.name || "Não extraído"}</div>
+                        <div>
+                          • Email: {editingUser.email || "Não extraído"}
+                        </div>
+                        <div>
+                          • Senha: {editingUser.password || "Não extraída"}
+                        </div>
+                        <div>• Plano: {editingUser.plan || "Não extraído"}</div>
+                        <div>
+                          • Status: {editingUser.status || "Não extraído"}
+                        </div>
+                        <div>
+                          • Telegram: {editingUser.telegram || "Não extraído"}
+                        </div>
+                        <div>
+                          • Vencimento:{" "}
+                          {editingUser.expirationDate || "Não definido"}
+                        </div>
+                        <div>
+                          • Bouquets: {editingUser.bouquets || "Não extraídos"}
+                        </div>
+                        <div>
+                          • Observações: {editingUser.observations || "Nenhuma"}
+                        </div>
+                      </div>
+                    </div>
                   )}
                 </div>
+
                 {/* Informações Básicas */}
-                <div className="bg-[#23272f] border border-gray-700 rounded-lg p-4 mb-6">
-                  <span className="block text-white font-semibold mb-4">Informações Básicas</span>
+                <div className="bg-[#1f2937] border border-gray-700 rounded-lg p-4 mb-4">
+                  <span className="block text-white font-semibold mb-2">
+                    Informações Básicas
+                  </span>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Servidor */}
                     <div className="col-span-1">
-                      <label htmlFor="add-server" className="block text-gray-300 mb-1 font-medium">
+                      <label className="block text-gray-300 mb-1 font-medium">
                         Servidor *
                       </label>
                       <Input
-                        id="add-server"
                         type="text"
-                        value={newUser.server || ""}
-                        onChange={(e) => setNewUser({ ...newUser, server: e.target.value })}
+                        value={editingUser.server || ""}
+                        onChange={(e) => setEditingUser({ ...editingUser, server: e.target.value })}
                         placeholder="Digite o nome do servidor"
                         className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                       />
                     </div>
                     {/* Plano */}
                     <div className="col-span-1">
-                      <label htmlFor="add-plan" className="block text-gray-300 mb-1 font-medium">
+                      <label htmlFor="edit-plan" className="block text-gray-300 mb-1 font-medium">
                         Plano *
                       </label>
                       <select
-                        id="add-plan"
+                        id="edit-plan"
+                        aria-label="Plano"
                         className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                        value={newUser.plan}
+                        value={editingUser.plan}
                         onChange={(e) =>
-                          setNewUser({ ...newUser, plan: e.target.value, price: "" })
+                          setEditingUser({
+                            ...editingUser,
+                            plan: e.target.value,
+                            price: "", // Resetar preço quando plano mudar
+                          })
                         }
                       >
                         <option value="">Selecione um plano</option>
@@ -1206,21 +2104,25 @@ return (
                       </select>
                     </div>
                     {/* Preço */}
-                    {newUser.plan && (
+                    {editingUser.plan && (
                       <div className="col-span-1">
-                        <label htmlFor="add-price" className="block text-gray-300 mb-1 font-medium">
+                        <label htmlFor="edit-price" className="block text-gray-300 mb-1 font-medium">
                           Preço *
                         </label>
                         <select
-                          id="add-price"
+                          id="edit-price"
+                          aria-label="Preço"
                           className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                          value={newUser.price}
+                          value={editingUser.price}
                           onChange={(e) =>
-                            setNewUser({ ...newUser, price: e.target.value })
+                            setEditingUser({
+                              ...editingUser,
+                              price: e.target.value,
+                            })
                           }
                         >
                           <option value="">Selecione um preço</option>
-                          {getPlanPrices(newUser.plan).map((price) => (
+                          {getPlanPrices(editingUser.plan).map((price) => (
                             <option key={price} value={price}>
                               R$ {price}
                             </option>
@@ -1228,167 +2130,141 @@ return (
                         </select>
                       </div>
                     )}
-                    {/* Nome */}
-                    <div className="col-span-1">
-                      <label htmlFor="add-name" className="block text-gray-300 mb-1 font-medium">
-                        Nome *
-                      </label>
-                      <Input
-                        id="add-name"
-                        placeholder="Nome completo do cliente"
-                        className="bg-[#23272f] border border-gray-700 text-white"
-                        value={newUser.name}
-                        onChange={(e) =>
-                          setNewUser({ ...newUser, name: e.target.value })
-                        }
-                      />
-                    </div>
-                    {/* Email */}
-                    <div className="col-span-1">
-                      <label htmlFor="add-email" className="block text-gray-300 mb-1 font-medium">
-                        Email *
-                      </label>
-                      <Input
-                        id="add-email"
-                        placeholder="email@exemplo.com"
-                        className="bg-[#23272f] border border-gray-700 text-white"
-                        value={newUser.email}
-                        onChange={(e) =>
-                          setNewUser({ ...newUser, email: e.target.value })
-                        }
-                      />
-                    </div>
-                    {/* Status */}
-                    <div className="col-span-1">
-                      <label htmlFor="add-status" className="block text-gray-300 mb-1 font-medium">
-                        Status *
-                      </label>
-                      <select
-                        id="add-status"
-                        className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                        value={newUser.status}
-                        onChange={(e) =>
-                          setNewUser({ ...newUser, status: e.target.value })
-                        }
-                      >
-                        <option value="Ativo">Ativo</option>
-                        <option value="Inativo">Inativo</option>
-                        <option value="Suspenso">Suspenso</option>
-                        <option value="Pendente">Pendente</option>
-                      </select>
-                    </div>
-                    {/* Data de Expiração */}
-                    <div className="col-span-1">
-                      <label htmlFor="add-expiration" className="block text-gray-300 mb-1 font-medium">
-                        Data de Expiração *
-                      </label>
-                      <Input
-                        id="add-expiration"
-                        type="date"
-                        className="bg-[#23272f] border border-gray-700 text-white"
-                        value={newUser.expirationDate}
-                        onChange={(e) =>
-                          setNewUser({ ...newUser, expirationDate: e.target.value })
-                        }
-                      />
-                    </div>
-                  </div>
-                </div>
-                {/* Configuração de Serviço */}
-                <div className="bg-[#23272f] border border-gray-700 rounded-lg p-4 mb-6">
-                  <span className="block text-white font-semibold mb-4">Configuração de Serviço</span>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Dispositivos */}
-                    <div className="col-span-1">
-                      <label htmlFor="add-devices" className="block text-gray-300 mb-1 font-medium">
-                        Dispositivos
-                      </label>
-                      <Input
-                        id="add-devices"
-                        type="number"
-                        placeholder="0"
-                        className="bg-[#23272f] border border-gray-700 text-white"
-                        value={newUser.devices}
-                        onChange={(e) =>
-                          setNewUser({ ...newUser, devices: parseInt(e.target.value) || 0 })
-                        }
-                      />
-                    </div>
-                    {/* Créditos */}
+                    {/* Usuário */}
                     <div className="col-span-1">
                       <label className="block text-gray-300 mb-1 font-medium">
-                        Créditos
+                        Usuário *
                       </label>
-                      <Input
-                        type="number"
-                        placeholder="0"
-                        className="bg-[#23272f] border border-gray-700 text-white"
-                        value={newUser.credits}
-                        onChange={(e) =>
-                          setNewUser({ ...newUser, credits: parseInt(e.target.value) || 0 })
-                        }
-                      />
+                      <div className="relative flex items-center">
+                        <input
+                          value={editingUser.name}
+                          disabled
+                          placeholder="Usuário extraído automaticamente"
+                          className="w-full bg-[#23272f] border border-gray-700 text-gray-400 rounded px-3 py-2 pr-8 cursor-not-allowed"
+                        />
+                        <span className="absolute right-2 text-gray-500">
+                          <svg
+                            width="16"
+                            height="16"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            viewBox="0 0 24 24"
+                          >
+                            <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+                            <polyline points="7 9 12 4 17 9" />
+                            <line x1="12" x2="12" y1="4" y2="16" />
+                          </svg>
+                        </span>
+                      </div>
+                      <div className="bg-blue-900/40 border border-blue-700 text-blue-300 text-xs rounded mt-2 p-2">
+                        Usuário extraído automaticamente da URL M3U
+                      </div>
                     </div>
                     {/* Senha */}
                     <div className="col-span-1">
                       <label className="block text-gray-300 mb-1 font-medium">
                         Senha
                       </label>
-                      <Input
-                        placeholder="Senha do cliente"
-                        className="bg-[#23272f] border border-gray-700 text-white"
-                        value={newUser.password}
-                        onChange={(e) =>
-                          setNewUser({ ...newUser, password: e.target.value })
-                        }
+                      <div className="relative flex items-center">
+                        <input
+                          type="text"
+                          value={editingUser.password || ""}
+                          onChange={(e) =>
+                            setEditingUser({
+                              ...editingUser,
+                              password: e.target.value,
+                            })
+                          }
+                          placeholder="Senha"
+                          className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 pr-8"
+                        />
+                        <span className="absolute right-2 text-gray-500 cursor-pointer">
+                          <svg
+                            width="16"
+                            height="16"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            viewBox="0 0 24 24"
+                          >
+                            <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+                            <polyline points="7 9 12 4 17 9" />
+                            <line x1="12" x2="12" y1="4" y2="16" />
+                          </svg>
+                        </span>
+                      </div>
+                      <div className="bg-blue-900/40 border border-blue-700 text-blue-300 text-xs rounded mt-2 p-2 space-y-1">
+                        <div>Senha extraída automaticamente da URL M3U</div>
+                      </div>
+                    </div>
+                    {/* Vencimento */}
+                    <div className="col-span-2">
+                      <label className="block text-gray-300 mb-1 font-medium">
+                        Vencimento (Opcional)
+                      </label>
+                      <VencimentoDatePickerEdit
+                        editingUser={editingUser}
+                        setEditingUser={setEditingUser}
                       />
                     </div>
                     {/* Bouquets */}
-                    <div className="col-span-1">
+                    <div className="col-span-2">
                       <label className="block text-gray-300 mb-1 font-medium">
                         Bouquets
                       </label>
-                      <Input
-                        placeholder="Bouquets disponíveis"
-                        className="bg-[#23272f] border border-gray-700 text-white"
-                        value={newUser.bouquets}
+                      <input
+                        value={editingUser.bouquets || ""}
                         onChange={(e) =>
-                          setNewUser({ ...newUser, bouquets: e.target.value })
+                          setEditingUser({
+                            ...editingUser,
+                            bouquets: e.target.value,
+                          })
                         }
+                        placeholder="Bouquets extraídos automaticamente"
+                        className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                       />
+                      <div className="bg-green-900/40 border border-green-700 text-green-400 text-xs rounded mt-2 p-2">
+                        Bouquets extraídos automaticamente da conta IPTV
+                      </div>
                     </div>
-                  </div>
-                </div>
-                {/* Informações Adicionais */}
-                <div className="hidden md:block bg-[#23272f] border border-gray-700 rounded-lg p-4 mb-6">
-                  <span className="block text-white font-semibold mb-4">Informações Adicionais</span>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Nome Real */}
+                    {/* Nome */}
                     <div className="col-span-1">
                       <label className="block text-gray-300 mb-1 font-medium">
-                        Nome Real
+                        Nome *
                       </label>
-                      <Input
-                        placeholder="Nome real do cliente"
-                        className="bg-[#23272f] border border-gray-700 text-white"
-                        value={newUser.realName}
-                        onChange={(e) =>
-                          setNewUser({ ...newUser, realName: e.target.value })
-                        }
+                      <input
+                        value={editingUser.realName || ""}
+                        onChange={async (e) => {
+                          const newName = e.target.value;
+                          setEditingUser({ ...editingUser, realName: newName });
+                          if (editingUser && editingUser.id) {
+                            // Salvar em tempo real no banco
+                            await updateUser(editingUser.id, {
+                              real_name: newName,
+                            });
+                          }
+                        }}
+                        placeholder="Digite o nome completo"
+                        className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+                        required
                       />
                     </div>
-                    {/* WhatsApp */}
+                    {/* E-mail */}
                     <div className="col-span-1">
                       <label className="block text-gray-300 mb-1 font-medium">
-                        WhatsApp
+                        E-mail
                       </label>
-                      <Input
-                        placeholder="+55 (11) 99999-9999"
-                        className="bg-[#23272f] border border-gray-700 text-white"
-                        value={newUser.whatsapp}
+                      <input
+                        value={editingUser.email}
                         onChange={(e) =>
-                          setNewUser({ ...newUser, whatsapp: e.target.value })
+                          setEditingUser({
+                            ...editingUser,
+                            email: e.target.value,
+                          })
                         }
+                        placeholder="Opcional"
+                        className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                       />
                     </div>
                     {/* Telegram */}
@@ -1396,1321 +2272,422 @@ return (
                       <label className="block text-gray-300 mb-1 font-medium">
                         Telegram
                       </label>
-                      <Input
-                        placeholder="@username"
-                        className="bg-[#23272f] border border-gray-700 text-white"
-                        value={newUser.telegram}
+                      <input
+                        value={editingUser.telegram || ""}
                         onChange={(e) =>
-                          setNewUser({ ...newUser, telegram: e.target.value })
+                          setEditingUser({
+                            ...editingUser,
+                            telegram: e.target.value,
+                          })
                         }
+                        placeholder="Opcional"
+                        className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                       />
                     </div>
-                    {/* Observações */}
+                    {/* WhatsApp */}
                     <div className="col-span-1">
+                      <label className="block text-gray-300 mb-1 font-medium">
+                        WhatsApp
+                      </label>
+                      <input
+                        value={editingUser.whatsapp || ""}
+                        onChange={(e) =>
+                          setEditingUser({
+                            ...editingUser,
+                            whatsapp: e.target.value,
+                          })
+                        }
+                        placeholder="Opcional"
+                        className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+                      />
+                      <span className="text-xs text-gray-400 mt-1 block">
+                        Incluindo o código do país - com ou sem espaço e traços
+                        - ex. 55 11 99999 3333
+                      </span>
+                    </div>
+                    {/* Observações */}
+                    <div className="col-span-2">
                       <label className="block text-gray-300 mb-1 font-medium">
                         Observações
                       </label>
-                      <Input
-                        placeholder="Observações sobre o cliente"
-                        className="bg-[#23272f] border border-gray-700 text-white"
-                        value={newUser.observations}
-                        onChange={(e) =>
-                          setNewUser({ ...newUser, observations: e.target.value })
-                        }
-                      />
-                    </div>
-                    {/* Notas */}
-                    <div className="col-span-2">
-                      <label className="block text-gray-300 mb-1 font-medium">
-                        Notas
-                      </label>
                       <textarea
-                        placeholder="Notas adicionais sobre o cliente..."
-                        className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 min-h-[80px] resize-none"
-                        value={newUser.notes}
-                        onChange={(e) =>
-                          setNewUser({ ...newUser, notes: e.target.value })
+                        value={
+                          editingUser.observations || editingUser.notes || ""
                         }
+                        onChange={(e) =>
+                          setEditingUser({
+                            ...editingUser,
+                            observations: e.target.value,
+                          })
+                        }
+                        placeholder="Opcional"
+                        className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 min-h-[60px]"
                       />
                     </div>
                   </div>
                 </div>
 
-                {/* Botões de Ação */}
-                <div className="flex justify-end gap-3 pt-4 border-t border-gray-700">
+                {/* Configuração de Serviço */}
+                <div className="bg-[#1f2937] border border-gray-700 rounded-lg p-4 mb-4">
+                  <span className="block text-purple-400 font-semibold mb-2">
+                    Configuração de Serviço
+                  </span>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+                    {/* Classe de Serviço */}
+                    <div>
+                      <label htmlFor="edit-classe-servico" className="block text-gray-300 mb-1 font-medium">
+                        Classe de Serviço
+                      </label>
+                      <select id="edit-classe-servico" aria-label="Classe de Serviço" className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2">
+                        <option value="">Selecione</option>
+                        <option value="basico">Básico</option>
+                        <option value="premium">Premium</option>
+                      </select>
+                    </div>
+                    {/* Plano */}
+                    <div>
+                      <label htmlFor="edit-small-plan" className="block text-gray-300 mb-1 font-medium">
+                        Plano
+                      </label>
+                      <select id="edit-small-plan" aria-label="Plano" className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2">
+                        <option value="mensal">Mensal</option>
+                        <option value="anual">Anual</option>
+                      </select>
+                    </div>
+                    {/* Status */}
+                    <div>
+                      <label htmlFor="edit-small-status" className="block text-gray-300 mb-1 font-medium">
+                        Status
+                      </label>
+                      <select
+                        id="edit-small-status"
+                        aria-label="Status"
+                        value={editingUser.status}
+                        onChange={(e) =>
+                          setEditingUser({
+                            ...editingUser,
+                            status: e.target.value,
+                          })
+                        }
+                        className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+                      >
+                        <option value="Ativo">Ativo</option>
+                        <option value="Inativo">Inativo</option>
+                        <option value="Pendente">Pendente</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+                    {/* Status de Pagamento */}
+                    <div className="flex items-center gap-3 p-3 bg-[#23272f] border border-gray-700 rounded">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={editingUser.pago || false}
+                          onChange={(e) =>
+                            setEditingUser({
+                              ...editingUser,
+                              pago: e.target.checked,
+                            })
+                          }
+                          className="w-4 h-4 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2"
+                        />
+                        <span className="text-gray-300 font-medium">
+                          Cliente Pago
+                        </span>
+                        {editingUser.pago && (
+                          <CheckCircle className="w-4 h-4 text-green-500" />
+                        )}
+                      </label>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+                    {/* Data de Renovação */}
+                    <div>
+                      <label className="block text-gray-300 mb-1 font-medium">
+                        Data de Renovação
+                      </label>
+                      <RenovacaoDatePicker />
+                    </div>
+                    {/* Número de Dispositivos */}
+                    <div>
+                      <label htmlFor="edit-devices" className="block text-gray-300 mb-1 font-medium">
+                        Número de Dispositivos
+                      </label>
+                      <input
+                        id="edit-devices"
+                        type="number"
+                        min={1}
+                        value={editingUser.devices || 0}
+                        onChange={(e) =>
+                          setEditingUser({
+                            ...editingUser,
+                            devices: parseInt(e.target.value) || 0,
+                          })
+                        }
+                        className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+                      />
+                    </div>
+                    {/* Créditos */}
+                    <div>
+                      <label htmlFor="edit-credits" className="block text-gray-300 mb-1 font-medium">
+                        Créditos
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          className="bg-[#23272f] text-white px-2 py-1 rounded border border-gray-700"
+                        >
+                          -
+                        </button>
+                        <input
+                          id="edit-credits"
+                          type="number"
+                          min={0}
+                          value={editingUser.credits || 0}
+                          onChange={(e) =>
+                            setEditingUser({
+                              ...editingUser,
+                              credits: parseInt(e.target.value) || 0,
+                            })
+                          }
+                          className="w-16 bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+                        />
+                        <button
+                          type="button"
+                          className="bg-[#23272f] text-white px-2 py-1 rounded border border-gray-700"
+                        >
+                          +
+                        </button>
+                        <span className="text-xs text-gray-400 ml-2">
+                          valor
+                          <br />
+                          entre 0<br />e 500€
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Informações Adicionais */}
+                <div className="bg-[#1f2937] border border-gray-700 rounded-lg p-4 mb-4">
+                  <span className="block text-white font-semibold mb-2">
+                    Informações Adicionais
+                  </span>
+                  <label htmlFor="notifications-whatsapp" className="flex items-center gap-2 mb-2 cursor-pointer">
+                    <input id="notifications-whatsapp" type="checkbox" className="accent-purple-600" aria-label="Notificações via WhatsApp" />
+                    <span className="text-gray-300">Notificações via WhatsApp</span>
+                  </label>
+                  <div>
+                    <label htmlFor="edit-anotacoes" className="block text-gray-300 mb-1 font-medium">Anotações</label>
+                    <textarea id="edit-anotacoes" placeholder="Anotações..." className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 min-h-[60px]" />
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-2 mt-6">
                   <Button
-                    type="button"
                     variant="outline"
-                    onClick={() => setIsAddDialogOpen(false)}
-                    className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                    onClick={() => setIsEditDialogOpen(false)}
+                    className="bg-gray-700 text-white px-6 py-2 rounded font-semibold"
                   >
                     Cancelar
                   </Button>
                   <Button
-                    type="submit"
-                    disabled={isAddingUser}
-                    className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white"
+                    onClick={handleEditUser}
+                    disabled={!editingUser || (!editingUser.realName?.trim() && !editingUser.name?.trim())}
+                    className="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-2 rounded font-semibold disabled:bg-gray-600 disabled:cursor-not-allowed"
                   >
-                    {isAddingUser ? "Adicionando..." : "Adicionar Cliente"}
+                    Salvar Alterações
                   </Button>
                 </div>
-                {error && (
-                  <div className="mt-4 p-3 bg-red-900/40 border border-red-700 text-red-300 text-sm rounded">
-                    ❌ {error}
-                  </div>
-                )}
-                {addUserSuccess && (
-                  <div className="mt-4 p-3 bg-green-900/40 border border-green-700 text-green-300 text-sm rounded">
-                    ✅ Cliente adicionado com sucesso!
-                  </div>
-                )}
-              </form>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
-    </div>
-
-    {/* Estatísticas */}
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-      <Card className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 border border-purple-700/40">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm text-gray-300 flex items-center gap-2">
-            <Users className="w-4 h-4" />
-            Total de Clientes
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-white">
-            {shouldShow ? (users || []).length : 0}
+              </>
+            )}
           </div>
-          <div className="text-xs text-gray-400 mt-1">
-            Usuários cadastrados
-          </div>
-        </CardContent>
-      </Card>
+        </DialogContent >
+      </Dialog >
 
-      <Card className="bg-gradient-to-br from-green-900/50 to-green-800/30 border border-green-700/40">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm text-gray-300 flex items-center gap-2">
-            <CheckCircle className="w-4 h-4" />
-            Clientes Ativos
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-green-400">
-            {shouldShow ? (users || []).filter((u) => u.status === "Ativo").length : 0}
-          </div>
-          <div className="text-xs text-gray-400 mt-1">
-            Usuários com acesso
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="bg-gradient-to-br from-red-900/50 to-red-800/30 border border-red-700/40">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm text-gray-300 flex items-center gap-2">
-            <Shield className="w-4 h-4" />
-            Clientes Inativos
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-red-400">
-            {shouldShow ? (users || []).filter((u) => u.status === "Inativo").length : 0}
-          </div>
-          <div className="text-xs text-gray-400 mt-1">
-            Usuários bloqueados
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="bg-gradient-to-br from-blue-900/50 to-blue-800/30 border border-blue-700/40">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm text-gray-300 flex items-center gap-2">
-            <Calendar className="w-4 h-4" />
-            Novos este Mês
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-blue-400">{shouldShow ? 12 : 0}</div>
-          <div className="text-xs text-gray-400 mt-1">Novos usuários</div>
-        </CardContent>
-      </Card>
-    </div>
-
-    {/* Search bar */}
-    <div className="flex items-center gap-4 mb-4">
-      <div className="relative flex-1 max-w-md">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-        <Input
-          placeholder="Buscar usuários..."
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setCurrentPage(1); // Resetar para primeira página ao buscar
-          }}
-          className="pl-10 bg-[#1f2937] border border-gray-700 text-white"
-        />
-      </div>
-      {searchTerm && (
-        <div className="text-sm text-gray-400">
-          {filteredUsers.length} resultado
-          {filteredUsers.length !== 1 ? "s" : ""} encontrado
-          {filteredUsers.length !== 1 ? "s" : ""}
-        </div>
-      )}
-    </div>
-
-    {/* Notificação de sucesso */}
-    {addUserSuccess && (
-      <div className="mb-4 p-4 bg-green-900/40 border border-green-700 text-green-300 rounded-lg">
-        <div className="flex items-center gap-2">
-          <CheckCircle className="w-5 h-5" />
-          <span className="font-medium">Cliente adicionado com sucesso!</span>
-        </div>
-      </div>
-    )}
-
-    {/* Tabela de usuários */}
-    <Card className="bg-[#1f2937] text-white">
-      <CardHeader>
-        <CardTitle className="text-lg text-white">
-          Lista de Usuários
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow className="text-gray-400">
-              <TableHead className="text-xs sm:text-sm">Nome</TableHead>
-              <TableHead className="text-xs sm:text-sm">Plano</TableHead>
-              <TableHead className="text-xs sm:text-sm">Status</TableHead>
-              <TableHead className="hidden md:table-cell text-xs sm:text-sm">
-                Números de Dispositivos
-              </TableHead>
-              <TableHead className="hidden lg:table-cell text-xs sm:text-sm">
-                Vencimento
-              </TableHead>
-              <TableHead className="hidden lg:table-cell text-xs sm:text-sm">
-                Servidor
-              </TableHead>
-              <TableHead className="hidden sm:table-cell text-xs sm:text-sm">
-                Preço
-              </TableHead>
-              <TableHead className="text-xs sm:text-sm">Ações</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {paginatedUsers.map((user) => (
-              <TableRow
-                key={user.id}
-                className="hover:bg-[#232a36] transition-colors"
-              >
-                <TableCell className="text-white font-medium text-xs sm:text-sm">
-                  <div className="flex items-center gap-2">
-                    {user.name}
-                    {user.pago && (
-                      <Badge className="bg-green-600 text-white text-xs px-1.5 py-0.5">
-                        <CheckCircle className="w-3 h-3 mr-1" />
-                        Pago
-                      </Badge>
-                    )}
-                  </div>
-                </TableCell>
-                <TableCell className="text-gray-300 text-xs sm:text-sm">
-                  {user.plan}
-                </TableCell>
-                <TableCell>
-                  <Badge
-                    className={`text - xs ${user.status === "Ativo"
-                        ? "bg-green-700 text-green-200"
-                        : user.status === "Inativo"
-                          ? "bg-red-700 text-red-200"
-                          : user.status === "Pendente"
-                            ? "bg-yellow-700 text-yellow-200"
-                            : "bg-gray-700 text-gray-300"
-                      } `}
-                  >
-                    {user.status}
-                  </Badge>
-                </TableCell>
-                <TableCell className="hidden md:table-cell text-gray-300 text-xs sm:text-sm">
-                  {user.devices || 0}
-                </TableCell>
-                <TableCell className="hidden lg:table-cell text-gray-300 text-xs sm:text-sm">
-                  {user.expiration_date
-                    ? new Date(user.expiration_date).toLocaleDateString('pt-BR')
-                    : "-"}
-                </TableCell>
-                <TableCell className="hidden lg:table-cell text-gray-300 text-xs sm:text-sm">
-                  {user.server || "-"}
-                </TableCell>
-                <TableCell className="hidden sm:table-cell text-gray-300 text-xs sm:text-sm">
-                  {user.price ? `R$ ${user.price} ` : "-"}
-                </TableCell>
-                <TableCell>
-                  <div className="flex gap-1 sm:gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="border-blue-600 text-blue-400 hover:bg-blue-600 hover:text-white h-8 w-8 sm:h-9 sm:w-9 p-0"
-                      onClick={() => openViewModal(user)}
-                      title="Visualizar"
-                    >
-                      <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="border-yellow-600 text-yellow-400 hover:bg-yellow-600 hover:text-white h-8 w-8 sm:h-9 sm:w-9 p-0"
-                      onClick={() => openEditModal(user)}
-                      title="Editar"
-                    >
-                      <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant={user.pago ? "default" : "outline"}
-                      className={`${user.pago
-                          ? "bg-green-600 text-white hover:bg-green-700 border-green-600"
-                          : "border-green-600 text-green-400 hover:bg-green-600 hover:text-white bg-background"
-                        } h - 8 w - 8 sm: h - 9 sm: w - 9 p - 0 rounded - md`}
-                      onClick={() => openPagoModal(user)}
-                      title={user.pago ? "Marcar como Não Pago" : "Marcar como Pago"}
-                    >
-                      <DollarSign className="w-3 h-3 sm:w-4 sm:h-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="border-red-600 text-red-400 hover:bg-red-600 hover:text-white h-8 w-8 sm:h-9 sm:w-9 p-0"
-                      onClick={() => openDeleteModal(user)}
-                      title="Remover"
-                    >
-                      <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
-
-    {/* Paginação */}
-    {totalPages > 1 && (
-      <div className="flex justify-center items-center gap-4 mt-4">
-        <Button
-          variant="outline"
-          className="bg-[#23272f] text-white border border-gray-700 px-4 py-2 rounded disabled:opacity-50"
-          onClick={() => setCurrentPage(currentPage - 1)}
-          disabled={currentPage === 1}
-        >
-          Voltar
-        </Button>
-        <span className="text-white text-sm">
-          Página {currentPage} de {totalPages}
-        </span>
-        <Button
-          variant="outline"
-          className="bg-[#23272f] text-white border border-gray-700 px-4 py-2 rounded disabled:opacity-50"
-          onClick={() => setCurrentPage(currentPage + 1)}
-          disabled={currentPage === totalPages}
-        >
-          Próximo
-        </Button>
-      </div>
-    )}
-
-    {/* Modal de Visualização */}
-    <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-      <DialogContent className="bg-[#1f2937] text-white max-w-2xl w-full p-0 rounded-xl shadow-xl border border-gray-700">
-        <div className="p-6 max-h-[80vh] overflow-y-auto scrollbar-hide">
-          <DialogHeader>
+      {/* Modal de Confirmação de Exclusão */}
+      < AlertDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+      >
+        <AlertDialogContent className="bg-[#1f2937] text-white border border-gray-700">
+          <AlertDialogHeader>
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
-                <User className="w-6 h-6 text-white" />
+              <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center">
+                <Trash2 className="w-6 h-6 text-white" />
               </div>
               <div>
-                <DialogTitle className="text-xl font-bold text-white">
-                  Detalhes do Usuário
-                </DialogTitle>
-                <DialogDescription className="text-gray-400">
-                  Informações completas do usuário selecionado
-                </DialogDescription>
+                <AlertDialogTitle className="text-xl font-bold text-white">
+                  Confirmar Exclusão
+                </AlertDialogTitle>
+                <AlertDialogDescription className="text-gray-400">
+                  Esta ação não pode ser desfeita. O usuário será
+                  permanentemente removido do sistema.
+                </AlertDialogDescription>
               </div>
             </div>
-          </DialogHeader>
+          </AlertDialogHeader>
 
-          {viewingUser && (
-            <div className="space-y-6">
-              {/* Informações Básicas */}
-              <div className="bg-[#23272f] rounded-lg p-4">
-                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                  <User className="w-5 h-5 text-blue-400" />
-                  Informações Básicas
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-gray-400 text-sm">Nome</Label>
-                    <p className="text-white font-medium">
-                      {viewingUser.name}
-                    </p>
-                  </div>
-                  <div>
-                    <Label className="text-gray-400 text-sm">Email</Label>
-                    <p className="text-white font-medium flex items-center gap-2">
-                      <Mail className="w-4 h-4" />
-                      {viewingUser.email}
-                    </p>
-                  </div>
-                  <div>
-                    <Label className="text-gray-400 text-sm">Plano</Label>
-                    <Badge className="bg-purple-600 text-white">
-                      {viewingUser.plan}
-                    </Badge>
-                  </div>
-                  {viewingUser.price && (
-                    <div>
-                      <Label className="text-gray-400 text-sm">Preço</Label>
-                      <p className="text-white font-medium">
-                        R$ {viewingUser.price}
-                      </p>
-                    </div>
-                  )}
-                  <div>
-                    <Label className="text-gray-400 text-sm">Status</Label>
-                    <Badge
-                      className={
-                        viewingUser.status === "Ativo"
-                          ? "bg-green-600 text-white"
-                          : viewingUser.status === "Inativo"
-                            ? "bg-red-600 text-white"
-                            : viewingUser.status === "Pendente"
-                              ? "bg-yellow-600 text-white"
-                              : "bg-gray-600 text-white"
-                      }
-                    >
-                      {viewingUser.status}
-                    </Badge>
-                  </div>
-                  <div>
-                    <Label className="text-gray-400 text-sm">Status de Pagamento</Label>
-                    <Badge
-                      className={
-                        viewingUser.pago
-                          ? "bg-green-600 text-white flex items-center gap-1 w-fit"
-                          : "bg-gray-600 text-white flex items-center gap-1 w-fit"
-                      }
-                    >
-                      {viewingUser.pago ? (
-                        <>
-                          <CheckCircle className="w-3 h-3" />
-                          Pago
-                        </>
-                      ) : (
-                        "Não Pago"
-                      )}
-                    </Badge>
-                  </div>
-                  <div>
-                    <Label className="text-gray-400 text-sm">
-                      Data de Criação
-                    </Label>
-                    <p className="text-white font-medium flex items-center gap-2">
-                      <Calendar className="w-4 h-4" />
-                      {viewingUser.createdAt}
-                    </p>
-                  </div>
-                  {viewingUser.renewalDate && (
-                    <div>
-                      <Label className="text-gray-400 text-sm">
-                        Data de Renovação
-                      </Label>
-                      <p className="text-white font-medium">
-                        {viewingUser.renewalDate}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Contatos */}
-              {(viewingUser.phone ||
-                viewingUser.telegram ||
-                viewingUser.whatsapp) && (
-                  <div className="bg-[#23272f] rounded-lg p-4">
-                    <h3 className="text-lg font-semibold text-white mb-4">
-                      Contatos
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {viewingUser.phone && (
-                        <div>
-                          <Label className="text-gray-400 text-sm">
-                            Telefone
-                          </Label>
-                          <p className="text-white font-medium">
-                            {viewingUser.phone}
-                          </p>
-                        </div>
-                      )}
-                      {viewingUser.telegram && (
-                        <div>
-                          <Label className="text-gray-400 text-sm">
-                            Telegram
-                          </Label>
-                          <p className="text-white font-medium">
-                            {viewingUser.telegram}
-                          </p>
-                        </div>
-                      )}
-                      {viewingUser.whatsapp && (
-                        <div>
-                          <Label className="text-gray-400 text-sm">
-                            WhatsApp
-                          </Label>
-                          <p className="text-white font-medium">
-                            {viewingUser.whatsapp}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-              {/* Observações */}
-              {(viewingUser.notes || viewingUser.observations) && (
-                <div className="bg-[#23272f] rounded-lg p-4">
-                  <h3 className="text-lg font-semibold text-white mb-4">
-                    Observações
-                  </h3>
-                  <p className="text-gray-300">
-                    {viewingUser.observations || viewingUser.notes}
-                  </p>
-                </div>
-              )}
-
-              {/* Dados Extras */}
-              {(viewingUser.password ||
-                viewingUser.expirationDate ||
-                viewingUser.bouquets) && (
-                  <div className="bg-[#23272f] rounded-lg p-4">
-                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                      <Activity className="w-5 h-5 text-purple-400" />
-                      Dados Extras
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {viewingUser.password && (
-                        <div>
-                          <Label className="text-gray-400 text-sm">Senha</Label>
-                          <p className="text-white font-medium">
-                            {viewingUser.password}
-                          </p>
-                        </div>
-                      )}
-                      {viewingUser.expirationDate && (
-                        <div>
-                          <Label className="text-gray-400 text-sm">
-                            Data de Vencimento
-                          </Label>
-                          <p className="text-white font-medium">
-                            {viewingUser.expirationDate}
-                          </p>
-                        </div>
-                      )}
-                      {viewingUser.bouquets && (
-                        <div>
-                          <Label className="text-gray-400 text-sm">
-                            Bouquets
-                          </Label>
-                          <p className="text-white font-medium">
-                            {viewingUser.bouquets}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-            </div>
-          )}
-
-          <DialogFooter className="mt-6">
-            <Button
-              variant="outline"
-              onClick={() => setIsViewDialogOpen(false)}
-              className="bg-gray-700 text-white"
-            >
-              Fechar
-            </Button>
-          </DialogFooter>
-        </div>
-      </DialogContent>
-    </Dialog>
-
-    {/* Modal de Edição */}
-    <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-      <DialogContent className="bg-[#1f2937] text-white max-w-4xl w-full p-0 rounded-xl shadow-xl border border-gray-700">
-        <div className="p-6 max-h-[90vh] overflow-y-auto scrollbar-hide">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <Users className="w-6 h-6 text-yellow-500" />
-              <span className="text-lg font-semibold text-white">
-                Editar Cliente
-              </span>
-              <span className="ml-2 px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-400 text-xs font-semibold">
-                Editar
-              </span>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                className="bg-[#1f2937] text-white border border-gray-700 px-3 py-1 rounded text-sm"
-              >
-                Importar
-              </Button>
-              <Button
-                variant="outline"
-                className="bg-[#1f2937] text-white border border-gray-700 px-3 py-1 rounded text-sm"
-              >
-                Modelo
-              </Button>
-            </div>
-          </div>
-          <p className="text-gray-400 text-sm mb-2">
-            Modifique os dados do cliente para atualizar suas informações na
-            base de dados
-          </p>
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-green-400 text-xs font-medium">
-              • Campos obrigatórios marcados com *
-            </span>
-            <span className="text-blue-400 text-xs font-medium">
-              • Dados serão sincronizados automaticamente
-            </span>
-          </div>
-
-          {editingUser && (
-            <>
-              {/* Extração M3U */}
-              <div className="bg-blue-900/30 border border-blue-800 rounded-lg p-4 mb-4">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-blue-300 font-medium">
-                    Extração M3U
-                  </span>
-                  <div className="flex gap-2">
-                    <button
-                      className="inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-10 bg-blue-600 text-white hover:bg-blue-700 px-4 py-1 rounded text-sm"
-                      type="button"
-                      onClick={extractM3UData}
-                      disabled={isExtracting}
-                    >
-                      {isExtracting ? (
-                        <>
-                          <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
-                          Extraindo...
-                        </>
-                      ) : "Extrair"}
-                    </button>
-                  </div>
-                </div>
-                <p className="text-xs text-blue-300 mb-2">
-                  Serve para importar dados automaticamente a partir de uma
-                  URL.
-                </p>
-                <input
-                  className="flex h-10 w-full rounded-md px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-[#1f2937] border border-blue-800 text-white mb-2"
-                  placeholder="Insira a URL do M3U para extrair automaticamente os dados do cliente..."
-                  value={m3uUrl}
-                  onChange={e => setM3uUrl(e.target.value)}
-                />
-
-                {/* Status de extração */}
-                {extractionError && (
-                  <div
-                    className={`border text - xs rounded p - 2 mb - 2 ${extractionError.includes("Testando proxy")
-                        ? "bg-blue-900/40 border-blue-700 text-blue-300"
-                        : "bg-red-900/40 border-red-700 text-red-300"
-                      } `}
-                  >
-                    {extractionError.includes("Testando proxy") ? "🔄" : "❌"}{" "}
-                    {extractionError}
-                  </div>
-                )}
-
-                {/* Resultado da extração */}
-                {extractionResult && !extractionError && (
-                  <div className="bg-green-900/40 border border-green-700 text-green-300 text-xs rounded p-2 mb-2">
-                    ✅ {extractionResult.message}
-                  </div>
-                )}
-
-                {/* Dados extraídos aplicados ao formulário */}
-                {extractionResult && extractionResult.success && (
-                  <div className="bg-green-900/40 border border-green-700 text-green-300 text-xs rounded p-2">
-                    <div className="font-medium mb-1">
-                      ✅ Dados aplicados ao formulário:
-                    </div>
-                    <div className="space-y-1">
-                      <div>• Nome: {editingUser.name || "Não extraído"}</div>
-                      <div>
-                        • Email: {editingUser.email || "Não extraído"}
-                      </div>
-                      <div>
-                        • Senha: {editingUser.password || "Não extraída"}
-                      </div>
-                      <div>• Plano: {editingUser.plan || "Não extraído"}</div>
-                      <div>
-                        • Status: {editingUser.status || "Não extraído"}
-                      </div>
-                      <div>
-                        • Telegram: {editingUser.telegram || "Não extraído"}
-                      </div>
-                      <div>
-                        • Vencimento:{" "}
-                        {editingUser.expirationDate || "Não definido"}
-                      </div>
-                      <div>
-                        • Bouquets: {editingUser.bouquets || "Não extraídos"}
-                      </div>
-                      <div>
-                        • Observações: {editingUser.observations || "Nenhuma"}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Informações Básicas */}
-              <div className="bg-[#1f2937] border border-gray-700 rounded-lg p-4 mb-4">
-                <span className="block text-white font-semibold mb-2">
-                  Informações Básicas
-                </span>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Servidor */}
-                  <div className="col-span-1">
-                    <label className="block text-gray-300 mb-1 font-medium">
-                      Servidor *
-                    </label>
-                    <Input
-                      type="text"
-                      value={editingUser.server || ""}
-                      onChange={(e) => setEditingUser({ ...editingUser, server: e.target.value })}
-                      placeholder="Digite o nome do servidor"
-                      className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                    />
-                  </div>
-                  {/* Plano */}
-                  <div className="col-span-1">
-                    <label htmlFor="edit-plan" className="block text-gray-300 mb-1 font-medium">
-                      Plano *
-                    </label>
-                    <select
-                      id="edit-plan"
-                      aria-label="Plano"
-                      className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                      value={editingUser.plan}
-                      onChange={(e) =>
-                        setEditingUser({
-                          ...editingUser,
-                          plan: e.target.value,
-                          price: "", // Resetar preço quando plano mudar
-                        })
-                      }
-                    >
-                      <option value="">Selecione um plano</option>
-                      <option value="Mensal">Mensal</option>
-                      <option value="Bimestral">Bimestral</option>
-                      <option value="Trimestral">Trimestral</option>
-                      <option value="Semestral">Semestral</option>
-                      <option value="Anual">Anual</option>
-                    </select>
-                  </div>
-                  {/* Preço */}
-                  {editingUser.plan && (
-                    <div className="col-span-1">
-                      <label htmlFor="edit-price" className="block text-gray-300 mb-1 font-medium">
-                        Preço *
-                      </label>
-                      <select
-                        id="edit-price"
-                        aria-label="Preço"
-                        className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                        value={editingUser.price}
-                        onChange={(e) =>
-                          setEditingUser({
-                            ...editingUser,
-                            price: e.target.value,
-                          })
-                        }
-                      >
-                        <option value="">Selecione um preço</option>
-                        {getPlanPrices(editingUser.plan).map((price) => (
-                          <option key={price} value={price}>
-                            R$ {price}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-                  {/* Usuário */}
-                  <div className="col-span-1">
-                    <label className="block text-gray-300 mb-1 font-medium">
-                      Usuário *
-                    </label>
-                    <div className="relative flex items-center">
-                      <input
-                        value={editingUser.name}
-                        disabled
-                        placeholder="Usuário extraído automaticamente"
-                        className="w-full bg-[#23272f] border border-gray-700 text-gray-400 rounded px-3 py-2 pr-8 cursor-not-allowed"
-                      />
-                      <span className="absolute right-2 text-gray-500">
-                        <svg
-                          width="16"
-                          height="16"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          viewBox="0 0 24 24"
-                        >
-                          <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
-                          <polyline points="7 9 12 4 17 9" />
-                          <line x1="12" x2="12" y1="4" y2="16" />
-                        </svg>
-                      </span>
-                    </div>
-                    <div className="bg-blue-900/40 border border-blue-700 text-blue-300 text-xs rounded mt-2 p-2">
-                      Usuário extraído automaticamente da URL M3U
-                    </div>
-                  </div>
-                  {/* Senha */}
-                  <div className="col-span-1">
-                    <label className="block text-gray-300 mb-1 font-medium">
-                      Senha
-                    </label>
-                    <div className="relative flex items-center">
-                      <input
-                        type="text"
-                        value={editingUser.password || ""}
-                        onChange={(e) =>
-                          setEditingUser({
-                            ...editingUser,
-                            password: e.target.value,
-                          })
-                        }
-                        placeholder="Senha"
-                        className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 pr-8"
-                      />
-                      <span className="absolute right-2 text-gray-500 cursor-pointer">
-                        <svg
-                          width="16"
-                          height="16"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          viewBox="0 0 24 24"
-                        >
-                          <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
-                          <polyline points="7 9 12 4 17 9" />
-                          <line x1="12" x2="12" y1="4" y2="16" />
-                        </svg>
-                      </span>
-                    </div>
-                    <div className="bg-blue-900/40 border border-blue-700 text-blue-300 text-xs rounded mt-2 p-2 space-y-1">
-                      <div>Senha extraída automaticamente da URL M3U</div>
-                    </div>
-                  </div>
-                  {/* Vencimento */}
-                  <div className="col-span-2">
-                    <label className="block text-gray-300 mb-1 font-medium">
-                      Vencimento (Opcional)
-                    </label>
-                    <VencimentoDatePickerEdit
-                      editingUser={editingUser}
-                      setEditingUser={setEditingUser}
-                    />
-                  </div>
-                  {/* Bouquets */}
-                  <div className="col-span-2">
-                    <label className="block text-gray-300 mb-1 font-medium">
-                      Bouquets
-                    </label>
-                    <input
-                      value={editingUser.bouquets || ""}
-                      onChange={(e) =>
-                        setEditingUser({
-                          ...editingUser,
-                          bouquets: e.target.value,
-                        })
-                      }
-                      placeholder="Bouquets extraídos automaticamente"
-                      className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                    />
-                    <div className="bg-green-900/40 border border-green-700 text-green-400 text-xs rounded mt-2 p-2">
-                      Bouquets extraídos automaticamente da conta IPTV
-                    </div>
-                  </div>
-                  {/* Nome */}
-                  <div className="col-span-1">
-                    <label className="block text-gray-300 mb-1 font-medium">
-                      Nome *
-                    </label>
-                    <input
-                      value={editingUser.realName || ""}
-                      onChange={async (e) => {
-                        const newName = e.target.value;
-                        setEditingUser({ ...editingUser, realName: newName });
-                        if (editingUser && editingUser.id) {
-                          // Salvar em tempo real no banco
-                          await updateUser(editingUser.id, {
-                            real_name: newName,
-                          });
-                        }
-                      }}
-                      placeholder="Digite o nome completo"
-                      className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                      required
-                    />
-                  </div>
-                  {/* E-mail */}
-                  <div className="col-span-1">
-                    <label className="block text-gray-300 mb-1 font-medium">
-                      E-mail
-                    </label>
-                    <input
-                      value={editingUser.email}
-                      onChange={(e) =>
-                        setEditingUser({
-                          ...editingUser,
-                          email: e.target.value,
-                        })
-                      }
-                      placeholder="Opcional"
-                      className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                    />
-                  </div>
-                  {/* Telegram */}
-                  <div className="col-span-1">
-                    <label className="block text-gray-300 mb-1 font-medium">
-                      Telegram
-                    </label>
-                    <input
-                      value={editingUser.telegram || ""}
-                      onChange={(e) =>
-                        setEditingUser({
-                          ...editingUser,
-                          telegram: e.target.value,
-                        })
-                      }
-                      placeholder="Opcional"
-                      className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                    />
-                  </div>
-                  {/* WhatsApp */}
-                  <div className="col-span-1">
-                    <label className="block text-gray-300 mb-1 font-medium">
-                      WhatsApp
-                    </label>
-                    <input
-                      value={editingUser.whatsapp || ""}
-                      onChange={(e) =>
-                        setEditingUser({
-                          ...editingUser,
-                          whatsapp: e.target.value,
-                        })
-                      }
-                      placeholder="Opcional"
-                      className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                    />
-                    <span className="text-xs text-gray-400 mt-1 block">
-                      Incluindo o código do país - com ou sem espaço e traços
-                      - ex. 55 11 99999 3333
-                    </span>
-                  </div>
-                  {/* Observações */}
-                  <div className="col-span-2">
-                    <label className="block text-gray-300 mb-1 font-medium">
-                      Observações
-                    </label>
-                    <textarea
-                      value={
-                        editingUser.observations || editingUser.notes || ""
-                      }
-                      onChange={(e) =>
-                        setEditingUser({
-                          ...editingUser,
-                          observations: e.target.value,
-                        })
-                      }
-                      placeholder="Opcional"
-                      className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 min-h-[60px]"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Configuração de Serviço */}
-              <div className="bg-[#1f2937] border border-gray-700 rounded-lg p-4 mb-4">
-                <span className="block text-purple-400 font-semibold mb-2">
-                  Configuração de Serviço
-                </span>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
-                  {/* Classe de Serviço */}
-                  <div>
-                    <label htmlFor="edit-classe-servico" className="block text-gray-300 mb-1 font-medium">
-                      Classe de Serviço
-                    </label>
-                    <select id="edit-classe-servico" aria-label="Classe de Serviço" className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2">
-                      <option value="">Selecione</option>
-                      <option value="basico">Básico</option>
-                      <option value="premium">Premium</option>
-                    </select>
-                  </div>
-                  {/* Plano */}
-                  <div>
-                    <label htmlFor="edit-small-plan" className="block text-gray-300 mb-1 font-medium">
-                      Plano
-                    </label>
-                    <select id="edit-small-plan" aria-label="Plano" className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2">
-                      <option value="mensal">Mensal</option>
-                      <option value="anual">Anual</option>
-                    </select>
-                  </div>
-                  {/* Status */}
-                  <div>
-                    <label htmlFor="edit-small-status" className="block text-gray-300 mb-1 font-medium">
-                      Status
-                    </label>
-                    <select
-                      id="edit-small-status"
-                      aria-label="Status"
-                      value={editingUser.status}
-                      onChange={(e) =>
-                        setEditingUser({
-                          ...editingUser,
-                          status: e.target.value,
-                        })
-                      }
-                      className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                    >
-                      <option value="Ativo">Ativo</option>
-                      <option value="Inativo">Inativo</option>
-                      <option value="Pendente">Pendente</option>
-                    </select>
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
-                  {/* Status de Pagamento */}
-                  <div className="flex items-center gap-3 p-3 bg-[#23272f] border border-gray-700 rounded">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={editingUser.pago || false}
-                        onChange={(e) =>
-                          setEditingUser({
-                            ...editingUser,
-                            pago: e.target.checked,
-                          })
-                        }
-                        className="w-4 h-4 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2"
-                      />
-                      <span className="text-gray-300 font-medium">
-                        Cliente Pago
-                      </span>
-                      {editingUser.pago && (
-                        <CheckCircle className="w-4 h-4 text-green-500" />
-                      )}
-                    </label>
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
-                  {/* Data de Renovação */}
-                  <div>
-                    <label className="block text-gray-300 mb-1 font-medium">
-                      Data de Renovação
-                    </label>
-                    <RenovacaoDatePicker />
-                  </div>
-                  {/* Número de Dispositivos */}
-                  <div>
-                    <label htmlFor="edit-devices" className="block text-gray-300 mb-1 font-medium">
-                      Número de Dispositivos
-                    </label>
-                    <input
-                      id="edit-devices"
-                      type="number"
-                      min={1}
-                      value={editingUser.devices || 0}
-                      onChange={(e) =>
-                        setEditingUser({
-                          ...editingUser,
-                          devices: parseInt(e.target.value) || 0,
-                        })
-                      }
-                      className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                    />
-                  </div>
-                  {/* Créditos */}
-                  <div>
-                    <label htmlFor="edit-credits" className="block text-gray-300 mb-1 font-medium">
-                      Créditos
-                    </label>
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        className="bg-[#23272f] text-white px-2 py-1 rounded border border-gray-700"
-                      >
-                        -
-                      </button>
-                      <input
-                        id="edit-credits"
-                        type="number"
-                        min={0}
-                        value={editingUser.credits || 0}
-                        onChange={(e) =>
-                          setEditingUser({
-                            ...editingUser,
-                            credits: parseInt(e.target.value) || 0,
-                          })
-                        }
-                        className="w-16 bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                      />
-                      <button
-                        type="button"
-                        className="bg-[#23272f] text-white px-2 py-1 rounded border border-gray-700"
-                      >
-                        +
-                      </button>
-                      <span className="text-xs text-gray-400 ml-2">
-                        valor
-                        <br />
-                        entre 0<br />e 500€
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Informações Adicionais */}
-              <div className="bg-[#1f2937] border border-gray-700 rounded-lg p-4 mb-4">
-                <span className="block text-white font-semibold mb-2">
-                  Informações Adicionais
-                </span>
-                <label htmlFor="notifications-whatsapp" className="flex items-center gap-2 mb-2 cursor-pointer">
-                  <input id="notifications-whatsapp" type="checkbox" className="accent-purple-600" aria-label="Notificações via WhatsApp" />
-                  <span className="text-gray-300">Notificações via WhatsApp</span>
-                </label>
-                <div>
-                  <label htmlFor="edit-anotacoes" className="block text-gray-300 mb-1 font-medium">Anotações</label>
-                  <textarea id="edit-anotacoes" placeholder="Anotações..." className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 min-h-[60px]" />
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-2 mt-6">
-                <Button
-                  variant="outline"
-                  onClick={() => setIsEditDialogOpen(false)}
-                  className="bg-gray-700 text-white px-6 py-2 rounded font-semibold"
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  onClick={handleEditUser}
-                  disabled={!editingUser || (!editingUser.realName?.trim() && !editingUser.name?.trim())}
-                  className="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-2 rounded font-semibold disabled:bg-gray-600 disabled:cursor-not-allowed"
-                >
-                  Salvar Alterações
-                </Button>
-              </div>
-            </>
-          )}
-        </div>
-      </DialogContent >
-    </Dialog >
-
-    {/* Modal de Confirmação de Exclusão */}
-    < AlertDialog
-      open={isDeleteDialogOpen}
-      onOpenChange={setIsDeleteDialogOpen}
-    >
-      <AlertDialogContent className="bg-[#1f2937] text-white border border-gray-700">
-        <AlertDialogHeader>
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center">
-              <Trash2 className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <AlertDialogTitle className="text-xl font-bold text-white">
-                Confirmar Exclusão
-              </AlertDialogTitle>
-              <AlertDialogDescription className="text-gray-400">
-                Esta ação não pode ser desfeita. O usuário será
-                permanentemente removido do sistema.
-              </AlertDialogDescription>
-            </div>
-          </div>
-        </AlertDialogHeader>
-
-        {deletingUser && (
-          <div className="bg-[#23272f] rounded-lg p-4 mb-4">
-            <h3 className="text-lg font-semibold text-white mb-2">
-              Usuário a ser excluído:
-            </h3>
-            <div className="space-y-2">
-              <p className="text-white">
-                <span className="text-gray-400">Nome:</span>{" "}
-                {deletingUser.name}
-              </p>
-              <p className="text-white">
-                <span className="text-gray-400">Email:</span>{" "}
-                {deletingUser.email}
-              </p>
-              <p className="text-white">
-                <span className="text-gray-400">Plano:</span>{" "}
-                {deletingUser.plan}
-              </p>
-              {deletingUser.price && (
-                <p className="text-white">
-                  <span className="text-gray-400">Preço:</span>{" "}
-                  R$ {deletingUser.price}
-                </p>
-              )}
-              <p className="text-white">
-                <span className="text-gray-400">Status:</span>{" "}
-                {deletingUser.status}
-              </p>
-            </div>
-          </div>
-        )}
-
-        <AlertDialogFooter>
-          <AlertDialogCancel className="bg-gray-700 text-white border border-gray-600 hover:bg-gray-600">
-            Cancelar
-          </AlertDialogCancel>
-          <AlertDialogAction
-            onClick={handleDeleteUser}
-            className="bg-red-600 hover:bg-red-700 text-white"
-          >
-            Excluir Usuário
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog >
-
-    {/* Modal de Confirmação de Pagamento */}
-    < AlertDialog
-      open={isPagoDialogOpen}
-      onOpenChange={setIsPagoDialogOpen}
-    >
-      <AlertDialogContent className="bg-[#1f2937] text-white border border-gray-700">
-        <AlertDialogHeader>
-          <div className="flex items-center gap-3 mb-4">
-            <div className={`w - 12 h - 12 rounded - full flex items - center justify - center ${pagoUser?.pago ? "bg-yellow-600" : "bg-green-600"
-              } `}>
-              <DollarSign className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <AlertDialogTitle className="text-xl font-bold text-white">
-                {pagoUser?.pago ? "Desmarcar Pagamento" : "Confirmar Pagamento"}
-              </AlertDialogTitle>
-              <AlertDialogDescription className="text-gray-400">
-                {pagoUser?.pago
-                  ? "Deseja realmente desmarcar o pagamento deste cliente? A receita será atualizada no dashboard."
-                  : "Confirme se este cliente realizou o pagamento. O valor será adicionado à receita total no dashboard."
-                }
-              </AlertDialogDescription>
-            </div>
-          </div>
-        </AlertDialogHeader>
-
-        {pagoUser && (
-          <div className="space-y-4">
-            <div className="bg-[#23272f] rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-white mb-3">
-                Informações do Cliente:
+          {deletingUser && (
+            <div className="bg-[#23272f] rounded-lg p-4 mb-4">
+              <h3 className="text-lg font-semibold text-white mb-2">
+                Usuário a ser excluído:
               </h3>
               <div className="space-y-2">
                 <p className="text-white">
                   <span className="text-gray-400">Nome:</span>{" "}
-                  <span className="font-medium">{pagoUser.name}</span>
+                  {deletingUser.name}
                 </p>
                 <p className="text-white">
                   <span className="text-gray-400">Email:</span>{" "}
-                  {pagoUser.email}
+                  {deletingUser.email}
                 </p>
-                {pagoUser.plan && (
+                <p className="text-white">
+                  <span className="text-gray-400">Plano:</span>{" "}
+                  {deletingUser.plan}
+                </p>
+                {deletingUser.price && (
                   <p className="text-white">
-                    <span className="text-gray-400">Plano:</span>{" "}
-                    <span className="font-medium">{pagoUser.plan}</span>
+                    <span className="text-gray-400">Preço:</span>{" "}
+                    R$ {deletingUser.price}
                   </p>
                 )}
                 <p className="text-white">
-                  <span className="text-gray-400">Status atual:</span>{" "}
-                  <span className={pagoUser.pago ? "text-green-400 font-semibold" : "text-gray-400"}>
-                    {pagoUser.pago ? "✓ Pago" : "✗ Não Pago"}
-                  </span>
+                  <span className="text-gray-400">Status:</span>{" "}
+                  {deletingUser.status}
                 </p>
               </div>
             </div>
+          )}
 
-            {pagoUser.price && (
-              <div className={`rounded - lg p - 4 border - 2 ${pagoUser.pago
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-gray-700 text-white border border-gray-600 hover:bg-gray-600">
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteUser}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Excluir Usuário
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog >
+
+      {/* Modal de Confirmação de Pagamento */}
+      < AlertDialog
+        open={isPagoDialogOpen}
+        onOpenChange={setIsPagoDialogOpen}
+      >
+        <AlertDialogContent className="bg-[#1f2937] text-white border border-gray-700">
+          <AlertDialogHeader>
+            <div className="flex items-center gap-3 mb-4">
+              <div className={`w - 12 h - 12 rounded - full flex items - center justify - center ${pagoUser?.pago ? "bg-yellow-600" : "bg-green-600"
+                } `}>
+                <DollarSign className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <AlertDialogTitle className="text-xl font-bold text-white">
+                  {pagoUser?.pago ? "Desmarcar Pagamento" : "Confirmar Pagamento"}
+                </AlertDialogTitle>
+                <AlertDialogDescription className="text-gray-400">
+                  {pagoUser?.pago
+                    ? "Deseja realmente desmarcar o pagamento deste cliente? A receita será atualizada no dashboard."
+                    : "Confirme se este cliente realizou o pagamento. O valor será adicionado à receita total no dashboard."
+                  }
+                </AlertDialogDescription>
+              </div>
+            </div>
+          </AlertDialogHeader>
+
+          {pagoUser && (
+            <div className="space-y-4">
+              <div className="bg-[#23272f] rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-white mb-3">
+                  Informações do Cliente:
+                </h3>
+                <div className="space-y-2">
+                  <p className="text-white">
+                    <span className="text-gray-400">Nome:</span>{" "}
+                    <span className="font-medium">{pagoUser.name}</span>
+                  </p>
+                  <p className="text-white">
+                    <span className="text-gray-400">Email:</span>{" "}
+                    {pagoUser.email}
+                  </p>
+                  {pagoUser.plan && (
+                    <p className="text-white">
+                      <span className="text-gray-400">Plano:</span>{" "}
+                      <span className="font-medium">{pagoUser.plan}</span>
+                    </p>
+                  )}
+                  <p className="text-white">
+                    <span className="text-gray-400">Status atual:</span>{" "}
+                    <span className={pagoUser.pago ? "text-green-400 font-semibold" : "text-gray-400"}>
+                      {pagoUser.pago ? "✓ Pago" : "✗ Não Pago"}
+                    </span>
+                  </p>
+                </div>
+              </div>
+
+              {pagoUser.price && (
+                <div className={`rounded - lg p - 4 border - 2 ${pagoUser.pago
                   ? "bg-yellow-900/20 border-yellow-600/50"
                   : "bg-green-900/20 border-green-600/50"
-                } `}>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-400 text-sm">
-                      {pagoUser.pago ? "Valor que será removido:" : "Valor que será adicionado:"}
-                    </p>
-                    <p className="text-2xl font-bold text-white mt-1">
-                      <span className={pagoUser.pago ? "text-yellow-400" : "text-green-400"}>
-                        {pagoUser.pago ? "-" : "+"} R$ {pagoUser.price}
-                      </span>
-                    </p>
+                  } `}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-gray-400 text-sm">
+                        {pagoUser.pago ? "Valor que será removido:" : "Valor que será adicionado:"}
+                      </p>
+                      <p className="text-2xl font-bold text-white mt-1">
+                        <span className={pagoUser.pago ? "text-yellow-400" : "text-green-400"}>
+                          {pagoUser.pago ? "-" : "+"} R$ {pagoUser.price}
+                        </span>
+                      </p>
+                    </div>
+                    <div className={`w - 12 h - 12 rounded - full flex items - center justify - center ${pagoUser.pago ? "bg-yellow-600/20" : "bg-green-600/20"
+                      } `}>
+                      <DollarSign className={`w - 6 h - 6 ${pagoUser.pago ? "text-yellow-400" : "text-green-400"
+                        } `} />
+                    </div>
                   </div>
-                  <div className={`w - 12 h - 12 rounded - full flex items - center justify - center ${pagoUser.pago ? "bg-yellow-600/20" : "bg-green-600/20"
-                    } `}>
-                    <DollarSign className={`w - 6 h - 6 ${pagoUser.pago ? "text-yellow-400" : "text-green-400"
-                      } `} />
-                  </div>
+                  <p className="text-xs text-gray-400 mt-2">
+                    {pagoUser.pago
+                      ? "Este valor será subtraído da Receita Total no Dashboard."
+                      : "Este valor será adicionado à Receita Total no Dashboard."
+                    }
+                  </p>
                 </div>
-                <p className="text-xs text-gray-400 mt-2">
-                  {pagoUser.pago
-                    ? "Este valor será subtraído da Receita Total no Dashboard."
-                    : "Este valor será adicionado à Receita Total no Dashboard."
-                  }
-                </p>
-              </div>
-            )}
-          </div>
-        )}
+              )}
+            </div>
+          )}
 
-        <AlertDialogFooter>
-          <AlertDialogCancel
-            className="bg-gray-700 text-white border border-gray-600 hover:bg-gray-600"
-            onClick={() => {
-              setIsPagoDialogOpen(false);
-              setPagoUser(null);
-            }}
-          >
-            Cancelar
-          </AlertDialogCancel>
-          <AlertDialogAction
-            onClick={confirmTogglePago}
-            className={`${pagoUser?.pago
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              className="bg-gray-700 text-white border border-gray-600 hover:bg-gray-600"
+              onClick={() => {
+                setIsPagoDialogOpen(false);
+                setPagoUser(null);
+              }}
+            >
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmTogglePago}
+              className={`${pagoUser?.pago
                 ? "bg-yellow-600 hover:bg-yellow-700"
                 : "bg-green-600 hover:bg-green-700"
-              } text - white`}
-          >
-            {pagoUser?.pago ? "Desmarcar Pagamento" : "Confirmar Pagamento"}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog >
-  </div >
-);
+                } text - white`}
+            >
+              {pagoUser?.pago ? "Desmarcar Pagamento" : "Confirmar Pagamento"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog >
+    </div >
+  );
 }
 
 function VencimentoDatePicker() {
