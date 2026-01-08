@@ -68,7 +68,7 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 import React from "react";
-import { useClientes } from "@/hooks/useClientes";
+import { useClientes, Cliente } from "@/hooks/useClientes";
 import { useUsers } from "@/hooks/useUsers";
 import { RLSErrorBanner } from "@/components/RLSErrorBanner";
 import { useAuth } from '@/contexts/AuthContext';
@@ -86,9 +86,10 @@ export default function AdminUsers() {
       // ignore
     }
 
-    const handler = (e: any) => {
+    const handler = (e: Event) => {
+      const customEvent = e as CustomEvent<{ source: string }>;
       try {
-        const source = e?.detail?.source;
+        const source = customEvent.detail?.source;
         if (source === 'resellers') setShowRealData(true);
       } catch (err) {
         // ignore
@@ -99,7 +100,7 @@ export default function AdminUsers() {
     return () => window.removeEventListener('refresh-dashboard', handler as EventListener);
   }, []);
 
-  const shouldShow = ((user as any)?.user_metadata?.role === 'reseller') ? showRealData : true;
+  const shouldShow = ((user as unknown as { user_metadata: { role: string } })?.user_metadata?.role === 'reseller') ? showRealData : true;
   const {
     clientes: users,
     loading,
