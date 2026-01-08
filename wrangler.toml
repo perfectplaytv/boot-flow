@@ -6,3 +6,7 @@ pages_build_output_dir = "dist"
 binding = "DB"
 database_name = "bootflow-db"
 database_id = "0337acd5-31cb-4e67-9347-493b7243b039"
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "bootflow-storage"
