@@ -110,6 +110,15 @@ interface ExtractMembersResponse {
     detail?: string;
 }
 
+// Phase 2: Send Private Response
+interface SendPrivateResponse {
+    success: boolean;
+    sent_to?: string;
+    account?: string;
+    error?: 'FLOOD_WAIT' | 'RESTRICTED' | 'PEER_FLOOD' | 'UNKNOWN';
+    message?: string;
+}
+
 // URL da API do Telegram (Railway) - Configure no .env
 const TELEGRAM_API_URL = import.meta.env.VITE_TELEGRAM_API_URL || "";
 
@@ -781,7 +790,7 @@ export default function AdminTelegram() {
                     })
                 });
 
-                const result = await response.json();
+                const result = await response.json() as SendPrivateResponse;
 
                 if (result.success) {
                     successCount++;
