@@ -39,9 +39,16 @@ interface TelegramMember {
 }
 
 // API Response Types
-interface SessionStatusResponse {
-    logged_in: boolean;
-    user?: { first_name: string; username: string };
+interface TelegramSession {
+    phone: string;
+    clean_phone: string;
+    username?: string;
+    first_name?: string;
+    id: string;
+}
+
+interface SessionsResponse {
+    sessions: TelegramSession[];
     error?: string;
 }
 
@@ -96,13 +103,15 @@ export default function AdminTelegram() {
     // Estados para extração automática
     const [groupLink, setGroupLink] = useState("");
     const [isExtracting, setIsExtracting] = useState(false);
-    const [telegramSession, setTelegramSession] = useState<{
-        logged_in: boolean;
-        user?: { first_name: string; username: string };
-    } | null>(null);
+
+    // Multi-account state
+    const [sessions, setSessions] = useState<TelegramSession[]>([]);
+    const [activeSessionPhone, setActiveSessionPhone] = useState<string>("");
+    const [isAddingAccount, setIsAddingAccount] = useState(false);
+
     const [loginPhone, setLoginPhone] = useState("");
     const [loginCode, setLoginCode] = useState("");
-    const [loginStep, setLoginStep] = useState<"phone" | "code" | "done">("phone");
+    const [loginStep, setLoginStep] = useState<"phone" | "code">("phone");
     const [isLoggingIn, setIsLoggingIn] = useState(false);
 
     // Verificar status da sessão ao carregar
@@ -112,19 +121,29 @@ export default function AdminTelegram() {
         }
     }, []);
 
-    const checkSessionStatus = async () => {
+    const fetchSessions = async () => {
         try {
-            const response = await fetch(`${TELEGRAM_API_URL}/session-status`);
-            const data = await response.json() as SessionStatusResponse;
-            setTelegramSession(data);
-            if (data.logged_in) {
-                setLoginStep("done");
+            const response = await fetch(`${TELEGRAM_API_URL}/sessions`);
+            const data = await response.json() as SessionsResponse;
+
+            if (data.sessions) {
+                setSessions(data.sessions);
+                // Select first session if none selected
+                if (data.sessions.length > 0 && !activeSessionPhone) {
+                    setActiveSessionPhone(data.sessions[0].clean_phone);
+                }
             }
         } catch (error) {
-            console.error("Erro ao verificar sessão:", error);
-            setTelegramSession({ logged_in: false });
+            console.error("Erro ao buscar sessões:", error);
         }
     };
+
+    // Verificar status da sessão ao carregar
+    useEffect(() => {
+        if (TELEGRAM_API_URL) {
+            fetchSessions();
+        }
+    }, []);
 
     // Iniciar login
     const handleStartLogin = async () => {
@@ -175,12 +194,11 @@ export default function AdminTelegram() {
 
             if (response.ok) {
                 toast.success("Login realizado com sucesso!");
-                setLoginStep("done");
-                setTelegramSession({
-                    logged_in: true,
-                    user: data.user ? { first_name: data.user.first_name, username: data.user.username } : undefined
-                });
+                await fetchSessions(); // Refresh list
+                setIsAddingAccount(false);
                 setLoginCode("");
+                setLoginPhone("");
+                setLoginStep("phone");
             } else {
                 toast.error(data.detail || "Código inválido");
             }
@@ -192,15 +210,17 @@ export default function AdminTelegram() {
     };
 
     // Logout
-    const handleLogout = async () => {
+    const handleLogout = async (phone: string) => {
         try {
-            await fetch(`${TELEGRAM_API_URL}/logout`, { method: "POST" });
-            setTelegramSession({ logged_in: false });
-            setLoginStep("phone");
-            setLoginPhone("");
-            toast.success("Logout realizado");
+            await fetch(`${TELEGRAM_API_URL}/logout`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ phone })
+            });
+            toast.success("Desconectado");
+            await fetchSessions();
         } catch (error) {
-            toast.error("Erro ao fazer logout");
+            toast.error("Erro ao desconectar");
         }
     };
 
@@ -211,8 +231,8 @@ export default function AdminTelegram() {
             return;
         }
 
-        if (!telegramSession?.logged_in) {
-            toast.error("Faça login primeiro");
+        if (sessions.length === 0 || !activeSessionPhone) {
+            toast.error("Selecione uma conta conectada primeiro");
             return;
         }
 
@@ -223,7 +243,10 @@ export default function AdminTelegram() {
             const response = await fetch(`${TELEGRAM_API_URL}/extract-members`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ group_link: groupLink }),
+                body: JSON.stringify({
+                    group_link: groupLink,
+                    phone: activeSessionPhone
+                }),
             });
 
             const data = await response.json() as ExtractMembersResponse;
@@ -502,101 +525,85 @@ export default function AdminTelegram() {
                             <Card>
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2">
-                                        {telegramSession?.logged_in ? (
-                                            <CheckCircle className="w-5 h-5 text-green-500" />
-                                        ) : (
-                                            <LogIn className="w-5 h-5" />
-                                        )}
-                                        Conexão Telegram
+                                        <Users className="w-5 h-5" />
+                                        Contas Conectadas
                                     </CardTitle>
                                     <CardDescription>
-                                        {telegramSession?.logged_in
-                                            ? `Conectado como ${telegramSession.user?.first_name || telegramSession.user?.username}`
-                                            : "Faça login para extrair membros"}
+                                        Gerencie suas contas do Telegram para extração
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
-                                    {loginStep === "phone" && !telegramSession?.logged_in && (
-                                        <>
-                                            <div className="space-y-2">
-                                                <Label className="flex items-center gap-2">
-                                                    <Phone className="w-4 h-4" />
-                                                    Número de Telefone
-                                                </Label>
-                                                <Input
-                                                    placeholder="+5511999999999"
-                                                    value={loginPhone}
-                                                    onChange={(e) => setLoginPhone(e.target.value)}
-                                                />
-                                                <p className="text-xs text-muted-foreground">
-                                                    Inclua o código do país (ex: +55 para Brasil)
-                                                </p>
-                                            </div>
-                                            <Button
-                                                onClick={handleStartLogin}
-                                                disabled={isLoggingIn}
-                                                className="w-full"
-                                            >
-                                                {isLoggingIn && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                                                Enviar Código
-                                            </Button>
-                                        </>
-                                    )}
-
-                                    {loginStep === "code" && (
-                                        <>
-                                            <div className="space-y-2">
-                                                <Label className="flex items-center gap-2">
-                                                    <Key className="w-4 h-4" />
-                                                    Código de Verificação
-                                                </Label>
-                                                <Input
-                                                    placeholder="12345"
-                                                    value={loginCode}
-                                                    onChange={(e) => setLoginCode(e.target.value)}
-                                                />
-                                                <p className="text-xs text-muted-foreground">
-                                                    Digite o código recebido no Telegram
-                                                </p>
-                                            </div>
-                                            <Button
-                                                onClick={handleVerifyCode}
-                                                disabled={isLoggingIn}
-                                                className="w-full"
-                                            >
-                                                {isLoggingIn && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                                                Verificar Código
-                                            </Button>
-                                            <Button
-                                                variant="ghost"
-                                                onClick={() => setLoginStep("phone")}
-                                                className="w-full"
-                                            >
-                                                Voltar
-                                            </Button>
-                                        </>
-                                    )}
-
-                                    {telegramSession?.logged_in && (
-                                        <>
-                                            <div className="bg-green-950/30 border border-green-800/50 rounded-lg p-3">
-                                                <div className="flex items-center gap-2 text-green-400">
-                                                    <CheckCircle className="w-4 h-4" />
-                                                    <span className="font-medium">Conectado</span>
+                                    {/* Lista de Contas */}
+                                    {sessions.length > 0 && (
+                                        <div className="space-y-2 mb-4">
+                                            {sessions.map((session) => (
+                                                <div key={session.clean_phone} className={`flex items-center justify-between p-3 rounded-lg border ${activeSessionPhone === session.clean_phone ? 'border-primary bg-primary/10' : 'border-border'}`}>
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="bg-blue-500/20 p-2 rounded-full">
+                                                            <CheckCircle className="w-4 h-4 text-blue-500" />
+                                                        </div>
+                                                        <div>
+                                                            <p className="font-medium text-sm">
+                                                                {session.first_name} {session.username ? `(@${session.username})` : ''}
+                                                            </p>
+                                                            <p className="text-xs text-muted-foreground">{session.phone}</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex gap-2">
+                                                        {activeSessionPhone !== session.clean_phone && (
+                                                            <Button size="sm" variant="ghost" onClick={() => setActiveSessionPhone(session.clean_phone)}>
+                                                                Selecionar
+                                                            </Button>
+                                                        )}
+                                                        <Button size="icon" variant="ghost" className="text-red-500 hover:text-red-600 hover:bg-red-500/10" onClick={() => handleLogout(session.clean_phone)}>
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </Button>
+                                                    </div>
                                                 </div>
-                                                <p className="text-sm text-muted-foreground mt-1">
-                                                    @{telegramSession.user?.username || telegramSession.user?.first_name}
-                                                </p>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {/* Botão Adicionar Conta */}
+                                    {!isAddingAccount ? (
+                                        <Button variant="outline" className="w-full border-dashed" onClick={() => setIsAddingAccount(true)}>
+                                            <UserPlus className="w-4 h-4 mr-2" />
+                                            Adicionar Nova Conta
+                                        </Button>
+                                    ) : (
+                                        <div className="border rounded-lg p-4 space-y-4 bg-muted/30">
+                                            <div className="flex justify-between items-center mb-2">
+                                                <h4 className="text-sm font-medium">Nova Conexão</h4>
+                                                <Button size="sm" variant="ghost" onClick={() => setIsAddingAccount(false)}>Cancel</Button>
                                             </div>
-                                            <Button
-                                                variant="outline"
-                                                onClick={handleLogout}
-                                                className="w-full"
-                                            >
-                                                <LogOut className="w-4 h-4 mr-2" />
-                                                Desconectar
-                                            </Button>
-                                        </>
+
+                                            {loginStep === "phone" && (
+                                                <div className="space-y-3">
+                                                    <div className="space-y-2">
+                                                        <Label>Número de Telefone</Label>
+                                                        <Input placeholder="+55..." value={loginPhone} onChange={e => setLoginPhone(e.target.value)} />
+                                                    </div>
+                                                    <Button onClick={handleStartLogin} disabled={isLoggingIn} className="w-full">
+                                                        {isLoggingIn && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                                                        Enviar Código
+                                                    </Button>
+                                                </div>
+                                            )}
+
+                                            {loginStep === "code" && (
+                                                <div className="space-y-3">
+                                                    <div className="space-y-2">
+                                                        <Label>Código</Label>
+                                                        <Input placeholder="12345" value={loginCode} onChange={e => setLoginCode(e.target.value)} />
+                                                    </div>
+                                                    <Button onClick={handleVerifyCode} disabled={isLoggingIn} className="w-full">
+                                                        {isLoggingIn && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                                                        Verificar
+                                                    </Button>
+                                                    <Button variant="ghost" onClick={() => setLoginStep("phone")} className="w-full">Voltar</Button>
+                                                </div>
+                                            )}
+                                        </div>
                                     )}
                                 </CardContent>
                             </Card>
@@ -624,7 +631,7 @@ export default function AdminTelegram() {
                                             />
                                             <Button
                                                 onClick={handleExtractFromLink}
-                                                disabled={isExtracting || !telegramSession?.logged_in}
+                                                disabled={isExtracting || sessions.length === 0 || !activeSessionPhone}
                                                 className="bg-gradient-to-r from-blue-600 to-purple-600"
                                             >
                                                 {isExtracting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
@@ -636,10 +643,10 @@ export default function AdminTelegram() {
                                         </p>
                                     </div>
 
-                                    {!telegramSession?.logged_in && (
+                                    {(sessions.length === 0 || !activeSessionPhone) && (
                                         <div className="bg-yellow-950/30 border border-yellow-800/50 rounded-lg p-3">
                                             <p className="text-sm text-yellow-400">
-                                                ⚠️ Você precisa fazer login primeiro para extrair membros
+                                                ⚠️ Selecione uma conta conectada para extrair membros
                                             </p>
                                         </div>
                                     )}
