@@ -379,7 +379,6 @@ export default function AdminUsers() {
       email: editingUser.email,
       password: editingUser.password || "",
       plan: editingUser.plan || "", // Campo plan
-      price: editingUser.price || "", // Campo price
       server: editingUser.server || "", // Campo server
       m3u_url: editingUser.m3u_url || "", // Campo m3u_url separado
       bouquets: editingUser.bouquets || "",
