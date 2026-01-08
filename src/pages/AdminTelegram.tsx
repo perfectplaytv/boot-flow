@@ -1011,16 +1011,12 @@ export default function AdminTelegram() {
             </div>
 
             {/* Tabs para métodos de importação */}
-            <Tabs defaultValue={apiConfigured ? "automatic" : "manual"} className="w-full">
-                <TabsList className="grid w-full grid-cols-3 mb-6">
+            <Tabs defaultValue="automatic" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-6">
                     <TabsTrigger value="automatic" className="flex items-center gap-2">
                         <Link className="w-4 h-4" />
                         Extração Automática
                         {apiConfigured && <Badge variant="secondary" className="text-xs">API</Badge>}
-                    </TabsTrigger>
-                    <TabsTrigger value="manual" className="flex items-center gap-2">
-                        <Upload className="w-4 h-4" />
-                        Upload de Arquivo
                     </TabsTrigger>
                     <TabsTrigger value="campaigns" className="flex items-center gap-2">
                         <Calendar className="w-4 h-4" />
