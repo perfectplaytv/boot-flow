@@ -684,6 +684,157 @@ export default function AdminTelegram() {
     const selectedCount = members.filter(m => m.selected).length;
     const apiConfigured = !!TELEGRAM_API_URL;
 
+    // Phase 2: Replace variables in message
+    const replaceVariables = (message: string, member: TelegramMember) => {
+        return message
+            .replace(/{nome}/g, member.firstName || '')
+            .replace(/{sobrenome}/g, member.lastName || '')
+            .replace(/{username}/g, member.username || '')
+            .replace(/{id}/g, member.id);
+    };
+
+    // Phase 2: Add message variation
+    const addMessageVariation = () => {
+        setBulkSendConfig(prev => ({
+            ...prev,
+            messages: [...prev.messages, ""]
+        }));
+    };
+
+    // Phase 2: Remove message variation
+    const removeMessageVariation = (index: number) => {
+        setBulkSendConfig(prev => ({
+            ...prev,
+            messages: prev.messages.filter((_, i) => i !== index)
+        }));
+    };
+
+    // Phase 2: Update message variation
+    const updateMessageVariation = (index: number, value: string) => {
+        setBulkSendConfig(prev => ({
+            ...prev,
+            messages: prev.messages.map((m, i) => i === index ? value : m)
+        }));
+    };
+
+    // Phase 2: Bulk send messages
+    const handleBulkSend = async () => {
+        const selectedMembers = members.filter(m => m.selected);
+        if (selectedMembers.length === 0) {
+            toast.error("Selecione pelo menos um membro para enviar");
+            return;
+        }
+
+        const validMessages = bulkSendConfig.messages.filter(m => m.trim());
+        if (validMessages.length === 0) {
+            toast.error("Digite pelo menos uma mensagem");
+            return;
+        }
+
+        const accountsToUse = bulkSendConfig.useAllAccounts
+            ? sessions.filter(s => !s.is_restricted).map(s => s.clean_phone)
+            : [activeSessionPhone];
+
+        if (accountsToUse.length === 0) {
+            toast.error("Nenhuma conta disponível para envio");
+            return;
+        }
+
+        setIsSending(true);
+        setSendProgress({ current: 0, total: selectedMembers.length, success: 0, failed: 0 });
+        setSendLogs([]);
+
+        let currentAccountIndex = 0;
+        let successCount = 0;
+        let failedCount = 0;
+        const accountUsage: Record<string, number> = {};
+
+        for (let i = 0; i < selectedMembers.length; i++) {
+            const member = selectedMembers[i];
+
+            // Rotate accounts if current one reached limit
+            let currentAccount = accountsToUse[currentAccountIndex];
+            let attempts = 0;
+            while ((accountUsage[currentAccount] || 0) >= bulkSendConfig.dailyLimit && attempts < accountsToUse.length) {
+                currentAccountIndex = (currentAccountIndex + 1) % accountsToUse.length;
+                currentAccount = accountsToUse[currentAccountIndex];
+                attempts++;
+            }
+
+            if (attempts >= accountsToUse.length) {
+                toast.error("Todas as contas atingiram o limite diário");
+                break;
+            }
+
+            // Select random message variation
+            const messageTemplate = validMessages[Math.floor(Math.random() * validMessages.length)];
+            const finalMessage = replaceVariables(messageTemplate, member);
+
+            try {
+                const response = await fetch(`${TELEGRAM_API_URL}/send-private`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        phone: currentAccount,
+                        target_user_id: member.id,
+                        message: finalMessage
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    successCount++;
+                    accountUsage[currentAccount] = (accountUsage[currentAccount] || 0) + 1;
+                    setSendLogs(prev => [...prev, {
+                        time: new Date().toLocaleTimeString('pt-BR'),
+                        user: member.username || member.firstName || member.id,
+                        status: 'success'
+                    }]);
+                } else {
+                    failedCount++;
+                    setSendLogs(prev => [...prev, {
+                        time: new Date().toLocaleTimeString('pt-BR'),
+                        user: member.username || member.firstName || member.id,
+                        status: 'error',
+                        message: result.error
+                    }]);
+
+                    // Handle flood - switch account
+                    if (result.error === 'FLOOD_WAIT' || result.error === 'PEER_FLOOD') {
+                        accountUsage[currentAccount] = bulkSendConfig.dailyLimit; // Mark as exhausted
+                        currentAccountIndex = (currentAccountIndex + 1) % accountsToUse.length;
+                    }
+                }
+            } catch (error) {
+                failedCount++;
+                setSendLogs(prev => [...prev, {
+                    time: new Date().toLocaleTimeString('pt-BR'),
+                    user: member.username || member.firstName || member.id,
+                    status: 'error',
+                    message: 'Erro de conexão'
+                }]);
+            }
+
+            setSendProgress({ current: i + 1, total: selectedMembers.length, success: successCount, failed: failedCount });
+
+            // Random delay between min and max interval
+            if (i < selectedMembers.length - 1) {
+                const delay = bulkSendConfig.intervalMin + Math.random() * (bulkSendConfig.intervalMax - bulkSendConfig.intervalMin);
+                await new Promise(r => setTimeout(r, delay * 1000));
+            }
+        }
+
+        setIsSending(false);
+        toast.success(`Envio concluído! ${successCount} enviados, ${failedCount} falhas`);
+    };
+
+    // Phase 2: Stop sending
+    const handleStopSending = () => {
+        setIsSending(false);
+        toast.info("Envio interrompido");
+    };
+
     return (
         <div className="space-y-6 p-4 md:p-6">
             {/* Header */}
