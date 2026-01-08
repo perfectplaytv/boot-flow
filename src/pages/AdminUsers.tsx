@@ -948,11 +948,16 @@ export default function AdminUsers() {
           if (data.user_info.active_cons)
             observations.push(`Ativas: ${data.user_info.active_cons}`);
 
+          // Tentar inferir o plano baseado no trial ou default para "Mensal"
+          const inferPlan = data.user_info.is_trial === "1" ? "Trial" : "Mensal";
+          // Pegar o servidor da URL
+          const serverName = urlObj.hostname;
+
           // Aplicar dados extraídos ao formulário
           const extractedData = {
             name: data.user_info.username || username,
             email: `${data.user_info.username || username}@iptv.com`,
-            plan: data.user_info.is_trial === "1" ? "Trial" : "Premium",
+            plan: inferPlan,
             status: data.user_info.status === "Active" ? "Ativo" : "Inativo",
             telegram: data.user_info.username
               ? `@${data.user_info.username}`
@@ -975,8 +980,8 @@ export default function AdminUsers() {
               : 1, // Dispositivos baseado em max_connections
             credits: 0, // Campo créditos
             notes: "", // Campo anotações
-            price: "", // Valor padrão
-            server: "", // Valor padrão
+            price: inferPlan === "Mensal" ? "35,00" : "", // Preço base para mensal
+            server: serverName, // Valor atual
             m3u_url: m3uUrl // Valor atual
           };
 
