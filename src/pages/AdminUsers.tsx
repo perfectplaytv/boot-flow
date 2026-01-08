@@ -230,7 +230,7 @@ export default function AdminUsers() {
       const userData = {
         name: newUser.realName || newUser.name,
         email: newUser.email,
-        plan: newUser.plan, // Campo obrigatório
+        plan: newUser.plan || "Mensal", // Campo obrigatório com fallback para evitar erro
         status: newUser.status || "Ativo", // Campo obrigatório com default
         expiration_date: newUser.expirationDate, // Campo obrigatório
         password: newUser.password || "",
