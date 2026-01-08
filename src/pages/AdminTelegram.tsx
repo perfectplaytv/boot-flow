@@ -1720,6 +1720,218 @@ export default function AdminTelegram() {
                         </Card>
                     )}
                 </TabsContent>
+
+                {/* Tab: Botões */}
+                <TabsContent value="buttons" className="space-y-6">
+                    {/* Banner Informativo */}
+                    <div className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg p-4 text-white text-center">
+                        <p className="text-lg font-medium">
+                            🔘 Crie menus personalizados com botões, e agende os disparos sempre que quiser.
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {/* Formulário de Mensagem com Botões */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                    <Send className="w-5 h-5" />
+                                    Mensagem com Botões
+                                </CardTitle>
+                                <CardDescription>
+                                    Crie mensagens interativas com botões clicáveis
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                {/* Nome do Disparo */}
+                                <div className="space-y-2">
+                                    <Label>Nome do disparo:</Label>
+                                    <Input
+                                        placeholder="Ex: Menu com botões"
+                                        value={newSchedule.name}
+                                        onChange={(e) => setNewSchedule(prev => ({ ...prev, name: e.target.value }))}
+                                    />
+                                </div>
+
+                                {/* Campanha */}
+                                <div className="space-y-2">
+                                    <Label>Campanha:</Label>
+                                    <Select
+                                        value={newSchedule.campaignId}
+                                        onValueChange={(v) => setNewSchedule(prev => ({ ...prev, campaignId: v }))}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Selecione uma campanha" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {campaigns.map(c => (
+                                                <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                {/* Mensagem de envio */}
+                                <div className="space-y-2">
+                                    <Label>Mensagem de envio:</Label>
+                                    <textarea
+                                        className="w-full min-h-[120px] rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                        placeholder="🔔 Suas Definições de Vendas no Automático Foram Atualizadas!"
+                                        value={newSchedule.message}
+                                        onChange={(e) => setNewSchedule(prev => ({ ...prev, message: e.target.value.slice(0, 1024) }))}
+                                        maxLength={1024}
+                                    />
+                                    <div className="flex justify-between text-xs text-muted-foreground">
+                                        <span>{newSchedule.message.length}/1024 caracteres</span>
+                                    </div>
+                                </div>
+
+                                {/* Botões Adicionados */}
+                                {newSchedule.buttons.length > 0 && (
+                                    <div className="space-y-2">
+                                        <Label>Botões da mensagem:</Label>
+                                        <div className="space-y-2">
+                                            {newSchedule.buttons.map((btn, i) => (
+                                                <div key={i} className="flex items-center gap-2 p-2 bg-blue-950/30 rounded border border-blue-800/50">
+                                                    <span className="flex-1 text-sm">
+                                                        [{btn.label} - {btn.url}]
+                                                    </span>
+                                                    <Button size="icon" variant="ghost" className="h-6 w-6 text-red-500" onClick={() => handleRemoveButton(i)}>
+                                                        <X className="w-3 h-3" />
+                                                    </Button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Adicionar Botão */}
+                                {showAddButton ? (
+                                    <div className="border rounded-lg p-4 bg-muted/30 space-y-3">
+                                        <h4 className="font-medium text-sm">Adicionar Botão</h4>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <Input
+                                                placeholder="📞 Fale comigo"
+                                                value={newButton.label}
+                                                onChange={(e) => setNewButton(prev => ({ ...prev, label: e.target.value }))}
+                                            />
+                                            <Input
+                                                placeholder="https://seusite.com"
+                                                value={newButton.url}
+                                                onChange={(e) => setNewButton(prev => ({ ...prev, url: e.target.value }))}
+                                            />
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <Button size="sm" onClick={handleAddButton}>Adicionar</Button>
+                                            <Button size="sm" variant="ghost" onClick={() => setShowAddButton(false)}>Cancelar</Button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <Button variant="outline" className="w-full border-dashed" onClick={() => setShowAddButton(true)}>
+                                        <Plus className="w-4 h-4 mr-2" />
+                                        Adicionar Botão
+                                    </Button>
+                                )}
+
+                                {/* Anexo */}
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                    <Paperclip className="w-4 h-4" />
+                                    <span>Anexar arquivo (opcional)</span>
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Configurações e Resumo */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                    <Clock className="w-5 h-5" />
+                                    Modo de execução:
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                {/* Radio Buttons */}
+                                <div className="flex gap-4">
+                                    {(['scheduled', 'cron', 'manual'] as const).map((mode) => (
+                                        <label key={mode} className="flex items-center gap-2 cursor-pointer">
+                                            <input
+                                                type="radio"
+                                                name="buttonMode"
+                                                value={mode}
+                                                checked={newSchedule.mode === mode}
+                                                onChange={() => setNewSchedule(prev => ({ ...prev, mode }))}
+                                                className="w-4 h-4"
+                                            />
+                                            <span className="text-sm">
+                                                {mode === 'scheduled' && 'Agendado'}
+                                                {mode === 'cron' && 'Cronograma'}
+                                                {mode === 'manual' && 'Manual'}
+                                            </span>
+                                        </label>
+                                    ))}
+                                </div>
+
+                                {/* Resumo do Cronograma */}
+                                <div className="bg-muted/30 rounded-lg p-4">
+                                    <h4 className="font-medium text-sm mb-3">Resumo do cronograma</h4>
+                                    <div className="space-y-1 text-xs text-muted-foreground">
+                                        {[
+                                            { day: 'Seg', key: 'seg' },
+                                            { day: 'Ter', key: 'ter' },
+                                            { day: 'Qua', key: 'qua' },
+                                            { day: 'Qui', key: 'qui' },
+                                            { day: 'Sex', key: 'sex' },
+                                            { day: 'Sáb', key: 'sab' },
+                                            { day: 'Dom', key: 'dom' }
+                                        ].map(({ day, key }) => {
+                                            const hours = Object.entries(cronSchedule[key] || {})
+                                                .filter(([_, active]) => active)
+                                                .map(([hour]) => `${hour}:00`)
+                                                .join(', ');
+                                            return hours ? (
+                                                <div key={key} className="flex">
+                                                    <span className="w-10 font-medium">{day}</span>
+                                                    <span>- {hours}</span>
+                                                </div>
+                                            ) : null;
+                                        })}
+                                        {countScheduledSlots() === 0 && (
+                                            <p className="text-center py-4">Nenhum horário configurado</p>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Status do Cronograma */}
+                                {countScheduledSlots() > 0 && (
+                                    <div className="flex items-center gap-2">
+                                        <Badge className="bg-green-600">Cronograma: Ativo</Badge>
+                                        <span className="text-xs text-muted-foreground">
+                                            {countScheduledSlots()} horários configurados
+                                        </span>
+                                    </div>
+                                )}
+
+                                {/* Aviso */}
+                                <p className="text-xs text-yellow-400 flex items-center gap-1">
+                                    <AlertCircle className="w-3 h-3" />
+                                    O computador precisa estar ligado e conectado durante o horário agendado.
+                                </p>
+
+                                {/* Botões de Ação */}
+                                <div className="flex gap-2 pt-4">
+                                    <Button variant="outline" className="flex-1 gap-1">
+                                        <Play className="w-4 h-4" />
+                                        Enviar agora
+                                    </Button>
+                                    <Button className="flex-1 gap-1" onClick={handleSaveSchedule}>
+                                        <Save className="w-4 h-4" />
+                                        Salvar
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+                </TabsContent>
             </Tabs>
 
             {/* Saved Audiences Section */}
