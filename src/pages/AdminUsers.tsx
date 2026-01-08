@@ -822,6 +822,217 @@ export default function AdminUsers() {
 
             console.log("Sucesso com acesso direto!");
 
+          };
+
+          // Aplicar aos formulários baseado no modal aberto
+          if (isEditDialogOpen && editingUser) {
+            setEditingUser({ ...editingUser, ...extractedData });
+          } else {
+            setNewUser(extractedData);
+          }
+          email: `${data.user_info.username}@iptv.com`,
+            plan: data.user_info.is_trial === "1" ? "Trial" : "Premium",
+              status: data.user_info.status === "Active" ? "Ativo" : "Inativo",
+                telegram: data.user_info.username
+                  ? `@${data.user_info.username}`
+                  : "",
+                  observations: `Usuário: ${data.user_info.username} | Acesso direto`,
+                    expirationDate: data.user_info.exp_date
+                      ? new Date(parseInt(data.user_info.exp_date) * 1000)
+                        .toISOString()
+                        .split("T")[0]
+                      : "",
+                      password: data.user_info.password || password,
+                        bouquets: "",
+                          realName: "", // Campo "Nome" na seção de contato fica vazio
+                            whatsapp: "", // Campo whatsapp
+                              devices: data.user_info.max_connections
+                                ? parseInt(data.user_info.max_connections)
+                                : 1, // Dispositivos baseado em max_connections
+                                credits: 0, // Campo créditos
+                                  notes: "", // Campo anotações
+              // Aplicar dados extraídos ao formulário
+              const extractedData = {
+            name: data.user_info.username,
+            email: `${data.user_info.username}@iptv.com`,
+            plan: data.user_info.is_trial === "1" ? "Trial" : "Premium",
+            status: data.user_info.status === "Active" ? "Ativo" : "Inativo",
+            telegram: data.user_info.username
+              ? `@${data.user_info.username}`
+              : "",
+            observations: `Usuário: ${data.user_info.username} | Acesso direto`,
+            expirationDate: data.user_info.exp_date
+              ? new Date(parseInt(data.user_info.exp_date) * 1000)
+                .toISOString()
+                .split("T")[0]
+              : "",
+            password: data.user_info.password || password,
+            bouquets: "",
+            realName: "", // Campo "Nome" na seção de contato fica vazio
+            whatsapp: "", // Campo whatsapp
+            devices: data.user_info.max_connections
+              ? parseInt(data.user_info.max_connections)
+              : 1, // Dispositivos baseado em max_connections
+            credits: 0, // Campo créditos
+            notes: "", // Campo anotações
+            price: "", // Valor padrão para preço
+            server: "", // Valor padrão para servidor
+            m3u_url: m3uUrl // Usar a URL atual
+          };
+
+          setExtractionResult({
+            success: true,
+            message: `Dados extraídos com sucesso! Usuário: ${data.user_info.username
+              }`,
+            data: data,
+          });
+
+          setExtractionError("");
+          return;
+        }
+        } catch (directError) {
+        console.log("Acesso direto falhou, tentando proxies...");
+      }
+    }
+
+      // Tentar com diferentes proxies
+      for (let i = 0; i < corsProxies.length; i++) {
+      const proxy = corsProxies[i];
+      const proxiedUrl = `${proxy.url(apiUrl)
+        } `;
+
+      try {
+        console.log(
+          `Tentando proxy ${i + 1}/${corsProxies.length}: ${proxy.name}`
+        );
+        setExtractionError(
+          `Testando proxy ${i + 1}/${corsProxies.length}...`
+        );
+
+        const response = await fetch(proxiedUrl, {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          mode: "cors",
+        });
+
+        if (!response.ok) {
+          if (response.status === 403) {
+            throw new Error("Acesso negado. Verifique suas credenciais.");
+          } else if (response.status === 404) {
+            throw new Error("Servidor IPTV não encontrado.");
+          } else {
+            throw new Error(`Erro HTTP: ${response.status}`);
+          }
+        }
+
+        const text = await response.text();
+        let data;
+
+        try {
+          data = JSON.parse(text);
+        } catch (parseError) {
+          throw new Error("Resposta não é um JSON válido.");
+        }
+
+        if (!data.user_info) {
+          throw new Error("Dados do usuário não encontrados na resposta.");
+        }
+
+        console.log(`Sucesso com proxy: ${proxy.name}`);
+
+        // Bouquets simulados para evitar Mixed Content
+        const bouquetsData = [
+          { category_name: "Premium" },
+          { category_name: "Sports" },
+          { category_name: "Movies" },
+        ];
+
+        // Preparar observações com dados reais
+        const observations = [];
+        if (data.user_info.username)
+          observations.push(`Usuário: ${data.user_info.username}`);
+        if (data.user_info.password)
+          observations.push(`Senha: ${data.user_info.password}`);
+        if (data.user_info.exp_date) {
+          const expDate = new Date(parseInt(data.user_info.exp_date) * 1000);
+          observations.push(`Expira: ${expDate.toLocaleDateString("pt-BR")}`);
+        }
+        if (data.user_info.max_connections)
+          observations.push(`Conexões: ${data.user_info.max_connections}`);
+        if (data.user_info.active_cons)
+          observations.push(`Ativas: ${data.user_info.active_cons}`);
+
+        // Aplicar dados extraídos ao formulário
+        const extractedData = {
+          name: data.user_info.username || username,
+          email: `${data.user_info.username || username}@iptv.com`,
+          plan: data.user_info.is_trial === "1" ? "Trial" : "Premium",
+          status: data.user_info.status === "Active" ? "Ativo" : "Inativo",
+          telegram: data.user_info.username
+            ? `@${data.user_info.username}`
+            : "",
+          observations:
+            observations.length > 0 ? observations.join(" | ") : "",
+          expirationDate: data.user_info.exp_date
+            ? new Date(parseInt(data.user_info.exp_date) * 1000)
+              .toISOString()
+              .split("T")[0]
+            : "",
+          password: data.user_info.password || password,
+          bouquets: Array.isArray(bouquetsData)
+            ? bouquetsData.map((b) => b.category_name).join(", ")
+            : "",
+          realName: "", // Campo "Nome" na seção de contato fica vazio
+          whatsapp: "", // Campo whatsapp
+          devices: data.user_info.max_connections
+            ? parseInt(data.user_info.max_connections)
+            : 1, // Dispositivos baseado em max_connections
+          credits: 0, // Campo créditos
+          notes: "", // Campo anotações
+        };
+
+        // Aplicar aos formulários baseado no modal aberto
+        if (isEditDialogOpen && editingUser) {
+          setEditingUser({ ...editingUser, ...extractedData });
+        } else {
+          setNewUser(extractedData);
+        }
+
+        setExtractionResult({
+          success: true,
+          message: `Dados extraídos com sucesso! Usuário: ${data.user_info.username}`,
+          data: data,
+        });
+
+        setExtractionError("");
+        return;
+      } catch (error) {
+        console.log(`Falha com proxy ${proxy.name}:`, error);
+
+        if (i === corsProxies.length - 1) {
+          // Se todos os proxies falharam, usar dados simulados como fallback
+          console.log("Todos os proxies falharam, usando dados simulados...");
+          setExtractionError("Proxies falharam, usando dados simulados...");
+
+          // Simular dados baseados na URL
+          const extractedData = {
+            name: username,
+            email: `${username}@iptv.com`,
+            plan: "Premium",
+            status: "Ativo",
+            telegram: `@${username}`,
+            observations: `Usuário: ${username} | Senha: ${password} | Dados simulados`,
+            expirationDate: "",
+            password: password,
+            bouquets: "",
+            realName: "", // Campo "Nome" na seção de contato fica vazio
+            whatsapp: "", // Campo whatsapp
+            devices: 1, // Campo dispositivos
+            credits: 0, // Campo créditos
+            notes: "", // Campo anotações
             // Aplicar dados extraídos ao formulário
             const extractedData = {
               name: data.user_info.username,
@@ -846,174 +1057,10 @@ export default function AdminUsers() {
                 : 1, // Dispositivos baseado em max_connections
               credits: 0, // Campo créditos
               notes: "", // Campo anotações
+              price: "", // Valor padrão para preço
+              server: "", // Valor padrão para servidor
+              m3u_url: m3uUrl // Usar a URL atual
             };
-
-            // Aplicar aos formulários baseado no modal aberto
-            if (isEditDialogOpen && editingUser) {
-              setEditingUser({ ...editingUser, ...extractedData });
-            } else {
-              setNewUser(extractedData);
-            }
-
-            setExtractionResult({
-              success: true,
-              message: `Dados extraídos com sucesso! Usuário: ${data.user_info.username}`,
-              data: data,
-            });
-
-            setExtractionError("");
-            return;
-          }
-        } catch (directError) {
-          console.log("Acesso direto falhou, tentando proxies...");
-        }
-      }
-
-      // Tentar com diferentes proxies
-      for (let i = 0; i < corsProxies.length; i++) {
-        const proxy = corsProxies[i];
-        const proxiedUrl = `${proxy.url(apiUrl)}`;
-
-        try {
-          console.log(
-            `Tentando proxy ${i + 1}/${corsProxies.length}: ${proxy.name}`
-          );
-          setExtractionError(
-            `Testando proxy ${i + 1}/${corsProxies.length}...`
-          );
-
-          const response = await fetch(proxiedUrl, {
-            method: "GET",
-            headers: {
-              Accept: "application/json",
-              "Content-Type": "application/json",
-            },
-            mode: "cors",
-          });
-
-          if (!response.ok) {
-            if (response.status === 403) {
-              throw new Error("Acesso negado. Verifique suas credenciais.");
-            } else if (response.status === 404) {
-              throw new Error("Servidor IPTV não encontrado.");
-            } else {
-              throw new Error(`Erro HTTP: ${response.status}`);
-            }
-          }
-
-          const text = await response.text();
-          let data;
-
-          try {
-            data = JSON.parse(text);
-          } catch (parseError) {
-            throw new Error("Resposta não é um JSON válido.");
-          }
-
-          if (!data.user_info) {
-            throw new Error("Dados do usuário não encontrados na resposta.");
-          }
-
-          console.log(`Sucesso com proxy: ${proxy.name}`);
-
-          // Bouquets simulados para evitar Mixed Content
-          const bouquetsData = [
-            { category_name: "Premium" },
-            { category_name: "Sports" },
-            { category_name: "Movies" },
-          ];
-
-          // Preparar observações com dados reais
-          const observations = [];
-          if (data.user_info.username)
-            observations.push(`Usuário: ${data.user_info.username}`);
-          if (data.user_info.password)
-            observations.push(`Senha: ${data.user_info.password}`);
-          if (data.user_info.exp_date) {
-            const expDate = new Date(parseInt(data.user_info.exp_date) * 1000);
-            observations.push(`Expira: ${expDate.toLocaleDateString("pt-BR")}`);
-          }
-          if (data.user_info.max_connections)
-            observations.push(`Conexões: ${data.user_info.max_connections}`);
-          if (data.user_info.active_cons)
-            observations.push(`Ativas: ${data.user_info.active_cons}`);
-
-          // Aplicar dados extraídos ao formulário
-          const extractedData = {
-            name: data.user_info.username || username,
-            email: `${data.user_info.username || username}@iptv.com`,
-            plan: data.user_info.is_trial === "1" ? "Trial" : "Premium",
-            status: data.user_info.status === "Active" ? "Ativo" : "Inativo",
-            telegram: data.user_info.username
-              ? `@${data.user_info.username}`
-              : "",
-            observations:
-              observations.length > 0 ? observations.join(" | ") : "",
-            expirationDate: data.user_info.exp_date
-              ? new Date(parseInt(data.user_info.exp_date) * 1000)
-                .toISOString()
-                .split("T")[0]
-              : "",
-            password: data.user_info.password || password,
-            bouquets: Array.isArray(bouquetsData)
-              ? bouquetsData.map((b) => b.category_name).join(", ")
-              : "",
-            realName: "", // Campo "Nome" na seção de contato fica vazio
-            whatsapp: "", // Campo whatsapp
-            devices: data.user_info.max_connections
-              ? parseInt(data.user_info.max_connections)
-              : 1, // Dispositivos baseado em max_connections
-            credits: 0, // Campo créditos
-            notes: "", // Campo anotações
-          };
-
-          // Aplicar aos formulários baseado no modal aberto
-          if (isEditDialogOpen && editingUser) {
-            setEditingUser({ ...editingUser, ...extractedData });
-          } else {
-            setNewUser(extractedData);
-          }
-
-          setExtractionResult({
-            success: true,
-            message: `Dados extraídos com sucesso! Usuário: ${data.user_info.username}`,
-            data: data,
-          });
-
-          setExtractionError("");
-          return;
-        } catch (error) {
-          console.log(`Falha com proxy ${proxy.name}:`, error);
-
-          if (i === corsProxies.length - 1) {
-            // Se todos os proxies falharam, usar dados simulados como fallback
-            console.log("Todos os proxies falharam, usando dados simulados...");
-            setExtractionError("Proxies falharam, usando dados simulados...");
-
-            // Simular dados baseados na URL
-            const extractedData = {
-              name: username,
-              email: `${username}@iptv.com`,
-              plan: "Premium",
-              status: "Ativo",
-              telegram: `@${username}`,
-              observations: `Usuário: ${username} | Senha: ${password} | Dados simulados`,
-              expirationDate: "",
-              password: password,
-              bouquets: "",
-              realName: "", // Campo "Nome" na seção de contato fica vazio
-              whatsapp: "", // Campo whatsapp
-              devices: 1, // Campo dispositivos
-              credits: 0, // Campo créditos
-              notes: "", // Campo anotações
-            };
-
-            // Aplicar aos formulários baseado no modal aberto
-            if (isEditDialogOpen && editingUser) {
-              setEditingUser({ ...editingUser, ...extractedData });
-            } else {
-              setNewUser(extractedData);
-            }
 
             setExtractionResult({
               success: true,
@@ -1061,7 +1108,7 @@ export default function AdminUsers() {
           <p className="text-gray-400 text-sm sm:text-base">
             {loading
               ? "Carregando..."
-              : `Gerencie todos os usuários do sistema (${(users || []).length
+              : `Gerencie todos os usuários do sistema(${(users || []).length
               } usuários)`}
           </p>
         </div>
@@ -1592,14 +1639,15 @@ export default function AdminUsers() {
                   </TableCell>
                   <TableCell>
                     <Badge
-                      className={`text-xs ${user.status === "Ativo"
-                        ? "bg-green-700 text-green-200"
-                        : user.status === "Inativo"
-                          ? "bg-red-700 text-red-200"
-                          : user.status === "Pendente"
-                            ? "bg-yellow-700 text-yellow-200"
-                            : "bg-gray-700 text-gray-300"
-                        }`}
+                      className={`text - xs ${
+          user.status === "Ativo"
+            ? "bg-green-700 text-green-200"
+            : user.status === "Inativo"
+              ? "bg-red-700 text-red-200"
+              : user.status === "Pendente"
+                ? "bg-yellow-700 text-yellow-200"
+                : "bg-gray-700 text-gray-300"
+        } `}
                     >
                       {user.status}
                     </Badge>
@@ -1616,7 +1664,7 @@ export default function AdminUsers() {
                     {user.server || "-"}
                   </TableCell>
                   <TableCell className="hidden sm:table-cell text-gray-300 text-xs sm:text-sm">
-                    {user.price ? `R$ ${user.price}` : "-"}
+                    {user.price ? `R$ ${ user.price } ` : "-"}
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-1 sm:gap-2">
@@ -1641,10 +1689,11 @@ export default function AdminUsers() {
                       <Button
                         size="sm"
                         variant={user.pago ? "default" : "outline"}
-                        className={`${user.pago
-                          ? "bg-green-600 text-white hover:bg-green-700 border-green-600"
-                          : "border-green-600 text-green-400 hover:bg-green-600 hover:text-white bg-background"
-                          } h-8 w-8 sm:h-9 sm:w-9 p-0 rounded-md`}
+                        className={`${
+          user.pago
+            ? "bg-green-600 text-white hover:bg-green-700 border-green-600"
+            : "border-green-600 text-green-400 hover:bg-green-600 hover:text-white bg-background"
+        } h - 8 w - 8 sm: h - 9 sm: w - 9 p - 0 rounded - md`}
                         onClick={() => openPagoModal(user)}
                         title={user.pago ? "Marcar como Não Pago" : "Marcar como Pago"}
                       >
@@ -1998,10 +2047,11 @@ export default function AdminUsers() {
                   {/* Status de extração */}
                   {extractionError && (
                     <div
-                      className={`border text-xs rounded p-2 mb-2 ${extractionError.includes("Testando proxy")
-                          ? "bg-blue-900/40 border-blue-700 text-blue-300"
-                          : "bg-red-900/40 border-red-700 text-red-300"
-                        }`}
+                      className={`border text - xs rounded p - 2 mb - 2 ${
+          extractionError.includes("Testando proxy")
+            ? "bg-blue-900/40 border-blue-700 text-blue-300"
+            : "bg-red-900/40 border-red-700 text-red-300"
+        } `}
                     >
                       {extractionError.includes("Testando proxy") ? "🔄" : "❌"}{" "}
                       {extractionError}
@@ -2576,8 +2626,9 @@ export default function AdminUsers() {
         <AlertDialogContent className="bg-[#1f2937] text-white border border-gray-700">
           <AlertDialogHeader>
             <div className="flex items-center gap-3 mb-4">
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${pagoUser?.pago ? "bg-yellow-600" : "bg-green-600"
-                }`}>
+              <div className={`w - 12 h - 12 rounded - full flex items - center justify - center ${
+          pagoUser?.pago ? "bg-yellow-600" : "bg-green-600"
+        } `}>
                 <DollarSign className="w-6 h-6 text-white" />
               </div>
               <div>
@@ -2625,10 +2676,11 @@ export default function AdminUsers() {
               </div>
 
               {pagoUser.price && (
-                <div className={`rounded-lg p-4 border-2 ${pagoUser.pago
-                  ? "bg-yellow-900/20 border-yellow-600/50"
-                  : "bg-green-900/20 border-green-600/50"
-                  }`}>
+                <div className={`rounded - lg p - 4 border - 2 ${
+          pagoUser.pago
+            ? "bg-yellow-900/20 border-yellow-600/50"
+            : "bg-green-900/20 border-green-600/50"
+        } `}>
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-gray-400 text-sm">
@@ -2640,10 +2692,12 @@ export default function AdminUsers() {
                         </span>
                       </p>
                     </div>
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${pagoUser.pago ? "bg-yellow-600/20" : "bg-green-600/20"
-                      }`}>
-                      <DollarSign className={`w-6 h-6 ${pagoUser.pago ? "text-yellow-400" : "text-green-400"
-                        }`} />
+                    <div className={`w - 12 h - 12 rounded - full flex items - center justify - center ${
+          pagoUser.pago ? "bg-yellow-600/20" : "bg-green-600/20"
+        } `}>
+                      <DollarSign className={`w - 6 h - 6 ${
+          pagoUser.pago ? "text-yellow-400" : "text-green-400"
+        } `} />
                     </div>
                   </div>
                   <p className="text-xs text-gray-400 mt-2">
@@ -2669,10 +2723,11 @@ export default function AdminUsers() {
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmTogglePago}
-              className={`${pagoUser?.pago
-                ? "bg-yellow-600 hover:bg-yellow-700"
-                : "bg-green-600 hover:bg-green-700"
-                } text-white`}
+              className={`${
+          pagoUser?.pago
+            ? "bg-yellow-600 hover:bg-yellow-700"
+            : "bg-green-600 hover:bg-green-700"
+        } text - white`}
             >
               {pagoUser?.pago ? "Desmarcar Pagamento" : "Confirmar Pagamento"}
             </AlertDialogAction>
@@ -2822,7 +2877,7 @@ function VencimentoDatePickerEdit({
       const year = selected.getFullYear();
       const month = String(selected.getMonth() + 1).padStart(2, '0');
       const day = String(selected.getDate()).padStart(2, '0');
-      const localDate = `${year}-${month}-${day}`;
+      const localDate = `${ year } -${ month } -${ day } `;
       setEditingUser({ ...editingUser, expirationDate: localDate });
     } else if (editingUser) {
       setEditingUser({ ...editingUser, expirationDate: "" });
