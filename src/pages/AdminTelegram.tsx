@@ -56,6 +56,7 @@ interface TelegramMember {
 interface TelegramSession {
     phone: string;
     clean_phone: string;
+    formatted_phone?: string;
     username?: string;
     first_name?: string;
     id: string;
@@ -2668,10 +2669,10 @@ export default function AdminTelegram() {
 
                                 {/* Botões de ação */}
                                 <div className="flex gap-2">
-                                    <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => insertVariable('nome')}>
+                                    <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => privateInsertVariable('nome')}>
                                         + Variável
                                     </Button>
-                                    <Button size="sm" variant="outline" className="h-7 text-xs" onClick={addMessageVariation}>
+                                    <Button size="sm" variant="outline" className="h-7 text-xs" onClick={privateAddMessageVariation}>
                                         Nova variação
                                     </Button>
                                 </div>
@@ -2709,7 +2710,7 @@ export default function AdminTelegram() {
                                                         onChange={() => toggleAccountSelection(session.clean_phone)}
                                                         className="w-3 h-3"
                                                     />
-                                                    <span className="text-xs">{session.formatted_phone}</span>
+                                                    <span className="text-xs">{session.formatted_phone || session.phone}</span>
                                                 </label>
                                             ))
                                         )}
