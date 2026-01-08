@@ -30,3 +30,5 @@ const mockSupabase = {
 
 export const supabase = mockSupabase;
 export type UserProfile = Record<string, unknown>;
+export const SUPABASE_URL = "https://mock.supabase.co";
+export const SUPABASE_ANON_KEY = "mock-key";
