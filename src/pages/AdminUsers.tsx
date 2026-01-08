@@ -687,8 +687,8 @@ export default function AdminUsers() {
           password: user.password || "",
           m3u_url: user.plan || "",
           bouquets: user.bouquets || "",
-          expiration_date: user.expirationDate || user.renewalDate || null,
-          observations: user.observations || user.notes || "",
+          expiration_date: (user as any).expirationDate || (user as any).renewalDate || null,
+          observations: user.observations || (user as any).notes || "",
         };
 
         console.log(
