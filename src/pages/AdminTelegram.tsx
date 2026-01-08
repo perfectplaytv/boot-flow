@@ -1272,25 +1272,27 @@ export default function AdminTelegram() {
 
             {/* Tabs para métodos de importação */}
             <Tabs defaultValue="automatic" className="w-full">
-                <TabsList className="grid w-full grid-cols-4 mb-6">
-                    <TabsTrigger value="automatic" className="flex items-center gap-2">
+                <TabsList className="grid w-full grid-cols-5 mb-6">
+                    <TabsTrigger value="automatic" className="flex items-center gap-2 text-xs">
                         <Link className="w-4 h-4" />
                         Extração
-                        {apiConfigured && <Badge variant="secondary" className="text-xs">API</Badge>}
+                        {apiConfigured && <Badge variant="secondary" className="text-[10px]">API</Badge>}
                     </TabsTrigger>
-                    <TabsTrigger value="campaigns" className="flex items-center gap-2">
+                    <TabsTrigger value="campaigns" className="flex items-center gap-2 text-xs">
                         <Calendar className="w-4 h-4" />
                         Campanhas
-                        {scheduledMessages.length > 0 && <Badge variant="secondary" className="text-xs">{scheduledMessages.length}</Badge>}
                     </TabsTrigger>
-                    <TabsTrigger value="buttons" className="flex items-center gap-2">
+                    <TabsTrigger value="buttons" className="flex items-center gap-2 text-xs">
                         <Link className="w-4 h-4" />
                         Botões
                     </TabsTrigger>
-                    <TabsTrigger value="chatbots" className="flex items-center gap-2">
+                    <TabsTrigger value="chatbots" className="flex items-center gap-2 text-xs">
                         <Bot className="w-4 h-4" />
                         ChatBots
-                        {chatbotRules.length > 0 && <Badge variant="secondary" className="text-xs">{chatbotRules.length}</Badge>}
+                    </TabsTrigger>
+                    <TabsTrigger value="private" className="flex items-center gap-2 text-xs">
+                        <Send className="w-4 h-4" />
+                        Privado
                     </TabsTrigger>
                 </TabsList>
 
