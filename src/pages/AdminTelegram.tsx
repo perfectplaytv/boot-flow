@@ -1265,7 +1265,7 @@ export default function AdminTelegram() {
                                     <TableRow>
                                         <TableHead className="w-12">
                                             <Checkbox
-                                                checked={selectedCount === members.length}
+                                                checked={selectedCount === filteredMembers.length}
                                                 onCheckedChange={(checked) => toggleAll(!!checked)}
                                             />
                                         </TableHead>
@@ -1275,7 +1275,7 @@ export default function AdminTelegram() {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {members.map((member) => (
+                                    {filteredMembers.map((member) => (
                                         <TableRow key={member.id} className={member.selected ? '' : 'opacity-50'}>
                                             <TableCell>
                                                 <Checkbox
