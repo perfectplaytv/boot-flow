@@ -16,7 +16,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const navigate = useNavigate();
-  
+
   // Verificar se o AuthProvider está disponível
   let authContext;
   try {
@@ -28,8 +28,8 @@ export default function Login() {
         <div className="text-center p-8">
           <h1 className="text-2xl font-bold mb-4">Erro de Configuração</h1>
           <p className="text-muted-foreground mb-4">O sistema de autenticação não está disponível.</p>
-          <button 
-            onClick={() => window.location.reload()} 
+          <button
+            onClick={() => window.location.reload()}
             className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90"
           >
             Recarregar Página
@@ -38,7 +38,7 @@ export default function Login() {
       </div>
     );
   }
-  
+
   const { signIn, signInWithGoogle } = authContext;
 
   const togglePasswordVisibility = () => {
@@ -53,24 +53,11 @@ export default function Login() {
     try {
       const { error } = await signIn(email, password);
       if (error) throw error;
-      
+
       // O redirecionamento será feito automaticamente pelo AuthContext baseado no role
       // Não precisa navegar manualmente aqui
     } catch (error: any) {
-      // Tratamento específico para erros de conexão/rede
-      let errorMessage = "Erro ao fazer login. Verifique suas credenciais.";
-      
-      if (error?.message?.includes('Failed to fetch') || 
-          error?.message?.includes('ERR_NAME_NOT_RESOLVED') ||
-          error?.message?.includes('NetworkError') ||
-          error?.name === 'AuthRetryableFetchError' ||
-          error?.message?.includes('Erro de conexão')) {
-        errorMessage = "Erro de conexão: Não foi possível conectar ao servidor. Verifique sua conexão com a internet e se o projeto Supabase está ativo.";
-      } else if (error?.message) {
-        errorMessage = error.message;
-      }
-      
-      setError(errorMessage);
+      setError(error.message || "Erro ao fazer login. Tente novamente.");
     } finally {
       setLoading(false);
     }
@@ -80,7 +67,7 @@ export default function Login() {
     <div className="min-h-screen flex flex-col md:flex-row bg-gradient-to-br from-background to-muted/20">
       {/* Left Side - Illustration */}
       <div className="hidden md:flex flex-1 items-center justify-center p-12 bg-gradient-to-br from-primary/10 to-primary/5">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -98,16 +85,16 @@ export default function Login() {
 
       {/* Right Side - Login Form */}
       <div className="flex-1 flex items-center justify-center p-6 sm:p-12 lg:p-24">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
           className="w-full max-w-md"
         >
           <div className="mb-8">
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => navigate(-1)}
               className="mb-6 -ml-2"
             >
@@ -154,8 +141,8 @@ export default function Login() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label htmlFor="password" className="text-sm font-medium">Senha</Label>
-                    <Link 
-                      to="/forgot-password" 
+                    <Link
+                      to="/forgot-password"
                       className="text-xs font-medium text-primary hover:underline"
                     >
                       Esqueceu sua senha?
@@ -188,8 +175,8 @@ export default function Login() {
                   </div>
                 </div>
 
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   className="w-full mt-2 h-11 text-base font-medium"
                   disabled={loading}
                 >
@@ -210,10 +197,10 @@ export default function Login() {
                     <span className="bg-background px-2 text-muted-foreground">ou continue com</span>
                   </div>
                 </div>
-                
-                <Button 
-                  variant="outline" 
-                  className="w-full h-11 mt-6" 
+
+                <Button
+                  variant="outline"
+                  className="w-full h-11 mt-6"
                   type="button"
                   onClick={async () => {
                     setError(null);
@@ -263,8 +250,8 @@ export default function Login() {
 
                 <p className="text-sm text-center text-muted-foreground mt-4">
                   Ainda não tem uma conta?{" "}
-                  <Link 
-                    to="/cadastro" 
+                  <Link
+                    to="/cadastro"
                     className="font-medium text-primary hover:underline"
                   >
                     Criar conta
