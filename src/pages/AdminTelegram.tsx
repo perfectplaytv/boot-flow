@@ -1434,7 +1434,7 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
 
             {/* Tabs para métodos de importação */}
             <Tabs defaultValue="automatic" className="w-full">
-                <TabsList className="grid w-full grid-cols-6 mb-6">
+                <TabsList className="grid w-full grid-cols-7 mb-6">
                     <TabsTrigger value="automatic" className="flex items-center gap-1 text-[10px]">
                         <Link className="w-3 h-3" />
                         Extração
@@ -1458,6 +1458,10 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
                     <TabsTrigger value="broadcast" className="flex items-center gap-1 text-[10px]">
                         <Radio className="w-3 h-3" />
                         Broadcast
+                    </TabsTrigger>
+                    <TabsTrigger value="aicopy" className="flex items-center gap-1 text-[10px]">
+                        <Sparkles className="w-3 h-3" />
+                        IA Copy
                     </TabsTrigger>
                 </TabsList>
 
