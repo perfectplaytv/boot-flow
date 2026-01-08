@@ -2641,7 +2641,7 @@ export default function AdminTelegram() {
                                             Msg {index + 1}
                                             {privateSendConfig.messages.length > 1 && (
                                                 <button
-                                                    onClick={(e) => { e.stopPropagation(); removeMessageVariation(index); }}
+                                                    onClick={(e) => { e.stopPropagation(); privateRemoveMessageVariation(index); }}
                                                     className="absolute -top-1 -right-1 bg-red-500 rounded-full w-3 h-3 text-[8px] flex items-center justify-center"
                                                 >
                                                     ×
@@ -2656,7 +2656,7 @@ export default function AdminTelegram() {
                                     className="w-full min-h-[180px] rounded-md border border-input bg-background px-3 py-2 text-xs"
                                     placeholder="Oi, {nome}! Vi que você está no mesmo grupo que eu, {var5}. Passando aqui rapidinho para te dizer que, se estiver buscando uma ferramenta de ENVIO DE MENSAGEM em massa para os membros do seu GRUPO ou CANAL, o BLASTSEND é, sem dúvida, a melhor opção."
                                     value={privateSendConfig.messages[activeMessageIndex] || ''}
-                                    onChange={(e) => updateMessageVariation(activeMessageIndex, e.target.value)}
+                                    onChange={(e) => privateUpdateMessageVariation(activeMessageIndex, e.target.value)}
                                     maxLength={4096}
                                 />
 
