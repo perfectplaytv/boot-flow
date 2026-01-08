@@ -199,7 +199,7 @@ export const AuthProvider = ({ children, navigate }: AuthProviderProps) => {
     user,
     token, // Novo
     session: token ? { user, access_token: token } : null, // Compatibilidade fake
-    profile: user, // Compatibilidade fake
+    profile: user as unknown as Record<string, unknown>, // Compatibilidade fake
     loading,
     isAuthenticated: !!user,
     userRole: user?.role || null,
