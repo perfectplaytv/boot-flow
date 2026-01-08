@@ -34,7 +34,7 @@ export function useStorage() {
                 body: formData
             });
 
-            const data = await response.json();
+            const data = await response.json() as { error?: string; key?: string; url?: string };
 
             if (!response.ok) {
                 throw new Error(data.error || 'Erro no upload');
