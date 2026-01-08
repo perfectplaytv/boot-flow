@@ -45,6 +45,8 @@ interface TelegramSession {
     username?: string;
     first_name?: string;
     id: string;
+    is_restricted?: boolean;
+    restriction_reason?: string;
 }
 
 interface SessionsResponse {
@@ -533,13 +535,31 @@ export default function AdminTelegram() {
                                                 <div key={session.clean_phone} className={`flex items-center justify-between p-3 rounded-lg border ${activeSessionPhone === session.clean_phone ? 'border-primary bg-primary/10' : 'border-border'}`}>
                                                     <div className="flex items-center gap-3">
                                                         <div className="bg-blue-500/20 p-2 rounded-full">
-                                                            <CheckCircle className="w-4 h-4 text-blue-500" />
+                                                            {session.is_restricted ? (
+                                                                <AlertCircle className="w-4 h-4 text-red-500" />
+                                                            ) : (
+                                                                <CheckCircle className="w-4 h-4 text-blue-500" />
+                                                            )}
                                                         </div>
                                                         <div>
-                                                            <p className="font-medium text-sm">
-                                                                {session.first_name} {session.username ? `(@${session.username})` : ''}
+                                                            <div className="flex items-center gap-2">
+                                                                <p className="font-medium text-sm">
+                                                                    {session.first_name} {session.username ? `(@${session.username})` : ''}
+                                                                </p>
+                                                                {session.is_restricted && (
+                                                                    <Badge variant="destructive" className="text-[10px] h-5 px-1">
+                                                                        RESTRITO
+                                                                    </Badge>
+                                                                )}
+                                                            </div>
+                                                            <p className="text-xs text-muted-foreground">
+                                                                {session.phone}
+                                                                {session.is_restricted && session.restriction_reason && (
+                                                                    <span className="text-red-400 block mt-0.5 text-[10px]">
+                                                                        {session.restriction_reason}
+                                                                    </span>
+                                                                )}
                                                             </p>
-                                                            <p className="text-xs text-muted-foreground">{session.phone}</p>
                                                         </div>
                                                     </div>
                                                     <div className="flex gap-2">
@@ -636,12 +656,24 @@ export default function AdminTelegram() {
                                         </p>
                                     </div>
 
-                                    {(sessions.length === 0 || !activeSessionPhone) && (
+                                    {(sessions.length === 0 || !activeSessionPhone) ? (
                                         <div className="bg-yellow-950/30 border border-yellow-800/50 rounded-lg p-3">
                                             <p className="text-sm text-yellow-400">
                                                 ⚠️ Selecione uma conta conectada para extrair membros
                                             </p>
                                         </div>
+                                    ) : (
+                                        sessions.find(s => s.clean_phone === activeSessionPhone)?.is_restricted && (
+                                            <div className="bg-red-950/30 border border-red-800/50 rounded-lg p-3">
+                                                <div className="flex items-center gap-2 text-red-400 mb-1">
+                                                    <AlertCircle className="w-4 h-4" />
+                                                    <span className="font-medium text-sm">Conta Restrita</span>
+                                                </div>
+                                                <p className="text-xs text-red-300">
+                                                    Esta conta possui restrições do Telegram. A extração pode falhar ou ser limitada.
+                                                </p>
+                                            </div>
+                                        )
                                     )}
 
                                     <div className="border-t pt-4">
