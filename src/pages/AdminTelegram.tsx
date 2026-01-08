@@ -115,7 +115,7 @@ export default function AdminTelegram() {
     const checkSessionStatus = async () => {
         try {
             const response = await fetch(`${TELEGRAM_API_URL}/session-status`);
-            const data = await response.json();
+            const data = await response.json() as SessionStatusResponse;
             setTelegramSession(data);
             if (data.logged_in) {
                 setLoginStep("done");
