@@ -1108,7 +1108,7 @@ const AdminDashboard = () => {
     id: string;
     content: React.ReactNode;
     body?: React.ReactNode;
-    onClick?: (e: React.MouseEvent) => void;
+    onClick?: (e?: React.MouseEvent) => void;
   }
   function SortableCard({ id, content, body, onClick }: SortableCardProps) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
