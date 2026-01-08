@@ -1041,7 +1041,7 @@ export default function AdminTelegram() {
 
             {/* Tabs para métodos de importação */}
             <Tabs defaultValue="automatic" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-6">
+                <TabsList className="grid w-full grid-cols-3 mb-6">
                     <TabsTrigger value="automatic" className="flex items-center gap-2">
                         <Link className="w-4 h-4" />
                         Extração Automática
