@@ -182,7 +182,7 @@ export default function AdminTelegram() {
             const response = await fetch(`${TELEGRAM_API_URL}/verify`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ code: loginCode }),
+                body: JSON.stringify({ phone: loginPhone, code: loginCode }),
             });
 
             const data = await response.json() as VerifyResponse;
