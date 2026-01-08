@@ -38,7 +38,9 @@ import {
     Paperclip,
     Plus,
     Play,
-    X
+    X,
+    Bot,
+    MessageSquare
 } from "lucide-react";
 
 interface TelegramMember {
