@@ -227,13 +227,18 @@ export default function AdminUsers() {
       // Debug: mostrar dados que serão adicionados
       console.log("📤 [DEBUG] Dados do usuário a ser adicionado:", newUser);
 
-      // Preparar dados do usuário para o Supabase (snake_case)
+      // Calcular data de expiração padrão (30 dias a partir de hoje) se não fornecida
+      const defaultExpirationDate = new Date();
+      defaultExpirationDate.setDate(defaultExpirationDate.getDate() + 30);
+      const defaultExpDateStr = defaultExpirationDate.toISOString().split('T')[0];
+
+      // Preparar dados do usuário para o backend (snake_case)
       const userData = {
         name: newUser.realName || newUser.name,
         email: newUser.email,
-        plan: newUser.plan || "Mensal", // Campo obrigatório com fallback para evitar erro
+        plan: newUser.plan || "Mensal", // Campo obrigatório com fallback
         status: newUser.status || "Ativo", // Campo obrigatório com default
-        expiration_date: newUser.expirationDate, // Campo obrigatório
+        expiration_date: newUser.expirationDate || defaultExpDateStr, // Fallback para 30 dias
         password: newUser.password || "",
         m3u_url: newUser.m3u_url || "",
         bouquets: newUser.bouquets || "",
@@ -258,7 +263,10 @@ export default function AdminUsers() {
       if (!success) {
         console.error("❌ [DEBUG] addCliente retornou false");
         // Se addCliente retornou false, verificar se há erro no hook
-        const errorMessage = error || "Erro ao adicionar cliente. Verifique os dados e tente novamente.";
+        const backendError = error || "Erro desconhecido do servidor";
+        console.error("❌ [DEBUG] Erro do backend:", backendError);
+        alert(`❌ Erro ao adicionar cliente:\n${backendError}`);
+        throw new Error(backendError);
         console.error("❌ [DEBUG] Mensagem de erro:", errorMessage);
         throw new Error(errorMessage);
       }
