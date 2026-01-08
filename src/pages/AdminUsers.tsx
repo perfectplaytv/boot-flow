@@ -99,7 +99,7 @@ export default function AdminUsers() {
     return () => window.removeEventListener('refresh-dashboard', handler as EventListener);
   }, []);
 
-  const shouldShow = (user?.user_metadata?.role === 'reseller') ? showRealData : true;
+  const shouldShow = ((user as any)?.user_metadata?.role === 'reseller') ? showRealData : true;
   const {
     clientes: users,
     loading,
@@ -969,6 +969,9 @@ export default function AdminUsers() {
               : 1, // Dispositivos baseado em max_connections
             credits: 0, // Campo créditos
             notes: "", // Campo anotações
+            price: "", // Valor padrão
+            server: "", // Valor padrão
+            m3u_url: m3uUrl // Valor atual
           };
 
           // Aplicar aos formulários baseado no modal aberto
