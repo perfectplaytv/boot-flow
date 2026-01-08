@@ -3242,7 +3242,7 @@ Com o Broadcast, você pode alcançar todos os seus leads de uma só vez, com ap
                                     <Label className="text-xs">Tamanho da mensagem:</Label>
                                     <Select
                                         value={aiCopyConfig.messageSize}
-                                        onValueChange={(v) => setAiCopyConfig(prev => ({ ...prev, messageSize: v as any }))}
+                                        onValueChange={(v) => setAiCopyConfig(prev => ({ ...prev, messageSize: v as 'short' | 'medium' | 'long' }))}
                                     >
                                         <SelectTrigger className="h-8 text-sm">
                                             <SelectValue />
