@@ -2944,11 +2944,12 @@ export default function AdminTelegram() {
                                             <SelectValue placeholder="Selecione um chatbot" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {chatbotRules.map(rule => (
-                                                <SelectItem key={rule.id} value={rule.id}>{rule.name}</SelectItem>
-                                            ))}
-                                            {chatbotRules.length === 0 && (
-                                                <SelectItem value="" disabled>Nenhum chatbot configurado</SelectItem>
+                                            {chatbotRules.length === 0 ? (
+                                                <SelectItem value="none" disabled>Nenhum chatbot configurado</SelectItem>
+                                            ) : (
+                                                chatbotRules.map(rule => (
+                                                    <SelectItem key={rule.id} value={rule.id}>{rule.name}</SelectItem>
+                                                ))
                                             )}
                                         </SelectContent>
                                     </Select>
