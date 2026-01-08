@@ -141,10 +141,10 @@ export default function AdminTelegram() {
                 body: JSON.stringify({ phone: loginPhone }),
             });
 
-            const data = await response.json();
+            const data = await response.json() as LoginResponse;
 
             if (response.ok) {
-                toast.success(data.message);
+                toast.success(data.message || "Código enviado!");
                 setLoginStep("code");
             } else {
                 toast.error(data.detail || "Erro ao enviar código");
@@ -171,12 +171,15 @@ export default function AdminTelegram() {
                 body: JSON.stringify({ code: loginCode }),
             });
 
-            const data = await response.json();
+            const data = await response.json() as VerifyResponse;
 
             if (response.ok) {
                 toast.success("Login realizado com sucesso!");
                 setLoginStep("done");
-                setTelegramSession({ logged_in: true, user: data.user });
+                setTelegramSession({
+                    logged_in: true,
+                    user: data.user ? { first_name: data.user.first_name, username: data.user.username } : undefined
+                });
                 setLoginCode("");
             } else {
                 toast.error(data.detail || "Código inválido");
@@ -223,10 +226,10 @@ export default function AdminTelegram() {
                 body: JSON.stringify({ group_link: groupLink }),
             });
 
-            const data = await response.json();
+            const data = await response.json() as ExtractMembersResponse;
 
-            if (response.ok && data.success) {
-                const parsed: TelegramMember[] = data.members.map((m: Record<string, unknown>) => ({
+            if (response.ok && data.success && data.members) {
+                const parsed: TelegramMember[] = data.members.map((m) => ({
                     id: String(m.id),
                     username: String(m.username || ""),
                     firstName: String(m.first_name || ""),
@@ -236,7 +239,7 @@ export default function AdminTelegram() {
                 }));
 
                 setMembers(parsed);
-                toast.success(`${parsed.length} membros extraídos do grupo ${data.group}!`);
+                toast.success(`${parsed.length} membros extraídos do grupo ${data.group || 'desconhecido'}!`);
             } else {
                 toast.error(data.detail || "Erro ao extrair membros");
             }
