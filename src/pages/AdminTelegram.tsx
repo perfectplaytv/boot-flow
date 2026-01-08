@@ -848,173 +848,200 @@ export default function AdminTelegram() {
                     <CardHeader>
                         <CardTitle>Configurações de Importação</CardTitle>
                     </CardHeader>
-                    <CardContent>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="space-y-2">
-                                <Label>Plano Padrão</Label>
-                                <Select
-                                    value={importConfig.defaultPlan}
-                                    onValueChange={(v) => setImportConfig(prev => ({ ...prev, defaultPlan: v }))}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="Mensal">Mensal</SelectItem>
-                                        <SelectItem value="Trimestral">Trimestral</SelectItem>
-                                        <SelectItem value="Semestral">Semestral</SelectItem>
-                                        <SelectItem value="Anual">Anual</SelectItem>
-                                        <SelectItem value="Vitalício">Vitalício</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                    <CardContent className="space-y-6">
+                        {/* Member Statistics */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div className="bg-blue-950/30 border border-blue-800/50 rounded-lg p-4 text-center">
+                                <p className="text-2xl font-bold text-blue-400">{members.length}</p>
+                                <p className="text-xs text-muted-foreground">Total Extraídos</p>
                             </div>
-
-                            <div className="space-y-2">
-                                <Label>Status Padrão</Label>
-                                <Select
-                                    value={importConfig.defaultStatus}
-                                    onValueChange={(v) => setImportConfig(prev => ({ ...prev, defaultStatus: v }))}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="Ativo">Ativo</SelectItem>
-                                        <SelectItem value="Inativo">Inativo</SelectItem>
-                                        <SelectItem value="Pendente">Pendente</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                            <div className="bg-green-950/30 border border-green-800/50 rounded-lg p-4 text-center">
+                                <p className="text-2xl font-bold text-green-400">{members.filter(m => m.username).length}</p>
+                                <p className="text-xs text-muted-foreground">Com Username ✓</p>
                             </div>
-
-                            <div className="space-y-2">
-                                <Label>Servidor</Label>
-                                <Input
-                                    placeholder="Ex: server1.exemplo.com"
-                                    value={importConfig.defaultServer}
-                                    onChange={(e) => setImportConfig(prev => ({ ...prev, defaultServer: e.target.value }))}
-                                />
+                            <div className="bg-yellow-950/30 border border-yellow-800/50 rounded-lg p-4 text-center">
+                                <p className="text-2xl font-bold text-yellow-400">{members.filter(m => !m.username).length}</p>
+                                <p className="text-xs text-muted-foreground">Sem Username</p>
+                            </div>
+                            <div className="bg-purple-950/30 border border-purple-800/50 rounded-lg p-4 text-center">
+                                <p className="text-2xl font-bold text-purple-400">{members.filter(m => m.phone).length}</p>
+                                <p className="text-xs text-muted-foreground">Com Telefone</p>
                             </div>
                         </div>
-                    </CardContent>
-                </Card>
-            )}
 
-            {/* Members Table - Always visible when there are members */}
-            {members.length > 0 && (
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between">
-                        <div>
-                            <CardTitle className="flex items-center gap-2">
-                                <Users className="w-5 h-5" />
-                                Membros Encontrados
-                                <Badge variant="secondary">{members.length}</Badge>
-                            </CardTitle>
-                            <CardDescription>
-                                {selectedCount} de {members.length} selecionados
-                            </CardDescription>
-                        </div>
-
-                        <div className="flex gap-2">
-                            <Button variant="outline" size="sm" onClick={() => toggleAll(true)}>
-                                Selecionar Todos
-                            </Button>
-                            <Button variant="outline" size="sm" onClick={() => toggleAll(false)}>
-                                Desmarcar Todos
-                            </Button>
-                            <Button variant="secondary" size="sm" onClick={handleExportCSV}>
-                                <Download className="w-4 h-4 mr-1" />
-                                Exportar CSV
-                            </Button>
-                            <Button variant="destructive" size="sm" onClick={handleClear}>
-                                <Trash2 className="w-4 h-4" />
-                            </Button>
-                        </div>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="max-h-[400px] overflow-auto rounded-md border">
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead className="w-12">
-                                            <Checkbox
-                                                checked={selectedCount === members.length}
-                                                onCheckedChange={(checked) => toggleAll(!!checked)}
-                                            />
-                                        </TableHead>
-                                        <TableHead>Username</TableHead>
-                                        <TableHead>Nome</TableHead>
-                                        <TableHead>Telefone</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {members.map((member) => (
-                                        <TableRow key={member.id} className={member.selected ? '' : 'opacity-50'}>
-                                            <TableCell>
-                                                <Checkbox
-                                                    checked={member.selected}
-                                                    onCheckedChange={() => toggleMember(member.id)}
-                                                />
-                                            </TableCell>
-                                            <TableCell className="font-medium">
-                                                {member.username ? `@${member.username}` : '-'}
-                                            </TableCell>
-                                            <TableCell>
-                                                {`${member.firstName} ${member.lastName}`.trim() || '-'}
-                                            </TableCell>
-                                            <TableCell>{member.phone || '-'}</TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </div>
-
-                        {/* Import Button */}
-                        <div className="mt-4 flex items-center justify-between">
-                            <div className="text-sm text-muted-foreground">
-                                {selectedCount} membro(s) será(ão) importado(s)
-                            </div>
-                            <Button
-                                onClick={handleImport}
-                                disabled={isLoading || selectedCount === 0}
-                                className="bg-gradient-to-r from-blue-600 to-purple-600"
-                            >
-                                <UserPlus className="w-4 h-4 mr-2" />
-                                {isLoading ? 'Importando...' : `Importar ${selectedCount} Cliente(s)`}
-                            </Button>
-                        </div>
-
-                        {/* Import Results */}
-                        {importResults && (
-                            <div className="mt-4 p-4 rounded-lg bg-muted/50 space-y-2">
-                                <h4 className="font-medium">Resultado da Importação</h4>
-                                <div className="flex gap-4">
-                                    <div className="flex items-center gap-2 text-green-500">
-                                        <CheckCircle className="w-4 h-4" />
-                                        {importResults.success} sucesso
-                                    </div>
-                                    <div className="flex items-center gap-2 text-red-500">
-                                        <XCircle className="w-4 h-4" />
-                                        {importResults.failed} falha(s)
-                                    </div>
+                        <div className="border-t pt-4">
+                            <h4 className="text-sm font-medium mb-4">Configurações Padrão</h4>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div className="space-y-2">
+                                    <Label>Plano Padrão</Label>
+                                    <Select
+                                        value={importConfig.defaultPlan}
+                                        onValueChange={(v) => setImportConfig(prev => ({ ...prev, defaultPlan: v }))}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="Mensal">Mensal</SelectItem>
+                                            <SelectItem value="Trimestral">Trimestral</SelectItem>
+                                            <SelectItem value="Semestral">Semestral</SelectItem>
+                                            <SelectItem value="Anual">Anual</SelectItem>
+                                            <SelectItem value="Vitalício">Vitalício</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                 </div>
-                                {importResults.errors.length > 0 && (
-                                    <div className="text-sm text-red-400 mt-2">
-                                        <p className="font-medium">Erros:</p>
-                                        <ul className="list-disc list-inside">
-                                            {importResults.errors.slice(0, 5).map((err, i) => (
-                                                <li key={i}>{err}</li>
-                                            ))}
-                                            {importResults.errors.length > 5 && (
-                                                <li>... e mais {importResults.errors.length - 5} erros</li>
-                                            )}
-                                        </ul>
-                                    </div>
-                                )}
+
+                                <div className="space-y-2">
+                                    <Label>Status Padrão</Label>
+                                    <Select
+                                        value={importConfig.defaultStatus}
+                                        onValueChange={(v) => setImportConfig(prev => ({ ...prev, defaultStatus: v }))}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="Ativo">Ativo</SelectItem>
+                                            <SelectItem value="Inativo">Inativo</SelectItem>
+                                            <SelectItem value="Pendente">Pendente</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label>Servidor</Label>
+                                    <Input
+                                        placeholder="Ex: server1.exemplo.com"
+                                        value={importConfig.defaultServer}
+                                        onChange={(e) => setImportConfig(prev => ({ ...prev, defaultServer: e.target.value }))}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </CardContent>
+                </Card>
+    )
+}
+
+{/* Members Table - Always visible when there are members */ }
+{
+    members.length > 0 && (
+        <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                    <CardTitle className="flex items-center gap-2">
+                        <Users className="w-5 h-5" />
+                        Membros Encontrados
+                        <Badge variant="secondary">{members.length}</Badge>
+                    </CardTitle>
+                    <CardDescription>
+                        {selectedCount} de {members.length} selecionados
+                    </CardDescription>
+                </div>
+
+                <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => toggleAll(true)}>
+                        Selecionar Todos
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => toggleAll(false)}>
+                        Desmarcar Todos
+                    </Button>
+                    <Button variant="secondary" size="sm" onClick={handleExportCSV}>
+                        <Download className="w-4 h-4 mr-1" />
+                        Exportar CSV
+                    </Button>
+                    <Button variant="destructive" size="sm" onClick={handleClear}>
+                        <Trash2 className="w-4 h-4" />
+                    </Button>
+                </div>
+            </CardHeader>
+            <CardContent>
+                <div className="max-h-[400px] overflow-auto rounded-md border">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead className="w-12">
+                                    <Checkbox
+                                        checked={selectedCount === members.length}
+                                        onCheckedChange={(checked) => toggleAll(!!checked)}
+                                    />
+                                </TableHead>
+                                <TableHead>Username</TableHead>
+                                <TableHead>Nome</TableHead>
+                                <TableHead>Telefone</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {members.map((member) => (
+                                <TableRow key={member.id} className={member.selected ? '' : 'opacity-50'}>
+                                    <TableCell>
+                                        <Checkbox
+                                            checked={member.selected}
+                                            onCheckedChange={() => toggleMember(member.id)}
+                                        />
+                                    </TableCell>
+                                    <TableCell className="font-medium">
+                                        {member.username ? `@${member.username}` : '-'}
+                                    </TableCell>
+                                    <TableCell>
+                                        {`${member.firstName} ${member.lastName}`.trim() || '-'}
+                                    </TableCell>
+                                    <TableCell>{member.phone || '-'}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </div>
+
+                {/* Import Button */}
+                <div className="mt-4 flex items-center justify-between">
+                    <div className="text-sm text-muted-foreground">
+                        {selectedCount} membro(s) será(ão) importado(s)
+                    </div>
+                    <Button
+                        onClick={handleImport}
+                        disabled={isLoading || selectedCount === 0}
+                        className="bg-gradient-to-r from-blue-600 to-purple-600"
+                    >
+                        <UserPlus className="w-4 h-4 mr-2" />
+                        {isLoading ? 'Importando...' : `Importar ${selectedCount} Cliente(s)`}
+                    </Button>
+                </div>
+
+                {/* Import Results */}
+                {importResults && (
+                    <div className="mt-4 p-4 rounded-lg bg-muted/50 space-y-2">
+                        <h4 className="font-medium">Resultado da Importação</h4>
+                        <div className="flex gap-4">
+                            <div className="flex items-center gap-2 text-green-500">
+                                <CheckCircle className="w-4 h-4" />
+                                {importResults.success} sucesso
+                            </div>
+                            <div className="flex items-center gap-2 text-red-500">
+                                <XCircle className="w-4 h-4" />
+                                {importResults.failed} falha(s)
+                            </div>
+                        </div>
+                        {importResults.errors.length > 0 && (
+                            <div className="text-sm text-red-400 mt-2">
+                                <p className="font-medium">Erros:</p>
+                                <ul className="list-disc list-inside">
+                                    {importResults.errors.slice(0, 5).map((err, i) => (
+                                        <li key={i}>{err}</li>
+                                    ))}
+                                    {importResults.errors.length > 5 && (
+                                        <li>... e mais {importResults.errors.length - 5} erros</li>
+                                    )}
+                                </ul>
                             </div>
                         )}
-                    </CardContent>
-                </Card>
-            )}
-        </div>
+                    </div>
+                )}
+            </CardContent>
+        </Card>
+    )
+}
+        </div >
     );
 }
