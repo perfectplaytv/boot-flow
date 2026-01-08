@@ -267,8 +267,6 @@ export default function AdminUsers() {
         console.error("❌ [DEBUG] Erro do backend:", backendError);
         alert(`❌ Erro ao adicionar cliente:\n${backendError}`);
         throw new Error(backendError);
-        console.error("❌ [DEBUG] Mensagem de erro:", errorMessage);
-        throw new Error(errorMessage);
       }
 
       console.log("✅ [DEBUG] Cliente adicionado com sucesso!");
