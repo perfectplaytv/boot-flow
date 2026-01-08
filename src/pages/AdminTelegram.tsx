@@ -479,6 +479,87 @@ export default function AdminTelegram() {
         privateUpdateMessageVariation(activeMessageIndex, currentMsg + `{${variable}}`);
     };
 
+    // Phase 6: Broadcast States
+    const [broadcastConfig, setBroadcastConfig] = useState({
+        name: '',
+        chatbotId: '',
+        targetType: 'all' as 'all' | 'custom',
+        scheduleEnabled: false,
+        scheduleDate: '',
+        scheduleTime: '',
+        message: '',
+        buttons: [] as Array<{ label: string, url: string }>,
+        interval: 5
+    });
+    const [showBroadcastButton, setShowBroadcastButton] = useState(false);
+    const [newBroadcastButton, setNewBroadcastButton] = useState({ label: '', url: '' });
+
+    // Phase 6: Insert variable into broadcast message
+    const broadcastInsertVariable = (variable: string) => {
+        setBroadcastConfig(prev => ({
+            ...prev,
+            message: prev.message + `{${variable}}`
+        }));
+    };
+
+    // Phase 6: Add button to broadcast
+    const addBroadcastButton = () => {
+        if (!newBroadcastButton.label.trim() || !newBroadcastButton.url.trim()) {
+            toast.error("Preencha o texto e URL do botão");
+            return;
+        }
+        setBroadcastConfig(prev => ({
+            ...prev,
+            buttons: [...prev.buttons, newBroadcastButton]
+        }));
+        setNewBroadcastButton({ label: '', url: '' });
+        setShowBroadcastButton(false);
+    };
+
+    // Phase 6: Remove button from broadcast
+    const removeBroadcastButton = (index: number) => {
+        setBroadcastConfig(prev => ({
+            ...prev,
+            buttons: prev.buttons.filter((_, i) => i !== index)
+        }));
+    };
+
+    // Phase 6: Save broadcast
+    const saveBroadcast = () => {
+        if (!broadcastConfig.name.trim()) {
+            toast.error("Digite um nome para o broadcast");
+            return;
+        }
+        if (!broadcastConfig.message.trim()) {
+            toast.error("Digite uma mensagem para o broadcast");
+            return;
+        }
+
+        // Save to localStorage for now
+        const broadcasts = JSON.parse(localStorage.getItem('telegram_broadcasts') || '[]');
+        broadcasts.push({
+            ...broadcastConfig,
+            id: Date.now().toString(),
+            createdAt: new Date().toISOString()
+        });
+        localStorage.setItem('telegram_broadcasts', JSON.stringify(broadcasts));
+
+        toast.success(`Broadcast "${broadcastConfig.name}" salvo!`);
+
+        // Reset form
+        setBroadcastConfig({
+            name: '',
+            chatbotId: '',
+            targetType: 'all',
+            scheduleEnabled: false,
+            scheduleDate: '',
+            scheduleTime: '',
+            message: '',
+            buttons: [],
+            interval: 5
+        });
+    };
+
     const fetchSessions = useCallback(async () => {
         try {
             const response = await fetch(`${TELEGRAM_API_URL}/sessions`);
