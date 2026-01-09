@@ -1,6 +1,7 @@
 
 import React, { createContext, useState, useContext, useEffect, ReactNode, useCallback } from 'react';
 import { toast } from 'sonner';
+import { validateDemoCredentials, enableDemoMode, createDemoSession } from '@/lib/demoAuth';
 
 // Tipos adaptados para nossa nova autenticação
 export interface User {
