@@ -88,6 +88,32 @@ export const AuthProvider = ({ children, navigate }: AuthProviderProps) => {
     try {
       setLoading(true);
 
+      // Check for Demo Credentials first
+      const demoUser = validateDemoCredentials(email, password);
+      if (demoUser) {
+        console.log("🔐 Logging in with Demo Credentials");
+        enableDemoMode();
+        const demoSession = createDemoSession(demoUser);
+
+        const userData = {
+          id: demoUser.id,
+          email: demoUser.email,
+          name: demoUser.full_name,
+          role: demoUser.role
+        };
+
+        setUser(userData);
+        setToken(demoSession.session.access_token);
+
+        localStorage.setItem('auth_token', demoSession.session.access_token);
+        localStorage.setItem('auth_user', JSON.stringify(userData));
+
+        toast.success(`Login Demo: Bem-vindo ${demoUser.full_name}!`);
+        redirectBasedOnRole(demoUser.role);
+        return { error: null };
+      }
+
+      // Normal Login Flow
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
