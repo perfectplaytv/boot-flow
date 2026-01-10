@@ -2067,7 +2067,7 @@ const AdminDashboard = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-[#09090b]">
+      <div className="min-h-screen flex w-full bg-background transition-colors duration-300">
         {/* Menu lateral desktop */}
         <div className="hidden lg:block">
           <AdminSidebar onPageChange={handlePageChange} currentPage={currentPage} />
@@ -2083,8 +2083,8 @@ const AdminDashboard = () => {
               <>
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div className="text-center sm:text-left">
-                    <h1 className="text-2xl sm:text-3xl font-bold text-white">{isResellerRoute ? 'Dashboard Revenda' : 'Dashboard Admin'}</h1>
-                    <p className="text-gray-400 text-sm sm:text-base">Visão geral do sistema</p>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-foreground transition-colors">{isResellerRoute ? 'Dashboard Revenda' : 'Dashboard Admin'}</h1>
+                    <p className="text-muted-foreground text-sm sm:text-base transition-colors">Visão geral do sistema</p>
                   </div>
                   <div className="flex flex-row items-center gap-2">
                     <ThemeToggle />
