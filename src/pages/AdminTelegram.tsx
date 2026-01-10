@@ -2416,6 +2416,337 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
                         </Card>
                     ) : (
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                            {/* Proxy Management Section */}
+                            <Card className="lg:col-span-3 bg-gradient-to-br from-indigo-950/40 to-purple-950/40 border-indigo-800/50">
+                                <CardHeader className="pb-3">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <CardTitle className="flex items-center gap-2 text-lg">
+                                                <Shield className="w-5 h-5 text-indigo-400" />
+                                                Gerenciador de Proxy
+                                                {activeProxy && (
+                                                    <Badge className="bg-green-600 text-xs">
+                                                        {activeProxy.host}:{activeProxy.port}
+                                                    </Badge>
+                                                )}
+                                            </CardTitle>
+                                            <CardDescription>
+                                                Configure proxies para proteger suas contas
+                                            </CardDescription>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <Button
+                                                size="sm"
+                                                className="bg-indigo-600 hover:bg-indigo-700"
+                                                onClick={() => setShowAddProxyModal(true)}
+                                            >
+                                                <Plus className="w-4 h-4 mr-1" />
+                                                Adicionar
+                                            </Button>
+                                            {proxies.length > 0 && (
+                                                <>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="outline"
+                                                        onClick={handleTestAllProxies}
+                                                        disabled={testingProxyId !== null}
+                                                    >
+                                                        <RefreshCw className={`w-4 h-4 mr-1 ${testingProxyId !== null ? 'animate-spin' : ''}`} />
+                                                        Testar Todos
+                                                    </Button>
+                                                    {proxyStats.offline > 0 && (
+                                                        <Button
+                                                            size="sm"
+                                                            variant="destructive"
+                                                            onClick={handleRemoveOfflineProxies}
+                                                        >
+                                                            <Trash2 className="w-4 h-4 mr-1" />
+                                                            Remover Offline ({proxyStats.offline})
+                                                        </Button>
+                                                    )}
+                                                </>
+                                            )}
+                                        </div>
+                                    </div>
+                                </CardHeader>
+                                <CardContent>
+                                    {/* Proxy Stats */}
+                                    {proxies.length > 0 && (
+                                        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
+                                            <div className="bg-gray-800/50 rounded-lg p-3 text-center">
+                                                <div className="text-xl font-bold text-indigo-400">{proxyStats.total}</div>
+                                                <div className="text-[10px] text-muted-foreground">Total</div>
+                                            </div>
+                                            <div className="bg-gray-800/50 rounded-lg p-3 text-center">
+                                                <div className="text-xl font-bold text-green-400">{proxyStats.online}</div>
+                                                <div className="text-[10px] text-muted-foreground">Online</div>
+                                            </div>
+                                            <div className="bg-gray-800/50 rounded-lg p-3 text-center">
+                                                <div className="text-xl font-bold text-red-400">{proxyStats.offline}</div>
+                                                <div className="text-[10px] text-muted-foreground">Offline</div>
+                                            </div>
+                                            <div className="bg-gray-800/50 rounded-lg p-3 text-center">
+                                                <div className="text-xl font-bold text-yellow-400">{proxyStats.unknown}</div>
+                                                <div className="text-[10px] text-muted-foreground">Não Testado</div>
+                                            </div>
+                                            <div className="bg-gray-800/50 rounded-lg p-3 text-center">
+                                                <div className="text-xl font-bold text-cyan-400">{proxyStats.avgLatency}ms</div>
+                                                <div className="text-[10px] text-muted-foreground">Latência Média</div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Proxy List */}
+                                    {proxies.length === 0 ? (
+                                        <div className="text-center py-8 text-muted-foreground">
+                                            <Shield className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                                            <p>Nenhum proxy configurado</p>
+                                            <p className="text-sm mt-1">Adicione proxies para proteger suas contas</p>
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                                            {proxies.map(proxy => (
+                                                <div
+                                                    key={proxy.id}
+                                                    className={`flex items-center justify-between p-3 rounded-lg border transition-all ${proxy.isActive
+                                                            ? 'bg-green-950/30 border-green-600/50'
+                                                            : 'bg-gray-800/30 border-gray-700/50 hover:border-gray-600/50'
+                                                        }`}
+                                                >
+                                                    <div className="flex items-center gap-3">
+                                                        {/* Status indicator */}
+                                                        <div className={`w-3 h-3 rounded-full ${testingProxyId === proxy.id ? 'bg-yellow-500 animate-pulse' :
+                                                                proxy.status === 'online' ? 'bg-green-500' :
+                                                                    proxy.status === 'offline' ? 'bg-red-500' :
+                                                                        'bg-gray-500'
+                                                            }`} />
+
+                                                        {/* Proxy info */}
+                                                        <div>
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="font-mono text-sm font-medium">
+                                                                    {proxy.host}:{proxy.port}
+                                                                </span>
+                                                                <Badge variant="outline" className="text-[10px]">
+                                                                    {proxy.type.toUpperCase()}
+                                                                </Badge>
+                                                                {proxy.username && (
+                                                                    <Badge variant="secondary" className="text-[10px]">
+                                                                        Auth
+                                                                    </Badge>
+                                                                )}
+                                                                {proxy.isActive && (
+                                                                    <Badge className="bg-green-600 text-[10px]">
+                                                                        ATIVO
+                                                                    </Badge>
+                                                                )}
+                                                            </div>
+                                                            <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
+                                                                {proxy.country && (
+                                                                    <span>
+                                                                        {getCountryFlag(proxy.countryCode)} {proxy.country}
+                                                                        {proxy.city && `, ${proxy.city}`}
+                                                                    </span>
+                                                                )}
+                                                                {proxy.latency && (
+                                                                    <span className={
+                                                                        proxy.latency < 100 ? 'text-green-400' :
+                                                                            proxy.latency < 200 ? 'text-yellow-400' :
+                                                                                'text-red-400'
+                                                                    }>
+                                                                        ⚡ {proxy.latency}ms
+                                                                    </span>
+                                                                )}
+                                                                {proxy.anonymityLevel && (
+                                                                    <Badge className={`text-[9px] ${proxy.anonymityLevel === 'elite' ? 'bg-green-600' :
+                                                                            proxy.anonymityLevel === 'anonymous' ? 'bg-yellow-600' :
+                                                                                'bg-red-600'
+                                                                        }`}>
+                                                                        {proxy.anonymityLevel === 'elite' ? '🛡️ Elite' :
+                                                                            proxy.anonymityLevel === 'anonymous' ? '👤 Anônimo' :
+                                                                                '⚠️ Transparente'}
+                                                                    </Badge>
+                                                                )}
+                                                                {proxy.lastTested && (
+                                                                    <span className="text-gray-500">
+                                                                        Testado: {new Date(proxy.lastTested).toLocaleTimeString('pt-BR')}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Actions */}
+                                                    <div className="flex items-center gap-1">
+                                                        <Button
+                                                            size="sm"
+                                                            variant="ghost"
+                                                            className="h-8 px-2"
+                                                            onClick={() => handleTestProxy(proxy.id)}
+                                                            disabled={testingProxyId !== null}
+                                                        >
+                                                            {testingProxyId === proxy.id ? (
+                                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                                            ) : (
+                                                                <RefreshCw className="w-4 h-4" />
+                                                            )}
+                                                        </Button>
+                                                        {proxy.status === 'online' && !proxy.isActive && (
+                                                            <Button
+                                                                size="sm"
+                                                                variant="ghost"
+                                                                className="h-8 px-2 text-green-400"
+                                                                onClick={() => handleSetActiveProxy(proxy)}
+                                                            >
+                                                                <CheckCircle className="w-4 h-4" />
+                                                            </Button>
+                                                        )}
+                                                        {proxy.isActive && (
+                                                            <Button
+                                                                size="sm"
+                                                                variant="ghost"
+                                                                className="h-8 px-2 text-yellow-400"
+                                                                onClick={handleClearActiveProxy}
+                                                            >
+                                                                <XCircle className="w-4 h-4" />
+                                                            </Button>
+                                                        )}
+                                                        <Button
+                                                            size="sm"
+                                                            variant="ghost"
+                                                            className="h-8 px-2 text-red-400"
+                                                            onClick={() => handleDeleteProxy(proxy.id)}
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {/* Active Proxy Status */}
+                                    {activeProxy && (
+                                        <div className="mt-4 p-3 bg-green-950/30 border border-green-700/50 rounded-lg">
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                                    <span className="text-sm text-green-400">Proxy Ativo:</span>
+                                                    <code className="text-sm font-mono">{formatProxyString(activeProxy)}</code>
+                                                </div>
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    className="h-7 text-xs"
+                                                    onClick={handleClearActiveProxy}
+                                                >
+                                                    Desativar
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </CardContent>
+                            </Card>
+
+                            {/* Add Proxy Modal */}
+                            {showAddProxyModal && (
+                                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+                                    <Card className="w-full max-w-md mx-4">
+                                        <CardHeader>
+                                            <div className="flex items-center justify-between">
+                                                <CardTitle className="flex items-center gap-2">
+                                                    <Shield className="w-5 h-5 text-indigo-400" />
+                                                    Adicionar Proxy
+                                                </CardTitle>
+                                                <Button variant="ghost" size="icon" onClick={() => setShowAddProxyModal(false)}>
+                                                    <X className="w-4 h-4" />
+                                                </Button>
+                                            </div>
+                                        </CardHeader>
+                                        <CardContent className="space-y-4">
+                                            <div className="space-y-2">
+                                                <Label>Tipo de Proxy</Label>
+                                                <Select
+                                                    value={newProxy.type}
+                                                    onValueChange={(v) => setNewProxy(prev => ({ ...prev, type: v as typeof prev.type }))}
+                                                >
+                                                    <SelectTrigger>
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="socks5">SOCKS5 (Recomendado)</SelectItem>
+                                                        <SelectItem value="socks4">SOCKS4</SelectItem>
+                                                        <SelectItem value="http">HTTP</SelectItem>
+                                                        <SelectItem value="https">HTTPS</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                            <div className="grid grid-cols-3 gap-4">
+                                                <div className="col-span-2 space-y-2">
+                                                    <Label>Host / IP *</Label>
+                                                    <Input
+                                                        placeholder="proxy.example.com ou 123.45.67.89"
+                                                        value={newProxy.host}
+                                                        onChange={(e) => setNewProxy(prev => ({ ...prev, host: e.target.value }))}
+                                                    />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label>Porta *</Label>
+                                                    <Input
+                                                        type="number"
+                                                        placeholder="8080"
+                                                        value={newProxy.port}
+                                                        onChange={(e) => setNewProxy(prev => ({ ...prev, port: parseInt(e.target.value) || 8080 }))}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <Checkbox
+                                                    checked={newProxy.requiresAuth}
+                                                    onCheckedChange={(c) => setNewProxy(prev => ({ ...prev, requiresAuth: !!c }))}
+                                                />
+                                                <Label className="text-sm">Requer autenticação</Label>
+                                            </div>
+                                            {newProxy.requiresAuth && (
+                                                <div className="grid grid-cols-2 gap-4">
+                                                    <div className="space-y-2">
+                                                        <Label>Usuário</Label>
+                                                        <Input
+                                                            placeholder="username"
+                                                            value={newProxy.username}
+                                                            onChange={(e) => setNewProxy(prev => ({ ...prev, username: e.target.value }))}
+                                                        />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <Label>Senha</Label>
+                                                        <Input
+                                                            type="password"
+                                                            placeholder="••••••"
+                                                            value={newProxy.password}
+                                                            onChange={(e) => setNewProxy(prev => ({ ...prev, password: e.target.value }))}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            )}
+                                            <div className="bg-blue-950/30 border border-blue-800/50 rounded-lg p-3 text-xs text-blue-300">
+                                                <strong>💡 Dica:</strong> Use SOCKS5 para melhor compatibilidade com Telegram.
+                                                Proxies residenciais são mais seguros que datacenter.
+                                            </div>
+                                            <div className="flex gap-2 pt-2">
+                                                <Button variant="outline" className="flex-1" onClick={() => setShowAddProxyModal(false)}>
+                                                    Cancelar
+                                                </Button>
+                                                <Button className="flex-1 gap-1" onClick={handleAddProxy}>
+                                                    <Plus className="w-4 h-4" />
+                                                    Adicionar
+                                                </Button>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                </div>
+                            )}
+
                             {/* Accounts Table Card - Full Width */}
                             <Card className="lg:col-span-3">
                                 <CardHeader className="pb-3">
