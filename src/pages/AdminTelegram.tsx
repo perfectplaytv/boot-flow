@@ -640,6 +640,302 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
         toast.success("Texto salvo!");
     };
 
+    // ========================================
+    // Phase 8: Groups Management (LeadForge)
+    // ========================================
+    interface TelegramGroup {
+        id: number;
+        name: string;
+        link: string;
+        platform: 'telegram' | 'whatsapp' | 'discord';
+        status: 'ativo' | 'saturado' | 'bloqueado' | 'pendente';
+        tags: string[];
+        membersCount: number;
+        extractedCount: number;
+        createdAt: string;
+        lastActivity: string;
+    }
+
+    const [telegramGroups, setTelegramGroups] = useState<TelegramGroup[]>([]);
+    const [showAddGroupModal, setShowAddGroupModal] = useState(false);
+    const [showEditGroupModal, setShowEditGroupModal] = useState(false);
+    const [showImportGroupsModal, setShowImportGroupsModal] = useState(false);
+    const [selectedGroupIds, setSelectedGroupIds] = useState<Set<number>>(new Set());
+    const [groupSearchTerm, setGroupSearchTerm] = useState('');
+    const [groupStatusFilter, setGroupStatusFilter] = useState<string>('all');
+    const [groupTagFilter, setGroupTagFilter] = useState<string>('all');
+    const [editingGroup, setEditingGroup] = useState<TelegramGroup | null>(null);
+    const [newGroup, setNewGroup] = useState({
+        name: '',
+        link: '',
+        platform: 'telegram' as 'telegram' | 'whatsapp' | 'discord',
+        tags: [] as string[],
+    });
+    const [newTagInput, setNewTagInput] = useState('');
+    const [importGroupsText, setImportGroupsText] = useState('');
+
+    // Available tags for groups
+    const availableTags = ['Vendas', 'Cripto', 'Marketing', 'Local', 'Tecnologia', 'Finanças', 'Educação', 'Entretenimento', 'Nicho', 'VIP'];
+
+    // Load groups from localStorage
+    useEffect(() => {
+        const saved = localStorage.getItem('telegram_groups');
+        if (saved) {
+            setTelegramGroups(JSON.parse(saved));
+        }
+    }, []);
+
+    // Save groups to localStorage
+    const saveGroupsToStorage = (groups: TelegramGroup[]) => {
+        localStorage.setItem('telegram_groups', JSON.stringify(groups));
+        setTelegramGroups(groups);
+    };
+
+    // Validate Telegram link
+    const validateTelegramLink = (link: string): boolean => {
+        const patterns = [
+            /^https?:\/\/(t\.me|telegram\.me)\/[a-zA-Z0-9_]+$/,
+            /^https?:\/\/(t\.me|telegram\.me)\/joinchat\/[a-zA-Z0-9_-]+$/,
+            /^@[a-zA-Z0-9_]+$/,
+            /^[a-zA-Z0-9_]+$/
+        ];
+        return patterns.some(p => p.test(link.trim()));
+    };
+
+    // Detect group type from link
+    const detectGroupType = (link: string): 'public' | 'private' | 'channel' => {
+        if (link.includes('joinchat') || link.startsWith('+')) return 'private';
+        if (link.includes('/c/')) return 'channel';
+        return 'public';
+    };
+
+    // Add new group
+    const handleAddGroup = () => {
+        if (!newGroup.name.trim()) {
+            toast.error('Digite o nome do grupo');
+            return;
+        }
+        if (!newGroup.link.trim()) {
+            toast.error('Digite o link ou ID do grupo');
+            return;
+        }
+        if (newGroup.platform === 'telegram' && !validateTelegramLink(newGroup.link)) {
+            toast.warning('Link do Telegram parece inválido, mas será salvo assim mesmo');
+        }
+
+        // Check for duplicates
+        const exists = telegramGroups.some(g => g.link.toLowerCase() === newGroup.link.toLowerCase());
+        if (exists) {
+            toast.error('Este grupo já está cadastrado');
+            return;
+        }
+
+        const group: TelegramGroup = {
+            id: Date.now(),
+            name: newGroup.name.trim(),
+            link: newGroup.link.trim(),
+            platform: newGroup.platform,
+            status: 'pendente',
+            tags: newGroup.tags,
+            membersCount: 0,
+            extractedCount: 0,
+            createdAt: new Date().toISOString(),
+            lastActivity: new Date().toISOString(),
+        };
+
+        const updated = [...telegramGroups, group];
+        saveGroupsToStorage(updated);
+        setNewGroup({ name: '', link: '', platform: 'telegram', tags: [] });
+        setShowAddGroupModal(false);
+        toast.success(`Grupo "${group.name}" adicionado!`);
+    };
+
+    // Edit group
+    const handleEditGroup = () => {
+        if (!editingGroup) return;
+        const updated = telegramGroups.map(g =>
+            g.id === editingGroup.id ? { ...editingGroup, lastActivity: new Date().toISOString() } : g
+        );
+        saveGroupsToStorage(updated);
+        setEditingGroup(null);
+        setShowEditGroupModal(false);
+        toast.success('Grupo atualizado!');
+    };
+
+    // Delete groups
+    const handleDeleteGroups = (ids: number[]) => {
+        const updated = telegramGroups.filter(g => !ids.includes(g.id));
+        saveGroupsToStorage(updated);
+        setSelectedGroupIds(new Set());
+        toast.success(`${ids.length} grupo(s) removido(s)!`);
+    };
+
+    // Import groups from text
+    const handleImportGroups = () => {
+        const lines = importGroupsText.split('\n').filter(l => l.trim());
+        if (lines.length === 0) {
+            toast.error('Cole os links dos grupos (um por linha)');
+            return;
+        }
+
+        let imported = 0;
+        let duplicates = 0;
+        let invalid = 0;
+
+        lines.forEach((line, index) => {
+            const parts = line.split(',').map(p => p.trim());
+            const link = parts[0];
+            const name = parts[1] || `Grupo ${telegramGroups.length + imported + 1}`;
+
+            // Check duplicate
+            if (telegramGroups.some(g => g.link.toLowerCase() === link.toLowerCase())) {
+                duplicates++;
+                return;
+            }
+
+            // Validate link (for telegram)
+            if (!validateTelegramLink(link)) {
+                invalid++;
+                return;
+            }
+
+            const group: TelegramGroup = {
+                id: Date.now() + index,
+                name: name,
+                link: link,
+                platform: 'telegram',
+                status: 'pendente',
+                tags: [],
+                membersCount: 0,
+                extractedCount: 0,
+                createdAt: new Date().toISOString(),
+                lastActivity: new Date().toISOString(),
+            };
+
+            telegramGroups.push(group);
+            imported++;
+        });
+
+        saveGroupsToStorage([...telegramGroups]);
+        setImportGroupsText('');
+        setShowImportGroupsModal(false);
+
+        if (imported > 0) {
+            toast.success(`${imported} grupo(s) importado(s)!`);
+        }
+        if (duplicates > 0) {
+            toast.warning(`${duplicates} grupo(s) duplicado(s) ignorado(s)`);
+        }
+        if (invalid > 0) {
+            toast.warning(`${invalid} link(s) inválido(s) ignorado(s)`);
+        }
+    };
+
+    // Export groups
+    const handleExportGroups = (format: 'csv' | 'json') => {
+        const dataToExport = selectedGroupIds.size > 0
+            ? telegramGroups.filter(g => selectedGroupIds.has(g.id))
+            : telegramGroups;
+
+        if (dataToExport.length === 0) {
+            toast.error('Nenhum grupo para exportar');
+            return;
+        }
+
+        let content: string;
+        let filename: string;
+        let mimeType: string;
+
+        if (format === 'csv') {
+            const headers = 'Nome,Link,Plataforma,Status,Tags,Membros,Extraídos,Criado Em\n';
+            const rows = dataToExport.map(g =>
+                `"${g.name}","${g.link}","${g.platform}","${g.status}","${g.tags.join(';')}",${g.membersCount},${g.extractedCount},"${g.createdAt}"`
+            ).join('\n');
+            content = headers + rows;
+            filename = 'grupos_telegram.csv';
+            mimeType = 'text/csv';
+        } else {
+            content = JSON.stringify(dataToExport, null, 2);
+            filename = 'grupos_telegram.json';
+            mimeType = 'application/json';
+        }
+
+        const blob = new Blob([content], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+
+        toast.success(`Exportado ${dataToExport.length} grupo(s) em ${format.toUpperCase()}!`);
+    };
+
+    // Toggle group selection
+    const toggleGroupSelection = (id: number) => {
+        setSelectedGroupIds(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(id)) {
+                newSet.delete(id);
+            } else {
+                newSet.add(id);
+            }
+            return newSet;
+        });
+    };
+
+    // Select all groups
+    const toggleSelectAllGroups = () => {
+        if (selectedGroupIds.size === filteredGroups.length) {
+            setSelectedGroupIds(new Set());
+        } else {
+            setSelectedGroupIds(new Set(filteredGroups.map(g => g.id)));
+        }
+    };
+
+    // Bulk update status
+    const handleBulkUpdateStatus = (status: TelegramGroup['status']) => {
+        const updated = telegramGroups.map(g =>
+            selectedGroupIds.has(g.id) ? { ...g, status, lastActivity: new Date().toISOString() } : g
+        );
+        saveGroupsToStorage(updated);
+        setSelectedGroupIds(new Set());
+        toast.success(`${selectedGroupIds.size} grupo(s) atualizado(s) para ${status}!`);
+    };
+
+    // Add tag to new group
+    const addTagToNewGroup = (tag: string) => {
+        if (!newGroup.tags.includes(tag)) {
+            setNewGroup(prev => ({ ...prev, tags: [...prev.tags, tag] }));
+        }
+    };
+
+    // Remove tag from new group
+    const removeTagFromNewGroup = (tag: string) => {
+        setNewGroup(prev => ({ ...prev, tags: prev.tags.filter(t => t !== tag) }));
+    };
+
+    // Filter groups
+    const filteredGroups = telegramGroups.filter(g => {
+        const matchesSearch = g.name.toLowerCase().includes(groupSearchTerm.toLowerCase()) ||
+            g.link.toLowerCase().includes(groupSearchTerm.toLowerCase());
+        const matchesStatus = groupStatusFilter === 'all' || g.status === groupStatusFilter;
+        const matchesTag = groupTagFilter === 'all' || g.tags.includes(groupTagFilter);
+        return matchesSearch && matchesStatus && matchesTag;
+    });
+
+    // Group stats
+    const groupStats = {
+        total: telegramGroups.length,
+        active: telegramGroups.filter(g => g.status === 'ativo').length,
+        saturated: telegramGroups.filter(g => g.status === 'saturado').length,
+        blocked: telegramGroups.filter(g => g.status === 'bloqueado').length,
+        pending: telegramGroups.filter(g => g.status === 'pendente').length,
+        totalMembers: telegramGroups.reduce((acc, g) => acc + g.membersCount, 0),
+        totalExtracted: telegramGroups.reduce((acc, g) => acc + g.extractedCount, 0),
+    };
+
+
     const fetchSessions = useCallback(async () => {
         try {
             const response = await fetch(`${TELEGRAM_API_URL}/sessions`);
