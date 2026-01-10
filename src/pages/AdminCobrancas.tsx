@@ -135,6 +135,7 @@ export default function AdminCobrancas() {
       // ignore
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handler = (e: any) => {
       try {
         const source = e?.detail?.source;
@@ -152,6 +153,7 @@ export default function AdminCobrancas() {
     };
   }, []);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const shouldShow = ((user as any)?.user_metadata?.role === 'reseller') ? showRealData : true;
 
   // Estado para cobranças virtuais (baseadas em clientes e revendas)
@@ -1068,6 +1070,7 @@ export default function AdminCobrancas() {
                     onChange={e => {
                       const selectedUser = getUserById(parseInt(e.target.value));
                       if (selectedUser) {
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         const u = selectedUser as any;
                         setEdit({
                           ...edit,
