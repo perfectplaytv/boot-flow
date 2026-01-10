@@ -935,6 +935,394 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
         totalExtracted: telegramGroups.reduce((acc, g) => acc + g.extractedCount, 0),
     };
 
+    // ========================================
+    // Phase 9: Encher Grupos (Fill Groups Engine)
+    // ========================================
+
+    // Interface para Conta Telegram
+    interface TelegramAccount {
+        id: number;
+        phone: string;
+        name: string;
+        username: string;
+        status: 'nova' | 'aquecendo' | 'ativa' | 'em_risco' | 'limitada' | 'suspensa';
+        riskScore: number; // 0-100
+        dailyLimit: number;
+        hourlyLimit: number;
+        usedToday: number;
+        usedThisHour: number;
+        proxy?: string;
+        lastActivity: string;
+        createdAt: string;
+        notes: string;
+    }
+
+    // Interface para Job de Encher Grupo
+    interface FillGroupJob {
+        id: number;
+        name: string;
+        sourceGroupId: number;
+        destinationGroupId: number;
+        accountIds: number[];
+        targetCount: number;
+        analyzedCount: number;
+        addedCount: number;
+        failedCount: number;
+        status: 'pausado' | 'rodando' | 'finalizado' | 'erro' | 'agendado';
+        delayMin: number;
+        delayMax: number;
+        stealthMode: boolean;
+        schedule?: {
+            enabled: boolean;
+            startTime: string;
+            endTime: string;
+            daysOfWeek: number[];
+        };
+        createdAt: string;
+        startedAt?: string;
+        finishedAt?: string;
+        logs: Array<{
+            time: string;
+            type: 'info' | 'success' | 'warning' | 'error';
+            message: string;
+        }>;
+    }
+
+    // Interface para Log do Sistema
+    interface SystemLog {
+        id: number;
+        time: string;
+        type: 'info' | 'success' | 'warning' | 'error' | 'action';
+        category: 'job' | 'account' | 'system' | 'stealth';
+        message: string;
+        details?: string;
+    }
+
+    // States para Contas
+    const [tgAccounts, setTgAccounts] = useState<TelegramAccount[]>([]);
+    const [showAddAccountModal, setShowAddAccountModal] = useState(false);
+    const [showEditAccountModal, setShowEditAccountModal] = useState(false);
+    const [editingAccount, setEditingAccount] = useState<TelegramAccount | null>(null);
+    const [newAccount, setNewAccount] = useState({
+        phone: '',
+        name: '',
+        username: '',
+        dailyLimit: 50,
+        hourlyLimit: 10,
+        proxy: '',
+        notes: ''
+    });
+
+    // States para Jobs de Encher Grupo
+    const [fillJobs, setFillJobs] = useState<FillGroupJob[]>([]);
+    const [showAddJobModal, setShowAddJobModal] = useState(false);
+    const [showJobDetailsModal, setShowJobDetailsModal] = useState(false);
+    const [selectedJob, setSelectedJob] = useState<FillGroupJob | null>(null);
+    const [newJob, setNewJob] = useState({
+        name: '',
+        sourceGroupId: 0,
+        destinationGroupId: 0,
+        accountIds: [] as number[],
+        targetCount: 100,
+        delayMin: 30,
+        delayMax: 60,
+        stealthMode: true,
+    });
+
+    // States para Logs
+    const [systemLogs, setSystemLogs] = useState<SystemLog[]>([]);
+    const [logFilter, setLogFilter] = useState<'all' | 'info' | 'success' | 'warning' | 'error'>('all');
+
+    // States para Stealth Mode Global
+    const [globalStealthMode, setGlobalStealthMode] = useState(true);
+    const [stealthConfig, setStealthConfig] = useState({
+        maxActionsPerHour: 20,
+        maxActionsPerDay: 100,
+        pauseOnRisk: true,
+        riskThreshold: 70,
+        randomizeDelays: true,
+        humanizeActions: true,
+        avoidPeakHours: true,
+        peakHoursStart: 9,
+        peakHoursEnd: 18,
+    });
+
+    // Sub-tab dentro de Encher Grupos
+    const [fillGroupsSubTab, setFillGroupsSubTab] = useState<'jobs' | 'accounts' | 'logs' | 'settings'>('jobs');
+
+    // Load from localStorage
+    useEffect(() => {
+        const savedAccounts = localStorage.getItem('telegram_accounts');
+        const savedJobs = localStorage.getItem('fill_group_jobs');
+        const savedLogs = localStorage.getItem('system_logs');
+        const savedStealth = localStorage.getItem('stealth_config');
+
+        if (savedAccounts) setTgAccounts(JSON.parse(savedAccounts));
+        if (savedJobs) setFillJobs(JSON.parse(savedJobs));
+        if (savedLogs) setSystemLogs(JSON.parse(savedLogs));
+        if (savedStealth) setStealthConfig(JSON.parse(savedStealth));
+    }, []);
+
+    // Save functions
+    const saveAccountsToStorage = (accounts: TelegramAccount[]) => {
+        localStorage.setItem('telegram_accounts', JSON.stringify(accounts));
+        setTgAccounts(accounts);
+    };
+
+    const saveJobsToStorage = (jobs: FillGroupJob[]) => {
+        localStorage.setItem('fill_group_jobs', JSON.stringify(jobs));
+        setFillJobs(jobs);
+    };
+
+    const addSystemLog = (type: SystemLog['type'], category: SystemLog['category'], message: string, details?: string) => {
+        const log: SystemLog = {
+            id: Date.now(),
+            time: new Date().toISOString(),
+            type,
+            category,
+            message,
+            details
+        };
+        const updated = [log, ...systemLogs].slice(0, 500); // Keep last 500 logs
+        localStorage.setItem('system_logs', JSON.stringify(updated));
+        setSystemLogs(updated);
+    };
+
+    // ========== Account Functions ==========
+
+    const calculateRiskScore = (account: TelegramAccount): number => {
+        let risk = 0;
+
+        // Usage-based risk
+        const usagePercent = (account.usedToday / account.dailyLimit) * 100;
+        if (usagePercent > 90) risk += 40;
+        else if (usagePercent > 70) risk += 25;
+        else if (usagePercent > 50) risk += 10;
+
+        // Status-based risk
+        if (account.status === 'em_risco') risk += 30;
+        if (account.status === 'limitada') risk += 50;
+        if (account.status === 'suspensa') risk += 100;
+        if (account.status === 'nova') risk += 15;
+        if (account.status === 'aquecendo') risk += 10;
+
+        // No proxy risk
+        if (!account.proxy) risk += 10;
+
+        return Math.min(100, risk);
+    };
+
+    const handleAddAccount = () => {
+        if (!newAccount.phone.trim()) {
+            toast.error('Digite o número do telefone');
+            return;
+        }
+
+        const account: TelegramAccount = {
+            id: Date.now(),
+            phone: newAccount.phone.trim(),
+            name: newAccount.name.trim() || 'Conta ' + (tgAccounts.length + 1),
+            username: newAccount.username.trim(),
+            status: 'nova',
+            riskScore: 15,
+            dailyLimit: newAccount.dailyLimit,
+            hourlyLimit: newAccount.hourlyLimit,
+            usedToday: 0,
+            usedThisHour: 0,
+            proxy: newAccount.proxy.trim(),
+            lastActivity: new Date().toISOString(),
+            createdAt: new Date().toISOString(),
+            notes: newAccount.notes.trim()
+        };
+
+        const updated = [...tgAccounts, account];
+        saveAccountsToStorage(updated);
+        setNewAccount({ phone: '', name: '', username: '', dailyLimit: 50, hourlyLimit: 10, proxy: '', notes: '' });
+        setShowAddAccountModal(false);
+        addSystemLog('success', 'account', `Conta ${account.phone} adicionada`, account.name);
+        toast.success('Conta adicionada!');
+    };
+
+    const handleEditAccount = () => {
+        if (!editingAccount) return;
+        const updated = tgAccounts.map(a =>
+            a.id === editingAccount.id ? { ...editingAccount, riskScore: calculateRiskScore(editingAccount) } : a
+        );
+        saveAccountsToStorage(updated);
+        setEditingAccount(null);
+        setShowEditAccountModal(false);
+        addSystemLog('info', 'account', `Conta ${editingAccount.phone} atualizada`);
+        toast.success('Conta atualizada!');
+    };
+
+    const handleDeleteAccount = (id: number) => {
+        const account = tgAccounts.find(a => a.id === id);
+        const updated = tgAccounts.filter(a => a.id !== id);
+        saveAccountsToStorage(updated);
+        addSystemLog('warning', 'account', `Conta ${account?.phone} removida`);
+        toast.success('Conta removida!');
+    };
+
+    const resetAccountUsage = (id: number) => {
+        const updated = tgAccounts.map(a =>
+            a.id === id ? { ...a, usedToday: 0, usedThisHour: 0, riskScore: Math.max(0, a.riskScore - 20) } : a
+        );
+        saveAccountsToStorage(updated);
+        toast.success('Contadores resetados!');
+    };
+
+    // ========== Job Functions ==========
+
+    const getSourceGroupName = (id: number) => {
+        const group = telegramGroups.find(g => g.id === id);
+        return group?.name || 'Grupo não encontrado';
+    };
+
+    const getDestGroupName = (id: number) => {
+        const group = telegramGroups.find(g => g.id === id);
+        return group?.name || 'Grupo não encontrado';
+    };
+
+    const handleAddJob = () => {
+        if (!newJob.sourceGroupId || !newJob.destinationGroupId) {
+            toast.error('Selecione origem e destino');
+            return;
+        }
+        if (newJob.accountIds.length === 0) {
+            toast.error('Selecione pelo menos uma conta');
+            return;
+        }
+
+        const sourceGroup = telegramGroups.find(g => g.id === newJob.sourceGroupId);
+        const destGroup = telegramGroups.find(g => g.id === newJob.destinationGroupId);
+
+        const job: FillGroupJob = {
+            id: Date.now(),
+            name: newJob.name.trim() || `Job ${fillJobs.length + 1}`,
+            sourceGroupId: newJob.sourceGroupId,
+            destinationGroupId: newJob.destinationGroupId,
+            accountIds: newJob.accountIds,
+            targetCount: newJob.targetCount,
+            analyzedCount: 0,
+            addedCount: 0,
+            failedCount: 0,
+            status: 'pausado',
+            delayMin: newJob.delayMin,
+            delayMax: newJob.delayMax,
+            stealthMode: newJob.stealthMode,
+            createdAt: new Date().toISOString(),
+            logs: [{
+                time: new Date().toISOString(),
+                type: 'info',
+                message: `Job criado: ${sourceGroup?.name} → ${destGroup?.name}`
+            }]
+        };
+
+        const updated = [...fillJobs, job];
+        saveJobsToStorage(updated);
+        setNewJob({ name: '', sourceGroupId: 0, destinationGroupId: 0, accountIds: [], targetCount: 100, delayMin: 30, delayMax: 60, stealthMode: true });
+        setShowAddJobModal(false);
+        addSystemLog('success', 'job', `Job criado: ${sourceGroup?.name} → ${destGroup?.name}`, `Meta: ${job.targetCount} leads`);
+        toast.success('Job criado!');
+    };
+
+    const toggleJobStatus = (id: number) => {
+        const updated = fillJobs.map(j => {
+            if (j.id === id) {
+                const newStatus = j.status === 'rodando' ? 'pausado' : 'rodando';
+                const log = {
+                    time: new Date().toISOString(),
+                    type: 'info' as const,
+                    message: newStatus === 'rodando' ? 'Job iniciado' : 'Job pausado'
+                };
+                addSystemLog('action', 'job', `Job ${j.name}: ${newStatus}`);
+                return {
+                    ...j,
+                    status: newStatus,
+                    startedAt: newStatus === 'rodando' ? new Date().toISOString() : j.startedAt,
+                    logs: [...j.logs, log]
+                };
+            }
+            return j;
+        });
+        saveJobsToStorage(updated);
+    };
+
+    const handleDeleteJob = (id: number) => {
+        const job = fillJobs.find(j => j.id === id);
+        const updated = fillJobs.filter(j => j.id !== id);
+        saveJobsToStorage(updated);
+        addSystemLog('warning', 'job', `Job ${job?.name} removido`);
+        toast.success('Job removido!');
+    };
+
+    // Simular progresso do job (MVP - será substituído por workers reais)
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setFillJobs(prevJobs => {
+                let hasChanges = false;
+                const updated = prevJobs.map(job => {
+                    if (job.status === 'rodando' && job.addedCount < job.targetCount) {
+                        hasChanges = true;
+                        const sourceGroup = telegramGroups.find(g => g.id === job.sourceGroupId);
+                        const maxAnalyzed = sourceGroup?.membersCount || 1000;
+
+                        const newAnalyzed = Math.min(job.analyzedCount + Math.floor(Math.random() * 3) + 1, maxAnalyzed);
+                        const successRate = job.stealthMode ? 0.6 : 0.8;
+                        const newAdded = Math.min(
+                            job.addedCount + (Math.random() < successRate ? 1 : 0),
+                            job.targetCount
+                        );
+                        const newFailed = job.failedCount + (newAdded === job.addedCount && newAnalyzed > job.analyzedCount ? 1 : 0);
+
+                        const isFinished = newAdded >= job.targetCount || newAnalyzed >= maxAnalyzed;
+
+                        return {
+                            ...job,
+                            analyzedCount: newAnalyzed,
+                            addedCount: newAdded,
+                            failedCount: newFailed,
+                            status: isFinished ? 'finalizado' as const : job.status,
+                            finishedAt: isFinished ? new Date().toISOString() : job.finishedAt
+                        };
+                    }
+                    return job;
+                });
+
+                if (hasChanges) {
+                    localStorage.setItem('fill_group_jobs', JSON.stringify(updated));
+                }
+                return updated;
+            });
+        }, 2000); // Update every 2 seconds for demo
+
+        return () => clearInterval(interval);
+    }, [telegramGroups]);
+
+    // ========== Stats ==========
+
+    const accountStats = {
+        total: tgAccounts.length,
+        active: tgAccounts.filter(a => a.status === 'ativa').length,
+        warming: tgAccounts.filter(a => a.status === 'aquecendo').length,
+        atRisk: tgAccounts.filter(a => a.status === 'em_risco' || a.status === 'limitada').length,
+        avgRisk: tgAccounts.length > 0
+            ? Math.round(tgAccounts.reduce((acc, a) => acc + a.riskScore, 0) / tgAccounts.length)
+            : 0
+    };
+
+    const jobStats = {
+        total: fillJobs.length,
+        running: fillJobs.filter(j => j.status === 'rodando').length,
+        paused: fillJobs.filter(j => j.status === 'pausado').length,
+        finished: fillJobs.filter(j => j.status === 'finalizado').length,
+        totalAdded: fillJobs.reduce((acc, j) => acc + j.addedCount, 0),
+        totalAnalyzed: fillJobs.reduce((acc, j) => acc + j.analyzedCount, 0),
+    };
+
+    const filteredLogs = systemLogs.filter(log =>
+        logFilter === 'all' || log.type === logFilter
+    );
 
     const fetchSessions = useCallback(async () => {
         try {
@@ -1730,7 +2118,7 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
 
             {/* Tabs para métodos de importação */}
             <Tabs defaultValue="automatic" className="w-full">
-                <TabsList className="grid w-full grid-cols-8 mb-6">
+                <TabsList className="grid w-full grid-cols-9 mb-6">
                     <TabsTrigger value="automatic" className="flex items-center gap-1 text-[10px]">
                         <Link className="w-3 h-3" />
                         Extração
@@ -1738,6 +2126,10 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
                     <TabsTrigger value="grupos" className="flex items-center gap-1 text-[10px]">
                         <FolderOpen className="w-3 h-3" />
                         Grupos
+                    </TabsTrigger>
+                    <TabsTrigger value="enchergrupos" className="flex items-center gap-1 text-[10px]">
+                        <Zap className="w-3 h-3" />
+                        Encher
                     </TabsTrigger>
                     <TabsTrigger value="campaigns" className="flex items-center gap-1 text-[10px]">
                         <Calendar className="w-3 h-3" />
