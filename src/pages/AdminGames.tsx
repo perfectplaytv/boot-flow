@@ -80,7 +80,7 @@ export default function AdminGames() {
   const totalAchievements = achievements.length;
 
   return (
-    <div className="space-y-4 sm:space-y-6 min-h-screen bg-[#09090b] p-3 sm:p-6">
+    <div className="space-y-4 sm:space-y-6 min-h-screen bg-background p-3 sm:p-6 transition-colors duration-300">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold text-white">Gamificação</h1>
@@ -104,10 +104,10 @@ export default function AdminGames() {
               <div className="grid gap-4 py-4">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="enabled" className="text-gray-300">Habilitar Gamificação</Label>
-                  <Switch 
-                    id="enabled" 
-                    checked={gamificationConfig.enabled} 
-                    onCheckedChange={(checked) => setGamificationConfig({...gamificationConfig, enabled: checked})}
+                  <Switch
+                    id="enabled"
+                    checked={gamificationConfig.enabled}
+                    onCheckedChange={(checked) => setGamificationConfig({ ...gamificationConfig, enabled: checked })}
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -117,7 +117,7 @@ export default function AdminGames() {
                       id="pointsPerLogin"
                       type="number"
                       value={gamificationConfig.pointsPerLogin}
-                      onChange={(e) => setGamificationConfig({...gamificationConfig, pointsPerLogin: e.target.value})}
+                      onChange={(e) => setGamificationConfig({ ...gamificationConfig, pointsPerLogin: e.target.value })}
                       className="bg-[#1f2937] border border-gray-700 text-white"
                     />
                   </div>
@@ -127,7 +127,7 @@ export default function AdminGames() {
                       id="pointsPerPurchase"
                       type="number"
                       value={gamificationConfig.pointsPerPurchase}
-                      onChange={(e) => setGamificationConfig({...gamificationConfig, pointsPerPurchase: e.target.value})}
+                      onChange={(e) => setGamificationConfig({ ...gamificationConfig, pointsPerPurchase: e.target.value })}
                       className="bg-[#1f2937] border border-gray-700 text-white"
                     />
                   </div>
@@ -138,33 +138,33 @@ export default function AdminGames() {
                     id="pointsPerSupport"
                     type="number"
                     value={gamificationConfig.pointsPerSupport}
-                    onChange={(e) => setGamificationConfig({...gamificationConfig, pointsPerSupport: e.target.value})}
+                    onChange={(e) => setGamificationConfig({ ...gamificationConfig, pointsPerSupport: e.target.value })}
                     className="bg-[#1f2937] border border-gray-700 text-white"
                   />
                 </div>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <Label htmlFor="enableLeaderboard" className="text-gray-300">Habilitar Ranking</Label>
-                    <Switch 
-                      id="enableLeaderboard" 
-                      checked={gamificationConfig.enableLeaderboard} 
-                      onCheckedChange={(checked) => setGamificationConfig({...gamificationConfig, enableLeaderboard: checked})}
+                    <Switch
+                      id="enableLeaderboard"
+                      checked={gamificationConfig.enableLeaderboard}
+                      onCheckedChange={(checked) => setGamificationConfig({ ...gamificationConfig, enableLeaderboard: checked })}
                     />
                   </div>
                   <div className="flex items-center justify-between">
                     <Label htmlFor="enableAchievements" className="text-gray-300">Habilitar Conquistas</Label>
-                    <Switch 
-                      id="enableAchievements" 
-                      checked={gamificationConfig.enableAchievements} 
-                      onCheckedChange={(checked) => setGamificationConfig({...gamificationConfig, enableAchievements: checked})}
+                    <Switch
+                      id="enableAchievements"
+                      checked={gamificationConfig.enableAchievements}
+                      onCheckedChange={(checked) => setGamificationConfig({ ...gamificationConfig, enableAchievements: checked })}
                     />
                   </div>
                   <div className="flex items-center justify-between">
                     <Label htmlFor="enableLevels" className="text-gray-300">Habilitar Níveis</Label>
-                    <Switch 
-                      id="enableLevels" 
-                      checked={gamificationConfig.enableLevels} 
-                      onCheckedChange={(checked) => setGamificationConfig({...gamificationConfig, enableLevels: checked})}
+                    <Switch
+                      id="enableLevels"
+                      checked={gamificationConfig.enableLevels}
+                      onCheckedChange={(checked) => setGamificationConfig({ ...gamificationConfig, enableLevels: checked })}
                     />
                   </div>
                 </div>
@@ -174,7 +174,7 @@ export default function AdminGames() {
                     id="maxLevel"
                     type="number"
                     value={gamificationConfig.maxLevel}
-                    onChange={(e) => setGamificationConfig({...gamificationConfig, maxLevel: e.target.value})}
+                    onChange={(e) => setGamificationConfig({ ...gamificationConfig, maxLevel: e.target.value })}
                     className="bg-[#1f2937] border border-gray-700 text-white"
                   />
                 </div>
@@ -209,7 +209,7 @@ export default function AdminGames() {
                   <Input
                     id="achievementName"
                     value={newAchievement.name}
-                    onChange={(e) => setNewAchievement({...newAchievement, name: e.target.value})}
+                    onChange={(e) => setNewAchievement({ ...newAchievement, name: e.target.value })}
                     placeholder="Ex: Primeira Compra"
                     className="bg-[#1f2937] border border-gray-700 text-white"
                   />
@@ -219,7 +219,7 @@ export default function AdminGames() {
                   <Input
                     id="achievementDescription"
                     value={newAchievement.description}
-                    onChange={(e) => setNewAchievement({...newAchievement, description: e.target.value})}
+                    onChange={(e) => setNewAchievement({ ...newAchievement, description: e.target.value })}
                     placeholder="Ex: Realize sua primeira compra"
                     className="bg-[#1f2937] border border-gray-700 text-white"
                   />
@@ -230,7 +230,7 @@ export default function AdminGames() {
                     id="achievementPoints"
                     type="number"
                     value={newAchievement.points}
-                    onChange={(e) => setNewAchievement({...newAchievement, points: e.target.value})}
+                    onChange={(e) => setNewAchievement({ ...newAchievement, points: e.target.value })}
                     placeholder="Ex: 10"
                     className="bg-[#1f2937] border border-gray-700 text-white"
                   />
@@ -240,7 +240,7 @@ export default function AdminGames() {
                   <Input
                     id="achievementIcon"
                     value={newAchievement.icon}
-                    onChange={(e) => setNewAchievement({...newAchievement, icon: e.target.value})}
+                    onChange={(e) => setNewAchievement({ ...newAchievement, icon: e.target.value })}
                     placeholder="Ex: 🏆"
                     className="bg-[#1f2937] border border-gray-700 text-white"
                   />

@@ -75,8 +75,8 @@ export default function AdminEcommerce() {
   };
 
   const toggleProductStatus = (id: number) => {
-    setProducts(products.map(product => 
-      product.id === id 
+    setProducts(products.map(product =>
+      product.id === id
         ? { ...product, status: product.status === "Ativo" ? "Inativo" : "Ativo" }
         : product
     ));
@@ -105,10 +105,10 @@ export default function AdminEcommerce() {
   const activeProducts = products.filter(product => product.status === "Ativo").length;
 
   return (
-    <div className="space-y-4 sm:space-y-6 min-h-screen bg-[#09090b] p-3 sm:p-6">
+    <div className="space-y-4 sm:space-y-6 min-h-screen bg-background p-3 sm:p-6 transition-colors duration-300">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white">E-commerce</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">E-commerce</h1>
           <p className="text-gray-400 text-sm sm:text-base">Gerencie produtos, vendas e configurações da loja</p>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
@@ -134,7 +134,7 @@ export default function AdminEcommerce() {
                     <Input
                       id="storeName"
                       value={ecommerceConfig.storeName}
-                      onChange={(e) => setEcommerceConfig({...ecommerceConfig, storeName: e.target.value})}
+                      onChange={(e) => setEcommerceConfig({ ...ecommerceConfig, storeName: e.target.value })}
                       className="bg-[#1f2937] border border-gray-700 text-white"
                     />
                   </div>
@@ -143,7 +143,7 @@ export default function AdminEcommerce() {
                     <Input
                       id="currency"
                       value={ecommerceConfig.currency}
-                      onChange={(e) => setEcommerceConfig({...ecommerceConfig, currency: e.target.value})}
+                      onChange={(e) => setEcommerceConfig({ ...ecommerceConfig, currency: e.target.value })}
                       className="bg-[#1f2937] border border-gray-700 text-white"
                     />
                   </div>
@@ -154,41 +154,41 @@ export default function AdminEcommerce() {
                     id="taxRate"
                     type="number"
                     value={ecommerceConfig.taxRate}
-                    onChange={(e) => setEcommerceConfig({...ecommerceConfig, taxRate: e.target.value})}
+                    onChange={(e) => setEcommerceConfig({ ...ecommerceConfig, taxRate: e.target.value })}
                     className="bg-[#1f2937] border border-gray-700 text-white"
                   />
                 </div>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <Label htmlFor="enableReviews" className="text-gray-300">Habilitar Avaliações</Label>
-                    <Switch 
-                      id="enableReviews" 
-                      checked={ecommerceConfig.enableReviews} 
-                      onCheckedChange={(checked) => setEcommerceConfig({...ecommerceConfig, enableReviews: checked})}
+                    <Switch
+                      id="enableReviews"
+                      checked={ecommerceConfig.enableReviews}
+                      onCheckedChange={(checked) => setEcommerceConfig({ ...ecommerceConfig, enableReviews: checked })}
                     />
                   </div>
                   <div className="flex items-center justify-between">
                     <Label htmlFor="enableWishlist" className="text-gray-300">Habilitar Lista de Desejos</Label>
-                    <Switch 
-                      id="enableWishlist" 
-                      checked={ecommerceConfig.enableWishlist} 
-                      onCheckedChange={(checked) => setEcommerceConfig({...ecommerceConfig, enableWishlist: checked})}
+                    <Switch
+                      id="enableWishlist"
+                      checked={ecommerceConfig.enableWishlist}
+                      onCheckedChange={(checked) => setEcommerceConfig({ ...ecommerceConfig, enableWishlist: checked })}
                     />
                   </div>
                   <div className="flex items-center justify-between">
                     <Label htmlFor="enableCoupons" className="text-gray-300">Habilitar Cupons</Label>
-                    <Switch 
-                      id="enableCoupons" 
-                      checked={ecommerceConfig.enableCoupons} 
-                      onCheckedChange={(checked) => setEcommerceConfig({...ecommerceConfig, enableCoupons: checked})}
+                    <Switch
+                      id="enableCoupons"
+                      checked={ecommerceConfig.enableCoupons}
+                      onCheckedChange={(checked) => setEcommerceConfig({ ...ecommerceConfig, enableCoupons: checked })}
                     />
                   </div>
                   <div className="flex items-center justify-between">
                     <Label htmlFor="autoStock" className="text-gray-300">Controle Automático de Estoque</Label>
-                    <Switch 
-                      id="autoStock" 
-                      checked={ecommerceConfig.autoStock} 
-                      onCheckedChange={(checked) => setEcommerceConfig({...ecommerceConfig, autoStock: checked})}
+                    <Switch
+                      id="autoStock"
+                      checked={ecommerceConfig.autoStock}
+                      onCheckedChange={(checked) => setEcommerceConfig({ ...ecommerceConfig, autoStock: checked })}
                     />
                   </div>
                 </div>
@@ -223,7 +223,7 @@ export default function AdminEcommerce() {
                   <Input
                     id="productName"
                     value={newProduct.name}
-                    onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
+                    onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
                     placeholder="Ex: Plano Pro"
                     className="bg-[#1f2937] border border-gray-700 text-white"
                   />
@@ -233,7 +233,7 @@ export default function AdminEcommerce() {
                   <Input
                     id="productCategory"
                     value={newProduct.category}
-                    onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
+                    onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
                     placeholder="Ex: Planos"
                     className="bg-[#1f2937] border border-gray-700 text-white"
                   />
@@ -244,7 +244,7 @@ export default function AdminEcommerce() {
                     id="productPrice"
                     type="number"
                     value={newProduct.price}
-                    onChange={(e) => setNewProduct({...newProduct, price: e.target.value})}
+                    onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
                     placeholder="Ex: 59.90"
                     className="bg-[#1f2937] border border-gray-700 text-white"
                   />
@@ -255,7 +255,7 @@ export default function AdminEcommerce() {
                     id="productStock"
                     type="number"
                     value={newProduct.stock}
-                    onChange={(e) => setNewProduct({...newProduct, stock: e.target.value})}
+                    onChange={(e) => setNewProduct({ ...newProduct, stock: e.target.value })}
                     placeholder="Ex: 100"
                     className="bg-[#1f2937] border border-gray-700 text-white"
                   />
@@ -357,8 +357,8 @@ export default function AdminEcommerce() {
                     <TableCell>
                       <Badge className={
                         product.status === 'Ativo' ? 'bg-green-700 text-green-200' :
-                        product.status === 'Inativo' ? 'bg-red-700 text-red-200' :
-                        'bg-gray-700 text-gray-300'
+                          product.status === 'Inativo' ? 'bg-red-700 text-red-200' :
+                            'bg-gray-700 text-gray-300'
                       }>{product.status}</Badge>
                     </TableCell>
                     <TableCell>
@@ -406,9 +406,9 @@ export default function AdminEcommerce() {
                     <TableCell>
                       <Badge className={
                         sale.status === 'Pago' ? 'bg-green-700 text-green-200' :
-                        sale.status === 'Cancelado' ? 'bg-red-700 text-red-200' :
-                        sale.status === 'Pendente' ? 'bg-yellow-700 text-yellow-200' :
-                        'bg-gray-700 text-gray-300'
+                          sale.status === 'Cancelado' ? 'bg-red-700 text-red-200' :
+                            sale.status === 'Pendente' ? 'bg-yellow-700 text-yellow-200' :
+                              'bg-gray-700 text-gray-300'
                       }>{sale.status}</Badge>
                     </TableCell>
                   </TableRow>

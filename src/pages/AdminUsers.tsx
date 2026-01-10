@@ -916,7 +916,7 @@ export default function AdminUsers() {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6 min-h-screen bg-[#09090b] p-3 sm:p-6">
+    <div className="space-y-4 sm:space-y-6 min-h-screen bg-background p-3 sm:p-6 transition-colors duration-300">
       {/* Indicadores de status */}
       {loading && (
         <div className="bg-blue-900/40 border border-blue-700 text-blue-300 rounded-lg p-4">
@@ -934,7 +934,7 @@ export default function AdminUsers() {
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
             Gerenciamento de Usuários
           </h1>
           <p className="text-gray-400 text-sm sm:text-base">
@@ -1085,7 +1085,7 @@ export default function AdminUsers() {
                         <Input
                           id="add-name"
                           placeholder="Nome completo do cliente"
-                          className="bg-[#23272f] border border-gray-700 text-white"
+                          className="bg-background border border-input text-foreground"
                           value={newUser.name}
                           onChange={(e) =>
                             setNewUser({ ...newUser, name: e.target.value })
@@ -1100,7 +1100,7 @@ export default function AdminUsers() {
                         <Input
                           id="add-email"
                           placeholder="email@exemplo.com"
-                          className="bg-[#23272f] border border-gray-700 text-white"
+                          className="bg-background border border-input text-foreground"
                           value={newUser.email}
                           onChange={(e) =>
                             setNewUser({ ...newUser, email: e.target.value })
@@ -1134,7 +1134,7 @@ export default function AdminUsers() {
                         <Input
                           id="add-expiration"
                           type="date"
-                          className="bg-[#23272f] border border-gray-700 text-white"
+                          className="bg-background border border-input text-foreground"
                           value={newUser.expirationDate}
                           onChange={(e) =>
                             setNewUser({ ...newUser, expirationDate: e.target.value })
@@ -1156,7 +1156,7 @@ export default function AdminUsers() {
                           id="add-devices"
                           type="number"
                           placeholder="0"
-                          className="bg-[#23272f] border border-gray-700 text-white"
+                          className="bg-background border border-input text-foreground"
                           value={newUser.devices}
                           onChange={(e) =>
                             setNewUser({ ...newUser, devices: parseInt(e.target.value) || 0 })
@@ -1171,7 +1171,7 @@ export default function AdminUsers() {
                         <Input
                           type="number"
                           placeholder="0"
-                          className="bg-[#23272f] border border-gray-700 text-white"
+                          className="bg-background border border-input text-foreground"
                           value={newUser.credits}
                           onChange={(e) =>
                             setNewUser({ ...newUser, credits: parseInt(e.target.value) || 0 })
@@ -1185,7 +1185,7 @@ export default function AdminUsers() {
                         </label>
                         <Input
                           placeholder="Senha do cliente"
-                          className="bg-[#23272f] border border-gray-700 text-white"
+                          className="bg-background border border-input text-foreground"
                           value={newUser.password}
                           onChange={(e) =>
                             setNewUser({ ...newUser, password: e.target.value })
@@ -1199,7 +1199,7 @@ export default function AdminUsers() {
                         </label>
                         <Input
                           placeholder="Bouquets disponíveis"
-                          className="bg-[#23272f] border border-gray-700 text-white"
+                          className="bg-background border border-input text-foreground"
                           value={newUser.bouquets}
                           onChange={(e) =>
                             setNewUser({ ...newUser, bouquets: e.target.value })
@@ -1219,7 +1219,7 @@ export default function AdminUsers() {
                         </label>
                         <Input
                           placeholder="Nome real do cliente"
-                          className="bg-[#23272f] border border-gray-700 text-white"
+                          className="bg-background border border-input text-foreground"
                           value={newUser.realName}
                           onChange={(e) =>
                             setNewUser({ ...newUser, realName: e.target.value })
@@ -1233,7 +1233,7 @@ export default function AdminUsers() {
                         </label>
                         <Input
                           placeholder="+55 (11) 99999-9999"
-                          className="bg-[#23272f] border border-gray-700 text-white"
+                          className="bg-background border border-input text-foreground"
                           value={newUser.whatsapp}
                           onChange={(e) =>
                             setNewUser({ ...newUser, whatsapp: e.target.value })
@@ -1247,7 +1247,7 @@ export default function AdminUsers() {
                         </label>
                         <Input
                           placeholder="@username"
-                          className="bg-[#23272f] border border-gray-700 text-white"
+                          className="bg-background border border-input text-foreground"
                           value={newUser.telegram}
                           onChange={(e) =>
                             setNewUser({ ...newUser, telegram: e.target.value })
@@ -1261,7 +1261,7 @@ export default function AdminUsers() {
                         </label>
                         <Input
                           placeholder="Observações sobre o cliente"
-                          className="bg-[#23272f] border border-gray-700 text-white"
+                          className="bg-background border border-input text-foreground"
                           value={newUser.observations}
                           onChange={(e) =>
                             setNewUser({ ...newUser, observations: e.target.value })
@@ -1421,9 +1421,9 @@ export default function AdminUsers() {
       )}
 
       {/* Tabela de usuários */}
-      <Card className="bg-[#1f2937] text-white">
+      <Card className="bg-card text-card-foreground">
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-lg text-white">
+          <CardTitle className="text-lg text-foreground">
             Lista de Usuários
           </CardTitle>
           {selectedUserIds.size > 0 && (

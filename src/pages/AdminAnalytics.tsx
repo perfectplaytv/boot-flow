@@ -35,10 +35,10 @@ export default function AdminAnalytics() {
   const userActivity = [];
 
   return (
-    <div className="space-y-4 sm:space-y-6 min-h-screen bg-[#09090b] p-3 sm:p-6">
+    <div className="space-y-4 sm:space-y-6 min-h-screen bg-background p-3 sm:p-6 transition-colors duration-300">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white">Analytics</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Analytics</h1>
           <p className="text-gray-400 text-sm sm:text-base">Acompanhe métricas e performance do sistema</p>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
@@ -167,9 +167,9 @@ export default function AdminAnalytics() {
                     <span className="font-medium text-white">{activity.hour}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                        <div className="w-32 bg-gray-700 rounded-full h-2">
-                          <WidthBar width={`${(activity.users / 250) * 100}%`} className="bg-blue-600 h-2 rounded-full" />
-                        </div>
+                    <div className="w-32 bg-gray-700 rounded-full h-2">
+                      <WidthBar width={`${(activity.users / 250) * 100}%`} className="bg-blue-600 h-2 rounded-full" />
+                    </div>
                     <span className="text-sm text-gray-400 w-12 text-right">
                       {activity.users}
                     </span>

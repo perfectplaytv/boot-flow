@@ -109,7 +109,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
     // Função para buscar dados com delay opcional
     const refreshData = (delay: number = 0, reason: string = '') => {
       if (!fetchRevendas) return;
-      
+
       if (delay > 0) {
         setTimeout(() => {
           console.log(`🔄 [AdminResellers] ${reason} - Atualizando lista após ${delay}ms...`);
@@ -126,7 +126,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
     const refreshFlag = localStorage.getItem('dashboard-refresh');
     const resellerCreatedFlag = localStorage.getItem('reseller-created');
     const hasFlags = refreshFlag || resellerCreatedFlag;
-    
+
     if (hasFlags) {
       console.log('🔄 [AdminResellers] Flag de refresh encontrada ao montar, removendo flags...');
       localStorage.removeItem('dashboard-refresh');
@@ -195,30 +195,30 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
   const handleAddRevenda = async (e: React.FormEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     console.log('🔄 [AdminResellers] handleAddRevenda chamado');
     console.log('🔄 [AdminResellers] Event:', e);
     console.log('🔄 [AdminResellers] Dados do formulário:', newReseller);
     console.log('🔄 [AdminResellers] autoOpenForm:', autoOpenForm);
-    
+
     // Validação detalhada
     const errors: string[] = [];
-    
+
     if (!newReseller.username || newReseller.username.trim() === '') {
       errors.push('Usuário é obrigatório');
       console.error('❌ [AdminResellers] Usuário não preenchido');
     }
-    
+
     if (!newReseller.password || newReseller.password.trim() === '') {
       errors.push('Senha é obrigatória');
       console.error('❌ [AdminResellers] Senha não preenchida');
     }
-    
+
     if (!newReseller.permission || newReseller.permission.trim() === '') {
       errors.push('Permissão é obrigatória');
       console.error('❌ [AdminResellers] Permissão não selecionada');
     }
-    
+
     if (errors.length > 0) {
       console.error('❌ [AdminResellers] Campos obrigatórios não preenchidos:', {
         username: !!newReseller.username,
@@ -229,14 +229,14 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
       alert(`❌ Por favor, preencha todos os campos obrigatórios:\n\n${errors.join('\n')}`);
       return;
     }
-    
+
     // Validar email se fornecido (deve ser válido se não estiver vazio)
     if (newReseller.email && newReseller.email.trim() !== '' && !newReseller.email.includes('@')) {
       console.error('❌ [AdminResellers] Email inválido:', newReseller.email);
       alert('❌ Por favor, forneça um email válido ou deixe o campo vazio.');
       return;
     }
-    
+
     console.log('✅ [AdminResellers] Validação passou, iniciando criação...');
     setIsAddingReseller(true);
     setAddResellerSuccess(false);
@@ -244,7 +244,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
       clearError();
     }
     setFormError(null); // Limpar erros anteriores
-    
+
     try {
       console.log('🔄 [AdminResellers] Chamando addRevenda...');
       const success = await addRevenda({
@@ -264,9 +264,9 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
         observations: newReseller.observations || undefined,
         status: 'Ativo' // Garantir que o revendedor seja criado como Ativo
       });
-      
+
       console.log('🔄 [AdminResellers] addRevenda retornou:', success);
-      
+
       if (!success) {
         console.error('❌ [AdminResellers] Falha ao adicionar revendedor. Verifique o console para detalhes.');
         // Exibir erro ao usuário
@@ -277,9 +277,9 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
         setFormError(errorMessage);
         return;
       }
-      
+
       setAddResellerSuccess(true);
-      
+
       // Atualizar a lista local imediatamente
       console.log('🔄 [AdminResellers] Forçando atualização da lista após criar revenda...');
       if (fetchRevendas) {
@@ -288,10 +288,10 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
           fetchRevendas();
         }, 500);
       }
-      
+
       // Disparar evento para notificar que um revendedor foi criado
       window.dispatchEvent(new CustomEvent('reseller-created'));
-      
+
       // Atualizar Dashboard instantaneamente
       console.log('📤 Revendas: Disparando evento refresh-dashboard após criar revenda');
       try {
@@ -300,7 +300,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
       } catch (error) {
         console.error('❌ Erro ao disparar evento:', error);
       }
-      
+
       // Usar localStorage como fallback para garantir que a atualização aconteça
       try {
         localStorage.setItem('dashboard-refresh', Date.now().toString());
@@ -309,7 +309,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
       } catch (error) {
         console.error('❌ Erro ao definir flag localStorage:', error);
       }
-      
+
       // Limpar formulário
       setNewReseller({
         username: "",
@@ -327,7 +327,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
         whatsapp: "",
         observations: ""
       });
-      
+
       // Fechar modal após 1 segundo
       setTimeout(() => {
         setIsAddDialogOpen(false);
@@ -339,7 +339,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
       alert(`❌ Erro ao adicionar revendedor:\n\n${errorMessage}\n\nVerifique os logs no console para mais detalhes.`);
       setIsAddingReseller(false);
       setAddResellerSuccess(false);
-        setFormError(errorMessage);
+      setFormError(errorMessage);
     } finally {
       setIsAddingReseller(false);
     }
@@ -363,7 +363,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
         whatsapp: editingReseller.whatsapp,
         observations: editingReseller.observations
       });
-      
+
       if (success) {
         // Atualizar Dashboard instantaneamente
         console.log('📤 Revendas: Disparando evento refresh-dashboard após editar revenda');
@@ -373,7 +373,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
         } catch (error) {
           console.error('❌ Erro ao disparar evento:', error);
         }
-        
+
         // Usar localStorage como fallback
         try {
           localStorage.setItem('dashboard-refresh', Date.now().toString());
@@ -381,7 +381,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
         } catch (error) {
           console.error('❌ Erro ao definir flag localStorage:', error);
         }
-        
+
         setEditingReseller(null);
         setIsEditDialogOpen(false);
       }
@@ -391,23 +391,23 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
   const handleDeleteRevenda = async () => {
     if (deletingReseller) {
       console.log("🔄 [AdminResellers] Iniciando exclusão do revendedor:", deletingReseller.id);
-      
+
       const success = await deleteRevenda(deletingReseller.id);
-      
+
       if (success) {
         console.log("✅ [AdminResellers] Revendedor deletado com sucesso do Supabase");
-        
+
         // Atualizar Dashboard instantaneamente
         console.log('📤 [AdminResellers] Disparando evento refresh-dashboard após deletar revenda');
         try {
-          window.dispatchEvent(new CustomEvent('refresh-dashboard', { 
-            detail: { source: 'resellers', action: 'delete', revendaId: deletingReseller.id } 
+          window.dispatchEvent(new CustomEvent('refresh-dashboard', {
+            detail: { source: 'resellers', action: 'delete', revendaId: deletingReseller.id }
           }));
           console.log('✅ [AdminResellers] Evento refresh-dashboard disparado com sucesso');
         } catch (error) {
           console.error('❌ [AdminResellers] Erro ao disparar evento:', error);
         }
-        
+
         // Usar localStorage como fallback
         try {
           localStorage.setItem('dashboard-refresh', Date.now().toString());
@@ -415,14 +415,14 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
         } catch (error) {
           console.error('❌ [AdminResellers] Erro ao definir flag localStorage:', error);
         }
-        
+
         // Fechar modal
         setDeletingReseller(null);
         setIsDeleteDialogOpen(false);
-        
+
         // Mostrar mensagem de sucesso
         alert("✅ Revendedor excluído com sucesso!");
-        
+
         console.log("✅ [AdminResellers] Processo de exclusão concluído");
       } else {
         const errorMsg = error || "Erro ao deletar revendedor. Verifique se você tem permissão no Supabase ou se há policies bloqueando a exclusão.";
@@ -478,7 +478,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
             </div>
           </div>
         )}
-        
+
         {/* Banner de erro RLS */}
         {error && (
           <RLSErrorBannerResellers error={error} onClearError={clearError} />
@@ -510,13 +510,13 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
 
         {/* Formulário direto sem Dialog */}
         <div className="w-full flex flex-col">
-          <form 
+          <form
             onSubmit={(e) => {
               console.log('🔄 [AdminResellers] Formulário submit acionado');
               console.log('🔄 [AdminResellers] Event:', e);
               console.log('🔄 [AdminResellers] Dados do formulário no submit:', newReseller);
               handleAddRevenda(e);
-            }} 
+            }}
             className="space-y-6 flex-1 overflow-y-auto"
             noValidate
           >
@@ -531,7 +531,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
                   className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
                   placeholder="Obrigatório"
                   value={newReseller.username}
-                  onChange={(e) => setNewReseller({...newReseller, username: e.target.value})}
+                  onChange={(e) => setNewReseller({ ...newReseller, username: e.target.value })}
                   required
                 />
                 <div className="space-y-1">
@@ -545,7 +545,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
                   </div>
                 </div>
               </div>
-              
+
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-white">
                   Senha <span className="text-red-500">*</span>
@@ -556,7 +556,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
                     className="bg-[#23272f] border-gray-600 text-white flex-1 placeholder-gray-400 focus:border-blue-500"
                     placeholder="Digite a senha"
                     value={newReseller.password}
-                    onChange={(e) => setNewReseller({...newReseller, password: e.target.value})}
+                    onChange={(e) => setNewReseller({ ...newReseller, password: e.target.value })}
                     required
                   />
                   <Button type="button" variant="outline" size="sm" className="border-gray-600 text-gray-400 hover:text-white">
@@ -589,7 +589,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
                 aria-label="Forçar revenda a mudar a senha no próximo login"
                 className="rounded border-gray-600 bg-[#23272f] text-blue-500 focus:ring-blue-500"
                 checked={newReseller.force_password_change}
-                onChange={(e) => setNewReseller({...newReseller, force_password_change: e.target.checked})}
+                onChange={(e) => setNewReseller({ ...newReseller, force_password_change: e.target.checked })}
               />
               <Label htmlFor="forcePasswordChangeModal" className="text-sm text-gray-300">
                 Forçar revenda a mudar a senha no próximo login
@@ -601,11 +601,11 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
                 <Label className="text-sm font-medium text-white">
                   Permissão <span className="text-red-500">*</span>
                 </Label>
-                <Select 
-                  value={newReseller.permission} 
+                <Select
+                  value={newReseller.permission}
                   onValueChange={(value) => {
                     console.log('🔄 [AdminResellers] Permissão selecionada:', value);
-                    setNewReseller({...newReseller, permission: value});
+                    setNewReseller({ ...newReseller, permission: value });
                   }}
                   required
                 >
@@ -622,18 +622,18 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
                   <p className="text-red-400 text-xs mt-1">⚠️ Campo obrigatório</p>
                 )}
               </div>
-              
+
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-white">
                   Créditos <span className="text-red-500">*</span>
                 </Label>
                 <div className="flex items-center gap-2">
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    size="sm" 
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
                     className="border-gray-600 text-gray-400 hover:text-white"
-                    onClick={() => setNewReseller({...newReseller, credits: Math.max(0, newReseller.credits - 1)})}
+                    onClick={() => setNewReseller({ ...newReseller, credits: Math.max(0, newReseller.credits - 1) })}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
@@ -644,15 +644,15 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
                     className="bg-[#23272f] border-gray-600 text-white text-center placeholder-gray-400 focus:border-blue-500"
                     placeholder="0"
                     value={newReseller.credits}
-                    onChange={(e) => setNewReseller({...newReseller, credits: parseInt(e.target.value) || 0})}
+                    onChange={(e) => setNewReseller({ ...newReseller, credits: parseInt(e.target.value) || 0 })}
                     min="10"
                   />
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    size="sm" 
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
                     className="border-gray-600 text-gray-400 hover:text-white"
-                    onClick={() => setNewReseller({...newReseller, credits: newReseller.credits + 1})}
+                    onClick={() => setNewReseller({ ...newReseller, credits: newReseller.credits + 1 })}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -665,7 +665,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
 
             <div className="space-y-2">
               <Label className="text-sm font-medium text-white">Servidores (Opcional)</Label>
-              <Select value={newReseller.servers} onValueChange={(value) => setNewReseller({...newReseller, servers: value})}>
+              <Select value={newReseller.servers} onValueChange={(value) => setNewReseller({ ...newReseller, servers: value })}>
                 <SelectTrigger className="bg-[#23272f] border-gray-600 text-white focus:border-blue-500">
                   <SelectValue placeholder="Opcional" />
                 </SelectTrigger>
@@ -688,21 +688,21 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
                   className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
                   placeholder="Nome da revenda master"
                   value={newReseller.master_reseller}
-                  onChange={(e) => setNewReseller({...newReseller, master_reseller: e.target.value})}
+                  onChange={(e) => setNewReseller({ ...newReseller, master_reseller: e.target.value })}
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-white">
                   Desativar login se não recarregar - em dias
                 </Label>
                 <div className="flex items-center gap-2">
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    size="sm" 
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
                     className="border-gray-600 text-gray-400 hover:text-white"
-                    onClick={() => setNewReseller({...newReseller, disable_login_days: Math.max(0, newReseller.disable_login_days - 1)})}
+                    onClick={() => setNewReseller({ ...newReseller, disable_login_days: Math.max(0, newReseller.disable_login_days - 1) })}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
@@ -713,15 +713,15 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
                     className="bg-[#23272f] border-gray-600 text-white text-center placeholder-gray-400 focus:border-blue-500"
                     placeholder="0"
                     value={newReseller.disable_login_days}
-                    onChange={(e) => setNewReseller({...newReseller, disable_login_days: parseInt(e.target.value) || 0})}
+                    onChange={(e) => setNewReseller({ ...newReseller, disable_login_days: parseInt(e.target.value) || 0 })}
                     min="0"
                   />
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    size="sm" 
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
                     className="border-gray-600 text-gray-400 hover:text-white"
-                    onClick={() => setNewReseller({...newReseller, disable_login_days: newReseller.disable_login_days + 1})}
+                    onClick={() => setNewReseller({ ...newReseller, disable_login_days: newReseller.disable_login_days + 1 })}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -740,7 +740,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
                   aria-label="Configuração de Revenda Mensalista"
                   className="rounded border-gray-600 bg-[#23272f] text-blue-500 focus:ring-blue-500"
                   checked={newReseller.monthly_reseller}
-                  onChange={(e) => setNewReseller({...newReseller, monthly_reseller: e.target.checked})}
+                  onChange={(e) => setNewReseller({ ...newReseller, monthly_reseller: e.target.checked })}
                 />
                 <Label htmlFor="monthlyResellerModal" className="text-sm text-gray-300">
                   Configuração de Revenda Mensalista
@@ -762,10 +762,10 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
                     className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
                     placeholder="Nome completo"
                     value={newReseller.personal_name}
-                    onChange={(e) => setNewReseller({...newReseller, personal_name: e.target.value})}
+                    onChange={(e) => setNewReseller({ ...newReseller, personal_name: e.target.value })}
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-white">E-mail</Label>
                   <Input
@@ -773,27 +773,27 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
                     className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
                     placeholder="email@exemplo.com"
                     value={newReseller.email}
-                    onChange={(e) => setNewReseller({...newReseller, email: e.target.value})}
+                    onChange={(e) => setNewReseller({ ...newReseller, email: e.target.value })}
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-white">Telegram</Label>
                   <Input
                     className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
                     placeholder="@usuario"
                     value={newReseller.telegram}
-                    onChange={(e) => setNewReseller({...newReseller, telegram: e.target.value})}
+                    onChange={(e) => setNewReseller({ ...newReseller, telegram: e.target.value })}
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-white">WhatsApp</Label>
                   <Input
                     className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
                     placeholder="55 11 99999 3333"
                     value={newReseller.whatsapp}
-                    onChange={(e) => setNewReseller({...newReseller, whatsapp: e.target.value})}
+                    onChange={(e) => setNewReseller({ ...newReseller, whatsapp: e.target.value })}
                   />
                   <div className="text-blue-400 text-xs">
                     Incluindo o código do país - com ou sem espaço e traços - ex. 55 11 99999 3333
@@ -810,7 +810,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
                 placeholder="Adicione observações sobre este revendedor..."
                 className="w-full bg-[#23272f] border border-gray-600 text-white rounded-md px-3 py-2 focus:border-blue-500 focus:outline-none placeholder-gray-400 resize-none"
                 value={newReseller.observations}
-                onChange={(e) => setNewReseller({...newReseller, observations: e.target.value})}
+                onChange={(e) => setNewReseller({ ...newReseller, observations: e.target.value })}
               />
             </div>
 
@@ -856,7 +856,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6 min-h-screen bg-[#09090b] p-3 sm:p-6">
+    <div className="space-y-4 sm:space-y-6 min-h-screen bg-background p-3 sm:p-6 transition-colors duration-300">
       {/* Indicadores de status */}
       {loading && (
         <div className="bg-blue-900/40 border border-blue-700 text-blue-300 rounded-lg p-4">
@@ -866,7 +866,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
           </div>
         </div>
       )}
-      
+
       {/* Banner de erro RLS */}
       {error && (
         <RLSErrorBannerResellers error={error} onClearError={clearError} />
@@ -874,7 +874,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white">Gerenciamento de Revendedores</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Gerenciamento de Revendedores</h1>
           <p className="text-gray-400 text-sm sm:text-base">
             {loading ? 'Carregando...' : `Gerencie todos os revendedores do sistema (${revendas.length} revendedores)`}
           </p>
@@ -889,362 +889,362 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
               </Button>
             </DialogTrigger>
             <DialogContent className="bg-[#1f2937] text-white max-w-4xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col max-h-[90vh] overflow-y-auto scrollbar-hide">
-            <DialogHeader className="sr-only">
-              <DialogTitle>Adicionar Revenda</DialogTitle>
-              <DialogDescription>Preencha os dados do novo revendedor</DialogDescription>
-            </DialogHeader>
-            <div className="p-6 w-full flex flex-col">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold">Adicionar um Revenda</h2>
-                <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                  </Button>
-                  <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                    </svg>
-                  </Button>
-                  <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                    </svg>
-                  </Button>
+              <DialogHeader className="sr-only">
+                <DialogTitle>Adicionar Revenda</DialogTitle>
+                <DialogDescription>Preencha os dados do novo revendedor</DialogDescription>
+              </DialogHeader>
+              <div className="p-6 w-full flex flex-col">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold">Adicionar um Revenda</h2>
+                  <div className="flex items-center gap-2">
+                    <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                    </Button>
+                    <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                      </svg>
+                    </Button>
+                    <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                      </svg>
+                    </Button>
+                  </div>
                 </div>
-              </div>
-              
-              <form onSubmit={handleAddRevenda} className="space-y-6 flex-1 overflow-y-auto">
-                {formError && (
-                  <div className="rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-200">
-                    {formError}
-                  </div>
-                )}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="modal-username" className="text-sm font-medium text-white">
-                      Usuário <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      id="modal-username"
-                      className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
-                      placeholder="Obrigatório"
-                      value={newReseller.username}
-                      onChange={(e) => setNewReseller({...newReseller, username: e.target.value})}
-                      required
-                    />
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 text-blue-400 text-xs">
-                        <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
-                        <span>O campo usuário só pode conter letras, números e traços.</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-blue-400 text-xs">
-                        <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
-                        <span>O usuário precisa ter no mínimo 6 caracteres.</span>
-                      </div>
+
+                <form onSubmit={handleAddRevenda} className="space-y-6 flex-1 overflow-y-auto">
+                  {formError && (
+                    <div className="rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+                      {formError}
                     </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="modal-password" className="text-sm font-medium text-white">
-                      Senha <span className="text-red-500">*</span>
-                    </Label>
-                    <div className="flex gap-2">
+                  )}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="modal-username" className="text-sm font-medium text-white">
+                        Usuário <span className="text-red-500">*</span>
+                      </Label>
                       <Input
-                        id="modal-password"
-                        type="password"
-                        className="bg-[#23272f] border-gray-600 text-white flex-1 placeholder-gray-400 focus:border-blue-500"
-                        placeholder="Digite a senha"
-                        value={newReseller.password}
-                        onChange={(e) => setNewReseller({...newReseller, password: e.target.value})}
+                        id="modal-username"
+                        className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
+                        placeholder="Obrigatório"
+                        value={newReseller.username}
+                        onChange={(e) => setNewReseller({ ...newReseller, username: e.target.value })}
                         required
                       />
-                      <Button type="button" variant="outline" size="sm" className="border-gray-600 text-gray-400 hover:text-white">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                        </svg>
-                      </Button>
-                    </div>
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 text-blue-400 text-xs">
-                        <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
-                        <span>A senha precisa ter no mínimo 8 caracteres.</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-blue-400 text-xs">
-                        <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
-                        <span>Pelo menos 8 caracteres de comprimento, mas 14 ou mais é melhor.</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-blue-400 text-xs">
-                        <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
-                        <span>Uma combinação de letras maiúsculas, letras minúsculas, números e símbolos.</span>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 text-blue-400 text-xs">
+                          <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
+                          <span>O campo usuário só pode conter letras, números e traços.</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-blue-400 text-xs">
+                          <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
+                          <span>O usuário precisa ter no mínimo 6 caracteres.</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
 
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id="forcePasswordChange"
-                    aria-label="Forçar revenda a mudar a senha no próximo login"
-                    className="rounded border-gray-600 bg-[#23272f] text-blue-500 focus:ring-blue-500"
-                    checked={newReseller.force_password_change}
-                    onChange={(e) => setNewReseller({...newReseller, force_password_change: e.target.checked})}
-                  />
-                  <Label htmlFor="forcePasswordChange" className="text-sm text-gray-300">
-                    Forçar revenda a mudar a senha no próximo login
-                  </Label>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="modal-permission" className="text-sm font-medium text-white">
-                      Permissão <span className="text-red-500">*</span>
-                    </Label>
-                    <Select value={newReseller.permission} onValueChange={(value) => setNewReseller({...newReseller, permission: value})}>
-                      <SelectTrigger id="modal-permission" aria-label="Permissão" className="bg-[#23272f] border-gray-600 text-white focus:border-blue-500">
-                        <SelectValue placeholder="Selecione" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-[#23272f] border-gray-600">
-                        <SelectItem value="admin">Administrador</SelectItem>
-                        <SelectItem value="reseller">Revendedor</SelectItem>
-                        <SelectItem value="subreseller">Sub-Revendedor</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="modal-credits" className="text-sm font-medium text-white">
-                      Créditos <span className="text-red-500">*</span>
-                    </Label>
-                    <div className="flex items-center gap-2">
-                      <Button 
-                        type="button" 
-                        variant="outline" 
-                        size="sm" 
-                        className="border-gray-600 text-gray-400 hover:text-white"
-                        onClick={() => setNewReseller({...newReseller, credits: Math.max(0, newReseller.credits - 1)})}
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
-                        </svg>
-                      </Button>
-                      <Input
-                        id="modal-credits"
-                        type="number"
-                        className="bg-[#23272f] border-gray-600 text-white text-center placeholder-gray-400 focus:border-blue-500"
-                        placeholder="0"
-                        value={newReseller.credits}
-                        onChange={(e) => setNewReseller({...newReseller, credits: parseInt(e.target.value) || 0})}
-                        min="10"
-                      />
-                      <Button 
-                        type="button" 
-                        variant="outline" 
-                        size="sm" 
-                        className="border-gray-600 text-gray-400 hover:text-white"
-                        onClick={() => setNewReseller({...newReseller, credits: newReseller.credits + 1})}
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                        </svg>
-                      </Button>
+                    <div className="space-y-2">
+                      <Label htmlFor="modal-password" className="text-sm font-medium text-white">
+                        Senha <span className="text-red-500">*</span>
+                      </Label>
+                      <div className="flex gap-2">
+                        <Input
+                          id="modal-password"
+                          type="password"
+                          className="bg-[#23272f] border-gray-600 text-white flex-1 placeholder-gray-400 focus:border-blue-500"
+                          placeholder="Digite a senha"
+                          value={newReseller.password}
+                          onChange={(e) => setNewReseller({ ...newReseller, password: e.target.value })}
+                          required
+                        />
+                        <Button type="button" variant="outline" size="sm" className="border-gray-600 text-gray-400 hover:text-white">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                          </svg>
+                        </Button>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 text-blue-400 text-xs">
+                          <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
+                          <span>A senha precisa ter no mínimo 8 caracteres.</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-blue-400 text-xs">
+                          <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
+                          <span>Pelo menos 8 caracteres de comprimento, mas 14 ou mais é melhor.</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-blue-400 text-xs">
+                          <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
+                          <span>Uma combinação de letras maiúsculas, letras minúsculas, números e símbolos.</span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-blue-400 text-xs">Mínimo de 10 créditos</div>
                   </div>
-                </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="modal-servers" className="text-sm font-medium text-white">Servidores (Opcional)</Label>
-                  <Select value={newReseller.servers} onValueChange={(value) => setNewReseller({...newReseller, servers: value})}>
-                    <SelectTrigger id="modal-servers" aria-label="Servidores (Opcional)" className="bg-[#23272f] border-gray-600 text-white focus:border-blue-500">
-                      <SelectValue placeholder="Opcional" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-[#23272f] border-gray-600">
-                      <SelectItem value="none">Opcional</SelectItem>
-                      <SelectItem value="server1">Servidor 1</SelectItem>
-                      <SelectItem value="server2">Servidor 2</SelectItem>
-                      <SelectItem value="server3">Servidor 3</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <div className="text-blue-400 text-xs">
-                    Selecione os servidores que esse revenda pode ter acesso. Deixe em branco para permitir todos os servidores. Essa configuração afeta tanto a revenda quanto as subrevendas.
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="modal-master-reseller" className="text-sm font-medium text-white">Revenda Master</Label>
-                    <Input
-                      id="modal-master-reseller"
-                      className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
-                      placeholder="Nome da revenda master"
-                      value={newReseller.master_reseller}
-                      onChange={(e) => setNewReseller({...newReseller, master_reseller: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-white">
-                      Desativar login se não recarregar - em dias
-                    </Label>
-                    <div className="flex items-center gap-2">
-                      <Button 
-                        type="button" 
-                        variant="outline" 
-                        size="sm" 
-                        className="border-gray-600 text-gray-400 hover:text-white"
-                        onClick={() => setNewReseller({...newReseller, disable_login_days: Math.max(0, newReseller.disable_login_days - 1)})}
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
-                        </svg>
-                      </Button>
-                      <Input
-                        type="number"
-                        className="bg-[#23272f] border-gray-600 text-white text-center placeholder-gray-400 focus:border-blue-500"
-                        placeholder="0"
-                        value={newReseller.disable_login_days}
-                        onChange={(e) => setNewReseller({...newReseller, disable_login_days: parseInt(e.target.value) || 0})}
-                        min="0"
-                      />
-                      <Button 
-                        type="button" 
-                        variant="outline" 
-                        size="sm" 
-                        className="border-gray-600 text-gray-400 hover:text-white"
-                        onClick={() => setNewReseller({...newReseller, disable_login_days: newReseller.disable_login_days + 1})}
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                        </svg>
-                      </Button>
-                    </div>
-                    <div className="text-blue-400 text-xs">Deixe 0 para desativar essa opção</div>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
                   <div className="flex items-center space-x-2">
                     <input
                       type="checkbox"
-                      id="monthlyReseller"
-                      aria-label="Configuração de Revenda Mensalista"
+                      id="forcePasswordChange"
+                      aria-label="Forçar revenda a mudar a senha no próximo login"
                       className="rounded border-gray-600 bg-[#23272f] text-blue-500 focus:ring-blue-500"
-                      checked={newReseller.monthly_reseller}
-                      onChange={(e) => setNewReseller({...newReseller, monthly_reseller: e.target.checked})}
+                      checked={newReseller.force_password_change}
+                      onChange={(e) => setNewReseller({ ...newReseller, force_password_change: e.target.checked })}
                     />
-                    <Label htmlFor="monthlyReseller" className="text-sm text-gray-300">
-                      Configuração de Revenda Mensalista
+                    <Label htmlFor="forcePasswordChange" className="text-sm text-gray-300">
+                      Forçar revenda a mudar a senha no próximo login
                     </Label>
                   </div>
-                  <div className="bg-green-600/20 border border-green-600/30 rounded-lg p-3">
-                    <div className="text-green-400 text-sm">
-                      Apenas você pode visualizar os detalhes pessoais deste revenda.
-                    </div>
-                  </div>
-                </div>
 
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-white">Informações Pessoais (Opcional)</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <Label className="text-sm font-medium text-white">Nome</Label>
+                      <Label htmlFor="modal-permission" className="text-sm font-medium text-white">
+                        Permissão <span className="text-red-500">*</span>
+                      </Label>
+                      <Select value={newReseller.permission} onValueChange={(value) => setNewReseller({ ...newReseller, permission: value })}>
+                        <SelectTrigger id="modal-permission" aria-label="Permissão" className="bg-[#23272f] border-gray-600 text-white focus:border-blue-500">
+                          <SelectValue placeholder="Selecione" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-[#23272f] border-gray-600">
+                          <SelectItem value="admin">Administrador</SelectItem>
+                          <SelectItem value="reseller">Revendedor</SelectItem>
+                          <SelectItem value="subreseller">Sub-Revendedor</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="modal-credits" className="text-sm font-medium text-white">
+                        Créditos <span className="text-red-500">*</span>
+                      </Label>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="border-gray-600 text-gray-400 hover:text-white"
+                          onClick={() => setNewReseller({ ...newReseller, credits: Math.max(0, newReseller.credits - 1) })}
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                          </svg>
+                        </Button>
+                        <Input
+                          id="modal-credits"
+                          type="number"
+                          className="bg-[#23272f] border-gray-600 text-white text-center placeholder-gray-400 focus:border-blue-500"
+                          placeholder="0"
+                          value={newReseller.credits}
+                          onChange={(e) => setNewReseller({ ...newReseller, credits: parseInt(e.target.value) || 0 })}
+                          min="10"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="border-gray-600 text-gray-400 hover:text-white"
+                          onClick={() => setNewReseller({ ...newReseller, credits: newReseller.credits + 1 })}
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                          </svg>
+                        </Button>
+                      </div>
+                      <div className="text-blue-400 text-xs">Mínimo de 10 créditos</div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="modal-servers" className="text-sm font-medium text-white">Servidores (Opcional)</Label>
+                    <Select value={newReseller.servers} onValueChange={(value) => setNewReseller({ ...newReseller, servers: value })}>
+                      <SelectTrigger id="modal-servers" aria-label="Servidores (Opcional)" className="bg-[#23272f] border-gray-600 text-white focus:border-blue-500">
+                        <SelectValue placeholder="Opcional" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-[#23272f] border-gray-600">
+                        <SelectItem value="none">Opcional</SelectItem>
+                        <SelectItem value="server1">Servidor 1</SelectItem>
+                        <SelectItem value="server2">Servidor 2</SelectItem>
+                        <SelectItem value="server3">Servidor 3</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <div className="text-blue-400 text-xs">
+                      Selecione os servidores que esse revenda pode ter acesso. Deixe em branco para permitir todos os servidores. Essa configuração afeta tanto a revenda quanto as subrevendas.
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="modal-master-reseller" className="text-sm font-medium text-white">Revenda Master</Label>
                       <Input
+                        id="modal-master-reseller"
                         className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
-                        placeholder="Nome completo"
-                        value={newReseller.personal_name}
-                        onChange={(e) => setNewReseller({...newReseller, personal_name: e.target.value})}
+                        placeholder="Nome da revenda master"
+                        value={newReseller.master_reseller}
+                        onChange={(e) => setNewReseller({ ...newReseller, master_reseller: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="space-y-2">
-                      <Label className="text-sm font-medium text-white">E-mail</Label>
-                      <Input
-                        type="email"
-                        className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
-                        placeholder="email@exemplo.com"
-                        value={newReseller.email}
-                        onChange={(e) => setNewReseller({...newReseller, email: e.target.value})}
-                      />
+                      <Label className="text-sm font-medium text-white">
+                        Desativar login se não recarregar - em dias
+                      </Label>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="border-gray-600 text-gray-400 hover:text-white"
+                          onClick={() => setNewReseller({ ...newReseller, disable_login_days: Math.max(0, newReseller.disable_login_days - 1) })}
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                          </svg>
+                        </Button>
+                        <Input
+                          type="number"
+                          className="bg-[#23272f] border-gray-600 text-white text-center placeholder-gray-400 focus:border-blue-500"
+                          placeholder="0"
+                          value={newReseller.disable_login_days}
+                          onChange={(e) => setNewReseller({ ...newReseller, disable_login_days: parseInt(e.target.value) || 0 })}
+                          min="0"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="border-gray-600 text-gray-400 hover:text-white"
+                          onClick={() => setNewReseller({ ...newReseller, disable_login_days: newReseller.disable_login_days + 1 })}
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                          </svg>
+                        </Button>
+                      </div>
+                      <div className="text-blue-400 text-xs">Deixe 0 para desativar essa opção</div>
                     </div>
-                    
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium text-white">Telegram</Label>
-                      <Input
-                        className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
-                        placeholder="@usuario"
-                        value={newReseller.telegram}
-                        onChange={(e) => setNewReseller({...newReseller, telegram: e.target.value})}
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="monthlyReseller"
+                        aria-label="Configuração de Revenda Mensalista"
+                        className="rounded border-gray-600 bg-[#23272f] text-blue-500 focus:ring-blue-500"
+                        checked={newReseller.monthly_reseller}
+                        onChange={(e) => setNewReseller({ ...newReseller, monthly_reseller: e.target.checked })}
                       />
+                      <Label htmlFor="monthlyReseller" className="text-sm text-gray-300">
+                        Configuração de Revenda Mensalista
+                      </Label>
                     </div>
-                    
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium text-white">WhatsApp</Label>
-                      <Input
-                        className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
-                        placeholder="55 11 99999 3333"
-                        value={newReseller.whatsapp}
-                        onChange={(e) => setNewReseller({...newReseller, whatsapp: e.target.value})}
-                      />
-                      <div className="text-blue-400 text-xs">
-                        Incluindo o código do país - com ou sem espaço e traços - ex. 55 11 99999 3333
+                    <div className="bg-green-600/20 border border-green-600/30 rounded-lg p-3">
+                      <div className="text-green-400 text-sm">
+                        Apenas você pode visualizar os detalhes pessoais deste revenda.
                       </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="add-observations-modal" className="text-sm font-medium text-white">Observações (Opcional)</Label>
-                  <textarea
-                    id="add-observations-modal"
-                    rows={4}
-                    placeholder="Adicione observações sobre este revendedor..."
-                    className="w-full bg-[#23272f] border border-gray-600 text-white rounded-md px-3 py-2 focus:border-blue-500 focus:outline-none placeholder-gray-400 resize-none"
-                    value={newReseller.observations}
-                    onChange={(e) => setNewReseller({...newReseller, observations: e.target.value})}
-                  />
-                </div>
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-white">Informações Pessoais (Opcional)</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium text-white">Nome</Label>
+                        <Input
+                          className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
+                          placeholder="Nome completo"
+                          value={newReseller.personal_name}
+                          onChange={(e) => setNewReseller({ ...newReseller, personal_name: e.target.value })}
+                        />
+                      </div>
 
-                <div className="flex items-center justify-between pt-6 border-t border-gray-700">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="border-gray-600 text-gray-400 hover:text-white"
-                    onClick={() => setIsAddDialogOpen(false)}
-                  >
-                    Cancelar
-                  </Button>
-                  <Button
-                    type="submit"
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
-                    disabled={isAddingReseller}
-                  >
-                    {isAddingReseller ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Salvando...
-                      </>
-                    ) : (
-                      <>
-                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-                        </svg>
-                        Salvar
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </form>
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium text-white">E-mail</Label>
+                        <Input
+                          type="email"
+                          className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
+                          placeholder="email@exemplo.com"
+                          value={newReseller.email}
+                          onChange={(e) => setNewReseller({ ...newReseller, email: e.target.value })}
+                        />
+                      </div>
 
-              <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-700 text-xs text-gray-500 flex-shrink-0">
-                <span>2025© ALLEZCONECCT v3.50</span>
-                <span>Powered by Sigma | Notificações</span>
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium text-white">Telegram</Label>
+                        <Input
+                          className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
+                          placeholder="@usuario"
+                          value={newReseller.telegram}
+                          onChange={(e) => setNewReseller({ ...newReseller, telegram: e.target.value })}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium text-white">WhatsApp</Label>
+                        <Input
+                          className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
+                          placeholder="55 11 99999 3333"
+                          value={newReseller.whatsapp}
+                          onChange={(e) => setNewReseller({ ...newReseller, whatsapp: e.target.value })}
+                        />
+                        <div className="text-blue-400 text-xs">
+                          Incluindo o código do país - com ou sem espaço e traços - ex. 55 11 99999 3333
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="add-observations-modal" className="text-sm font-medium text-white">Observações (Opcional)</Label>
+                    <textarea
+                      id="add-observations-modal"
+                      rows={4}
+                      placeholder="Adicione observações sobre este revendedor..."
+                      className="w-full bg-[#23272f] border border-gray-600 text-white rounded-md px-3 py-2 focus:border-blue-500 focus:outline-none placeholder-gray-400 resize-none"
+                      value={newReseller.observations}
+                      onChange={(e) => setNewReseller({ ...newReseller, observations: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between pt-6 border-t border-gray-700">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="border-gray-600 text-gray-400 hover:text-white"
+                      onClick={() => setIsAddDialogOpen(false)}
+                    >
+                      Cancelar
+                    </Button>
+                    <Button
+                      type="submit"
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                      disabled={isAddingReseller}
+                    >
+                      {isAddingReseller ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          Salvando...
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                          </svg>
+                          Salvar
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </form>
+
+                <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-700 text-xs text-gray-500 flex-shrink-0">
+                  <span>2025© ALLEZCONECCT v3.50</span>
+                  <span>Powered by Sigma | Notificações</span>
+                </div>
               </div>
-            </div>
-          </DialogContent>
-        </Dialog>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
@@ -1262,7 +1262,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
             <div className="text-xs text-gray-400 mt-1">Revendedores cadastrados</div>
           </CardContent>
         </Card>
-        
+
         <Card className="bg-gradient-to-br from-green-900/50 to-green-800/30 border border-green-700/40">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm text-gray-300 flex items-center gap-2">
@@ -1275,7 +1275,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
             <div className="text-xs text-gray-400 mt-1">Revendedores com acesso</div>
           </CardContent>
         </Card>
-        
+
         <Card className="bg-gradient-to-br from-blue-900/50 to-blue-800/30 border border-blue-700/40">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm text-gray-300 flex items-center gap-2">
@@ -1288,7 +1288,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
             <div className="text-xs text-gray-400 mt-1">Contas de administrador</div>
           </CardContent>
         </Card>
-        
+
         <Card className="bg-gradient-to-br from-yellow-900/50 to-yellow-800/30 border border-yellow-700/40">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm text-gray-300 flex items-center gap-2">
@@ -1463,13 +1463,13 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
                   <Input
                     id="edit-username"
                     value={editingReseller.username}
-                    onChange={(e) => setEditingReseller({...editingReseller, username: e.target.value})}
+                    onChange={(e) => setEditingReseller({ ...editingReseller, username: e.target.value })}
                     className="bg-[#23272f] border-gray-600 text-white"
                   />
                 </div>
                 <div>
                   <Label htmlFor="edit-permission" className="text-sm font-medium text-white">Permissão</Label>
-                  <Select value={editingReseller.permission} onValueChange={(value) => setEditingReseller({...editingReseller, permission: value as any})}>
+                  <Select value={editingReseller.permission} onValueChange={(value) => setEditingReseller({ ...editingReseller, permission: value as any })}>
                     <SelectTrigger id="edit-permission" aria-label="Permissão" className="bg-[#23272f] border-gray-600 text-white">
                       <SelectValue />
                     </SelectTrigger>
@@ -1486,7 +1486,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
                     id="edit-credits"
                     type="number"
                     value={editingReseller.credits}
-                    onChange={(e) => setEditingReseller({...editingReseller, credits: parseInt(e.target.value) || 0})}
+                    onChange={(e) => setEditingReseller({ ...editingReseller, credits: parseInt(e.target.value) || 0 })}
                     className="bg-[#23272f] border-gray-600 text-white"
                   />
                 </div>
@@ -1495,7 +1495,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
                   <Input
                     id="edit-name"
                     value={editingReseller.personal_name || ''}
-                    onChange={(e) => setEditingReseller({...editingReseller, personal_name: e.target.value})}
+                    onChange={(e) => setEditingReseller({ ...editingReseller, personal_name: e.target.value })}
                     className="bg-[#23272f] border-gray-600 text-white"
                   />
                 </div>
@@ -1506,7 +1506,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
                   id="edit-email"
                   type="email"
                   value={editingReseller.email || ''}
-                  onChange={(e) => setEditingReseller({...editingReseller, email: e.target.value})}
+                  onChange={(e) => setEditingReseller({ ...editingReseller, email: e.target.value })}
                   className="bg-[#23272f] border-gray-600 text-white"
                 />
               </div>
@@ -1516,7 +1516,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
                   id="edit-observations"
                   aria-label="Observações"
                   value={editingReseller.observations || ''}
-                  onChange={(e) => setEditingReseller({...editingReseller, observations: e.target.value})}
+                  onChange={(e) => setEditingReseller({ ...editingReseller, observations: e.target.value })}
                   className="w-full bg-[#23272f] border border-gray-600 text-white rounded-md px-3 py-2"
                   rows={3}
                 />
