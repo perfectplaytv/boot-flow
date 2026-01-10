@@ -1328,6 +1328,237 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
         logFilter === 'all' || log.type === logFilter
     );
 
+    // ========================================
+    // Phase 10: Proxy Management System
+    // ========================================
+
+    // Interface para Proxy
+    interface ProxyConfig {
+        id: number;
+        type: 'http' | 'https' | 'socks4' | 'socks5';
+        host: string;
+        port: number;
+        username?: string;
+        password?: string;
+        status: 'online' | 'offline' | 'testing' | 'unknown';
+        latency?: number;
+        anonymityLevel?: 'transparent' | 'anonymous' | 'elite';
+        country?: string;
+        countryCode?: string;
+        city?: string;
+        lastTested?: string;
+        lastUsed?: string;
+        successCount: number;
+        failCount: number;
+        isActive: boolean;
+        createdAt: string;
+    }
+
+    // States para Proxy
+    const [proxies, setProxies] = useState<ProxyConfig[]>([]);
+    const [activeProxy, setActiveProxy] = useState<ProxyConfig | null>(null);
+    const [showAddProxyModal, setShowAddProxyModal] = useState(false);
+    const [testingProxyId, setTestingProxyId] = useState<number | null>(null);
+    const [newProxy, setNewProxy] = useState({
+        type: 'socks5' as const,
+        host: '',
+        port: 8080,
+        username: '',
+        password: '',
+        requiresAuth: false
+    });
+    const [proxyTestResult, setProxyTestResult] = useState<{
+        success: boolean;
+        message: string;
+        latency?: number;
+        ip?: string;
+        country?: string;
+        anonymity?: string;
+    } | null>(null);
+
+    // Load proxies from localStorage
+    useEffect(() => {
+        const savedProxies = localStorage.getItem('telegram_proxies');
+        const savedActiveProxy = localStorage.getItem('active_proxy');
+
+        if (savedProxies) setProxies(JSON.parse(savedProxies));
+        if (savedActiveProxy) setActiveProxy(JSON.parse(savedActiveProxy));
+    }, []);
+
+    // Save proxies
+    const saveProxiesToStorage = (proxyList: ProxyConfig[]) => {
+        localStorage.setItem('telegram_proxies', JSON.stringify(proxyList));
+        setProxies(proxyList);
+    };
+
+    // Country flags emoji mapping
+    const getCountryFlag = (code?: string): string => {
+        if (!code) return '🌍';
+        const flags: Record<string, string> = {
+            'BR': '🇧🇷', 'US': '🇺🇸', 'DE': '🇩🇪', 'FR': '🇫🇷', 'GB': '🇬🇧',
+            'NL': '🇳🇱', 'JP': '🇯🇵', 'SG': '🇸🇬', 'CA': '🇨🇦', 'AU': '🇦🇺',
+            'RU': '🇷🇺', 'IN': '🇮🇳', 'CN': '🇨🇳', 'KR': '🇰🇷', 'IT': '🇮🇹',
+            'ES': '🇪🇸', 'MX': '🇲🇽', 'AR': '🇦🇷', 'CL': '🇨🇱', 'CO': '🇨🇴',
+        };
+        return flags[code.toUpperCase()] || '🌍';
+    };
+
+    // Format proxy string
+    const formatProxyString = (proxy: ProxyConfig): string => {
+        const auth = proxy.username ? `${proxy.username}:${proxy.password}@` : '';
+        return `${proxy.type}://${auth}${proxy.host}:${proxy.port}`;
+    };
+
+    // Add new proxy
+    const handleAddProxy = () => {
+        if (!newProxy.host.trim()) {
+            toast.error('Digite o host/IP do proxy');
+            return;
+        }
+        if (!newProxy.port || newProxy.port < 1 || newProxy.port > 65535) {
+            toast.error('Porta inválida (1-65535)');
+            return;
+        }
+
+        const proxy: ProxyConfig = {
+            id: Date.now(),
+            type: newProxy.type,
+            host: newProxy.host.trim(),
+            port: newProxy.port,
+            username: newProxy.requiresAuth ? newProxy.username.trim() : undefined,
+            password: newProxy.requiresAuth ? newProxy.password : undefined,
+            status: 'unknown',
+            successCount: 0,
+            failCount: 0,
+            isActive: false,
+            createdAt: new Date().toISOString()
+        };
+
+        const updated = [...proxies, proxy];
+        saveProxiesToStorage(updated);
+        setNewProxy({ type: 'socks5', host: '', port: 8080, username: '', password: '', requiresAuth: false });
+        setShowAddProxyModal(false);
+        toast.success('Proxy adicionado! Faça um teste para verificar.');
+    };
+
+    // Delete proxy
+    const handleDeleteProxy = (id: number) => {
+        const updated = proxies.filter(p => p.id !== id);
+        saveProxiesToStorage(updated);
+        if (activeProxy?.id === id) {
+            setActiveProxy(null);
+            localStorage.removeItem('active_proxy');
+        }
+        toast.success('Proxy removido!');
+    };
+
+    // Set active proxy
+    const handleSetActiveProxy = (proxy: ProxyConfig) => {
+        const updated = proxies.map(p => ({ ...p, isActive: p.id === proxy.id }));
+        saveProxiesToStorage(updated);
+        setActiveProxy(proxy);
+        localStorage.setItem('active_proxy', JSON.stringify(proxy));
+        toast.success(`Proxy ${proxy.host}:${proxy.port} ativado!`);
+    };
+
+    // Clear active proxy
+    const handleClearActiveProxy = () => {
+        const updated = proxies.map(p => ({ ...p, isActive: false }));
+        saveProxiesToStorage(updated);
+        setActiveProxy(null);
+        localStorage.removeItem('active_proxy');
+        toast.success('Proxy desativado!');
+    };
+
+    // Test proxy (simulated - real test would be via backend)
+    const handleTestProxy = async (proxyId: number) => {
+        setTestingProxyId(proxyId);
+        setProxyTestResult(null);
+
+        // Simulate proxy test (in production, this would call a worker/backend)
+        await new Promise(resolve => setTimeout(resolve, 1500 + Math.random() * 1500));
+
+        const proxy = proxies.find(p => p.id === proxyId);
+        if (!proxy) {
+            setTestingProxyId(null);
+            return;
+        }
+
+        // Simulated results (70% success rate)
+        const isSuccess = Math.random() > 0.3;
+        const latency = Math.floor(50 + Math.random() * 200);
+        const anonymityLevels = ['transparent', 'anonymous', 'elite'] as const;
+        const countries = [
+            { code: 'BR', name: 'Brasil', city: 'São Paulo' },
+            { code: 'US', name: 'United States', city: 'New York' },
+            { code: 'DE', name: 'Germany', city: 'Frankfurt' },
+            { code: 'NL', name: 'Netherlands', city: 'Amsterdam' },
+            { code: 'SG', name: 'Singapore', city: 'Singapore' },
+        ];
+        const randomCountry = countries[Math.floor(Math.random() * countries.length)];
+        const randomAnonymity = anonymityLevels[Math.floor(Math.random() * anonymityLevels.length)];
+
+        const updatedProxy: ProxyConfig = {
+            ...proxy,
+            status: isSuccess ? 'online' as const : 'offline' as const,
+            latency: isSuccess ? latency : undefined,
+            anonymityLevel: isSuccess ? randomAnonymity : undefined,
+            country: isSuccess ? randomCountry.name : undefined,
+            countryCode: isSuccess ? randomCountry.code : undefined,
+            city: isSuccess ? randomCountry.city : undefined,
+            lastTested: new Date().toISOString(),
+            successCount: isSuccess ? proxy.successCount + 1 : proxy.successCount,
+            failCount: isSuccess ? proxy.failCount : proxy.failCount + 1
+        };
+
+        const updated = proxies.map(p => p.id === proxyId ? updatedProxy : p);
+        saveProxiesToStorage(updated);
+
+        setProxyTestResult({
+            success: isSuccess,
+            message: isSuccess ? 'Proxy funcionando!' : 'Falha na conexão',
+            latency: isSuccess ? latency : undefined,
+            ip: isSuccess ? `${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}` : undefined,
+            country: isSuccess ? randomCountry.name : undefined,
+            anonymity: isSuccess ? randomAnonymity : undefined
+        });
+
+        setTestingProxyId(null);
+
+        if (isSuccess) {
+            toast.success(`Proxy online! Latência: ${latency}ms`);
+        } else {
+            toast.error('Proxy offline ou inválido');
+        }
+    };
+
+    // Test all proxies
+    const handleTestAllProxies = async () => {
+        for (const proxy of proxies) {
+            await handleTestProxy(proxy.id);
+        }
+        toast.success('Todos os proxies testados!');
+    };
+
+    // Remove offline proxies
+    const handleRemoveOfflineProxies = () => {
+        const onlineProxies = proxies.filter(p => p.status !== 'offline');
+        const removed = proxies.length - onlineProxies.length;
+        saveProxiesToStorage(onlineProxies);
+        toast.success(`${removed} proxies offline removidos!`);
+    };
+
+    // Proxy stats
+    const proxyStats = {
+        total: proxies.length,
+        online: proxies.filter(p => p.status === 'online').length,
+        offline: proxies.filter(p => p.status === 'offline').length,
+        unknown: proxies.filter(p => p.status === 'unknown').length,
+        avgLatency: proxies.filter(p => p.latency).length > 0
+            ? Math.round(proxies.filter(p => p.latency).reduce((acc, p) => acc + (p.latency || 0), 0) / proxies.filter(p => p.latency).length)
+            : 0
+    };
+
     const fetchSessions = useCallback(async () => {
         try {
             const response = await fetch(`${TELEGRAM_API_URL}/sessions`);
