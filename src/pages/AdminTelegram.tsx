@@ -38,6 +38,10 @@ import {
     Paperclip,
     Plus,
     Play,
+    Pause,
+    Eye,
+    RotateCcw,
+    FileText,
     X,
     Bot,
     MessageSquare,
@@ -4785,14 +4789,14 @@ Com o Broadcast, você pode alcançar todos os seus leads de uma só vez, com ap
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                     {tgAccounts.map(account => (
                                         <Card key={account.id} className={`relative overflow-hidden ${account.riskScore > 70 ? 'border-red-500/50' :
-                                                account.riskScore > 40 ? 'border-yellow-500/50' :
-                                                    'border-green-500/50'
+                                            account.riskScore > 40 ? 'border-yellow-500/50' :
+                                                'border-green-500/50'
                                             }`}>
                                             {/* Risk indicator bar */}
                                             <div
                                                 className={`absolute top-0 left-0 h-1 ${account.riskScore > 70 ? 'bg-red-500' :
-                                                        account.riskScore > 40 ? 'bg-yellow-500' :
-                                                            'bg-green-500'
+                                                    account.riskScore > 40 ? 'bg-yellow-500' :
+                                                        'bg-green-500'
                                                     }`}
                                                 style={{ width: `${account.riskScore}%` }}
                                             />
@@ -4819,8 +4823,8 @@ Com o Broadcast, você pode alcançar todos os seus leads de uma só vez, com ap
                                                     <div>
                                                         <span className="text-muted-foreground">Risco:</span>
                                                         <span className={`ml-1 font-bold ${account.riskScore > 70 ? 'text-red-400' :
-                                                                account.riskScore > 40 ? 'text-yellow-400' :
-                                                                    'text-green-400'
+                                                            account.riskScore > 40 ? 'text-yellow-400' :
+                                                                'text-green-400'
                                                             }`}>{account.riskScore}%</span>
                                                     </div>
                                                     <div>
@@ -4926,10 +4930,10 @@ Com o Broadcast, você pode alcançar todos os seus leads de uma só vez, com ap
                                                         {new Date(log.time).toLocaleString('pt-BR')}
                                                     </span>
                                                     <span className={`w-[20px] flex-shrink-0 ${log.type === 'success' ? 'text-green-400' :
-                                                            log.type === 'error' ? 'text-red-400' :
-                                                                log.type === 'warning' ? 'text-yellow-400' :
-                                                                    log.type === 'action' ? 'text-blue-400' :
-                                                                        'text-gray-400'
+                                                        log.type === 'error' ? 'text-red-400' :
+                                                            log.type === 'warning' ? 'text-yellow-400' :
+                                                                log.type === 'action' ? 'text-blue-400' :
+                                                                    'text-gray-400'
                                                         }`}>
                                                         {log.type === 'success' ? '✓' :
                                                             log.type === 'error' ? '✗' :
