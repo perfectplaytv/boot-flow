@@ -4526,6 +4526,921 @@ Com o Broadcast, você pode alcançar todos os seus leads de uma só vez, com ap
                         </div>
                     )}
                 </TabsContent>
+
+                {/* Tab: Encher Grupos (Fill Groups Engine) */}
+                <TabsContent value="enchergrupos" className="space-y-4">
+                    {/* Stats Overview */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                        <Card className="bg-gradient-to-br from-blue-900/50 to-blue-800/30 border-blue-700/40">
+                            <CardContent className="pt-3 pb-2">
+                                <div className="text-2xl font-bold text-blue-400">{accountStats.total}</div>
+                                <div className="text-[10px] text-muted-foreground">Contas</div>
+                            </CardContent>
+                        </Card>
+                        <Card className="bg-gradient-to-br from-green-900/50 to-green-800/30 border-green-700/40">
+                            <CardContent className="pt-3 pb-2">
+                                <div className="text-2xl font-bold text-green-400">{jobStats.running}</div>
+                                <div className="text-[10px] text-muted-foreground">Jobs Rodando</div>
+                            </CardContent>
+                        </Card>
+                        <Card className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 border-purple-700/40">
+                            <CardContent className="pt-3 pb-2">
+                                <div className="text-2xl font-bold text-purple-400">{jobStats.totalAdded.toLocaleString()}</div>
+                                <div className="text-[10px] text-muted-foreground">Total Adicionados</div>
+                            </CardContent>
+                        </Card>
+                        <Card className="bg-gradient-to-br from-cyan-900/50 to-cyan-800/30 border-cyan-700/40">
+                            <CardContent className="pt-3 pb-2">
+                                <div className="text-2xl font-bold text-cyan-400">{jobStats.totalAnalyzed.toLocaleString()}</div>
+                                <div className="text-[10px] text-muted-foreground">Total Analisados</div>
+                            </CardContent>
+                        </Card>
+                        <Card className={`bg-gradient-to-br ${accountStats.avgRisk > 50 ? 'from-red-900/50 to-red-800/30 border-red-700/40' : 'from-yellow-900/50 to-yellow-800/30 border-yellow-700/40'}`}>
+                            <CardContent className="pt-3 pb-2">
+                                <div className={`text-2xl font-bold ${accountStats.avgRisk > 50 ? 'text-red-400' : 'text-yellow-400'}`}>{accountStats.avgRisk}%</div>
+                                <div className="text-[10px] text-muted-foreground">Risco Médio</div>
+                            </CardContent>
+                        </Card>
+                        <Card className={`bg-gradient-to-br ${globalStealthMode ? 'from-emerald-900/50 to-emerald-800/30 border-emerald-700/40' : 'from-gray-900/50 to-gray-800/30 border-gray-700/40'}`}>
+                            <CardContent className="pt-3 pb-2 flex items-center justify-between">
+                                <div>
+                                    <div className={`text-lg font-bold ${globalStealthMode ? 'text-emerald-400' : 'text-gray-400'}`}>
+                                        {globalStealthMode ? '🛡️ ON' : '⚠️ OFF'}
+                                    </div>
+                                    <div className="text-[10px] text-muted-foreground">Stealth Mode</div>
+                                </div>
+                                <Button
+                                    size="sm"
+                                    variant={globalStealthMode ? 'default' : 'outline'}
+                                    className="h-7 text-[10px]"
+                                    onClick={() => setGlobalStealthMode(!globalStealthMode)}
+                                >
+                                    {globalStealthMode ? 'Ativo' : 'Inativo'}
+                                </Button>
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    {/* Sub-tabs */}
+                    <div className="flex gap-2 border-b pb-2">
+                        {[
+                            { id: 'jobs' as const, label: '🎯 Jobs', count: fillJobs.length },
+                            { id: 'accounts' as const, label: '🔑 Contas', count: tgAccounts.length },
+                            { id: 'logs' as const, label: '📜 Logs', count: systemLogs.length },
+                            { id: 'settings' as const, label: '⚙️ Config', count: null },
+                        ].map(tab => (
+                            <Button
+                                key={tab.id}
+                                variant={fillGroupsSubTab === tab.id ? 'default' : 'ghost'}
+                                size="sm"
+                                className="gap-1"
+                                onClick={() => setFillGroupsSubTab(tab.id)}
+                            >
+                                {tab.label}
+                                {tab.count !== null && <Badge variant="secondary" className="ml-1 text-[10px]">{tab.count}</Badge>}
+                            </Button>
+                        ))}
+                    </div>
+
+                    {/* Sub-tab: Jobs */}
+                    {fillGroupsSubTab === 'jobs' && (
+                        <div className="space-y-4">
+                            {/* Actions */}
+                            <div className="flex justify-between items-center">
+                                <h3 className="text-lg font-semibold flex items-center gap-2">
+                                    <Zap className="w-5 h-5 text-yellow-400" />
+                                    Jobs de Preenchimento
+                                </h3>
+                                <div className="flex gap-2">
+                                    <Button
+                                        size="sm"
+                                        className="gap-1 bg-green-600 hover:bg-green-700"
+                                        onClick={() => setShowAddJobModal(true)}
+                                        disabled={telegramGroups.length < 2}
+                                    >
+                                        <Plus className="w-4 h-4" />
+                                        Novo Job
+                                    </Button>
+                                </div>
+                            </div>
+
+                            {telegramGroups.length < 2 && (
+                                <Card className="bg-yellow-950/30 border-yellow-800/50">
+                                    <CardContent className="pt-4">
+                                        <p className="text-sm text-yellow-400 flex items-center gap-2">
+                                            <AlertCircle className="w-4 h-4" />
+                                            Cadastre pelo menos 2 grupos na aba "Grupos" para criar jobs.
+                                        </p>
+                                    </CardContent>
+                                </Card>
+                            )}
+
+                            {tgAccounts.length === 0 && telegramGroups.length >= 2 && (
+                                <Card className="bg-yellow-950/30 border-yellow-800/50">
+                                    <CardContent className="pt-4">
+                                        <p className="text-sm text-yellow-400 flex items-center gap-2">
+                                            <AlertCircle className="w-4 h-4" />
+                                            Cadastre pelo menos 1 conta na aba "Contas" para criar jobs.
+                                        </p>
+                                    </CardContent>
+                                </Card>
+                            )}
+
+                            {/* Jobs Table */}
+                            {fillJobs.length === 0 ? (
+                                <Card className="border-dashed">
+                                    <CardContent className="pt-8 pb-8 text-center text-muted-foreground">
+                                        <Zap className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                                        <p>Nenhum job criado</p>
+                                        <p className="text-sm mt-1">Clique em "Novo Job" para começar</p>
+                                    </CardContent>
+                                </Card>
+                            ) : (
+                                <Card>
+                                    <CardContent className="pt-4">
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead className="w-[80px]">Ação</TableHead>
+                                                    <TableHead className="w-[50px]">#</TableHead>
+                                                    <TableHead>Origem</TableHead>
+                                                    <TableHead>Destino</TableHead>
+                                                    <TableHead className="text-center">Analisados</TableHead>
+                                                    <TableHead className="text-center">Adicionados</TableHead>
+                                                    <TableHead className="text-center">Contas</TableHead>
+                                                    <TableHead className="text-center">Status</TableHead>
+                                                    <TableHead className="text-right">Ações</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {fillJobs.map((job, index) => {
+                                                    const progress = job.targetCount > 0 ? (job.addedCount / job.targetCount) * 100 : 0;
+                                                    return (
+                                                        <TableRow key={job.id} className="hover:bg-muted/50">
+                                                            <TableCell>
+                                                                <Button
+                                                                    size="sm"
+                                                                    variant={job.status === 'rodando' ? 'destructive' : 'default'}
+                                                                    className="h-8 gap-1"
+                                                                    onClick={() => toggleJobStatus(job.id)}
+                                                                    disabled={job.status === 'finalizado'}
+                                                                >
+                                                                    {job.status === 'rodando' ? (
+                                                                        <><Pause className="w-3 h-3" /> Pausar</>
+                                                                    ) : job.status === 'finalizado' ? (
+                                                                        <><CheckCircle className="w-3 h-3" /> Fim</>
+                                                                    ) : (
+                                                                        <><Play className="w-3 h-3" /> Iniciar</>
+                                                                    )}
+                                                                </Button>
+                                                            </TableCell>
+                                                            <TableCell className="text-muted-foreground">{index + 1}</TableCell>
+                                                            <TableCell className="font-medium text-sm">{getSourceGroupName(job.sourceGroupId)}</TableCell>
+                                                            <TableCell className="font-medium text-sm">{getDestGroupName(job.destinationGroupId)}</TableCell>
+                                                            <TableCell className="text-center">
+                                                                <code className="text-xs bg-muted px-2 py-1 rounded">
+                                                                    {Math.round(progress)}% ({job.analyzedCount}/{job.targetCount})
+                                                                </code>
+                                                            </TableCell>
+                                                            <TableCell className="text-center font-bold text-green-400">
+                                                                {job.addedCount}
+                                                            </TableCell>
+                                                            <TableCell className="text-center">
+                                                                <Badge variant="outline">{job.accountIds.length}</Badge>
+                                                            </TableCell>
+                                                            <TableCell className="text-center">
+                                                                <Badge className={
+                                                                    job.status === 'rodando' ? 'bg-green-600 animate-pulse' :
+                                                                        job.status === 'pausado' ? 'bg-yellow-600' :
+                                                                            job.status === 'finalizado' ? 'bg-blue-600' :
+                                                                                'bg-red-600'
+                                                                }>
+                                                                    {job.status === 'rodando' ? '▶ Rodando' :
+                                                                        job.status === 'pausado' ? '⏸ Pausado' :
+                                                                            job.status === 'finalizado' ? '✓ Finalizado' :
+                                                                                '⚠ Erro'}
+                                                                </Badge>
+                                                            </TableCell>
+                                                            <TableCell className="text-right">
+                                                                <div className="flex justify-end gap-1">
+                                                                    <Button
+                                                                        size="icon"
+                                                                        variant="ghost"
+                                                                        className="h-8 w-8"
+                                                                        onClick={() => {
+                                                                            setSelectedJob(job);
+                                                                            setShowJobDetailsModal(true);
+                                                                        }}
+                                                                    >
+                                                                        <Eye className="w-4 h-4" />
+                                                                    </Button>
+                                                                    <Button
+                                                                        size="icon"
+                                                                        variant="ghost"
+                                                                        className="h-8 w-8 text-red-500"
+                                                                        onClick={() => handleDeleteJob(job.id)}
+                                                                    >
+                                                                        <Trash2 className="w-4 h-4" />
+                                                                    </Button>
+                                                                </div>
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    );
+                                                })}
+                                            </TableBody>
+                                        </Table>
+                                    </CardContent>
+                                </Card>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Sub-tab: Accounts */}
+                    {fillGroupsSubTab === 'accounts' && (
+                        <div className="space-y-4">
+                            <div className="flex justify-between items-center">
+                                <h3 className="text-lg font-semibold flex items-center gap-2">
+                                    <Users className="w-5 h-5 text-blue-400" />
+                                    Contas Telegram
+                                </h3>
+                                <Button
+                                    size="sm"
+                                    className="gap-1 bg-blue-600 hover:bg-blue-700"
+                                    onClick={() => setShowAddAccountModal(true)}
+                                >
+                                    <Plus className="w-4 h-4" />
+                                    Adicionar Conta
+                                </Button>
+                            </div>
+
+                            {tgAccounts.length === 0 ? (
+                                <Card className="border-dashed">
+                                    <CardContent className="pt-8 pb-8 text-center text-muted-foreground">
+                                        <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                                        <p>Nenhuma conta cadastrada</p>
+                                        <p className="text-sm mt-1">Adicione contas para usar nos jobs</p>
+                                    </CardContent>
+                                </Card>
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    {tgAccounts.map(account => (
+                                        <Card key={account.id} className={`relative overflow-hidden ${account.riskScore > 70 ? 'border-red-500/50' :
+                                                account.riskScore > 40 ? 'border-yellow-500/50' :
+                                                    'border-green-500/50'
+                                            }`}>
+                                            {/* Risk indicator bar */}
+                                            <div
+                                                className={`absolute top-0 left-0 h-1 ${account.riskScore > 70 ? 'bg-red-500' :
+                                                        account.riskScore > 40 ? 'bg-yellow-500' :
+                                                            'bg-green-500'
+                                                    }`}
+                                                style={{ width: `${account.riskScore}%` }}
+                                            />
+                                            <CardHeader className="pb-2">
+                                                <div className="flex justify-between items-start">
+                                                    <div>
+                                                        <CardTitle className="text-base">{account.name}</CardTitle>
+                                                        <CardDescription className="text-xs">{account.phone}</CardDescription>
+                                                    </div>
+                                                    <Badge className={
+                                                        account.status === 'ativa' ? 'bg-green-600' :
+                                                            account.status === 'aquecendo' ? 'bg-blue-600' :
+                                                                account.status === 'nova' ? 'bg-gray-600' :
+                                                                    account.status === 'em_risco' ? 'bg-orange-600' :
+                                                                        account.status === 'limitada' ? 'bg-yellow-600' :
+                                                                            'bg-red-600'
+                                                    }>
+                                                        {account.status}
+                                                    </Badge>
+                                                </div>
+                                            </CardHeader>
+                                            <CardContent className="space-y-3">
+                                                <div className="grid grid-cols-2 gap-2 text-xs">
+                                                    <div>
+                                                        <span className="text-muted-foreground">Risco:</span>
+                                                        <span className={`ml-1 font-bold ${account.riskScore > 70 ? 'text-red-400' :
+                                                                account.riskScore > 40 ? 'text-yellow-400' :
+                                                                    'text-green-400'
+                                                            }`}>{account.riskScore}%</span>
+                                                    </div>
+                                                    <div>
+                                                        <span className="text-muted-foreground">Proxy:</span>
+                                                        <span className={`ml-1 ${account.proxy ? 'text-green-400' : 'text-red-400'}`}>
+                                                            {account.proxy ? '✓' : '✗'}
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <span className="text-muted-foreground">Hoje:</span>
+                                                        <span className="ml-1">{account.usedToday}/{account.dailyLimit}</span>
+                                                    </div>
+                                                    <div>
+                                                        <span className="text-muted-foreground">Hora:</span>
+                                                        <span className="ml-1">{account.usedThisHour}/{account.hourlyLimit}</span>
+                                                    </div>
+                                                </div>
+                                                <div className="flex gap-1">
+                                                    <Button
+                                                        size="sm"
+                                                        variant="outline"
+                                                        className="flex-1 h-7 text-xs"
+                                                        onClick={() => {
+                                                            setEditingAccount(account);
+                                                            setShowEditAccountModal(true);
+                                                        }}
+                                                    >
+                                                        <Zap className="w-3 h-3 mr-1" />
+                                                        Editar
+                                                    </Button>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="outline"
+                                                        className="h-7 text-xs"
+                                                        onClick={() => resetAccountUsage(account.id)}
+                                                    >
+                                                        <RotateCcw className="w-3 h-3" />
+                                                    </Button>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="ghost"
+                                                        className="h-7 text-xs text-red-500"
+                                                        onClick={() => handleDeleteAccount(account.id)}
+                                                    >
+                                                        <Trash2 className="w-3 h-3" />
+                                                    </Button>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Sub-tab: Logs */}
+                    {fillGroupsSubTab === 'logs' && (
+                        <div className="space-y-4">
+                            <div className="flex justify-between items-center">
+                                <h3 className="text-lg font-semibold flex items-center gap-2">
+                                    <FileText className="w-5 h-5 text-gray-400" />
+                                    Logs do Sistema
+                                </h3>
+                                <div className="flex gap-2">
+                                    <Select value={logFilter} onValueChange={(v) => setLogFilter(v as typeof logFilter)}>
+                                        <SelectTrigger className="w-[120px] h-8">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">Todos</SelectItem>
+                                            <SelectItem value="success">✓ Sucesso</SelectItem>
+                                            <SelectItem value="info">ℹ Info</SelectItem>
+                                            <SelectItem value="warning">⚠ Aviso</SelectItem>
+                                            <SelectItem value="error">✗ Erro</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => {
+                                            localStorage.removeItem('system_logs');
+                                            setSystemLogs([]);
+                                            toast.success('Logs limpos!');
+                                        }}
+                                    >
+                                        <Trash2 className="w-3 h-3 mr-1" />
+                                        Limpar
+                                    </Button>
+                                </div>
+                            </div>
+
+                            <Card className="bg-gray-950 border-gray-800">
+                                <CardContent className="pt-4 font-mono text-xs max-h-[500px] overflow-y-auto">
+                                    {filteredLogs.length === 0 ? (
+                                        <div className="text-center py-8 text-muted-foreground">
+                                            Nenhum log encontrado
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-1">
+                                            {filteredLogs.slice(0, 100).map(log => (
+                                                <div key={log.id} className="flex gap-2 py-1 border-b border-gray-800/50">
+                                                    <span className="text-gray-500 w-[140px] flex-shrink-0">
+                                                        {new Date(log.time).toLocaleString('pt-BR')}
+                                                    </span>
+                                                    <span className={`w-[20px] flex-shrink-0 ${log.type === 'success' ? 'text-green-400' :
+                                                            log.type === 'error' ? 'text-red-400' :
+                                                                log.type === 'warning' ? 'text-yellow-400' :
+                                                                    log.type === 'action' ? 'text-blue-400' :
+                                                                        'text-gray-400'
+                                                        }`}>
+                                                        {log.type === 'success' ? '✓' :
+                                                            log.type === 'error' ? '✗' :
+                                                                log.type === 'warning' ? '⚠' :
+                                                                    log.type === 'action' ? '▶' : 'ℹ'}
+                                                    </span>
+                                                    <span className="text-gray-400 w-[60px] flex-shrink-0">[{log.category}]</span>
+                                                    <span className="text-gray-200">{log.message}</span>
+                                                    {log.details && <span className="text-gray-500 ml-2">({log.details})</span>}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </CardContent>
+                            </Card>
+                        </div>
+                    )}
+
+                    {/* Sub-tab: Settings */}
+                    {fillGroupsSubTab === 'settings' && (
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="text-base flex items-center gap-2">
+                                        <Shield className="w-5 h-5 text-emerald-400" />
+                                        Stealth Mode
+                                    </CardTitle>
+                                    <CardDescription>Configurações de proteção anti-ban</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <Label>Modo Stealth Global</Label>
+                                        <Button
+                                            size="sm"
+                                            variant={globalStealthMode ? 'default' : 'outline'}
+                                            onClick={() => setGlobalStealthMode(!globalStealthMode)}
+                                        >
+                                            {globalStealthMode ? '🛡️ Ativo' : 'Inativo'}
+                                        </Button>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-xs">Máximo de ações por hora</Label>
+                                        <Input
+                                            type="number"
+                                            value={stealthConfig.maxActionsPerHour}
+                                            onChange={(e) => setStealthConfig(prev => ({ ...prev, maxActionsPerHour: parseInt(e.target.value) || 20 }))}
+                                            className="h-8"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-xs">Máximo de ações por dia</Label>
+                                        <Input
+                                            type="number"
+                                            value={stealthConfig.maxActionsPerDay}
+                                            onChange={(e) => setStealthConfig(prev => ({ ...prev, maxActionsPerDay: parseInt(e.target.value) || 100 }))}
+                                            className="h-8"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-xs">Limiar de risco para pausar (%)</Label>
+                                        <Input
+                                            type="number"
+                                            value={stealthConfig.riskThreshold}
+                                            onChange={(e) => setStealthConfig(prev => ({ ...prev, riskThreshold: parseInt(e.target.value) || 70 }))}
+                                            className="h-8"
+                                        />
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="text-base flex items-center gap-2">
+                                        <Clock className="w-5 h-5 text-blue-400" />
+                                        Comportamento
+                                    </CardTitle>
+                                    <CardDescription>Configurações de comportamento humano</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <Label className="text-sm">Delays aleatórios</Label>
+                                        <Checkbox
+                                            checked={stealthConfig.randomizeDelays}
+                                            onCheckedChange={(c) => setStealthConfig(prev => ({ ...prev, randomizeDelays: !!c }))}
+                                        />
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <Label className="text-sm">Humanizar ações</Label>
+                                        <Checkbox
+                                            checked={stealthConfig.humanizeActions}
+                                            onCheckedChange={(c) => setStealthConfig(prev => ({ ...prev, humanizeActions: !!c }))}
+                                        />
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <Label className="text-sm">Pausar em risco alto</Label>
+                                        <Checkbox
+                                            checked={stealthConfig.pauseOnRisk}
+                                            onCheckedChange={(c) => setStealthConfig(prev => ({ ...prev, pauseOnRisk: !!c }))}
+                                        />
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <Label className="text-sm">Evitar horários de pico</Label>
+                                        <Checkbox
+                                            checked={stealthConfig.avoidPeakHours}
+                                            onCheckedChange={(c) => setStealthConfig(prev => ({ ...prev, avoidPeakHours: !!c }))}
+                                        />
+                                    </div>
+                                    <Button
+                                        className="w-full mt-4"
+                                        onClick={() => {
+                                            localStorage.setItem('stealth_config', JSON.stringify(stealthConfig));
+                                            toast.success('Configurações salvas!');
+                                        }}
+                                    >
+                                        <Save className="w-4 h-4 mr-2" />
+                                        Salvar Configurações
+                                    </Button>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    )}
+
+                    {/* Modal: Add Job */}
+                    {showAddJobModal && (
+                        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+                            <Card className="w-full max-w-lg mx-4">
+                                <CardHeader>
+                                    <div className="flex items-center justify-between">
+                                        <CardTitle className="flex items-center gap-2">
+                                            <Zap className="w-5 h-5 text-yellow-400" />
+                                            Novo Job de Preenchimento
+                                        </CardTitle>
+                                        <Button variant="ghost" size="icon" onClick={() => setShowAddJobModal(false)}>
+                                            <X className="w-4 h-4" />
+                                        </Button>
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label>Nome do Job (opcional)</Label>
+                                        <Input
+                                            placeholder="Ex: Campanha Janeiro"
+                                            value={newJob.name}
+                                            onChange={(e) => setNewJob(prev => ({ ...prev, name: e.target.value }))}
+                                        />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label>Grupo Origem *</Label>
+                                            <Select
+                                                value={newJob.sourceGroupId.toString()}
+                                                onValueChange={(v) => setNewJob(prev => ({ ...prev, sourceGroupId: parseInt(v) }))}
+                                            >
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Selecione..." />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {telegramGroups.filter(g => g.id !== newJob.destinationGroupId).map(g => (
+                                                        <SelectItem key={g.id} value={g.id.toString()}>{g.name}</SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label>Grupo Destino *</Label>
+                                            <Select
+                                                value={newJob.destinationGroupId.toString()}
+                                                onValueChange={(v) => setNewJob(prev => ({ ...prev, destinationGroupId: parseInt(v) }))}
+                                            >
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Selecione..." />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {telegramGroups.filter(g => g.id !== newJob.sourceGroupId).map(g => (
+                                                        <SelectItem key={g.id} value={g.id.toString()}>{g.name}</SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Contas a usar *</Label>
+                                        <div className="flex flex-wrap gap-2 p-3 border rounded-md bg-muted/30 max-h-[120px] overflow-y-auto">
+                                            {tgAccounts.length === 0 ? (
+                                                <span className="text-sm text-muted-foreground">Nenhuma conta cadastrada</span>
+                                            ) : tgAccounts.map(acc => (
+                                                <Badge
+                                                    key={acc.id}
+                                                    variant={newJob.accountIds.includes(acc.id) ? 'default' : 'outline'}
+                                                    className="cursor-pointer"
+                                                    onClick={() => {
+                                                        setNewJob(prev => ({
+                                                            ...prev,
+                                                            accountIds: prev.accountIds.includes(acc.id)
+                                                                ? prev.accountIds.filter(id => id !== acc.id)
+                                                                : [...prev.accountIds, acc.id]
+                                                        }));
+                                                    }}
+                                                >
+                                                    {acc.name} ({acc.phone.slice(-4)})
+                                                </Badge>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-3 gap-4">
+                                        <div className="space-y-2">
+                                            <Label>Meta de adições</Label>
+                                            <Input
+                                                type="number"
+                                                value={newJob.targetCount}
+                                                onChange={(e) => setNewJob(prev => ({ ...prev, targetCount: parseInt(e.target.value) || 100 }))}
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label>Delay mín (seg)</Label>
+                                            <Input
+                                                type="number"
+                                                value={newJob.delayMin}
+                                                onChange={(e) => setNewJob(prev => ({ ...prev, delayMin: parseInt(e.target.value) || 30 }))}
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label>Delay máx (seg)</Label>
+                                            <Input
+                                                type="number"
+                                                value={newJob.delayMax}
+                                                onChange={(e) => setNewJob(prev => ({ ...prev, delayMax: parseInt(e.target.value) || 60 }))}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Checkbox
+                                            checked={newJob.stealthMode}
+                                            onCheckedChange={(c) => setNewJob(prev => ({ ...prev, stealthMode: !!c }))}
+                                        />
+                                        <Label className="text-sm">🛡️ Ativar Stealth Mode neste job</Label>
+                                    </div>
+                                    <div className="flex gap-2 pt-4">
+                                        <Button variant="outline" className="flex-1" onClick={() => setShowAddJobModal(false)}>
+                                            Cancelar
+                                        </Button>
+                                        <Button className="flex-1 gap-1" onClick={handleAddJob}>
+                                            <Zap className="w-4 h-4" />
+                                            Criar Job
+                                        </Button>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    )}
+
+                    {/* Modal: Add Account */}
+                    {showAddAccountModal && (
+                        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+                            <Card className="w-full max-w-lg mx-4">
+                                <CardHeader>
+                                    <div className="flex items-center justify-between">
+                                        <CardTitle className="flex items-center gap-2">
+                                            <UserPlus className="w-5 h-5 text-blue-400" />
+                                            Adicionar Conta
+                                        </CardTitle>
+                                        <Button variant="ghost" size="icon" onClick={() => setShowAddAccountModal(false)}>
+                                            <X className="w-4 h-4" />
+                                        </Button>
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label>Telefone *</Label>
+                                            <Input
+                                                placeholder="+5527999999999"
+                                                value={newAccount.phone}
+                                                onChange={(e) => setNewAccount(prev => ({ ...prev, phone: e.target.value }))}
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label>Nome</Label>
+                                            <Input
+                                                placeholder="Conta Principal"
+                                                value={newAccount.name}
+                                                onChange={(e) => setNewAccount(prev => ({ ...prev, name: e.target.value }))}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Username</Label>
+                                        <Input
+                                            placeholder="@meuusuario"
+                                            value={newAccount.username}
+                                            onChange={(e) => setNewAccount(prev => ({ ...prev, username: e.target.value }))}
+                                        />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label>Limite Diário</Label>
+                                            <Input
+                                                type="number"
+                                                value={newAccount.dailyLimit}
+                                                onChange={(e) => setNewAccount(prev => ({ ...prev, dailyLimit: parseInt(e.target.value) || 50 }))}
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label>Limite por Hora</Label>
+                                            <Input
+                                                type="number"
+                                                value={newAccount.hourlyLimit}
+                                                onChange={(e) => setNewAccount(prev => ({ ...prev, hourlyLimit: parseInt(e.target.value) || 10 }))}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Proxy (opcional)</Label>
+                                        <Input
+                                            placeholder="socks5://user:pass@ip:port"
+                                            value={newAccount.proxy}
+                                            onChange={(e) => setNewAccount(prev => ({ ...prev, proxy: e.target.value }))}
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Observações</Label>
+                                        <Input
+                                            placeholder="Notas sobre esta conta..."
+                                            value={newAccount.notes}
+                                            onChange={(e) => setNewAccount(prev => ({ ...prev, notes: e.target.value }))}
+                                        />
+                                    </div>
+                                    <div className="flex gap-2 pt-4">
+                                        <Button variant="outline" className="flex-1" onClick={() => setShowAddAccountModal(false)}>
+                                            Cancelar
+                                        </Button>
+                                        <Button className="flex-1 gap-1" onClick={handleAddAccount}>
+                                            <Save className="w-4 h-4" />
+                                            Salvar
+                                        </Button>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    )}
+
+                    {/* Modal: Edit Account */}
+                    {showEditAccountModal && editingAccount && (
+                        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+                            <Card className="w-full max-w-lg mx-4">
+                                <CardHeader>
+                                    <div className="flex items-center justify-between">
+                                        <CardTitle className="flex items-center gap-2">
+                                            <Zap className="w-5 h-5" />
+                                            Editar Conta
+                                        </CardTitle>
+                                        <Button variant="ghost" size="icon" onClick={() => setShowEditAccountModal(false)}>
+                                            <X className="w-4 h-4" />
+                                        </Button>
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label>Telefone</Label>
+                                            <Input
+                                                value={editingAccount.phone}
+                                                onChange={(e) => setEditingAccount(prev => prev ? { ...prev, phone: e.target.value } : null)}
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label>Nome</Label>
+                                            <Input
+                                                value={editingAccount.name}
+                                                onChange={(e) => setEditingAccount(prev => prev ? { ...prev, name: e.target.value } : null)}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Status</Label>
+                                        <Select
+                                            value={editingAccount.status}
+                                            onValueChange={(v) => setEditingAccount(prev => prev ? { ...prev, status: v as typeof prev.status } : null)}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="nova">Nova</SelectItem>
+                                                <SelectItem value="aquecendo">Aquecendo</SelectItem>
+                                                <SelectItem value="ativa">Ativa</SelectItem>
+                                                <SelectItem value="em_risco">Em Risco</SelectItem>
+                                                <SelectItem value="limitada">Limitada</SelectItem>
+                                                <SelectItem value="suspensa">Suspensa</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label>Limite Diário</Label>
+                                            <Input
+                                                type="number"
+                                                value={editingAccount.dailyLimit}
+                                                onChange={(e) => setEditingAccount(prev => prev ? { ...prev, dailyLimit: parseInt(e.target.value) || 50 } : null)}
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label>Limite por Hora</Label>
+                                            <Input
+                                                type="number"
+                                                value={editingAccount.hourlyLimit}
+                                                onChange={(e) => setEditingAccount(prev => prev ? { ...prev, hourlyLimit: parseInt(e.target.value) || 10 } : null)}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Proxy</Label>
+                                        <Input
+                                            value={editingAccount.proxy || ''}
+                                            onChange={(e) => setEditingAccount(prev => prev ? { ...prev, proxy: e.target.value } : null)}
+                                        />
+                                    </div>
+                                    <div className="flex gap-2 pt-4">
+                                        <Button variant="outline" className="flex-1" onClick={() => setShowEditAccountModal(false)}>
+                                            Cancelar
+                                        </Button>
+                                        <Button className="flex-1 gap-1" onClick={handleEditAccount}>
+                                            <Save className="w-4 h-4" />
+                                            Salvar
+                                        </Button>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    )}
+
+                    {/* Modal: Job Details */}
+                    {showJobDetailsModal && selectedJob && (
+                        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+                            <Card className="w-full max-w-2xl mx-4 max-h-[80vh] overflow-y-auto">
+                                <CardHeader>
+                                    <div className="flex items-center justify-between">
+                                        <CardTitle className="flex items-center gap-2">
+                                            <Eye className="w-5 h-5" />
+                                            Detalhes do Job: {selectedJob.name}
+                                        </CardTitle>
+                                        <Button variant="ghost" size="icon" onClick={() => setShowJobDetailsModal(false)}>
+                                            <X className="w-4 h-4" />
+                                        </Button>
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <Label className="text-xs text-muted-foreground">Origem</Label>
+                                            <p className="font-medium">{getSourceGroupName(selectedJob.sourceGroupId)}</p>
+                                        </div>
+                                        <div>
+                                            <Label className="text-xs text-muted-foreground">Destino</Label>
+                                            <p className="font-medium">{getDestGroupName(selectedJob.destinationGroupId)}</p>
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-4 gap-4 text-center">
+                                        <div className="p-3 bg-muted/50 rounded-lg">
+                                            <div className="text-2xl font-bold text-blue-400">{selectedJob.analyzedCount}</div>
+                                            <div className="text-xs text-muted-foreground">Analisados</div>
+                                        </div>
+                                        <div className="p-3 bg-muted/50 rounded-lg">
+                                            <div className="text-2xl font-bold text-green-400">{selectedJob.addedCount}</div>
+                                            <div className="text-xs text-muted-foreground">Adicionados</div>
+                                        </div>
+                                        <div className="p-3 bg-muted/50 rounded-lg">
+                                            <div className="text-2xl font-bold text-red-400">{selectedJob.failedCount}</div>
+                                            <div className="text-xs text-muted-foreground">Falhas</div>
+                                        </div>
+                                        <div className="p-3 bg-muted/50 rounded-lg">
+                                            <div className="text-2xl font-bold text-purple-400">{selectedJob.targetCount}</div>
+                                            <div className="text-xs text-muted-foreground">Meta</div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <Label className="text-xs text-muted-foreground">Progresso</Label>
+                                        <div className="w-full bg-gray-700 rounded-full h-4 mt-1">
+                                            <div
+                                                className="bg-gradient-to-r from-blue-500 to-green-500 h-4 rounded-full transition-all"
+                                                style={{ width: `${Math.round((selectedJob.addedCount / selectedJob.targetCount) * 100)}%` }}
+                                            />
+                                        </div>
+                                        <p className="text-right text-xs text-muted-foreground mt-1">
+                                            {Math.round((selectedJob.addedCount / selectedJob.targetCount) * 100)}%
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <Label className="text-xs text-muted-foreground mb-2 block">Logs do Job</Label>
+                                        <div className="bg-gray-950 rounded-lg p-3 font-mono text-xs max-h-[200px] overflow-y-auto space-y-1">
+                                            {selectedJob.logs.map((log, i) => (
+                                                <div key={i} className="flex gap-2">
+                                                    <span className="text-gray-500">{new Date(log.time).toLocaleTimeString('pt-BR')}</span>
+                                                    <span className={
+                                                        log.type === 'success' ? 'text-green-400' :
+                                                            log.type === 'error' ? 'text-red-400' :
+                                                                log.type === 'warning' ? 'text-yellow-400' :
+                                                                    'text-gray-400'
+                                                    }>{log.message}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <Button className="w-full" onClick={() => setShowJobDetailsModal(false)}>
+                                        Fechar
+                                    </Button>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    )}
+                </TabsContent>
             </Tabs>
 
             {/* Saved Audiences Section */}
