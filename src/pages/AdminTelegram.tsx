@@ -1730,10 +1730,14 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
 
             {/* Tabs para métodos de importação */}
             <Tabs defaultValue="automatic" className="w-full">
-                <TabsList className="grid w-full grid-cols-7 mb-6">
+                <TabsList className="grid w-full grid-cols-8 mb-6">
                     <TabsTrigger value="automatic" className="flex items-center gap-1 text-[10px]">
                         <Link className="w-3 h-3" />
                         Extração
+                    </TabsTrigger>
+                    <TabsTrigger value="grupos" className="flex items-center gap-1 text-[10px]">
+                        <FolderOpen className="w-3 h-3" />
+                        Grupos
                     </TabsTrigger>
                     <TabsTrigger value="campaigns" className="flex items-center gap-1 text-[10px]">
                         <Calendar className="w-3 h-3" />
