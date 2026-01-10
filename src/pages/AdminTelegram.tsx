@@ -2510,16 +2510,16 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
                                                 <div
                                                     key={proxy.id}
                                                     className={`flex items-center justify-between p-3 rounded-lg border transition-all ${proxy.isActive
-                                                            ? 'bg-green-950/30 border-green-600/50'
-                                                            : 'bg-gray-800/30 border-gray-700/50 hover:border-gray-600/50'
+                                                        ? 'bg-green-950/30 border-green-600/50'
+                                                        : 'bg-gray-800/30 border-gray-700/50 hover:border-gray-600/50'
                                                         }`}
                                                 >
                                                     <div className="flex items-center gap-3">
                                                         {/* Status indicator */}
                                                         <div className={`w-3 h-3 rounded-full ${testingProxyId === proxy.id ? 'bg-yellow-500 animate-pulse' :
-                                                                proxy.status === 'online' ? 'bg-green-500' :
-                                                                    proxy.status === 'offline' ? 'bg-red-500' :
-                                                                        'bg-gray-500'
+                                                            proxy.status === 'online' ? 'bg-green-500' :
+                                                                proxy.status === 'offline' ? 'bg-red-500' :
+                                                                    'bg-gray-500'
                                                             }`} />
 
                                                         {/* Proxy info */}
@@ -2560,8 +2560,8 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
                                                                 )}
                                                                 {proxy.anonymityLevel && (
                                                                     <Badge className={`text-[9px] ${proxy.anonymityLevel === 'elite' ? 'bg-green-600' :
-                                                                            proxy.anonymityLevel === 'anonymous' ? 'bg-yellow-600' :
-                                                                                'bg-red-600'
+                                                                        proxy.anonymityLevel === 'anonymous' ? 'bg-yellow-600' :
+                                                                            'bg-red-600'
                                                                         }`}>
                                                                         {proxy.anonymityLevel === 'elite' ? '🛡️ Elite' :
                                                                             proxy.anonymityLevel === 'anonymous' ? '👤 Anônimo' :
