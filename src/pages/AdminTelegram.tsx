@@ -3634,6 +3634,506 @@ Com o Broadcast, você pode alcançar todos os seus leads de uma só vez, com ap
                         </div>
                     </div>
                 </TabsContent>
+
+                {/* Tab: Grupos (LeadForge) */}
+                <TabsContent value="grupos" className="space-y-6">
+                    {/* Stats Cards */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+                        <Card className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 border-purple-700/40">
+                            <CardContent className="pt-4">
+                                <div className="text-2xl font-bold text-purple-400">{groupStats.total}</div>
+                                <div className="text-xs text-muted-foreground">Total de Grupos</div>
+                            </CardContent>
+                        </Card>
+                        <Card className="bg-gradient-to-br from-green-900/50 to-green-800/30 border-green-700/40">
+                            <CardContent className="pt-4">
+                                <div className="text-2xl font-bold text-green-400">{groupStats.active}</div>
+                                <div className="text-xs text-muted-foreground">Ativos</div>
+                            </CardContent>
+                        </Card>
+                        <Card className="bg-gradient-to-br from-yellow-900/50 to-yellow-800/30 border-yellow-700/40">
+                            <CardContent className="pt-4">
+                                <div className="text-2xl font-bold text-yellow-400">{groupStats.pending}</div>
+                                <div className="text-xs text-muted-foreground">Pendentes</div>
+                            </CardContent>
+                        </Card>
+                        <Card className="bg-gradient-to-br from-orange-900/50 to-orange-800/30 border-orange-700/40">
+                            <CardContent className="pt-4">
+                                <div className="text-2xl font-bold text-orange-400">{groupStats.saturated}</div>
+                                <div className="text-xs text-muted-foreground">Saturados</div>
+                            </CardContent>
+                        </Card>
+                        <Card className="bg-gradient-to-br from-red-900/50 to-red-800/30 border-red-700/40">
+                            <CardContent className="pt-4">
+                                <div className="text-2xl font-bold text-red-400">{groupStats.blocked}</div>
+                                <div className="text-xs text-muted-foreground">Bloqueados</div>
+                            </CardContent>
+                        </Card>
+                        <Card className="bg-gradient-to-br from-blue-900/50 to-blue-800/30 border-blue-700/40">
+                            <CardContent className="pt-4">
+                                <div className="text-2xl font-bold text-blue-400">{groupStats.totalMembers.toLocaleString()}</div>
+                                <div className="text-xs text-muted-foreground">Total Membros</div>
+                            </CardContent>
+                        </Card>
+                        <Card className="bg-gradient-to-br from-indigo-900/50 to-indigo-800/30 border-indigo-700/40">
+                            <CardContent className="pt-4">
+                                <div className="text-2xl font-bold text-indigo-400">{groupStats.totalExtracted.toLocaleString()}</div>
+                                <div className="text-xs text-muted-foreground">Extraídos</div>
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    {/* Actions Bar */}
+                    <Card>
+                        <CardContent className="pt-4">
+                            <div className="flex flex-col lg:flex-row gap-4 justify-between">
+                                {/* Search and Filters */}
+                                <div className="flex flex-1 gap-2 flex-wrap">
+                                    <div className="relative flex-1 min-w-[200px]">
+                                        <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                                        <Input
+                                            placeholder="Buscar grupos..."
+                                            value={groupSearchTerm}
+                                            onChange={(e) => setGroupSearchTerm(e.target.value)}
+                                            className="pl-9 h-9"
+                                        />
+                                    </div>
+                                    <Select value={groupStatusFilter} onValueChange={setGroupStatusFilter}>
+                                        <SelectTrigger className="w-[130px] h-9">
+                                            <SelectValue placeholder="Status" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">Todos</SelectItem>
+                                            <SelectItem value="ativo">Ativos</SelectItem>
+                                            <SelectItem value="pendente">Pendentes</SelectItem>
+                                            <SelectItem value="saturado">Saturados</SelectItem>
+                                            <SelectItem value="bloqueado">Bloqueados</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <Select value={groupTagFilter} onValueChange={setGroupTagFilter}>
+                                        <SelectTrigger className="w-[130px] h-9">
+                                            <SelectValue placeholder="Tag" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">Todas Tags</SelectItem>
+                                            {availableTags.map(tag => (
+                                                <SelectItem key={tag} value={tag}>{tag}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                {/* Action Buttons */}
+                                <div className="flex gap-2 flex-wrap">
+                                    <Button
+                                        size="sm"
+                                        className="gap-1 bg-green-600 hover:bg-green-700"
+                                        onClick={() => setShowAddGroupModal(true)}
+                                    >
+                                        <Plus className="w-4 h-4" />
+                                        Adicionar
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="gap-1"
+                                        onClick={() => setShowImportGroupsModal(true)}
+                                    >
+                                        <Upload className="w-4 h-4" />
+                                        Importar
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="gap-1"
+                                        onClick={() => handleExportGroups('csv')}
+                                        disabled={telegramGroups.length === 0}
+                                    >
+                                        <Download className="w-4 h-4" />
+                                        CSV
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="gap-1"
+                                        onClick={() => handleExportGroups('json')}
+                                        disabled={telegramGroups.length === 0}
+                                    >
+                                        <FileSpreadsheet className="w-4 h-4" />
+                                        JSON
+                                    </Button>
+                                </div>
+                            </div>
+
+                            {/* Bulk Actions */}
+                            {selectedGroupIds.size > 0 && (
+                                <div className="mt-4 p-3 bg-muted/50 rounded-lg flex items-center justify-between">
+                                    <span className="text-sm font-medium">
+                                        {selectedGroupIds.size} grupo(s) selecionado(s)
+                                    </span>
+                                    <div className="flex gap-2">
+                                        <Button size="sm" variant="outline" onClick={() => handleBulkUpdateStatus('ativo')}>
+                                            <CheckCircle className="w-3 h-3 mr-1" />
+                                            Ativar
+                                        </Button>
+                                        <Button size="sm" variant="outline" onClick={() => handleBulkUpdateStatus('saturado')}>
+                                            <AlertCircle className="w-3 h-3 mr-1" />
+                                            Saturar
+                                        </Button>
+                                        <Button size="sm" variant="outline" onClick={() => handleBulkUpdateStatus('bloqueado')}>
+                                            <XCircle className="w-3 h-3 mr-1" />
+                                            Bloquear
+                                        </Button>
+                                        <Button
+                                            size="sm"
+                                            variant="destructive"
+                                            onClick={() => handleDeleteGroups(Array.from(selectedGroupIds))}
+                                        >
+                                            <Trash2 className="w-3 h-3 mr-1" />
+                                            Remover
+                                        </Button>
+                                    </div>
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    {/* Groups Table */}
+                    <Card>
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-lg flex items-center gap-2">
+                                <FolderOpen className="w-5 h-5" />
+                                Lista de Grupos ({filteredGroups.length})
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            {filteredGroups.length === 0 ? (
+                                <div className="text-center py-12 text-muted-foreground">
+                                    <FolderOpen className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                                    <p>Nenhum grupo cadastrado</p>
+                                    <p className="text-sm mt-2">Clique em "Adicionar" ou "Importar" para começar</p>
+                                </div>
+                            ) : (
+                                <div className="overflow-x-auto">
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead className="w-[40px]">
+                                                    <Checkbox
+                                                        checked={selectedGroupIds.size === filteredGroups.length && filteredGroups.length > 0}
+                                                        onCheckedChange={toggleSelectAllGroups}
+                                                    />
+                                                </TableHead>
+                                                <TableHead className="w-[50px]">#</TableHead>
+                                                <TableHead>Nome</TableHead>
+                                                <TableHead>Link/ID</TableHead>
+                                                <TableHead>Tags</TableHead>
+                                                <TableHead>Status</TableHead>
+                                                <TableHead className="text-right">Membros</TableHead>
+                                                <TableHead className="text-right">Extraídos</TableHead>
+                                                <TableHead className="text-right">Ações</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {filteredGroups.map((group, index) => (
+                                                <TableRow key={group.id} className="hover:bg-muted/50">
+                                                    <TableCell>
+                                                        <Checkbox
+                                                            checked={selectedGroupIds.has(group.id)}
+                                                            onCheckedChange={() => toggleGroupSelection(group.id)}
+                                                        />
+                                                    </TableCell>
+                                                    <TableCell className="text-muted-foreground">{index + 1}</TableCell>
+                                                    <TableCell className="font-medium">{group.name}</TableCell>
+                                                    <TableCell>
+                                                        <code className="text-xs bg-muted px-2 py-1 rounded">
+                                                            {group.link.length > 30 ? group.link.substring(0, 30) + '...' : group.link}
+                                                        </code>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <div className="flex gap-1 flex-wrap">
+                                                            {group.tags.slice(0, 2).map(tag => (
+                                                                <Badge key={tag} variant="secondary" className="text-[10px]">
+                                                                    {tag}
+                                                                </Badge>
+                                                            ))}
+                                                            {group.tags.length > 2 && (
+                                                                <Badge variant="outline" className="text-[10px]">
+                                                                    +{group.tags.length - 2}
+                                                                </Badge>
+                                                            )}
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Badge
+                                                            className={
+                                                                group.status === 'ativo' ? 'bg-green-600' :
+                                                                    group.status === 'pendente' ? 'bg-yellow-600' :
+                                                                        group.status === 'saturado' ? 'bg-orange-600' :
+                                                                            'bg-red-600'
+                                                            }
+                                                        >
+                                                            {group.status}
+                                                        </Badge>
+                                                    </TableCell>
+                                                    <TableCell className="text-right">{group.membersCount.toLocaleString()}</TableCell>
+                                                    <TableCell className="text-right">{group.extractedCount.toLocaleString()}</TableCell>
+                                                    <TableCell className="text-right">
+                                                        <div className="flex justify-end gap-1">
+                                                            <Button
+                                                                size="icon"
+                                                                variant="ghost"
+                                                                className="h-8 w-8"
+                                                                onClick={() => {
+                                                                    setEditingGroup(group);
+                                                                    setShowEditGroupModal(true);
+                                                                }}
+                                                            >
+                                                                <Zap className="w-4 h-4" />
+                                                            </Button>
+                                                            <Button
+                                                                size="icon"
+                                                                variant="ghost"
+                                                                className="h-8 w-8 text-red-500 hover:text-red-600"
+                                                                onClick={() => handleDeleteGroups([group.id])}
+                                                            >
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </Button>
+                                                        </div>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    {/* Modal: Add Group */}
+                    {showAddGroupModal && (
+                        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+                            <Card className="w-full max-w-lg mx-4">
+                                <CardHeader>
+                                    <div className="flex items-center justify-between">
+                                        <CardTitle className="flex items-center gap-2">
+                                            <Plus className="w-5 h-5" />
+                                            Adicionar Grupo
+                                        </CardTitle>
+                                        <Button variant="ghost" size="icon" onClick={() => setShowAddGroupModal(false)}>
+                                            <X className="w-4 h-4" />
+                                        </Button>
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label>Nome do Grupo *</Label>
+                                        <Input
+                                            placeholder="Ex: Grupo de Vendas BR"
+                                            value={newGroup.name}
+                                            onChange={(e) => setNewGroup(prev => ({ ...prev, name: e.target.value }))}
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Link ou ID do Grupo *</Label>
+                                        <Input
+                                            placeholder="https://t.me/meugrupo ou @meugrupo"
+                                            value={newGroup.link}
+                                            onChange={(e) => setNewGroup(prev => ({ ...prev, link: e.target.value }))}
+                                        />
+                                        <p className="text-xs text-muted-foreground">
+                                            Formatos aceitos: t.me/grupo, @grupo, ou link de convite
+                                        </p>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Plataforma</Label>
+                                        <Select
+                                            value={newGroup.platform}
+                                            onValueChange={(v) => setNewGroup(prev => ({ ...prev, platform: v as typeof prev.platform }))}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="telegram">Telegram</SelectItem>
+                                                <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                                                <SelectItem value="discord">Discord</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Tags</Label>
+                                        <div className="flex flex-wrap gap-2">
+                                            {availableTags.map(tag => (
+                                                <Badge
+                                                    key={tag}
+                                                    variant={newGroup.tags.includes(tag) ? 'default' : 'outline'}
+                                                    className="cursor-pointer"
+                                                    onClick={() => newGroup.tags.includes(tag) ? removeTagFromNewGroup(tag) : addTagToNewGroup(tag)}
+                                                >
+                                                    {tag}
+                                                </Badge>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div className="flex gap-2 pt-4">
+                                        <Button variant="outline" className="flex-1" onClick={() => setShowAddGroupModal(false)}>
+                                            Cancelar
+                                        </Button>
+                                        <Button className="flex-1 gap-1" onClick={handleAddGroup}>
+                                            <Save className="w-4 h-4" />
+                                            Salvar
+                                        </Button>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    )}
+
+                    {/* Modal: Edit Group */}
+                    {showEditGroupModal && editingGroup && (
+                        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+                            <Card className="w-full max-w-lg mx-4">
+                                <CardHeader>
+                                    <div className="flex items-center justify-between">
+                                        <CardTitle className="flex items-center gap-2">
+                                            <Zap className="w-5 h-5" />
+                                            Editar Grupo
+                                        </CardTitle>
+                                        <Button variant="ghost" size="icon" onClick={() => setShowEditGroupModal(false)}>
+                                            <X className="w-4 h-4" />
+                                        </Button>
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label>Nome do Grupo</Label>
+                                        <Input
+                                            value={editingGroup.name}
+                                            onChange={(e) => setEditingGroup(prev => prev ? { ...prev, name: e.target.value } : null)}
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Link ou ID</Label>
+                                        <Input
+                                            value={editingGroup.link}
+                                            onChange={(e) => setEditingGroup(prev => prev ? { ...prev, link: e.target.value } : null)}
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Status</Label>
+                                        <Select
+                                            value={editingGroup.status}
+                                            onValueChange={(v) => setEditingGroup(prev => prev ? { ...prev, status: v as typeof prev.status } : null)}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="ativo">Ativo</SelectItem>
+                                                <SelectItem value="pendente">Pendente</SelectItem>
+                                                <SelectItem value="saturado">Saturado</SelectItem>
+                                                <SelectItem value="bloqueado">Bloqueado</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label>Nº de Membros</Label>
+                                            <Input
+                                                type="number"
+                                                value={editingGroup.membersCount}
+                                                onChange={(e) => setEditingGroup(prev => prev ? { ...prev, membersCount: parseInt(e.target.value) || 0 } : null)}
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label>Extraídos</Label>
+                                            <Input
+                                                type="number"
+                                                value={editingGroup.extractedCount}
+                                                onChange={(e) => setEditingGroup(prev => prev ? { ...prev, extractedCount: parseInt(e.target.value) || 0 } : null)}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Tags</Label>
+                                        <div className="flex flex-wrap gap-2">
+                                            {availableTags.map(tag => (
+                                                <Badge
+                                                    key={tag}
+                                                    variant={editingGroup.tags.includes(tag) ? 'default' : 'outline'}
+                                                    className="cursor-pointer"
+                                                    onClick={() => {
+                                                        setEditingGroup(prev => {
+                                                            if (!prev) return null;
+                                                            const newTags = prev.tags.includes(tag)
+                                                                ? prev.tags.filter(t => t !== tag)
+                                                                : [...prev.tags, tag];
+                                                            return { ...prev, tags: newTags };
+                                                        });
+                                                    }}
+                                                >
+                                                    {tag}
+                                                </Badge>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div className="flex gap-2 pt-4">
+                                        <Button variant="outline" className="flex-1" onClick={() => setShowEditGroupModal(false)}>
+                                            Cancelar
+                                        </Button>
+                                        <Button className="flex-1 gap-1" onClick={handleEditGroup}>
+                                            <Save className="w-4 h-4" />
+                                            Salvar
+                                        </Button>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    )}
+
+                    {/* Modal: Import Groups */}
+                    {showImportGroupsModal && (
+                        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+                            <Card className="w-full max-w-lg mx-4">
+                                <CardHeader>
+                                    <div className="flex items-center justify-between">
+                                        <CardTitle className="flex items-center gap-2">
+                                            <Upload className="w-5 h-5" />
+                                            Importar Grupos
+                                        </CardTitle>
+                                        <Button variant="ghost" size="icon" onClick={() => setShowImportGroupsModal(false)}>
+                                            <X className="w-4 h-4" />
+                                        </Button>
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label>Cole os links dos grupos (um por linha)</Label>
+                                        <textarea
+                                            className="w-full min-h-[200px] rounded-md border border-input bg-background px-3 py-2 text-sm font-mono"
+                                            placeholder={`https://t.me/grupo1, Nome do Grupo 1\nhttps://t.me/grupo2, Nome do Grupo 2\n@grupo3\n...`}
+                                            value={importGroupsText}
+                                            onChange={(e) => setImportGroupsText(e.target.value)}
+                                        />
+                                        <p className="text-xs text-muted-foreground">
+                                            Formato: link,nome (nome é opcional). Suporta CSV ou TXT.
+                                        </p>
+                                    </div>
+                                    <div className="flex gap-2 pt-2">
+                                        <Button variant="outline" className="flex-1" onClick={() => setShowImportGroupsModal(false)}>
+                                            Cancelar
+                                        </Button>
+                                        <Button className="flex-1 gap-1" onClick={handleImportGroups}>
+                                            <Upload className="w-4 h-4" />
+                                            Importar ({importGroupsText.split('\n').filter(l => l.trim()).length} grupos)
+                                        </Button>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    )}
+                </TabsContent>
             </Tabs>
 
             {/* Saved Audiences Section */}
