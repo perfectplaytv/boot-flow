@@ -78,7 +78,13 @@ export function useClientes() {
 
         const data = await response.json() as Cliente[];
         if (Array.isArray(data)) {
-          setClientes(data);
+          // Filtrar administradores para não aparecerem na lista de clientes
+          const filteredClients = data.filter(client =>
+            client.plan !== 'admin' &&
+            client.email !== 'pontonois@gmail.com' &&
+            client.role !== 'admin' // Caso venha do backend
+          );
+          setClientes(filteredClients);
         } else {
           console.warn('Resposta inválida da API:', data);
           setClientes([]);
