@@ -1,0 +1,34 @@
+# ===========================================
+# Cloudflare Worker: WhatsApp Link Shortener
+# ===========================================
+# Este worker gerencia links curtos que redirecionam
+# para o WhatsApp com mensagens personalizadas.
+#
+# Deploy: npx wrangler deploy
+# Test: npx wrangler dev
+# ===========================================
+
+name = "whatsapp-links"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+# Produção
+[env.production]
+routes = [
+  { pattern = "link.bootflow.app/*", zone_name = "bootflow.app" }
+]
+
+# Desenvolvimento local
+[dev]
+port = 8787
+local_protocol = "http"
+
+# Analytics (opcional - ativar após criar o dataset)
+# [[analytics_engine_datasets]]
+# binding = "ANALYTICS"
+# dataset = "whatsapp_clicks"
+
+# KV para tracking de cliques (opcional)
+# [[kv_namespaces]]
+# binding = "CLICK_TRACKER"
+# id = "your-kv-namespace-id"
