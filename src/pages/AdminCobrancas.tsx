@@ -64,16 +64,16 @@ const generateCobrancasFromClientes = (clientes: Cliente[]): Cobranca[] => {
       'Upgrade Mensal - Básico',
       'Cobrança Básico - Anual'
     ];
-    
+
     // Gerar data de vencimento baseada no índice
     const hoje = new Date();
     const vencimento = new Date(hoje);
     vencimento.setDate(hoje.getDate() + (index * 7) + Math.floor(Math.random() * 30));
-    
+
     // Se o cliente estiver marcado como pago, a cobrança deve ser "Paga"
     // Caso contrário, usa o status padrão baseado no índice
     const statusCobranca = cliente.pago ? 'Paga' : statuses[index % statuses.length];
-    
+
     return {
       id: cliente.id,
       cliente: cliente.name,
@@ -153,12 +153,12 @@ export default function AdminCobrancas() {
   }, []);
 
   const shouldShow = (user?.user_metadata?.role === 'reseller') ? showRealData : true;
-  
+
   // Estado para cobranças virtuais (baseadas em clientes e revendas)
   const [cobrancasVirtuais, setCobrancasVirtuais] = useState<Cobranca[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Gateways configurados (sem mocks: estado inicial vazio, dados reais devem vir do backend)
   const [gateways] = useState<GatewayConfig[]>([]);
 
@@ -191,7 +191,7 @@ export default function AdminCobrancas() {
   };
 
   const updateCobranca = (id: number, updates: Partial<Cobranca>) => {
-    setCobrancasVirtuais(prev => 
+    setCobrancasVirtuais(prev =>
       prev.map(c => c.id === id ? { ...c, ...updates } : c)
     );
     toast.success('Cobrança atualizada com sucesso!');
@@ -217,29 +217,29 @@ export default function AdminCobrancas() {
   const [modalWhats, setModalWhats] = useState<Cobranca | null>(null);
   const [modalRelatorio, setModalRelatorio] = useState(false);
   const [modalAutomacao, setModalAutomacao] = useState(false);
-  const [nova, setNova] = useState({ 
-    cliente: '', 
-    nomeCliente: '', 
-    email: '', 
-    telefone: '', 
-    descricao: '', 
-    valor: '', 
-    status: 'Pendente', 
-    vencimento: '', 
+  const [nova, setNova] = useState({
+    cliente: '',
+    nomeCliente: '',
+    email: '',
+    telefone: '',
+    descricao: '',
+    valor: '',
+    status: 'Pendente',
+    vencimento: '',
     observacoes: '',
     gateway: 'PIX',
     formaPagamento: 'PIX',
     tags: [] as string[]
   });
-  const [edit, setEdit] = useState({ 
-    cliente: '', 
-    nomeCliente: '', 
-    email: '', 
-    telefone: '', 
-    descricao: '', 
-    valor: '', 
-    status: 'Pendente', 
-    vencimento: '', 
+  const [edit, setEdit] = useState({
+    cliente: '',
+    nomeCliente: '',
+    email: '',
+    telefone: '',
+    descricao: '',
+    valor: '',
+    status: 'Pendente',
+    vencimento: '',
     observacoes: '',
     telegram: '',
     whatsapp: '',
@@ -255,7 +255,7 @@ export default function AdminCobrancas() {
   const vencidas = cobrancasVirtuais.filter(c => c.status === 'Vencida').length;
   const receitaMes = 0;
 
-  const vencendo = cobrancasVirtuais.filter(c => c.status === 'Pendente').slice(0,2); // Exemplo
+  const vencendo = cobrancasVirtuais.filter(c => c.status === 'Pendente').slice(0, 2); // Exemplo
 
   const filtradas = cobrancasVirtuais.filter(c => {
     // Não mostrar cobranças cujo e-mail corresponda ao usuário logado (admin da revenda)
@@ -272,7 +272,7 @@ export default function AdminCobrancas() {
       alert('Preencha todos os campos obrigatórios!');
       return;
     }
-    
+
     const novaCobranca: Omit<Cobranca, 'id'> = {
       cliente: nova.nomeCliente,
       email: nova.email,
@@ -286,17 +286,17 @@ export default function AdminCobrancas() {
       observacoes: nova.observacoes,
       tags: nova.tags
     };
-    
+
     addCobranca(novaCobranca);
-    setNova({ 
-      cliente: '', 
-      nomeCliente: '', 
-      email: '', 
-      telefone: '', 
-      descricao: '', 
-      valor: '', 
-      status: 'Pendente', 
-      vencimento: '', 
+    setNova({
+      cliente: '',
+      nomeCliente: '',
+      email: '',
+      telefone: '',
+      descricao: '',
+      valor: '',
+      status: 'Pendente',
+      vencimento: '',
       observacoes: '',
       gateway: 'PIX',
       formaPagamento: 'PIX',
@@ -310,25 +310,25 @@ export default function AdminCobrancas() {
       alert('Preencha todos os campos obrigatórios!');
       return;
     }
-    
-    updateCobranca(modalEditar!.id, { 
+
+    updateCobranca(modalEditar!.id, {
       cliente: edit.nomeCliente,
       email: edit.email,
-      descricao: edit.descricao, 
+      descricao: edit.descricao,
       valor: Number(edit.valor),
       vencimento: edit.vencimento,
       status: edit.status as 'Pendente' | 'Vencida' | 'Paga'
     });
-    
-    setEdit({ 
-      cliente: '', 
-      nomeCliente: '', 
-      email: '', 
-      telefone: '', 
-      descricao: '', 
-      valor: '', 
-      status: 'Pendente', 
-      vencimento: '', 
+
+    setEdit({
+      cliente: '',
+      nomeCliente: '',
+      email: '',
+      telefone: '',
+      descricao: '',
+      valor: '',
+      status: 'Pendente',
+      vencimento: '',
       observacoes: '',
       telegram: '',
       whatsapp: '',
@@ -450,7 +450,7 @@ export default function AdminCobrancas() {
   };
 
   return (
-    <div className="p-6 min-h-screen bg-[#09090b]">
+    <div className="p-6 min-h-screen bg-background transition-colors duration-300">
       <div className="flex items-center justify-between mb-6">
         <div>
           <div className="flex items-center gap-3 mb-2">
@@ -460,16 +460,16 @@ export default function AdminCobrancas() {
           <p className="text-gray-400">Gerencie todas as suas cobranças e faturamento</p>
         </div>
         <div className="flex gap-2">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             className="border-purple-700 text-purple-400 hover:bg-purple-700/20"
             onClick={() => setModalRelatorio(true)}
           >
             <Download className="w-4 h-4 mr-2" />
             Relatório
           </Button>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             className="border-green-700 text-green-400 hover:bg-green-700/20"
             onClick={() => setModalAutomacao(true)}
           >
@@ -498,7 +498,7 @@ export default function AdminCobrancas() {
             <div className="text-xs text-gray-400 mt-1">Cobranças</div>
           </CardContent>
         </Card>
-        
+
         <Card className="bg-gradient-to-br from-green-900/50 to-green-800/30 border border-green-700/40">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm text-gray-300 flex items-center gap-2">
@@ -511,7 +511,7 @@ export default function AdminCobrancas() {
             <div className="text-xs text-gray-400 mt-1">{shouldShow ? `${taxaConversao.toFixed(1)}% taxa` : '0.0% taxa'}</div>
           </CardContent>
         </Card>
-        
+
         <Card className="bg-gradient-to-br from-yellow-900/50 to-yellow-800/30 border border-yellow-700/40">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm text-gray-300 flex items-center gap-2">
@@ -524,7 +524,7 @@ export default function AdminCobrancas() {
             <div className="text-xs text-gray-400 mt-1">Aguardando</div>
           </CardContent>
         </Card>
-        
+
         <Card className="bg-gradient-to-br from-red-900/50 to-red-800/30 border border-red-700/40">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm text-gray-300 flex items-center gap-2">
@@ -537,7 +537,7 @@ export default function AdminCobrancas() {
             <div className="text-xs text-gray-400 mt-1">Ação necessária</div>
           </CardContent>
         </Card>
-        
+
         <Card className="bg-gradient-to-br from-blue-900/50 to-blue-800/30 border border-blue-700/40">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm text-gray-300 flex items-center gap-2">
@@ -550,7 +550,7 @@ export default function AdminCobrancas() {
             <div className="text-xs text-gray-400 mt-1">Recebido</div>
           </CardContent>
         </Card>
-        
+
         <Card className="bg-gradient-to-br from-indigo-900/50 to-indigo-800/30 border border-indigo-700/40">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm text-gray-300 flex items-center gap-2">
@@ -588,244 +588,244 @@ export default function AdminCobrancas() {
 
         {/* Conteúdo das Tabs */}
         <TabsContent value="cobrancas" className="space-y-6">
-        {/* Alertas */}
-        <div className="mb-4">
-          {shouldShow && cobrancasVencidas > 0 && (
-            <div className="bg-red-900/80 text-red-200 rounded-lg px-4 py-3 mb-2 font-semibold">
-              <span className="mr-2">⚠️</span> Você tem {cobrancasVencidas} cobrança(s) vencida(s) totalizando R$ {formatCurrency(cobrancasVirtuais.filter(c => c.status === 'Vencida').reduce((acc, c) => acc + c.valor, 0))}
-            </div>
-          )}
-          {shouldShow && cobrancasPendentes > 0 && (
-            <div className="bg-yellow-900/80 text-yellow-200 rounded-lg px-4 py-3 font-semibold">
-              <span className="mr-2">⏰</span> Você tem {cobrancasPendentes} cobrança(s) pendente(s) totalizando R$ {formatCurrency(cobrancasVirtuais.filter(c => c.status === 'Pendente').reduce((acc, c) => acc + c.valor, 0))}
-            </div>
-          )}
-        </div>
-      </TabsContent>
-
-      {/* Conteúdo da Aba Dashboard */}
-      <TabsContent value="dashboard" className="space-y-6">
-        {/* Gráficos e Métricas */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="bg-[#1f2937] border border-purple-700/40">
-            <CardHeader>
-              <CardTitle className="text-white">Taxa de Conversão</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center">
-                <div className="text-4xl font-bold text-green-400 mb-2">{shouldShow ? `${taxaConversao.toFixed(1)}%` : '0.0%'}</div>
-                <Progress value={shouldShow ? taxaConversao : 0} className="h-3" />
-                <p className="text-gray-400 text-sm mt-2">{shouldShow ? cobrancasPagas : 0} de {shouldShow ? totalCobrancas : 0} cobranças pagas</p>
+          {/* Alertas */}
+          <div className="mb-4">
+            {shouldShow && cobrancasVencidas > 0 && (
+              <div className="bg-red-900/80 text-red-200 rounded-lg px-4 py-3 mb-2 font-semibold">
+                <span className="mr-2">⚠️</span> Você tem {cobrancasVencidas} cobrança(s) vencida(s) totalizando R$ {formatCurrency(cobrancasVirtuais.filter(c => c.status === 'Vencida').reduce((acc, c) => acc + c.valor, 0))}
               </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-[#1f2937] border border-purple-700/40">
-            <CardHeader>
-              <CardTitle className="text-white">Performance por Gateway</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {gateways.filter(g => g.configurado).map(gateway => (
-                  <div key={gateway.id} className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className={`w-3 h-3 rounded-full ${gateway.status === 'Ativo' ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                      <span className="text-gray-300">{gateway.nome}</span>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-sm font-semibold text-white">{gateway.taxa}</div>
-                      <div className="text-xs text-gray-400">{gateway.limite}</div>
-                    </div>
-                  </div>
-                ))}
+            )}
+            {shouldShow && cobrancasPendentes > 0 && (
+              <div className="bg-yellow-900/80 text-yellow-200 rounded-lg px-4 py-3 font-semibold">
+                <span className="mr-2">⏰</span> Você tem {cobrancasPendentes} cobrança(s) pendente(s) totalizando R$ {formatCurrency(cobrancasVirtuais.filter(c => c.status === 'Pendente').reduce((acc, c) => acc + c.valor, 0))}
               </div>
-            </CardContent>
-          </Card>
-        </div>
-      </TabsContent>
-
-      <TabsContent value="cobrancas" className="space-y-6">
-        {/* Filtros e busca */}
-        <div className="flex flex-col md:flex-row md:items-center gap-3 mb-4">
-          <div className="flex-1 flex items-center bg-[#1f2937] rounded-lg px-3">
-            <Search className="w-5 h-5 text-gray-400 mr-2" />
-            <Input
-              placeholder="Buscar por cliente, descrição ou email..."
-              className="bg-transparent border-none text-white focus:ring-0"
-              value={busca}
-              onChange={e => setBusca(e.target.value)}
-            />
+            )}
           </div>
-          <select
-            aria-label="Filtrar por status"
-            className="bg-[#1f2937] border border-gray-700 text-gray-300 rounded px-3 py-2"
-            value={filtroStatus || ''}
-            onChange={e => setFiltroStatus(e.target.value || null)}
-          >
-            <option value="">Todos</option>
-            <option value="Pendente">Pendentes</option>
-            <option value="Vencida">Vencidas</option>
-            <option value="Paga">Pagas</option>
-          </select>
-          <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white" onClick={() => setModalNova(true)}>
-            <Plus className="w-4 h-4 mr-2" /> Nova Cobrança
-          </Button>
-        </div>
+        </TabsContent>
 
-        {/* Tabela de cobranças modernizada */}
-        <Card className="bg-[#1f2937] border border-purple-700/40">
-          <CardHeader>
-            <CardTitle className="text-white text-lg">Lista de Cobranças ({shouldShow ? filtradas.length : 0})</CardTitle>
-          </CardHeader>
-          <CardContent className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Cliente</TableHead>
-                  <TableHead>Descrição</TableHead>
-                  <TableHead>Valor</TableHead>
-                  <TableHead>Vencimento</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Gateway</TableHead>
-                  <TableHead>Tentativas</TableHead>
-                  <TableHead>Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-            <TableBody>
-              {filtradas.map(c => (
-                <TableRow key={c.id}>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
-                        {c.cliente.split(' ').map(n => n[0]).join('').slice(0,2)}
-                      </div>
-                      <div>
-                        <div className="font-semibold text-white">{c.cliente}</div>
-                        <div className="text-xs text-gray-400">{c.email}</div>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-gray-300">{c.descricao}</TableCell>
-                  <TableCell className="font-bold text-white">R$ {c.valor.toFixed(2)}</TableCell>
-                  <TableCell className="text-gray-300">{c.vencimento}</TableCell>
-                  <TableCell>
-                    {c.status === 'Vencida' && <Badge className="bg-red-700 text-red-200">Vencida</Badge>}
-                    {c.status === 'Pendente' && <Badge className="bg-yellow-700 text-yellow-200">Pendente</Badge>}
-                    {c.status === 'Paga' && <Badge className="bg-green-700 text-green-200">Paga</Badge>}
-                  </TableCell>
-                  <TableCell className="text-white text-xs sm:text-sm">{c.tipo}</TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Button size="icon" variant="ghost" onClick={() => setModalVisualizar(c)}><Eye className="w-4 h-4 text-blue-400" /></Button>
-                      <Button size="icon" variant="ghost" onClick={() => openEditModal(c)}><Edit className="w-4 h-4 text-yellow-400" /></Button>
-                      <Button size="icon" variant="ghost" onClick={() => setModalWhats(c)}><MessageSquare className="w-4 h-4 text-green-500" /></Button>
-                      <Button size="icon" variant="ghost" onClick={() => setModalEmail(c)}><Mail className="w-4 h-4 text-blue-500" /></Button>
-                      <Button size="icon" variant="ghost" onClick={() => setModalExcluir(c)}><Trash2 className="w-4 h-4 text-red-400" /></Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-      </TabsContent>
-
-      <TabsContent value="gateways" className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {gateways.map(gateway => (
-            <Card key={gateway.id} className="bg-[#1f2937] border border-purple-700/40">
+        {/* Conteúdo da Aba Dashboard */}
+        <TabsContent value="dashboard" className="space-y-6">
+          {/* Gráficos e Métricas */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card className="bg-[#1f2937] border border-purple-700/40">
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-white text-lg">{gateway.nome}</CardTitle>
-                  <Badge className={gateway.status === 'Ativo' ? 'bg-green-700 text-green-200' : 'bg-red-700 text-red-200'}>
-                    {gateway.status}
-                  </Badge>
-                </div>
+                <CardTitle className="text-white">Taxa de Conversão</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Tipo:</span>
-                    <span className="text-white">{gateway.tipo}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Taxa:</span>
-                    <span className="text-white">{gateway.taxa}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Limite:</span>
-                    <span className="text-white">{gateway.limite}</span>
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    className="flex-1 border-purple-700 text-purple-400 hover:bg-purple-700/20"
-                    onClick={() => handleTestarGateway(gateway.id)}
-                  >
-                    <Zap className="w-4 h-4 mr-1" />
-                    Testar
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    className="flex-1 border-blue-700 text-blue-400 hover:bg-blue-700/20"
-                  >
-                    <Settings className="w-4 h-4 mr-1" />
-                    Config
-                  </Button>
+              <CardContent>
+                <div className="text-center">
+                  <div className="text-4xl font-bold text-green-400 mb-2">{shouldShow ? `${taxaConversao.toFixed(1)}%` : '0.0%'}</div>
+                  <Progress value={shouldShow ? taxaConversao : 0} className="h-3" />
+                  <p className="text-gray-400 text-sm mt-2">{shouldShow ? cobrancasPagas : 0} de {shouldShow ? totalCobrancas : 0} cobranças pagas</p>
                 </div>
               </CardContent>
             </Card>
-          ))}
-        </div>
-      </TabsContent>
 
-      <TabsContent value="configuracoes" className="space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card className="bg-[#1f2937] border border-purple-700/40">
+              <CardHeader>
+                <CardTitle className="text-white">Performance por Gateway</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {gateways.filter(g => g.configurado).map(gateway => (
+                    <div key={gateway.id} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-3 h-3 rounded-full ${gateway.status === 'Ativo' ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                        <span className="text-gray-300">{gateway.nome}</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-semibold text-white">{gateway.taxa}</div>
+                        <div className="text-xs text-gray-400">{gateway.limite}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="cobrancas" className="space-y-6">
+          {/* Filtros e busca */}
+          <div className="flex flex-col md:flex-row md:items-center gap-3 mb-4">
+            <div className="flex-1 flex items-center bg-[#1f2937] rounded-lg px-3">
+              <Search className="w-5 h-5 text-gray-400 mr-2" />
+              <Input
+                placeholder="Buscar por cliente, descrição ou email..."
+                className="bg-transparent border-none text-white focus:ring-0"
+                value={busca}
+                onChange={e => setBusca(e.target.value)}
+              />
+            </div>
+            <select
+              aria-label="Filtrar por status"
+              className="bg-[#1f2937] border border-gray-700 text-gray-300 rounded px-3 py-2"
+              value={filtroStatus || ''}
+              onChange={e => setFiltroStatus(e.target.value || null)}
+            >
+              <option value="">Todos</option>
+              <option value="Pendente">Pendentes</option>
+              <option value="Vencida">Vencidas</option>
+              <option value="Paga">Pagas</option>
+            </select>
+            <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white" onClick={() => setModalNova(true)}>
+              <Plus className="w-4 h-4 mr-2" /> Nova Cobrança
+            </Button>
+          </div>
+
+          {/* Tabela de cobranças modernizada */}
           <Card className="bg-[#1f2937] border border-purple-700/40">
             <CardHeader>
-              <CardTitle className="text-white">Configurações de Notificação</CardTitle>
+              <CardTitle className="text-white text-lg">Lista de Cobranças ({shouldShow ? filtradas.length : 0})</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-gray-300">Email automático</span>
-                <Switch defaultChecked />
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-300">WhatsApp automático</span>
-                <Switch defaultChecked />
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-300">Notificações push</span>
-                <Switch />
-              </div>
+            <CardContent className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Cliente</TableHead>
+                    <TableHead>Descrição</TableHead>
+                    <TableHead>Valor</TableHead>
+                    <TableHead>Vencimento</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Gateway</TableHead>
+                    <TableHead>Tentativas</TableHead>
+                    <TableHead>Ações</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filtradas.map(c => (
+                    <TableRow key={c.id}>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
+                            {c.cliente.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                          </div>
+                          <div>
+                            <div className="font-semibold text-white">{c.cliente}</div>
+                            <div className="text-xs text-gray-400">{c.email}</div>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-gray-300">{c.descricao}</TableCell>
+                      <TableCell className="font-bold text-white">R$ {c.valor.toFixed(2)}</TableCell>
+                      <TableCell className="text-gray-300">{c.vencimento}</TableCell>
+                      <TableCell>
+                        {c.status === 'Vencida' && <Badge className="bg-red-700 text-red-200">Vencida</Badge>}
+                        {c.status === 'Pendente' && <Badge className="bg-yellow-700 text-yellow-200">Pendente</Badge>}
+                        {c.status === 'Paga' && <Badge className="bg-green-700 text-green-200">Paga</Badge>}
+                      </TableCell>
+                      <TableCell className="text-white text-xs sm:text-sm">{c.tipo}</TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Button size="icon" variant="ghost" onClick={() => setModalVisualizar(c)}><Eye className="w-4 h-4 text-blue-400" /></Button>
+                          <Button size="icon" variant="ghost" onClick={() => openEditModal(c)}><Edit className="w-4 h-4 text-yellow-400" /></Button>
+                          <Button size="icon" variant="ghost" onClick={() => setModalWhats(c)}><MessageSquare className="w-4 h-4 text-green-500" /></Button>
+                          <Button size="icon" variant="ghost" onClick={() => setModalEmail(c)}><Mail className="w-4 h-4 text-blue-500" /></Button>
+                          <Button size="icon" variant="ghost" onClick={() => setModalExcluir(c)}><Trash2 className="w-4 h-4 text-red-400" /></Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </CardContent>
           </Card>
+        </TabsContent>
 
-          <Card className="bg-[#1f2937] border border-purple-700/40">
-            <CardHeader>
-              <CardTitle className="text-white">Automação de Cobranças</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-gray-300">Cobrança automática</span>
-                <Switch defaultChecked />
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-300">Retry automático</span>
-                <Switch defaultChecked />
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-300">Multa por atraso</span>
-                <Switch />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </TabsContent>
+        <TabsContent value="gateways" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {gateways.map(gateway => (
+              <Card key={gateway.id} className="bg-[#1f2937] border border-purple-700/40">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-white text-lg">{gateway.nome}</CardTitle>
+                    <Badge className={gateway.status === 'Ativo' ? 'bg-green-700 text-green-200' : 'bg-red-700 text-red-200'}>
+                      {gateway.status}
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Tipo:</span>
+                      <span className="text-white">{gateway.tipo}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Taxa:</span>
+                      <span className="text-white">{gateway.taxa}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Limite:</span>
+                      <span className="text-white">{gateway.limite}</span>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="flex-1 border-purple-700 text-purple-400 hover:bg-purple-700/20"
+                      onClick={() => handleTestarGateway(gateway.id)}
+                    >
+                      <Zap className="w-4 h-4 mr-1" />
+                      Testar
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="flex-1 border-blue-700 text-blue-400 hover:bg-blue-700/20"
+                    >
+                      <Settings className="w-4 h-4 mr-1" />
+                      Config
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="configuracoes" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card className="bg-[#1f2937] border border-purple-700/40">
+              <CardHeader>
+                <CardTitle className="text-white">Configurações de Notificação</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-300">Email automático</span>
+                  <Switch defaultChecked />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-300">WhatsApp automático</span>
+                  <Switch defaultChecked />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-300">Notificações push</span>
+                  <Switch />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-[#1f2937] border border-purple-700/40">
+              <CardHeader>
+                <CardTitle className="text-white">Automação de Cobranças</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-300">Cobrança automática</span>
+                  <Switch defaultChecked />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-300">Retry automático</span>
+                  <Switch defaultChecked />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-300">Multa por atraso</span>
+                  <Switch />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
       </Tabs>
       {/* Modal Nova Cobrança */}
       <Dialog open={modalNova} onOpenChange={setModalNova}>
@@ -833,9 +833,9 @@ export default function AdminCobrancas() {
           <div className="p-6 w-full flex flex-col">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold">Nova Cobrança</h2>
-              <Button 
-                variant="ghost" 
-                size="icon" 
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => setModalNova(false)}
                 className="text-gray-400 hover:text-white"
               >
@@ -844,14 +844,14 @@ export default function AdminCobrancas() {
                 </svg>
               </Button>
             </div>
-            
+
             <div className="space-y-6">
               {/* Cliente */}
               <div>
                 <label htmlFor="nova-cliente" className="block text-gray-300 mb-2 font-medium">
                   Cliente <span className="text-red-500">*</span>
                 </label>
-                <select 
+                <select
                   id="nova-cliente"
                   aria-label="Selecionar cliente ou revenda"
                   className="w-full bg-[#23272f] border border-gray-600 text-white rounded-lg px-3 py-2 focus:border-purple-500 focus:outline-none"
@@ -903,7 +903,7 @@ export default function AdminCobrancas() {
                 <label htmlFor="nova-telefone" className="block text-gray-300 mb-2 font-medium">
                   Telefone
                 </label>
-                <Input 
+                <Input
                   id="nova-telefone"
                   aria-label="Telefone do cliente"
                   placeholder="(11) 99999-9999"
@@ -918,7 +918,7 @@ export default function AdminCobrancas() {
                 <label htmlFor="nova-descricao" className="block text-gray-300 mb-2 font-medium">
                   Descrição <span className="text-red-500">*</span>
                 </label>
-                <textarea 
+                <textarea
                   id="nova-descricao"
                   aria-label="Descrição da cobrança"
                   placeholder="Descrição da cobrança"
@@ -933,7 +933,7 @@ export default function AdminCobrancas() {
                 <label htmlFor="nova-valor" className="block text-gray-300 mb-2 font-medium">
                   Valor <span className="text-red-500">*</span>
                 </label>
-                <Input 
+                <Input
                   id="nova-valor"
                   aria-label="Valor da cobrança"
                   placeholder="R$ 0,00"
@@ -948,7 +948,7 @@ export default function AdminCobrancas() {
                 <label htmlFor="nova-status" className="block text-gray-300 mb-2 font-medium">
                   Status
                 </label>
-                <select 
+                <select
                   id="nova-status"
                   aria-label="Selecionar status da cobrança"
                   className="w-full bg-[#23272f] border border-gray-600 text-white rounded-lg px-3 py-2 focus:border-purple-500 focus:outline-none"
@@ -967,7 +967,7 @@ export default function AdminCobrancas() {
                   Data de Vencimento <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <Input 
+                  <Input
                     id="nova-vencimento"
                     aria-label="Data de vencimento"
                     type="date"
@@ -984,7 +984,7 @@ export default function AdminCobrancas() {
                 <label className="block text-gray-300 mb-2 font-medium">
                   Observações
                 </label>
-                <textarea 
+                <textarea
                   placeholder="Observações adicionais sobre a cobrança"
                   className="w-full bg-[#23272f] border border-gray-600 text-white placeholder-gray-400 focus:border-purple-500 rounded-lg px-3 py-2 min-h-[100px] resize-y"
                   value={nova.observacoes}
@@ -995,14 +995,14 @@ export default function AdminCobrancas() {
 
             {/* Botões */}
             <div className="flex justify-end gap-3 mt-8 pt-6 border-t border-gray-700">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => setModalNova(false)}
                 className="border-gray-600 text-gray-400 hover:text-white px-6 py-2"
               >
                 Cancelar
               </Button>
-              <Button 
+              <Button
                 className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2"
                 onClick={handleSalvarNova}
               >
@@ -1060,7 +1060,7 @@ export default function AdminCobrancas() {
                 {/* Cliente */}
                 <div className="col-span-1">
                   <label htmlFor="edit-cliente" className="block text-gray-300 mb-1 font-medium">Cliente *</label>
-                  <select 
+                  <select
                     id="edit-cliente"
                     aria-label="Selecionar cliente para edição"
                     className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
@@ -1100,10 +1100,10 @@ export default function AdminCobrancas() {
                 {/* Nome */}
                 <div className="col-span-1">
                   <label htmlFor="edit-nome" className="block text-gray-300 mb-1 font-medium">Nome</label>
-                  <input 
+                  <input
                     id="edit-nome"
                     aria-label="Nome do cliente"
-                    placeholder="Nome do cliente" 
+                    placeholder="Nome do cliente"
                     className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                     value={edit.nomeCliente}
                     onChange={e => setEdit({ ...edit, nomeCliente: e.target.value })}
@@ -1112,10 +1112,10 @@ export default function AdminCobrancas() {
                 {/* E-mail */}
                 <div className="col-span-1">
                   <label htmlFor="edit-email" className="block text-gray-300 mb-1 font-medium">E-mail *</label>
-                  <input 
+                  <input
                     id="edit-email"
                     aria-label="E-mail do cliente"
-                    placeholder="Email do cliente" 
+                    placeholder="Email do cliente"
                     className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                     value={edit.email}
                     onChange={e => setEdit({ ...edit, email: e.target.value })}
@@ -1124,10 +1124,10 @@ export default function AdminCobrancas() {
                 {/* Telefone */}
                 <div className="col-span-1">
                   <label htmlFor="edit-telefone" className="block text-gray-300 mb-1 font-medium">Telefone</label>
-                  <input 
+                  <input
                     id="edit-telefone"
                     aria-label="Telefone do cliente"
-                    placeholder="(11) 99999-9999" 
+                    placeholder="(11) 99999-9999"
                     className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                     value={edit.telefone}
                     onChange={e => setEdit({ ...edit, telefone: e.target.value })}
@@ -1136,10 +1136,10 @@ export default function AdminCobrancas() {
                 {/* Telegram */}
                 <div className="col-span-1">
                   <label htmlFor="edit-telegram" className="block text-gray-300 mb-1 font-medium">Telegram</label>
-                  <input 
+                  <input
                     id="edit-telegram"
                     aria-label="Telegram do cliente"
-                    placeholder="@usuario" 
+                    placeholder="@usuario"
                     className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                     value={edit.telegram}
                     onChange={e => setEdit({ ...edit, telegram: e.target.value })}
@@ -1148,10 +1148,10 @@ export default function AdminCobrancas() {
                 {/* WhatsApp */}
                 <div className="col-span-1">
                   <label htmlFor="edit-whatsapp" className="block text-gray-300 mb-1 font-medium">WhatsApp</label>
-                  <input 
+                  <input
                     id="edit-whatsapp"
                     aria-label="WhatsApp do cliente"
-                    placeholder="+55 11 99999-9999" 
+                    placeholder="+55 11 99999-9999"
                     className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                     value={edit.whatsapp}
                     onChange={e => setEdit({ ...edit, whatsapp: e.target.value })}
@@ -1161,10 +1161,10 @@ export default function AdminCobrancas() {
                 {/* Descrição */}
                 <div className="col-span-2">
                   <label htmlFor="edit-descricao" className="block text-gray-300 mb-1 font-medium">Descrição *</label>
-                  <textarea 
+                  <textarea
                     id="edit-descricao"
                     aria-label="Descrição da cobrança"
-                    placeholder="Descrição da cobrança" 
+                    placeholder="Descrição da cobrança"
                     className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 min-h-[60px]"
                     value={edit.descricao}
                     onChange={e => setEdit({ ...edit, descricao: e.target.value })}
@@ -1173,10 +1173,10 @@ export default function AdminCobrancas() {
                 {/* Valor */}
                 <div className="col-span-1">
                   <label htmlFor="edit-valor" className="block text-gray-300 mb-1 font-medium">Valor *</label>
-                  <input 
+                  <input
                     id="edit-valor"
                     aria-label="Valor da cobrança"
-                    placeholder="R$ 0,00" 
+                    placeholder="R$ 0,00"
                     className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                     value={edit.valor}
                     onChange={e => setEdit({ ...edit, valor: e.target.value })}
@@ -1185,7 +1185,7 @@ export default function AdminCobrancas() {
                 {/* Status */}
                 <div className="col-span-1">
                   <label htmlFor="edit-status" className="block text-gray-300 mb-1 font-medium">Status</label>
-                  <select 
+                  <select
                     id="edit-status"
                     aria-label="Status da cobrança"
                     className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
@@ -1200,7 +1200,7 @@ export default function AdminCobrancas() {
                 {/* Data de Vencimento */}
                 <div className="col-span-2">
                   <label htmlFor="edit-vencimento" className="block text-gray-300 mb-1 font-medium">Data de Vencimento *</label>
-                  <input 
+                  <input
                     id="edit-vencimento"
                     aria-label="Data de vencimento"
                     type="date"
@@ -1212,10 +1212,10 @@ export default function AdminCobrancas() {
                 {/* Observações */}
                 <div className="col-span-2">
                   <label htmlFor="edit-observacoes" className="block text-gray-300 mb-1 font-medium">Observações</label>
-                  <textarea 
+                  <textarea
                     id="edit-observacoes"
                     aria-label="Observações sobre a cobrança"
-                    placeholder="Observações sobre a cobrança" 
+                    placeholder="Observações sobre a cobrança"
                     className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 min-h-[60px]"
                     value={edit.observacoes}
                     onChange={e => setEdit({ ...edit, observacoes: e.target.value })}
@@ -1258,7 +1258,7 @@ export default function AdminCobrancas() {
                 {/* Data de Renovação */}
                 <div>
                   <label htmlFor="edit-renewalDate" className="block text-gray-300 mb-1 font-medium">Data de Renovação</label>
-                  <input 
+                  <input
                     id="edit-renewalDate"
                     aria-label="Data de renovação"
                     type="date"
@@ -1270,11 +1270,11 @@ export default function AdminCobrancas() {
                 {/* Número de Dispositivos */}
                 <div>
                   <label htmlFor="edit-devices" className="block text-gray-300 mb-1 font-medium">Número de Dispositivos</label>
-                  <input 
+                  <input
                     id="edit-devices"
                     aria-label="Número de dispositivos"
-                    type="number" 
-                    min={1} 
+                    type="number"
+                    min={1}
                     className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                     value={edit.devices}
                     onChange={e => setEdit({ ...edit, devices: parseInt(e.target.value) || 1 })}
@@ -1284,30 +1284,30 @@ export default function AdminCobrancas() {
                 <div>
                   <label htmlFor="edit-credits" className="block text-gray-300 mb-1 font-medium">Créditos</label>
                   <div className="flex items-center gap-2">
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       className="bg-[#23272f] text-white px-2 py-1 rounded border border-gray-700"
                       onClick={() => setEdit({ ...edit, credits: Math.max(0, edit.credits - 1) })}
                     >
                       -
                     </button>
-                    <input 
+                    <input
                       id="edit-credits"
                       aria-label="Quantidade de créditos"
-                      type="number" 
-                      min={0} 
+                      type="number"
+                      min={0}
                       className="w-16 bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                       value={edit.credits}
                       onChange={e => setEdit({ ...edit, credits: parseInt(e.target.value) || 0 })}
                     />
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       className="bg-[#23272f] text-white px-2 py-1 rounded border border-gray-700"
                       onClick={() => setEdit({ ...edit, credits: Math.min(500, edit.credits + 1) })}
                     >
                       +
                     </button>
-                    <span className="text-xs text-gray-400 ml-2">valor<br/>entre 0<br/>e 500€</span>
+                    <span className="text-xs text-gray-400 ml-2">valor<br />entre 0<br />e 500€</span>
                   </div>
                 </div>
               </div>
@@ -1322,8 +1322,8 @@ export default function AdminCobrancas() {
               </div>
               <div>
                 <label className="block text-gray-300 mb-1 font-medium">Anotações</label>
-                <textarea 
-                  className="w-full bg-[#1f2937] border border-gray-700 text-white rounded p-2 min-h-[60px]" 
+                <textarea
+                  className="w-full bg-[#1f2937] border border-gray-700 text-white rounded p-2 min-h-[60px]"
                   placeholder="Anotações..."
                   value={edit.notes}
                   onChange={e => setEdit({ ...edit, notes: e.target.value })}
@@ -1492,7 +1492,7 @@ export default function AdminCobrancas() {
             <div>
               <label className="block text-gray-300 mb-2">Configurações</label>
               <div className="space-y-2">
-                  <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between">
                   <label className="text-gray-300">Tentativas máximas</label>
                   <input aria-label="Tentativas máximas" type="number" min="1" max="10" defaultValue="3" className="w-20 bg-[#23272f] border border-gray-700 text-white rounded px-2 py-1" />
                 </div>

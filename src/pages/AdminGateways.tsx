@@ -97,7 +97,7 @@ export default function AdminGateways() {
   };
 
   return (
-    <div className="p-6 min-h-screen bg-[#09090b]">
+    <div className="p-6 min-h-screen bg-background transition-colors duration-300">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-3">
           <Server className="w-7 h-7 text-purple-400" />
@@ -317,8 +317,8 @@ export default function AdminGateways() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-300">URL do Webhook Global</label>
-                <Input 
-                  placeholder="https://seudominio.com/webhook/pagamentos" 
+                <Input
+                  placeholder="https://seudominio.com/webhook/pagamentos"
                   className="bg-gray-900 border border-gray-700 text-white"
                   value={configGeral.webhookUrl}
                   onChange={(e) => setConfigGeral({ ...configGeral, webhookUrl: e.target.value })}
@@ -326,9 +326,9 @@ export default function AdminGateways() {
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-300">Timeout da API (segundos)</label>
-                <Input 
-                  type="number" 
-                  placeholder="30" 
+                <Input
+                  type="number"
+                  placeholder="30"
                   className="bg-gray-900 border border-gray-700 text-white"
                   value={configGeral.apiTimeout}
                   onChange={(e) => setConfigGeral({ ...configGeral, apiTimeout: parseInt(e.target.value) || 30 })}
