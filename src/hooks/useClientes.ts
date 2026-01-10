@@ -27,6 +27,7 @@ export interface Cliente {
   pago?: boolean;
   admin_id?: string;
   server?: string;
+  role?: string;
   // Aliases for compatibility with camelCase usage in frontend
   realName?: string;
   expirationDate?: string;
