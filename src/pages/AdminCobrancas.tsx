@@ -99,8 +99,8 @@ const generateCobrancasFromClientes = (clientes: Cliente[]): Cobranca[] => {
 // Gerar cobranças baseadas nas revendas
 const generateCobrancasFromRevendas = (revendas: Revenda[]): Cobranca[] => {
   return revendas.map((revenda, index) => ({
-    id: 10000 + revenda.id, // evitar conflito de id
-    cliente: revenda.personal_name || revenda.username,
+    id: 10000 + Number(revenda.id), // evitar conflito de id
+    cliente: revenda.personal_name || revenda.username || '',
     email: revenda.email || '',
     descricao: 'Cobrança Revenda - Mensal',
     valor: Math.floor(Math.random() * 80) + 120, // Valor entre 120 e 200
@@ -114,7 +114,7 @@ const generateCobrancasFromRevendas = (revendas: Revenda[]): Cobranca[] => {
     proximaTentativa: new Date(Date.now() + Math.random() * 86400000 * 3).toLocaleDateString('pt-BR'),
     observacoes: index % 2 === 0 ? 'Revenda preferencial' : '',
     tags: index % 3 === 0 ? ['Urgente', 'VIP'] : index % 3 === 1 ? ['Recorrente'] : [],
-    originalId: revenda.id,
+    originalId: Number(revenda.id),
     originalType: 'revenda'
   }));
 };
@@ -152,7 +152,7 @@ export default function AdminCobrancas() {
     };
   }, []);
 
-  const shouldShow = (user?.user_metadata?.role === 'reseller') ? showRealData : true;
+  const shouldShow = ((user as any)?.user_metadata?.role === 'reseller') ? showRealData : true;
 
   // Estado para cobranças virtuais (baseadas em clientes e revendas)
   const [cobrancasVirtuais, setCobrancasVirtuais] = useState<Cobranca[]>([]);
@@ -414,9 +414,9 @@ export default function AdminCobrancas() {
       setNova({
         ...nova,
         cliente: revendaId,
-        nomeCliente: revenda.personal_name || revenda.username,
+        nomeCliente: revenda.personal_name || revenda.username || '',
         email: revenda.email || '',
-        telefone: revenda.phone || '',
+        telefone: revenda.whatsapp || '',
         descricao: 'Cobrança Mensal - Revenda',
         valor: '149.90',
         vencimento: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
@@ -1068,18 +1068,19 @@ export default function AdminCobrancas() {
                     onChange={e => {
                       const selectedUser = getUserById(parseInt(e.target.value));
                       if (selectedUser) {
+                        const u = selectedUser as any;
                         setEdit({
                           ...edit,
                           cliente: e.target.value,
                           nomeCliente: selectedUser.name,
                           email: selectedUser.email,
-                          telefone: selectedUser.phone || '',
-                          telegram: selectedUser.telegram || '',
-                          whatsapp: selectedUser.whatsapp || '',
-                          devices: selectedUser.devices || 1,
-                          credits: selectedUser.credits || 0,
-                          renewalDate: selectedUser.renewalDate || '',
-                          notes: selectedUser.notes || ''
+                          telefone: u.phone || u.whatsapp || '',
+                          telegram: u.telegram || '',
+                          whatsapp: u.whatsapp || '',
+                          devices: u.devices || 1,
+                          credits: u.credits || 0,
+                          renewalDate: u.renewalDate || '',
+                          notes: u.notes || ''
                         });
                       }
                     }}
