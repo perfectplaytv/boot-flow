@@ -1233,7 +1233,7 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
     const toggleJobStatus = (id: number) => {
         const updated = fillJobs.map(j => {
             if (j.id === id) {
-                const newStatus = j.status === 'rodando' ? 'pausado' : 'rodando';
+                const newStatus = j.status === 'rodando' ? 'pausado' as const : 'rodando' as const;
                 const log = {
                     time: new Date().toISOString(),
                     type: 'info' as const,
