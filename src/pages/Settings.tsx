@@ -82,38 +82,38 @@ export default function Settings() {
   };
 
   const renderContent = () => {
-    switch(tab) {
-      case 'perfil': 
+    switch (tab) {
+      case 'perfil':
         return <PerfilContent perfil={perfil} handleChange={handleChange} />;
-      case 'notificacoes': 
+      case 'notificacoes':
         return <NotificacoesContent notificacoes={notificacoes} setNotificacoes={setNotificacoes} />;
-      case 'integracoes': 
+      case 'integracoes':
         return <IntegracoesContent integracoes={integracoes} setIntegracoes={setIntegracoes} modalIntegracao={modalIntegracao} setModalIntegracao={setModalIntegracao} />;
-      case 'faturamento': 
+      case 'faturamento':
         return <FaturamentoContent plano={plano} faturas={faturas} />;
-      case 'seguranca': 
+      case 'seguranca':
         return <SegurancaContent senha={senha} setSenha={setSenha} modal2FA={modal2FA} setModal2FA={setModal2FA} modalExcluir={modalExcluir} setModalExcluir={setModalExcluir} />;
-      default: 
+      default:
         return <PerfilContent perfil={perfil} handleChange={handleChange} />;
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#09090b] p-3 sm:p-6">
+    <div className="min-h-screen bg-background p-3 sm:p-6 transition-colors duration-300">
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white">Configurações</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Configurações</h1>
             <p className="text-gray-400 text-sm sm:text-base">Gerencie sua conta e integrações</p>
           </div>
           <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white px-4 sm:px-6 py-2 rounded font-semibold h-10 sm:h-auto">Salvar Alterações</Button>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
           {navItems.map(item => {
             const colors = colorClasses[item.color as keyof typeof colorClasses] || colorClasses.purple;
             return (
-              <Card 
+              <Card
                 key={item.id}
                 onClick={() => setTab(item.id)}
                 className={`cursor-pointer transition-all duration-300 ${tab === item.id ? `${colors.border} scale-105 shadow-lg ${colors.shadow}` : `border-gray-700 ${colors.hoverBorder}`} bg-gradient-to-br ${colors.from} ${colors.to} border-2`}
@@ -129,7 +129,7 @@ export default function Settings() {
             )
           })}
         </div>
-        
+
         <div>{renderContent()}</div>
       </div>
     </div>
@@ -139,33 +139,33 @@ export default function Settings() {
 const PerfilContent = ({ perfil, handleChange }) => {
   return (
     <div className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 rounded-xl p-3 sm:p-6 border border-purple-700/40 mt-4">
-      <h2 className="text-lg sm:text-xl font-bold text-white mb-2 flex items-center gap-2">👤 Informações Pessoais</h2>
+      <h2 className="text-lg sm:text-xl font-bold text-foreground mb-2 flex items-center gap-2">👤 Informações Pessoais</h2>
       <p className="text-gray-400 text-sm sm:text-base mb-4 sm:mb-6">Atualize suas informações básicas</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
         <div>
           <label htmlFor="perfil-nome" className="block text-gray-300 mb-1 font-medium">Nome</label>
-          <Input id="perfil-nome" name="nome" value={perfil.nome} onChange={handleChange} className="bg-[#1f2937] border border-gray-700 text-white" />
+          <Input id="perfil-nome" name="nome" value={perfil.nome} onChange={handleChange} className="bg-background border border-input text-foreground" />
         </div>
         <div>
           <label htmlFor="perfil-sobrenome" className="block text-gray-300 mb-1 font-medium">Sobrenome</label>
-          <Input id="perfil-sobrenome" name="sobrenome" value={perfil.sobrenome} onChange={handleChange} className="bg-[#1f2937] border border-gray-700 text-white" />
+          <Input id="perfil-sobrenome" name="sobrenome" value={perfil.sobrenome} onChange={handleChange} className="bg-background border border-input text-foreground" />
         </div>
       </div>
       <div className="mb-4">
         <label htmlFor="perfil-email" className="block text-gray-300 mb-1 font-medium">Email</label>
-        <Input id="perfil-email" name="email" value={perfil.email} onChange={handleChange} className="bg-[#1f2937] border border-gray-700 text-white" />
+        <Input id="perfil-email" name="email" value={perfil.email} onChange={handleChange} className="bg-background border border-input text-foreground" />
       </div>
       <div className="mb-4">
         <label htmlFor="perfil-empresa" className="block text-gray-300 mb-1 font-medium">Empresa</label>
-        <Input id="perfil-empresa" name="empresa" value={perfil.empresa} onChange={handleChange} className="bg-[#1f2937] border border-gray-700 text-white" />
+        <Input id="perfil-empresa" name="empresa" value={perfil.empresa} onChange={handleChange} className="bg-background border border-input text-foreground" />
       </div>
       <div className="mb-4">
         <label htmlFor="perfil-telefone" className="block text-gray-300 mb-1 font-medium">Telefone</label>
-        <Input id="perfil-telefone" name="telefone" value={perfil.telefone} onChange={handleChange} className="bg-[#1f2937] border border-gray-700 text-white" />
+        <Input id="perfil-telefone" name="telefone" value={perfil.telefone} onChange={handleChange} className="bg-background border border-input text-foreground" />
       </div>
       <div className="mb-2">
         <label htmlFor="perfil-fuso" className="block text-gray-300 mb-1 font-medium">Fuso Horário</label>
-        <Input id="perfil-fuso" name="fuso" value={perfil.fuso} onChange={handleChange} className="bg-[#1f2937] border border-gray-700 text-white" />
+        <Input id="perfil-fuso" name="fuso" value={perfil.fuso} onChange={handleChange} className="bg-background border border-input text-foreground" />
       </div>
     </div>
   );
@@ -174,7 +174,7 @@ const PerfilContent = ({ perfil, handleChange }) => {
 const NotificacoesContent = ({ notificacoes, setNotificacoes }) => {
   return (
     <div className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 rounded-xl p-3 sm:p-6 border border-purple-700/40 mt-4">
-      <h2 className="text-lg sm:text-xl font-bold text-white mb-2">Notificações</h2>
+      <h2 className="text-lg sm:text-xl font-bold text-foreground mb-2">Notificações</h2>
       <p className="text-gray-400 text-sm sm:text-base mb-4 sm:mb-6">Gerencie como deseja ser avisado</p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
         <div className="flex items-center justify-between">
@@ -217,7 +217,7 @@ const NotificacoesContent = ({ notificacoes, setNotificacoes }) => {
 const IntegracoesContent = ({ integracoes, setIntegracoes, modalIntegracao, setModalIntegracao }) => {
   return (
     <div className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 rounded-xl p-6 border border-purple-700/40 mt-4">
-      <h2 className="text-xl font-bold text-white mb-2">Integrações</h2>
+      <h2 className="text-xl font-bold text-foreground mb-2">Integrações</h2>
       <p className="text-gray-400 mb-6">Conecte com outros sistemas</p>
       <div className="space-y-4">
         <div className="flex items-center justify-between">
@@ -233,7 +233,7 @@ const IntegracoesContent = ({ integracoes, setIntegracoes, modalIntegracao, setM
           <Button size="sm" className={integracoes.zapier ? 'bg-green-600' : 'bg-[#1f2937] text-white'} onClick={() => setModalIntegracao('zapier')}>{integracoes.zapier ? 'Desconectar' : 'Conectar'}</Button>
         </div>
       </div>
-      <DialogWrapper 
+      <DialogWrapper
         title="Configurar Integração"
         description="Insira as credenciais necessárias para a integração"
         className="bg-[#1f2937] border border-purple-700 text-white max-w-md"
@@ -241,25 +241,25 @@ const IntegracoesContent = ({ integracoes, setIntegracoes, modalIntegracao, setM
         onOpenChange={(open) => !open && setModalIntegracao(null)}
       >
         <div className="py-4">
-          <Input 
-            placeholder="Token/API Key" 
-            className="bg-[#1f2937] border border-gray-700 text-white" 
+          <Input
+            placeholder="Token/API Key"
+            className="bg-background border border-input text-foreground"
             aria-label="Token ou chave de API para a integração"
           />
         </div>
         <DialogFooter>
-          <Button 
-            className="bg-[#1f2937] text-white hover:bg-gray-600" 
+          <Button
+            className="bg-[#1f2937] text-white hover:bg-gray-600"
             onClick={() => setModalIntegracao(null)}
             aria-label="Cancelar e fechar o diálogo"
           >
             Cancelar
           </Button>
-          <Button 
-            className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white" 
-            onClick={() => { 
-              setIntegracoes(i => ({ ...i, [modalIntegracao!]: !i[modalIntegracao!] })); 
-              setModalIntegracao(null); 
+          <Button
+            className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white"
+            onClick={() => {
+              setIntegracoes(i => ({ ...i, [modalIntegracao!]: !i[modalIntegracao!] }));
+              setModalIntegracao(null);
             }}
             aria-label={`${integracoes[modalIntegracao!] ? 'Desconectar' : 'Conectar'} a integração`}
           >
@@ -274,7 +274,7 @@ const IntegracoesContent = ({ integracoes, setIntegracoes, modalIntegracao, setM
 const FaturamentoContent = ({ plano, faturas }) => {
   return (
     <div className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 rounded-xl p-6 border border-purple-700/40 mt-4">
-      <h2 className="text-xl font-bold text-white mb-2">Faturamento</h2>
+      <h2 className="text-xl font-bold text-foreground mb-2">Faturamento</h2>
       <p className="text-gray-400 mb-6">Gerencie seu plano e pagamentos</p>
       <div className="mb-4">
         <span className="block text-gray-300 font-medium mb-1">Plano Atual</span>
@@ -316,7 +316,7 @@ const FaturamentoContent = ({ plano, faturas }) => {
 const SegurancaContent = ({ senha, setSenha, modal2FA, setModal2FA, modalExcluir, setModalExcluir }) => {
   return (
     <div className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 rounded-xl p-6 border border-purple-700/40 mt-4">
-      <h2 className="text-xl font-bold text-white mb-2">Segurança</h2>
+      <h2 className="text-xl font-bold text-foreground mb-2">Segurança</h2>
       <p className="text-gray-400 mb-6">Proteja sua conta</p>
       <div className="mb-4">
         <span className="block text-gray-300 font-medium mb-1">Alterar Senha</span>
@@ -379,19 +379,19 @@ const SegurancaContent = ({ senha, setSenha, modal2FA, setModal2FA, modalExcluir
             <Input
               id="confirm-delete"
               placeholder="Digite EXCLUIR"
-              className="bg-[#1f2937] border border-gray-700 text-white"
+              className="bg-background border border-input text-foreground"
               aria-label="Confirmação para excluir a conta"
             />
           </div>
           <div className="flex justify-end gap-2">
-            <Button 
+            <Button
               className="bg-[#1f2937] text-white hover:bg-gray-600"
               onClick={() => setModalExcluir(false)}
               aria-label="Cancelar e manter a conta"
             >
               Cancelar
             </Button>
-            <Button 
+            <Button
               className="bg-red-600 hover:bg-red-700 text-white"
               onClick={() => {
                 // Lógica para excluir a conta

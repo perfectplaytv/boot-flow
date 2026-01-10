@@ -56,7 +56,7 @@ const Profile = () => {
 
   return (
     <>
-      <div className="min-h-screen bg-[#09090b] text-white p-6">
+      <div className="min-h-screen bg-background text-foreground p-6 transition-colors duration-300">
         <div className="max-w-4xl mx-auto space-y-6">
           {/* Header */}
           <div className="flex items-center gap-4">
@@ -94,9 +94,9 @@ const Profile = () => {
                             onChange={handleImageUpload}
                           />
                         </label>
-                         <button onClick={() => setIsAvatarModalOpen(true)} className="absolute top-0 -right-2 bg-blue-600 rounded-full p-2 cursor-pointer hover:bg-blue-700" title="Selecionar avatar">
-                           <ImageIcon className="h-3 w-3 text-white" />
-                         </button>
+                        <button onClick={() => setIsAvatarModalOpen(true)} className="absolute top-0 -right-2 bg-blue-600 rounded-full p-2 cursor-pointer hover:bg-blue-700" title="Selecionar avatar">
+                          <ImageIcon className="h-3 w-3 text-white" />
+                        </button>
                       </>
                     )}
                   </div>

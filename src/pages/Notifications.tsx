@@ -3,7 +3,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { 
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -93,9 +93,9 @@ export default function Notifications() {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [historico, setHistorico] = useState<HistoricoItem[]>([]);
   const [modal, setModal] = useState<{ type: null | 'novo' | 'editar' | 'enviar', template?: Template }>({ type: null });
-  const [form, setForm] = useState<FormData>({ 
-    nome: '', 
-    texto: '', 
+  const [form, setForm] = useState<FormData>({
+    nome: '',
+    texto: '',
     status: 'Ativo',
     variaveis: '',
     imagem: undefined
@@ -108,7 +108,7 @@ export default function Notifications() {
   const [selectedDest, setSelectedDest] = useState<Destinatario | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const { isConnected, connectionStatus } = useWhatsAppStatus();
-  
+
   const variaveisSugeridas = ['nome', 'servico', 'data', 'hora', 'valor', 'desconto', 'validade', 'pix', 'promocao'] as const;
 
   // Gating: só mostrar dados reais se houver pelo menos um envio registrado
@@ -128,13 +128,13 @@ export default function Notifications() {
         toast.error('Por favor, selecione apenas arquivos de imagem');
         return;
       }
-      
+
       // Validar tamanho (máximo 5MB)
       if (file.size > 5 * 1024 * 1024) {
         toast.error('A imagem deve ter no máximo 5MB');
         return;
       }
-      
+
       // Converter para base64
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -160,16 +160,16 @@ export default function Notifications() {
     <div className="space-y-4 py-2">
       <div>
         <label htmlFor="template-name" className="sr-only">Nome do Template</label>
-        <Input 
+        <Input
           id="template-name"
-          placeholder="Nome do Template" 
-          className="bg-gray-900 border border-gray-700 text-white rounded-lg w-full mb-3" 
-          value={form.nome} 
+          placeholder="Nome do Template"
+          className="bg-background border border-input text-foreground rounded-lg w-full mb-3"
+          value={form.nome}
           onChange={(e) => setForm({ ...form, nome: e.target.value })}
           aria-label="Nome do Template"
         />
       </div>
-      
+
       <div>
         <div className="flex items-center justify-between mb-1">
           <span className="text-sm text-gray-300">Variáveis disponíveis:</span>
@@ -204,18 +204,18 @@ export default function Notifications() {
             </button>
           ))}
         </div>
-        
+
         <label htmlFor="template-textarea" className="sr-only">Texto da Mensagem</label>
-        <textarea 
-          id="template-textarea" 
-          placeholder="Digite o texto da mensagem. Use {variaveis} para personalização." 
-          rows={3} 
-          className="bg-gray-900 border border-gray-700 text-white rounded-lg w-full p-2" 
-          value={form.texto} 
+        <textarea
+          id="template-textarea"
+          placeholder="Digite o texto da mensagem. Use {variaveis} para personalização."
+          rows={3}
+          className="bg-background border border-input text-foreground rounded-lg w-full p-2"
+          value={form.texto}
           onChange={(e) => setForm({ ...form, texto: e.target.value })}
           aria-label="Texto da Mensagem"
         />
-        
+
         <div className="mt-2">
           <span className="text-xs text-gray-400">Variáveis detectadas: </span>
           {Array.from(new Set((form.texto.match(/\{(.*?)\}/g) || []).map(v => v.replace(/[{}]/g, '')))).length > 0 ? (
@@ -231,18 +231,18 @@ export default function Notifications() {
           )}
         </div>
       </div>
-      
+
       <div className="bg-[#181825] border border-purple-800 rounded-lg p-3 text-sm text-gray-200">
         <div className="font-semibold text-purple-300 mb-1">Visualização:</div>
         <div className="whitespace-pre-line">{form.texto || 'Sua mensagem aparecerá aqui...'}</div>
       </div>
-      
+
       <div>
         <label htmlFor="template-status" className="block text-sm font-medium text-gray-300 mb-1">Status do Template</label>
-        <select 
+        <select
           id="template-status"
-          className="bg-gray-900 border border-gray-700 text-white rounded px-3 py-2 w-full" 
-          value={form.status} 
+          className="bg-gray-900 border border-gray-700 text-white rounded px-3 py-2 w-full"
+          value={form.status}
           onChange={(e) => setForm({ ...form, status: e.target.value as TemplateStatus })}
           aria-label="Status do Template"
         >
@@ -250,18 +250,18 @@ export default function Notifications() {
           <option value="Inativo">Inativo</option>
         </select>
       </div>
-      
+
       <DialogFooter className="mt-4">
-        <Button 
-          type="button" 
-          variant="outline" 
+        <Button
+          type="button"
+          variant="outline"
           onClick={() => setModal({ type: null })}
           className="text-white border-gray-600 hover:bg-gray-700"
         >
           Cancelar
         </Button>
-        <Button 
-          type="button" 
+        <Button
+          type="button"
           onClick={() => {
             if (form.nome && form.texto) {
               const newTemplate: Template = {
@@ -316,16 +316,16 @@ export default function Notifications() {
 
   const handleEditar = () => {
     if (modal.template && form.nome && form.texto) {
-      setTemplates(templates.map(t => 
-        t.id === modal.template?.id 
-          ? { 
-              ...t, 
-              nome: form.nome,
-              texto: form.texto,
-              variaveis: Array.from(new Set((form.texto.match(/\{(.*?)\}/g) || []).map(v => v.replace(/[{}]/g, '')))),
-              status: form.status,
-              imagem: form.imagem
-            } 
+      setTemplates(templates.map(t =>
+        t.id === modal.template?.id
+          ? {
+            ...t,
+            nome: form.nome,
+            texto: form.texto,
+            variaveis: Array.from(new Set((form.texto.match(/\{(.*?)\}/g) || []).map(v => v.replace(/[{}]/g, '')))),
+            status: form.status,
+            imagem: form.imagem
+          }
           : t
       ));
       setModal({ type: null });
@@ -340,13 +340,13 @@ export default function Notifications() {
   const handleEnviar = () => {
     if (modal.template && selectedDest) {
       setHistorico([
-        { 
-          id: historico.length + 1, 
-          nome: selectedDest.nome, 
-          template: modal.template.nome, 
-          status: 'Entregue', 
-          data: new Date().toLocaleString('pt-BR') 
-        }, 
+        {
+          id: historico.length + 1,
+          nome: selectedDest.nome,
+          template: modal.template.nome,
+          status: 'Entregue',
+          data: new Date().toLocaleString('pt-BR')
+        },
         ...historico
       ]);
       setModal({ type: null });
@@ -359,13 +359,13 @@ export default function Notifications() {
   const searchDest = typeof selectedDest === 'string' ? selectedDest : '';
 
   return (
-    <div className="p-6 min-h-screen bg-[#09090b]">
+    <div className="p-6 min-h-screen bg-background transition-colors duration-300">
       <div className="flex items-center gap-3 mb-2">
         <MessageSquare className="w-7 h-7 text-purple-400" />
         <h1 className="text-3xl font-bold text-purple-300">Notificações WhatsApp</h1>
       </div>
       <p className="text-gray-400 mb-6">Gerencie templates e envie notificações para seus clientes</p>
-      
+
       <div className="flex justify-end gap-2 mb-4">
         <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white" onClick={() => setModal({ type: 'novo' })}><Plus className="w-4 h-4 mr-2" /> Novo Template</Button>
         <Button className="bg-green-600 hover:bg-green-700 text-white" onClick={() => { setModal({ type: 'enviar' }); setSelectedDest(null); setSelectedTemplate(templates[0]); }}><Send className="w-4 h-4 mr-2" /> Enviar Notificação</Button>
@@ -413,7 +413,7 @@ export default function Notifications() {
           </CardContent>
         </Card>
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Templates */}
         <Card className="bg-[#1f2937] border border-purple-700/40">
@@ -438,9 +438,9 @@ export default function Notifications() {
                   <span>{t.taxa}% entrega</span>
                 </div>
                 <div className="flex gap-2 mt-2">
-                  <Button size="sm" variant="outline" className="border-yellow-600 text-yellow-400" onClick={() => { 
-                    setModal({ type: 'editar', template: t }); 
-                    setForm({ nome: t.nome, texto: t.texto, variaveis: t.variaveis.join(','), status: t.status, imagem: t.imagem }); 
+                  <Button size="sm" variant="outline" className="border-yellow-600 text-yellow-400" onClick={() => {
+                    setModal({ type: 'editar', template: t });
+                    setForm({ nome: t.nome, texto: t.texto, variaveis: t.variaveis.join(','), status: t.status, imagem: t.imagem });
                     setImagePreview(t.imagem || null);
                   }}>Editar</Button>
                 </div>
@@ -481,162 +481,162 @@ export default function Notifications() {
               <h2 className="text-2xl font-bold">Novo Template</h2>
             </div>
             <div className="space-y-4">
-            <div>
-              <label htmlFor="template-name" className="sr-only">Nome do Template</label>
-              <Input 
-                id="template-name"
-                placeholder="Nome do Template" 
-                className="bg-gray-900 border border-gray-700 text-white rounded-lg w-full mb-3" 
-                value={form.nome} 
-                onChange={e => setForm({ ...form, nome: e.target.value })}
-                aria-label="Nome do Template"
-              />
-            </div>
-            
-            <div>
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-sm text-gray-300">Variáveis disponíveis:</span>
-                <span className="text-xs text-gray-500">Clique para inserir</span>
+              <div>
+                <label htmlFor="template-name" className="sr-only">Nome do Template</label>
+                <Input
+                  id="template-name"
+                  placeholder="Nome do Template"
+                  className="bg-background border border-input text-foreground rounded-lg w-full mb-3"
+                  value={form.nome}
+                  onChange={e => setForm({ ...form, nome: e.target.value })}
+                  aria-label="Nome do Template"
+                />
               </div>
-              <div className="flex flex-wrap gap-2 mb-2">
-                {['nome', 'servico', 'data', 'hora', 'valor', 'pix', 'promocao', 'desconto', 'validade'].map(v => (
-                  <button
-                    key={v}
-                    type="button"
-                    className="bg-purple-900/60 text-purple-200 rounded-full px-3 py-1 text-xs font-semibold border border-purple-700 hover:bg-purple-800 hover:text-white transition"
-                    onClick={() => {
-                      const textarea = document.getElementById('template-textarea') as HTMLTextAreaElement;
-                      if (textarea) {
-                        const start = textarea.selectionStart;
-                        const end = textarea.selectionEnd;
-                        const before = form.texto.substring(0, start);
-                        const after = form.texto.substring(end);
-                        const insert = `{${v}}`;
-                        setForm({ ...form, texto: before + insert + after });
-                        setTimeout(() => {
-                          textarea.focus();
-                          textarea.selectionStart = textarea.selectionEnd = start + insert.length;
-                        }, 0);
-                      } else {
-                        setForm({ ...form, texto: form.texto + ` {${v}}` });
-                      }
-                    }}
-                    aria-label={`Inserir variável ${v}`}
-                  >
-                    {'{'}{v}{'}'}
-                  </button>
-                ))}
+
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-sm text-gray-300">Variáveis disponíveis:</span>
+                  <span className="text-xs text-gray-500">Clique para inserir</span>
+                </div>
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {['nome', 'servico', 'data', 'hora', 'valor', 'pix', 'promocao', 'desconto', 'validade'].map(v => (
+                    <button
+                      key={v}
+                      type="button"
+                      className="bg-purple-900/60 text-purple-200 rounded-full px-3 py-1 text-xs font-semibold border border-purple-700 hover:bg-purple-800 hover:text-white transition"
+                      onClick={() => {
+                        const textarea = document.getElementById('template-textarea') as HTMLTextAreaElement;
+                        if (textarea) {
+                          const start = textarea.selectionStart;
+                          const end = textarea.selectionEnd;
+                          const before = form.texto.substring(0, start);
+                          const after = form.texto.substring(end);
+                          const insert = `{${v}}`;
+                          setForm({ ...form, texto: before + insert + after });
+                          setTimeout(() => {
+                            textarea.focus();
+                            textarea.selectionStart = textarea.selectionEnd = start + insert.length;
+                          }, 0);
+                        } else {
+                          setForm({ ...form, texto: form.texto + ` {${v}}` });
+                        }
+                      }}
+                      aria-label={`Inserir variável ${v}`}
+                    >
+                      {'{'}{v}{'}'}
+                    </button>
+                  ))}
+                </div>
+
+                <label htmlFor="template-textarea" className="sr-only">Texto da Mensagem</label>
+                <textarea
+                  id="template-textarea"
+                  placeholder="Digite o texto da mensagem. Use {variaveis} para personalização."
+                  rows={3}
+                  className="bg-gray-900 border border-gray-700 text-white rounded-lg w-full p-2"
+                  value={form.texto}
+                  onChange={e => setForm({ ...form, texto: e.target.value })}
+                  aria-label="Texto da Mensagem"
+                />
+
+                <div className="mt-2">
+                  <span className="text-xs text-gray-400">Variáveis detectadas: </span>
+                  {Array.from(new Set((form.texto.match(/\{(.*?)\}/g) || []).map(v => v.replace(/[{}]/g, '')))).length > 0 ? (
+                    <div className="flex flex-wrap gap-2 mt-1">
+                      {Array.from(new Set((form.texto.match(/\{(.*?)\}/g) || []).map(v => v.replace(/[{}]/g, '')))).map(v => (
+                        <span key={v} className="bg-purple-900/60 text-purple-200 rounded-full px-3 py-1 text-xs font-semibold border border-purple-700">
+                          {'{'}{v}{'}'}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="text-xs text-gray-500">Nenhuma variável detectada. Use {'{nome}'} por exemplo.</span>
+                  )}
+                </div>
               </div>
-              
-              <label htmlFor="template-textarea" className="sr-only">Texto da Mensagem</label>
-              <textarea 
-                id="template-textarea" 
-                placeholder="Digite o texto da mensagem. Use {variaveis} para personalização." 
-                rows={3} 
-                className="bg-gray-900 border border-gray-700 text-white rounded-lg w-full p-2" 
-                value={form.texto} 
-                onChange={e => setForm({ ...form, texto: e.target.value })}
-                aria-label="Texto da Mensagem"
-              />
-              
-              <div className="mt-2">
-                <span className="text-xs text-gray-400">Variáveis detectadas: </span>
-                {Array.from(new Set((form.texto.match(/\{(.*?)\}/g) || []).map(v => v.replace(/[{}]/g, '')))).length > 0 ? (
-                  <div className="flex flex-wrap gap-2 mt-1">
-                    {Array.from(new Set((form.texto.match(/\{(.*?)\}/g) || []).map(v => v.replace(/[{}]/g, '')))).map(v => (
-                      <span key={v} className="bg-purple-900/60 text-purple-200 rounded-full px-3 py-1 text-xs font-semibold border border-purple-700">
-                        {'{'}{v}{'}'}
-                      </span>
-                    ))}
+
+              {/* Área de Upload de Imagem */}
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Imagem do Template (Opcional)</label>
+                {imagePreview || form.imagem ? (
+                  <div className="relative">
+                    <div className="relative w-full h-48 bg-gray-900 border border-gray-700 rounded-lg overflow-hidden">
+                      <img
+                        src={imagePreview || form.imagem}
+                        alt="Preview"
+                        className="w-full h-full object-contain"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleRemoveImage}
+                        className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white rounded-full p-1.5 transition-colors"
+                        aria-label="Remover imagem"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <p className="text-xs text-gray-400 mt-1">Clique no X para remover a imagem</p>
                   </div>
                 ) : (
-                  <span className="text-xs text-gray-500">Nenhuma variável detectada. Use {'{nome}'} por exemplo.</span>
+                  <div className="border-2 border-dashed border-gray-700 rounded-lg p-6 text-center hover:border-purple-600 transition-colors">
+                    <input
+                      type="file"
+                      id="image-upload"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
+                    <label
+                      htmlFor="image-upload"
+                      className="cursor-pointer flex flex-col items-center justify-center space-y-2"
+                    >
+                      <div className="w-12 h-12 bg-purple-900/30 rounded-full flex items-center justify-center">
+                        <Upload className="w-6 h-6 text-purple-400" />
+                      </div>
+                      <div className="text-sm text-gray-300">
+                        <span className="text-purple-400 font-medium">Clique para fazer upload</span> ou arraste a imagem aqui
+                      </div>
+                      <p className="text-xs text-gray-500">PNG, JPG, GIF até 5MB</p>
+                    </label>
+                  </div>
                 )}
               </div>
-            </div>
-            
-            {/* Área de Upload de Imagem */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Imagem do Template (Opcional)</label>
-              {imagePreview || form.imagem ? (
-                <div className="relative">
-                  <div className="relative w-full h-48 bg-gray-900 border border-gray-700 rounded-lg overflow-hidden">
-                    <img 
-                      src={imagePreview || form.imagem} 
-                      alt="Preview" 
-                      className="w-full h-full object-contain"
+
+              <div className="bg-[#181825] border border-purple-800 rounded-lg p-3 text-sm text-gray-200">
+                <div className="font-semibold text-purple-300 mb-1">Visualização:</div>
+                {imagePreview || form.imagem ? (
+                  <div className="mb-2">
+                    <img
+                      src={imagePreview || form.imagem}
+                      alt="Preview"
+                      className="w-full max-h-48 object-contain rounded mb-2"
                     />
-                    <button
-                      type="button"
-                      onClick={handleRemoveImage}
-                      className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white rounded-full p-1.5 transition-colors"
-                      aria-label="Remover imagem"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
                   </div>
-                  <p className="text-xs text-gray-400 mt-1">Clique no X para remover a imagem</p>
-                </div>
-              ) : (
-                <div className="border-2 border-dashed border-gray-700 rounded-lg p-6 text-center hover:border-purple-600 transition-colors">
-                  <input
-                    type="file"
-                    id="image-upload"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="hidden"
-                  />
-                  <label
-                    htmlFor="image-upload"
-                    className="cursor-pointer flex flex-col items-center justify-center space-y-2"
-                  >
-                    <div className="w-12 h-12 bg-purple-900/30 rounded-full flex items-center justify-center">
-                      <Upload className="w-6 h-6 text-purple-400" />
-                    </div>
-                    <div className="text-sm text-gray-300">
-                      <span className="text-purple-400 font-medium">Clique para fazer upload</span> ou arraste a imagem aqui
-                    </div>
-                    <p className="text-xs text-gray-500">PNG, JPG, GIF até 5MB</p>
-                  </label>
-                </div>
-              )}
+                ) : null}
+                <div className="whitespace-pre-line">{form.texto || 'Sua mensagem aparecerá aqui...'}</div>
+              </div>
+
+              <div>
+                <label htmlFor="template-status" className="block text-sm font-medium text-gray-300 mb-1">Status do Template</label>
+                <select
+                  id="template-status"
+                  className="bg-gray-900 border border-gray-700 text-white rounded px-3 py-2 w-full"
+                  value={form.status}
+                  onChange={e => setForm({ ...form, status: e.target.value as TemplateStatus })}
+                  aria-label="Status do Template"
+                >
+                  <option value={TEMPLATE_STATUS.ATIVO}>Ativo</option>
+                  <option value={TEMPLATE_STATUS.INATIVO}>Inativo</option>
+                </select>
+              </div>
             </div>
-            
-            <div className="bg-[#181825] border border-purple-800 rounded-lg p-3 text-sm text-gray-200">
-              <div className="font-semibold text-purple-300 mb-1">Visualização:</div>
-              {imagePreview || form.imagem ? (
-                <div className="mb-2">
-                  <img 
-                    src={imagePreview || form.imagem} 
-                    alt="Preview" 
-                    className="w-full max-h-48 object-contain rounded mb-2"
-                  />
-                </div>
-              ) : null}
-              <div className="whitespace-pre-line">{form.texto || 'Sua mensagem aparecerá aqui...'}</div>
-            </div>
-            
-            <div>
-              <label htmlFor="template-status" className="block text-sm font-medium text-gray-300 mb-1">Status do Template</label>
-              <select 
-                id="template-status"
-                className="bg-gray-900 border border-gray-700 text-white rounded px-3 py-2 w-full" 
-                value={form.status} 
-                onChange={e => setForm({ ...form, status: e.target.value as TemplateStatus })}
-                aria-label="Status do Template"
-              >
-                <option value={TEMPLATE_STATUS.ATIVO}>Ativo</option>
-                <option value={TEMPLATE_STATUS.INATIVO}>Inativo</option>
-              </select>
-            </div>
-            </div>
-            
+
             <div className="flex justify-end gap-2 mt-6">
               <Button variant="outline" onClick={() => setModal({ type: null })} className="bg-gray-700 text-white">
                 Cancelar
               </Button>
-              <Button 
-                className="bg-purple-600 hover:bg-purple-700 text-white" 
+              <Button
+                className="bg-purple-600 hover:bg-purple-700 text-white"
                 onClick={handleNovo}
                 disabled={!form.nome || !form.texto}
               >
@@ -646,15 +646,15 @@ export default function Notifications() {
           </div>
         </DialogContent>
       </Dialog>
-      
+
       {/* Modal Editar Template */}
       <Dialog open={modal.type === 'editar'} onOpenChange={(isOpen) => {
         if (!isOpen) {
           setModal({ type: null });
           // Limpa o formulário ao fechar
-          setForm({ 
-            nome: '', 
-            texto: '', 
+          setForm({
+            nome: '',
+            texto: '',
             status: TEMPLATE_STATUS.ATIVO,
             variaveis: '',
             imagem: undefined
@@ -672,11 +672,11 @@ export default function Notifications() {
               <label htmlFor="edit-nome" className="text-sm font-medium text-gray-300">
                 Nome do Template <span className="text-red-500">*</span>
               </label>
-              <Input 
+              <Input
                 id="edit-nome"
-                placeholder="Digite o nome do template" 
-                className="bg-gray-900 border border-gray-700 text-white" 
-                value={form.nome} 
+                placeholder="Digite o nome do template"
+                className="bg-gray-900 border border-gray-700 text-white"
+                value={form.nome}
                 onChange={e => setForm({ ...form, nome: e.target.value })}
                 aria-required="true"
               />
@@ -703,11 +703,11 @@ export default function Notifications() {
               <label htmlFor="edit-variaveis" className="text-sm font-medium text-gray-300">
                 Variáveis (opcional)
               </label>
-              <Input 
+              <Input
                 id="edit-variaveis"
-                placeholder="Ex: nome, data, hora" 
-                className="bg-gray-900 border border-gray-700 text-white" 
-                value={form.variaveis} 
+                placeholder="Ex: nome, data, hora"
+                className="bg-gray-900 border border-gray-700 text-white"
+                value={form.variaveis}
                 onChange={e => setForm({ ...form, variaveis: e.target.value })}
               />
               <p className="text-xs text-gray-400 mt-1">
@@ -723,9 +723,9 @@ export default function Notifications() {
               {imagePreview || form.imagem ? (
                 <div className="relative">
                   <div className="relative w-full h-48 bg-gray-900 border border-gray-700 rounded-lg overflow-hidden">
-                    <img 
-                      src={imagePreview || form.imagem} 
-                      alt="Preview" 
+                    <img
+                      src={imagePreview || form.imagem}
+                      alt="Preview"
                       className="w-full h-full object-contain"
                     />
                     <button
@@ -769,10 +769,10 @@ export default function Notifications() {
               <label htmlFor="edit-status" className="text-sm font-medium text-gray-300">
                 Status do Template
               </label>
-              <select 
+              <select
                 id="edit-status"
                 className="flex h-10 w-full rounded-md border border-gray-700 bg-gray-900 px-3 py-2 text-sm text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-purple-500"
-                value={form.status} 
+                value={form.status}
                 onChange={e => setForm({ ...form, status: e.target.value as TemplateStatus })}
                 aria-label="Status do Template"
               >
@@ -782,17 +782,17 @@ export default function Notifications() {
             </div>
           </div>
           <DialogFooter>
-            <Button 
+            <Button
               type="button"
-              variant="outline" 
-              onClick={() => setModal({ type: null })} 
+              variant="outline"
+              onClick={() => setModal({ type: null })}
               className="bg-gray-700 text-white hover:bg-gray-600"
             >
               Cancelar
             </Button>
-            <Button 
+            <Button
               type="button"
-              className="bg-purple-600 hover:bg-purple-700 text-white" 
+              className="bg-purple-600 hover:bg-purple-700 text-white"
               onClick={handleEditar}
               disabled={!form.nome.trim() || !form.texto.trim()}
             >
@@ -801,7 +801,7 @@ export default function Notifications() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      
+
       {/* Modal Enviar Notificação */}
       <Dialog open={modal.type === 'enviar'} onOpenChange={() => setModal({ type: null })}>
         <DialogContent className="bg-[#232a36] border border-purple-700 text-white max-w-md">
@@ -815,27 +815,27 @@ export default function Notifications() {
             </div>
             <div>
               <label className="block text-gray-300 mb-1 font-medium">Destinatário</label>
-              <Input 
-                placeholder="Buscar cliente ou revenda..." 
-                className="mb-2 bg-gray-900 border border-gray-700 text-white" 
+              <Input
+                placeholder="Buscar cliente ou revenda..."
+                className="mb-2 bg-gray-900 border border-gray-700 text-white"
                 value={searchDestValue}
-                onChange={e => setSearchDestValue(e.target.value)} 
+                onChange={e => setSearchDestValue(e.target.value)}
               />
               <div className="max-h-40 overflow-y-auto rounded border border-gray-700 bg-[#181825] divide-y divide-gray-800">
                 <div className="px-2 py-1 text-xs text-purple-400 font-bold">Clientes Ativos</div>
                 {clientes.filter(c => (c.status || '').toLowerCase() === 'ativo' && (!searchDestValue || (c.real_name || c.name).toLowerCase().includes(searchDestValue.toLowerCase()))).length > 0 ? (
                   clientes.filter(c => (c.status || '').toLowerCase() === 'ativo' && (!searchDestValue || (c.real_name || c.name).toLowerCase().includes(searchDestValue.toLowerCase()))).map(c => (
-                    <div 
-                      key={c.id} 
-                      className="px-3 py-2 hover:bg-purple-900/30 cursor-pointer flex items-center gap-2" 
-                      onClick={() => setSelectedDest({ 
-                        id: c.id, 
-                        nome: c.real_name || c.name, 
+                    <div
+                      key={c.id}
+                      className="px-3 py-2 hover:bg-purple-900/30 cursor-pointer flex items-center gap-2"
+                      onClick={() => setSelectedDest({
+                        id: c.id,
+                        nome: c.real_name || c.name,
                         telefone: c.email || '',
                         tipo: 'cliente' as const
                       })}
                     >
-                      <Users className="w-4 h-4 text-purple-400" /> 
+                      <Users className="w-4 h-4 text-purple-400" />
                       <span>{c.real_name || c.name} <span className="text-xs text-gray-400">({c.email})</span></span>
                     </div>
                   ))
@@ -847,17 +847,17 @@ export default function Notifications() {
                 <div className="px-2 py-1 text-xs text-green-400 font-bold">Revendas Ativas</div>
                 {revendas.filter(r => (r.status || '').toLowerCase() === 'active' && (!searchDestValue || (r.personal_name || r.username).toLowerCase().includes(searchDestValue.toLowerCase()))).length > 0 ? (
                   revendas.filter(r => (r.status || '').toLowerCase() === 'active' && (!searchDestValue || (r.personal_name || r.username).toLowerCase().includes(searchDestValue.toLowerCase()))).map(r => (
-                    <div 
-                      key={r.id} 
-                      className="px-3 py-2 hover:bg-green-900/30 cursor-pointer flex items-center gap-2" 
-                      onClick={() => setSelectedDest({ 
-                        id: r.id, 
-                        nome: r.personal_name || r.username, 
+                    <div
+                      key={r.id}
+                      className="px-3 py-2 hover:bg-green-900/30 cursor-pointer flex items-center gap-2"
+                      onClick={() => setSelectedDest({
+                        id: r.id,
+                        nome: r.personal_name || r.username,
                         telefone: r.email || '',
                         tipo: 'revenda' as const
                       })}
                     >
-                      <Users className="w-4 h-4 text-green-400" /> 
+                      <Users className="w-4 h-4 text-green-400" />
                       <span>{r.personal_name || r.username} <span className="text-xs text-gray-400">({r.email})</span></span>
                     </div>
                   ))
@@ -871,7 +871,7 @@ export default function Notifications() {
                 <div className="font-semibold text-purple-300 mb-1">Mensagem:</div>
                 <div className="whitespace-pre-line">
                   {Object.entries(selectedDest).reduce(
-                    (text, [key, value]) => text.replace(new RegExp(`\\{${key}\\}`, 'g'), String(value || '')), 
+                    (text, [key, value]) => text.replace(new RegExp(`\\{${key}\\}`, 'g'), String(value || '')),
                     selectedTemplate.texto
                   )}
                 </div>
@@ -879,16 +879,16 @@ export default function Notifications() {
             )}
           </div>
           <DialogFooter>
-            <Button 
-              variant="outline" 
-              onClick={() => setModal({ type: null })} 
+            <Button
+              variant="outline"
+              onClick={() => setModal({ type: null })}
               className="bg-gray-700 text-white"
             >
               Cancelar
             </Button>
-            <Button 
-              className="bg-green-600 hover:bg-green-700 text-white" 
-              disabled={!selectedDest || !isConnected} 
+            <Button
+              className="bg-green-600 hover:bg-green-700 text-white"
+              disabled={!selectedDest || !isConnected}
               onClick={handleEnviar}
             >
               Enviar
