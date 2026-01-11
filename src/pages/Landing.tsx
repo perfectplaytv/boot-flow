@@ -42,6 +42,7 @@ import {
 import { useNavigate, useLocation } from "react-router-dom";
 
 const Landing = () => {
+  // Force update trigger  
   const [email, setEmail] = useState("");
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
