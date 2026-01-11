@@ -95,7 +95,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
     };
   }, []);
 
-  const shouldShow = ((user as any)?.user_metadata?.role === 'reseller') ? showRealData : true;
+  const shouldShow = ((user as { user_metadata?: { role?: string } })?.user_metadata?.role === 'reseller') ? showRealData : true;
 
   const filteredRevendas = revendas
     .filter(revenda =>
@@ -106,7 +106,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
     // Se o usuário logado for um revendedor, não mostrar a própria conta na lista
     .filter(revenda => {
       try {
-        const role = (user as any)?.user_metadata?.role || user?.role || null;
+        const role = (user as { user_metadata?: { role?: string } })?.user_metadata?.role || user?.role || null;
         if (role === 'reseller') {
           // Evitar mostrar o próprio revendedor (comparar por email quando disponível)
           if (user?.email && revenda.email && revenda.email.toLowerCase() === user.email.toLowerCase()) {
