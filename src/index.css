@@ -280,3 +280,71 @@ All colors MUST be HSL.
   background: linear-gradient(180deg, hsl(262 83% 65%), hsl(262 83% 55%));
   box-shadow: 0 0 10px hsl(262 83% 58% / 0.5);
 }
+
+/* Animações Premium - Hero Section */
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes float-delayed {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); opacity: 1; }
+  50% { box-shadow: 0 0 30px rgba(59, 130, 246, 0.8); opacity: 0.8; }
+}
+
+@keyframes progress {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(0%); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-float-slow {
+  animation: float-slow 6s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float-delayed 7s ease-in-out infinite 1s;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s infinite;
+}
+
+.animate-progress {
+  animation: progress 2s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fade-in 1s ease-out forwards;
+}
+
+/* Gradient Text helper */
+.gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400;
+}
+
+/* 3D Transforms Helper */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.transform-style-3d {
+  transform-style: preserve-3d;
+}
+
+.rotate-y-6 {
+  transform: rotateY(-6deg) rotateX(2deg);
+}
+
+.hover\:rotate-y-0:hover {
+  transform: rotateY(0deg) rotateX(0deg);
+}
