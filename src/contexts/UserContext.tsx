@@ -21,6 +21,7 @@ const UserContext = createContext<UserContextType>({
 });
 
 // Hook customizado para facilitar o uso do contexto
+// eslint-disable-next-line react-refresh/only-export-components
 export const useUser = () => useContext(UserContext);
 
 // Componente Provedor que vai englobar a aplicação
