@@ -512,7 +512,7 @@ const Landing = () => {
       </header>
 
       {/* Hero Section Premium - Dual Column Optimized */}
-      <section id="hero" className="relative pt-12 pb-24 lg:pt-24 overflow-hidden bg-gradient-to-b from-blue-50/50 to-transparent dark:from-blue-950/20 dark:to-background">
+      <section id="hero" className="relative pt-6 pb-20 lg:pt-10 lg:pb-32 overflow-hidden bg-gradient-to-b from-blue-50/50 to-transparent dark:from-blue-950/20 dark:to-background">
         {/* Background Elements */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl pointer-events-none">
           <div className="absolute top-20 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl opacity-50 animate-pulse" />
