@@ -558,7 +558,10 @@ const Landing = () => {
                   <Button
                     size="xl"
                     className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:scale-105 transition-all duration-300 w-full sm:w-auto min-w-[240px]"
-                    onClick={() => navigate('/cadastro')}
+                    onClick={() => {
+                      const el = document.getElementById('pricing');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    }}
                   >
                     <Sparkles className="w-5 h-5 mr-2 animate-pulse" />
                     QUERO APROVEITAR
