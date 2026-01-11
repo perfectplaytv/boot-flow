@@ -42,7 +42,7 @@ export default function AdminPlans() {
             const res = await fetch('/api/plans');
             if (res.ok) {
                 const data = await res.json();
-                setPlans(data);
+                setPlans(data as Plan[]);
             } else {
                 toast.error("Erro ao carregar planos");
             }
@@ -74,7 +74,7 @@ export default function AdminPlans() {
                 setIsModalOpen(false);
                 fetchPlans(); // Refresh
             } else {
-                const error = await res.json();
+                const error = await res.json() as { error: string };
                 toast.error("Erro ao salvar: " + error.error);
             }
         } catch (err) {

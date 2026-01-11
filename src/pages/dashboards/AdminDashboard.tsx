@@ -64,6 +64,7 @@ import AdminCobrancas from "../AdminCobrancas";
 import Notifications from "../Notifications";
 import Profile from "../Profile";
 import AdminTelegram from "../AdminTelegram";
+import AdminPlans from "../AdminPlans";
 
 // Wrapper para AdminResellers que aceita callback quando um revendedor é criado
 const AdminResellersWrapper = ({ onResellerCreated, onCloseModal }: { onResellerCreated: () => void; onCloseModal: () => void }) => {
@@ -1223,6 +1224,8 @@ const AdminDashboard = () => {
   // Função para renderizar o conteúdo da página atual
   const renderCurrentPage = () => {
     switch (currentPage) {
+      case "plans":
+        return <AdminPlans />;
       case "dashboard":
         return (
           <div className="space-y-6">

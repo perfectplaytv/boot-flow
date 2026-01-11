@@ -17,7 +17,8 @@ import {
   Menu,
   UserPlus,
   DollarSign,
-  Bell
+  Bell,
+  CreditCard
 } from "lucide-react";
 import {
   Sidebar,
@@ -64,6 +65,7 @@ const menuItems = [
   { title: "Gamificação", page: "games", icon: Gamepad2 },
   { title: "Gateways", page: "gateways", icon: Server },
   { title: "Análises", page: "analytics", icon: BarChart3 },
+  { title: "Planos e Preços", page: "plans", icon: CreditCard },
   { title: "Configurações", page: "settings", icon: Settings },
 ];
 
