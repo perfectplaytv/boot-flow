@@ -113,7 +113,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
             return false;
           }
           // Também evitar comparar por username se for igual ao email local part
-          if (user?.email && revenda.username && revenda.username.toLowerCase() === user.email.split('@')[0].toLowerCase()) {
+          if (user?.email && revenda.username && revenda.username.toLowerCase() === (user.email.split('@')[0] || '').toLowerCase()) {
             return false;
           }
         }
@@ -1385,7 +1385,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => openViewModal(revenda)}
+                        onClick={() => openViewModal(revenda as unknown as Reseller)}
                         className="text-blue-400 hover:text-blue-300 h-8 w-8 sm:h-9 sm:w-9 p-0"
                       >
                         <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -1393,7 +1393,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => openEditModal(revenda)}
+                        onClick={() => openEditModal(revenda as unknown as Reseller)}
                         className="text-green-400 hover:text-green-300 h-8 w-8 sm:h-9 sm:w-9 p-0"
                       >
                         <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -1401,7 +1401,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => openDeleteModal(revenda)}
+                        onClick={() => openDeleteModal(revenda as unknown as Reseller)}
                         className="text-red-400 hover:text-red-300 h-8 w-8 sm:h-9 sm:w-9 p-0"
                       >
                         <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
