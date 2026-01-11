@@ -6,10 +6,24 @@ import { Separator } from "@/components/ui/separator";
 import { Check, Shield, Lock, ArrowLeft, CreditCard, Sparkles, Bot } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 
+interface PlanFeature {
+    text: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    icon?: any;
+}
+
+interface Plan {
+    name: string;
+    price: string;
+    period: string;
+    description: string;
+    features: PlanFeature[];
+}
+
 export default function Checkout() {
     const location = useLocation();
     const navigate = useNavigate();
-    const { plan } = location.state || {};
+    const plan = location.state?.plan as Plan | undefined;
 
     // Se não houver plano selecionado, redirecionar para a página de preços
     if (!plan) {
@@ -92,7 +106,7 @@ export default function Checkout() {
                                     <div className="space-y-4">
                                         <h3 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground">O que está incluído:</h3>
                                         <div className="grid sm:grid-cols-2 gap-3">
-                                            {plan.features.map((feature: any, i: number) => (
+                                            {plan.features.map((feature, i) => (
                                                 <div key={i} className="flex items-start gap-2">
                                                     <div className="mt-0.5 rounded-full bg-green-500/20 p-1 text-green-500">
                                                         <Check className="w-3 h-3" />
