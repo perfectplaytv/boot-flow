@@ -5,14 +5,14 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { 
-  Bot, 
-  Phone, 
-  MessageSquare, 
-  Zap, 
-  Heart, 
-  Star, 
-  Shield, 
+import {
+  Bot,
+  Phone,
+  MessageSquare,
+  Zap,
+  Heart,
+  Star,
+  Shield,
   TrendingUp,
   Play,
   Check,
@@ -119,14 +119,14 @@ const Landing = () => {
     const isWindows = /Windows|Win32|Win64/i.test(navigator.userAgent);
     const isLinux = /Linux/i.test(navigator.userAgent);
     const isDesktop = isMac || isWindows || isLinux;
-    
+
     if (isMobile) {
       // Mobile (Android/iOS): Tenta abrir no app WhatsApp Mobile
       const appUrl = `whatsapp://send?phone=${phoneNumber}&text=${defaultMessage}`;
-      
+
       // Tenta abrir no app
       window.location.href = appUrl;
-      
+
       // Fallback: se o app não abrir em 1 segundo, abre no web
       setTimeout(() => {
         window.open(`https://wa.me/${phoneNumber}?text=${defaultMessage}`, "_blank", "noopener,noreferrer");
@@ -135,11 +135,11 @@ const Landing = () => {
       // Desktop (Windows/Mac/Linux): Tenta abrir no app WhatsApp Desktop primeiro
       const desktopAppUrl = `whatsapp://send?phone=${phoneNumber}&text=${defaultMessage}`;
       const webUrl = `https://web.whatsapp.com/send?phone=${phoneNumber}&text=${defaultMessage}`;
-      
+
       // Tenta abrir no app WhatsApp Desktop
       const tryDesktopApp = () => {
         window.location.href = desktopAppUrl;
-        
+
         // Se o app não abrir em 500ms, abre no WhatsApp Web
         setTimeout(() => {
           // Verifica se ainda está na mesma página (app não abriu)
@@ -148,7 +148,7 @@ const Landing = () => {
           }
         }, 500);
       };
-      
+
       tryDesktopApp();
     } else {
       // Fallback genérico: usa o link wa.me que funciona em todos os casos
@@ -182,10 +182,10 @@ const Landing = () => {
         to: 'suporte@bootflow.com.br',
         subject: 'Novo Lead - BootFlow',
         body: `Novo cadastro recebido:\n\n` +
-              `Nome: ${formData.name}\n` +
-              `Email: ${formData.email}\n` +
-              `Telefone: ${formData.phone}\n\n` +
-              `Data: ${new Date().toLocaleString('pt-BR')}`,
+          `Nome: ${formData.name}\n` +
+          `Email: ${formData.email}\n` +
+          `Telefone: ${formData.phone}\n\n` +
+          `Data: ${new Date().toLocaleString('pt-BR')}`,
         name: formData.name,
         email: formData.email,
         phone: formData.phone
@@ -196,7 +196,7 @@ const Landing = () => {
 
       // Opção 1: Tentar enviar via API própria primeiro
       const apiUrl = import.meta.env.VITE_EMAIL_API_URL;
-      
+
       if (apiUrl && apiUrl.trim() !== '') {
         try {
           const response = await fetch(apiUrl, {
@@ -219,11 +219,11 @@ const Landing = () => {
       // Opção 2: Se API não funcionou, tentar Formspree
       if (!emailSent) {
         const formspreeId = import.meta.env.VITE_FORMSPREE_ID;
-        
+
         if (formspreeId && formspreeId.trim() !== '' && formspreeId !== 'YOUR_FORM_ID') {
           try {
             const formspreeUrl = `https://formspree.io/f/${formspreeId}`;
-            
+
             const response = await fetch(formspreeUrl, {
               method: 'POST',
               headers: {
@@ -268,21 +268,21 @@ const Landing = () => {
         `📱 *Telefone:* ${formData.phone}\n\n` +
         `📅 *Data:* ${new Date().toLocaleString('pt-BR')}`
       );
-      
+
       const phoneNumber = "5527999587725";
       const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
       const isMac = /Macintosh|MacIntel|MacPPC|Mac68K/i.test(navigator.userAgent);
       const isWindows = /Windows|Win32|Win64/i.test(navigator.userAgent);
       const isLinux = /Linux/i.test(navigator.userAgent);
       const isDesktop = isMac || isWindows || isLinux;
-      
+
       if (isMobile) {
         // Mobile (Android/iOS): Tenta abrir no app WhatsApp Mobile
         const appUrl = `whatsapp://send?phone=${phoneNumber}&text=${whatsappMessage}`;
-        
+
         // Tenta abrir no app
         window.location.href = appUrl;
-        
+
         // Fallback: se o app não abrir em 1 segundo, abre no web
         setTimeout(() => {
           window.open(`https://wa.me/${phoneNumber}?text=${whatsappMessage}`, "_blank", "noopener,noreferrer");
@@ -291,11 +291,11 @@ const Landing = () => {
         // Desktop (Windows/Mac/Linux): Tenta abrir no app WhatsApp Desktop primeiro
         const desktopAppUrl = `whatsapp://send?phone=${phoneNumber}&text=${whatsappMessage}`;
         const webUrl = `https://web.whatsapp.com/send?phone=${phoneNumber}&text=${whatsappMessage}`;
-        
+
         // Tenta abrir no app WhatsApp Desktop
         const tryDesktopApp = () => {
           window.location.href = desktopAppUrl;
-          
+
           // Se o app não abrir em 500ms, abre no WhatsApp Web
           setTimeout(() => {
             // Verifica se ainda está na mesma página (app não abriu)
@@ -304,7 +304,7 @@ const Landing = () => {
             }
           }, 500);
         };
-        
+
         tryDesktopApp();
       } else {
         // Fallback genérico: usa o link wa.me que funciona em todos os casos
@@ -314,7 +314,7 @@ const Landing = () => {
       // Resetar formulário
       setFormData({ name: "", email: "", phone: "" });
       setCurrentStep(1);
-      
+
       // Mostrar mensagem de sucesso
       if (emailSent) {
         alert("Dados enviados com sucesso! Obrigado pelo seu interesse.");
@@ -459,11 +459,20 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen bg-background overflow-hidden">
+      {/* Announcement Bar */}
+      <div className="bg-blue-600 text-white py-2 px-4 text-center text-sm font-medium z-[60] relative">
+        <div className="container mx-auto flex items-center justify-center gap-2 animate-pulse-glow">
+          <Sparkles className="w-4 h-4 text-yellow-300" />
+          <span>🚀 Adicione membros reais no seu grupo Telegram agora mesmo!</span>
+          <Sparkles className="w-4 h-4 text-yellow-300" />
+        </div>
+      </div>
+
       {/* Header */}
-      <header className="border-b border-border/20 backdrop-blur-xl bg-background/80 fixed top-0 left-0 right-0 z-50">
+      <header className="border-b border-border/20 backdrop-blur-xl bg-background/80 sticky top-0 left-0 right-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <nav className="flex items-center justify-between">
-            <div 
+            <div
               className="flex items-center space-x-2 cursor-pointer hover:opacity-80 transition-opacity"
               onClick={() => navigate('/')}
             >
@@ -472,7 +481,7 @@ const Landing = () => {
               </div>
               <span className="text-2xl font-bold gradient-text">BootFlow</span>
             </div>
-            
+
             <div className="hidden md:flex items-center space-x-8">
               <a href="#features" className="text-muted-foreground hover:text-foreground transition-colors">
                 Funcionalidades
@@ -480,8 +489,8 @@ const Landing = () => {
               <a href="#avisos" className="text-muted-foreground hover:text-foreground transition-colors">
                 Avisos
               </a>
-              <a 
-                href="/preco" 
+              <a
+                href="/preco"
                 onClick={scrollToPricing}
                 className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
               >
@@ -502,50 +511,160 @@ const Landing = () => {
         </div>
       </header>
 
-      {/* Spacer para compensar o header fixo */}
-      <div className="h-[73px]"></div>
+      {/* Hero Section Premium */}
+      <section id="hero" className="relative pt-12 pb-24 lg:pt-24 overflow-hidden bg-gradient-to-b from-blue-50/50 to-transparent dark:from-blue-950/20 dark:to-background">
+        {/* Background Elements */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl pointer-events-none">
+          <div className="absolute top-20 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl opacity-50 animate-pulse" />
+          <div className="absolute bottom-0 left-0 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl opacity-50 animate-pulse delay-700" />
+        </div>
 
-      {/* Hero Section */}
-      <section id="hero" className="py-20 px-4 text-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-hero opacity-10"></div>
-        <div className="container mx-auto relative z-10">
-          <Badge variant="neon" className="mb-6 animate-pulse-glow">
-            <Sparkles className="w-3 h-3 mr-1" />
-            Nova Tecnologia de IA Emocional
-          </Badge>
-          
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 gradient-text leading-tight">
-            Automatize Tudo<br />
-            com <span className="text-primary">BootFlow</span>
-          </h1>
-          
-          <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
-            A primeira plataforma de IA emocional do Brasil para atendimento e vendas automatizadas. 
-            Revolucione seu WhatsApp com agentes de voz que conversam como humanos.
-          </p>
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-            <Button variant="hero" size="xl" onClick={() => navigate('/cadastro')}>
-              <Play className="w-5 h-5 mr-2" />
-              Começar Agora - Grátis
-            </Button>
-            <Button variant="glass" size="xl" onClick={() => navigate('/demo')}>
-              <Phone className="w-5 h-5 mr-2" />
-              Ver Demo em Ação
-            </Button>
-          </div>
+            {/* Left Column: Copy & CTA */}
+            <div className="text-center lg:text-left space-y-8">
+              <Badge variant="outline" className="py-1.5 px-4 bg-blue-100/50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800 backdrop-blur-sm animate-fade-in">
+                <span className="flex items-center gap-1.5">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                  </span>
+                  Sistema 100% Automático
+                </span>
+              </Badge>
 
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
-            {stats.map((stat, index) => (
-              <Card key={index} className="glass border-border/20 hover:border-primary/20 transition-all duration-300">
-                <CardContent className="p-6 text-center">
-                  <stat.icon className="w-8 h-8 mx-auto mb-2 text-primary" />
-                  <div className="text-2xl font-bold gradient-text">{stat.value}</div>
-                  <div className="text-sm text-muted-foreground">{stat.label}</div>
-                </CardContent>
-              </Card>
-            ))}
+              <h1 className="text-5xl lg:text-7xl font-extrabold tracking-tight leading-tight gradient-text">
+                Transforme seu Telegram em uma <br />
+                <span className="text-primary relative inline-block">
+                  Máquina de Vendas
+                  <svg className="absolute w-full h-3 -bottom-1 left-0 text-blue-400/30 -z-10" viewBox="0 0 100 10" preserveAspectRatio="none">
+                    <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="8" fill="none" />
+                  </svg>
+                </span>
+              </h1>
+
+              <p className="text-xl text-muted-foreground max-w-2xl mx-auto lg:mx-0 leading-relaxed font-light">
+                Nosso Robô vai trazer <strong>leads segmentados</strong>, encher seus grupos e automatizar seu atendimento. Aumente seu faturamento enquanto você dorme.
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
+                <Button
+                  size="xl"
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:scale-105 transition-all duration-300 min-w-[240px]"
+                  onClick={() => navigate('/cadastro')}
+                >
+                  <Sparkles className="w-5 h-5 mr-2 animate-pulse" />
+                  QUERO APROVEITAR
+                </Button>
+                <Button
+                  variant="outline"
+                  size="xl"
+                  className="border-2 font-semibold hover:bg-muted/50 transition-all duration-300"
+                  onClick={() => {
+                    const el = document.getElementById('features');
+                    el?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                >
+                  <Play className="w-5 h-5 mr-2" />
+                  Ver na Prática
+                </Button>
+              </div>
+
+              <div className="flex items-center justify-center lg:justify-start gap-6 pt-4 text-sm text-muted-foreground">
+                <div className="flex items-center gap-1.5">
+                  <Check className="w-4 h-4 text-green-500" />
+                  <span>Setup Instantâneo</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Check className="w-4 h-4 text-green-500" />
+                  <span>Teste Grátis</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Check className="w-4 h-4 text-green-500" />
+                  <span>Suporte 24/7</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column: Interactive Mockup */}
+            <div className="relative lg:h-[600px] flex items-center justify-center perspective-1000">
+              {/* Floating Notifications - Right */}
+              <div className="absolute top-20 right-0 lg:-right-4 z-30 animate-float-slow">
+                <div className="bg-white dark:bg-gray-800 p-3 rounded-xl shadow-xl shadow-black/10 border border-border/50 flex items-center gap-3 backdrop-blur-md">
+                  <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+                    <DollarSign className="w-5 h-5 text-green-600 dark:text-green-400" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-medium text-muted-foreground">Venda Realizada</div>
+                    <div className="font-bold text-green-600 dark:text-green-400">+ R$ 297,00</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Floating Notifications - Left */}
+              <div className="absolute bottom-32 -left-4 lg:-left-8 z-30 animate-float-delayed">
+                <div className="bg-white dark:bg-gray-800 p-3 rounded-xl shadow-xl shadow-black/10 border border-border/50 flex items-center gap-3 backdrop-blur-md">
+                  <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                    <Users className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-medium text-muted-foreground">Novo Lead</div>
+                    <div className="font-bold text-foreground">Grupo Cheio 🚀</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Laptop CSS Mockup */}
+              <div className="relative w-full max-w-[600px] aspect-[16/10] bg-gray-900 rounded-[20px] shadow-2xl shadow-blue-500/20 border-[8px] border-gray-800 overflow-hidden transform rotate-y-6 hover:rotate-y-0 transition-transform duration-700 ease-out">
+                {/* Screen Content */}
+                <div className="absolute inset-0 bg-gray-950 flex flex-col">
+                  {/* Fake Browser Bar */}
+                  <div className="h-8 bg-gray-900 flex items-center px-4 gap-2 border-b border-gray-800">
+                    <div className="flex gap-1.5">
+                      <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
+                      <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                      <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
+                    </div>
+                    <div className="flex-1 mx-4 h-5 bg-gray-800 rounded-md flex items-center justify-center text-[10px] text-gray-500 font-mono">
+                      bootflow.app/dashboard
+                    </div>
+                  </div>
+
+                  {/* Dashboard UI Simulation */}
+                  <div className="flex-1 p-6 relative overflow-hidden flex items-center justify-center bg-gradient-to-br from-gray-900 to-slate-900">
+                    <div className="text-center space-y-4">
+                      <div className="w-20 h-20 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-blue-500/50 animate-pulse">
+                        <Bot className="w-10 h-10 text-white" />
+                      </div>
+                      <h3 className="text-white font-bold text-xl">BootFlow AI Active</h3>
+                      <div className="flex gap-2 justify-center">
+                        <div className="h-2 w-24 bg-gray-800 rounded-full overflow-hidden">
+                          <div className="h-full bg-green-500 animate-progress w-full"></div>
+                        </div>
+                      </div>
+                      <div className="text-green-400 text-xs font-mono">Processing: 5,420 leads/min</div>
+
+                      {/* Fake Code/Logs */}
+                      <div className="mt-8 text-left bg-black/50 p-4 rounded-lg font-mono text-[10px] text-green-500/80 w-full max-w-[300px] space-y-1 border border-white/5">
+                        <div>[SYSTEM] Initializing bot agents...</div>
+                        <div>[SUCCESS] Connected to Telegram API</div>
+                        <div>[INFO] Target Group: "Vendas Black Friday"</div>
+                        <div>[ACTION] Extracting members... <span className="text-white">DONE</span></div>
+                        <div className="animate-pulse">[RUNNING] Adding members...</div>
+                      </div>
+                    </div>
+
+                    {/* Grid lines */}
+                    <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none"></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Laptop Base */}
+              <div className="absolute -bottom-4 w-[110%] h-4 bg-gray-800 rounded-b-xl shadow-xl transformtranslate-z-[-10px]"></div>
+            </div>
+
           </div>
         </div>
       </section>
@@ -608,7 +727,7 @@ const Landing = () => {
                 update: "bg-green-500/10 text-green-500 border-green-500/20",
                 important: "bg-orange-500/10 text-orange-500 border-orange-500/20"
               };
-              
+
               return (
                 <Card key={index} className="glass border-border/20 hover:border-primary/20 transition-all duration-300 hover-scale hover:shadow-lg">
                   <CardHeader>
@@ -655,15 +774,14 @@ const Landing = () => {
               const IconComponent = plan.features[0]?.icon || Check;
               const isPopular = plan.popular;
               const isFree = plan.price === "R$ 0";
-              
+
               return (
                 <div
                   key={index}
-                  className={`relative flex flex-col rounded-2xl border transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 ${
-                    isPopular
+                  className={`relative flex flex-col rounded-2xl border transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 ${isPopular
                       ? 'lg:scale-105 border-primary/50 bg-gradient-to-br from-primary/5 to-primary/10 shadow-xl ring-2 ring-primary/20'
                       : 'border-border/50 bg-card/50 backdrop-blur-sm hover:border-primary/30'
-                  } ${isFree ? 'border-green-500/30' : ''}`}
+                    } ${isFree ? 'border-green-500/30' : ''}`}
                 >
                   {/* Popular Badge */}
                   {isPopular && (
@@ -689,7 +807,7 @@ const Landing = () => {
                       <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
                       <p className="text-sm text-muted-foreground mb-4">{plan.description}</p>
                     </div>
-                    
+
                     <div className="flex items-baseline gap-1 mb-4">
                       <span className="text-4xl font-bold gradient-text">{plan.price}</span>
                       <span className="text-base text-muted-foreground">{plan.period}</span>
@@ -708,11 +826,10 @@ const Landing = () => {
                         const FeatureIcon = feature.icon || Check;
                         return (
                           <li key={i} className="flex items-start gap-2.5 group/item">
-                            <div className={`mt-0.5 flex-shrink-0 rounded-full p-1 ${
-                              isPopular 
-                                ? 'bg-primary/20 text-primary' 
+                            <div className={`mt-0.5 flex-shrink-0 rounded-full p-1 ${isPopular
+                                ? 'bg-primary/20 text-primary'
                                 : 'bg-muted text-muted-foreground group-hover/item:bg-primary/10 group-hover/item:text-primary transition-colors'
-                            }`}>
+                              }`}>
                               <FeatureIcon className="w-4 h-4" />
                             </div>
                             <span className="text-sm leading-relaxed text-foreground/90 group-hover/item:text-foreground transition-colors">
@@ -735,11 +852,10 @@ const Landing = () => {
                   <div className="px-6 pb-6 pt-1">
                     <Button
                       variant={isPopular ? "hero" : isFree ? "default" : "outline"}
-                      className={`w-full h-12 text-base font-semibold transition-all duration-300 ${
-                        isPopular 
-                          ? 'shadow-lg hover:shadow-xl hover:scale-105' 
+                      className={`w-full h-12 text-base font-semibold transition-all duration-300 ${isPopular
+                          ? 'shadow-lg hover:shadow-xl hover:scale-105'
                           : 'hover:bg-primary hover:text-primary-foreground hover:border-primary'
-                      }`}
+                        }`}
                       onClick={() => navigate('/cadastro')}
                     >
                       {isFree ? "Começar Agora" : "Assinar Agora"}
@@ -783,7 +899,7 @@ const Landing = () => {
           <p className="text-xl text-white/80 mb-8 max-w-2xl mx-auto">
             Comece gratuitamente hoje e veja como a IA emocional pode transformar seus resultados
           </p>
-          
+
           {/* Formulário de 3 Etapas */}
           <div className="max-w-md mx-auto">
             <Card className="bg-white/10 backdrop-blur-xl border-white/20">
@@ -793,13 +909,12 @@ const Landing = () => {
                   {[1, 2, 3].map((step) => (
                     <div
                       key={step}
-                      className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${
-                        step === currentStep
+                      className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${step === currentStep
                           ? "bg-gradient-to-r from-purple-600 to-purple-700 text-white scale-110 shadow-lg shadow-purple-500/50"
                           : step < currentStep
-                          ? "bg-gradient-to-r from-purple-500 to-purple-600 text-white"
-                          : "bg-white/30 border-2 border-white/40 text-white"
-                      }`}
+                            ? "bg-gradient-to-r from-purple-500 to-purple-600 text-white"
+                            : "bg-white/30 border-2 border-white/40 text-white"
+                        }`}
                     >
                       {step < currentStep ? <Check className="w-5 h-5 text-white" /> : <span className="text-white font-bold">{step}</span>}
                     </div>
@@ -926,7 +1041,7 @@ const Landing = () => {
               </CardContent>
             </Card>
           </div>
-          
+
           <p className="text-sm text-white/60 mt-4">
             🔒 Sem cartão de crédito • 🚀 Setup em 2 minutos • ⭐ Suporte brasileiro
           </p>
@@ -938,7 +1053,7 @@ const Landing = () => {
         <div className="container mx-auto">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
-              <div 
+              <div
                 className="flex items-center space-x-2 mb-4 cursor-pointer hover:opacity-80 transition-opacity"
                 onClick={() => navigate('/')}
               >
@@ -960,8 +1075,8 @@ const Landing = () => {
               <h4 className="font-semibold mb-4">Produto</h4>
               <ul className="space-y-2 text-muted-foreground">
                 <li>
-                  <a 
-                    href="#features" 
+                  <a
+                    href="#features"
                     className="hover:text-foreground transition-colors cursor-pointer"
                     onClick={(e) => {
                       e.preventDefault();
@@ -972,8 +1087,8 @@ const Landing = () => {
                   </a>
                 </li>
                 <li>
-                  <a 
-                    href="/preco" 
+                  <a
+                    href="/preco"
                     onClick={scrollToPricing}
                     className="hover:text-foreground transition-colors cursor-pointer"
                   >
@@ -981,8 +1096,8 @@ const Landing = () => {
                   </a>
                 </li>
                 <li>
-                  <a 
-                    href="#hero" 
+                  <a
+                    href="#hero"
                     className="hover:text-foreground transition-colors cursor-pointer"
                     onClick={(e) => {
                       e.preventDefault();
@@ -1000,8 +1115,8 @@ const Landing = () => {
                   </a>
                 </li>
                 <li>
-                  <a 
-                    href="/demo" 
+                  <a
+                    href="/demo"
                     className="hover:text-foreground transition-colors cursor-pointer"
                     onClick={(e) => {
                       e.preventDefault();
@@ -1018,8 +1133,8 @@ const Landing = () => {
               <h4 className="font-semibold mb-4">Suporte</h4>
               <ul className="space-y-2 text-muted-foreground">
                 <li>
-                  <a 
-                    href="/ajuda" 
+                  <a
+                    href="/ajuda"
                     className="hover:text-foreground transition-colors cursor-pointer"
                     onClick={(e) => {
                       e.preventDefault();
@@ -1030,8 +1145,8 @@ const Landing = () => {
                   </a>
                 </li>
                 <li>
-                  <a 
-                    href="/documentacao" 
+                  <a
+                    href="/documentacao"
                     className="hover:text-foreground transition-colors cursor-pointer"
                     onClick={(e) => {
                       e.preventDefault();
@@ -1042,8 +1157,8 @@ const Landing = () => {
                   </a>
                 </li>
                 <li>
-                  <a 
-                    href="https://wa.me/5527999587725" 
+                  <a
+                    href="https://wa.me/5527999587725"
                     onClick={handleWhatsAppClick}
                     className="hover:text-foreground transition-colors cursor-pointer"
                   >
@@ -1051,8 +1166,8 @@ const Landing = () => {
                   </a>
                 </li>
                 <li>
-                  <a 
-                    href="mailto:suporte@bootflow.com.br" 
+                  <a
+                    href="mailto:suporte@bootflow.com.br"
                     onClick={handleEmailClick}
                     className="hover:text-foreground transition-colors cursor-pointer"
                   >
@@ -1066,8 +1181,8 @@ const Landing = () => {
               <h4 className="font-semibold mb-4">Empresa</h4>
               <ul className="space-y-2 text-muted-foreground">
                 <li>
-                  <a 
-                    href="/empresa/sobre" 
+                  <a
+                    href="/empresa/sobre"
                     className="hover:text-foreground transition-colors cursor-pointer"
                     onClick={(e) => {
                       e.preventDefault();
@@ -1078,8 +1193,8 @@ const Landing = () => {
                   </a>
                 </li>
                 <li>
-                  <a 
-                    href="/empresa/blog" 
+                  <a
+                    href="/empresa/blog"
                     className="hover:text-foreground transition-colors cursor-pointer"
                     onClick={(e) => {
                       e.preventDefault();
@@ -1090,8 +1205,8 @@ const Landing = () => {
                   </a>
                 </li>
                 <li>
-                  <a 
-                    href="/privacidade" 
+                  <a
+                    href="/privacidade"
                     className="hover:text-foreground transition-colors cursor-pointer"
                     onClick={(e) => {
                       e.preventDefault();
@@ -1102,8 +1217,8 @@ const Landing = () => {
                   </a>
                 </li>
                 <li>
-                  <a 
-                    href="/termos" 
+                  <a
+                    href="/termos"
                     className="hover:text-foreground transition-colors cursor-pointer"
                     onClick={(e) => {
                       e.preventDefault();
