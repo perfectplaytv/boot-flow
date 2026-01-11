@@ -520,7 +520,7 @@ const Landing = () => {
         </div>
 
         <div className="container mx-auto px-4 relative z-10">
-          <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+          <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-start">
 
             {/* Left Column (5 Cols): Copy & Headline */}
             <div className="lg:col-span-5 text-center lg:text-left space-y-6">
