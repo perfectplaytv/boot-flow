@@ -1,6 +1,6 @@
 export const onRequestPost = async (context) => {
-    // Token de Teste fornecido pelo usuário
-    const token = "TEST-233787625021211-011103-bb353e7815c46b9ef55d3fedb1800fdf-3095772720";
+    // Token de Produção fornecido pelo usuário
+    const token = "APP_USR-233787625021211-011103-2cfc9a9b55695cb0faddbfc47c7b08ef-3095772720";
 
     try {
         const { plan, payer } = await context.request.json();
