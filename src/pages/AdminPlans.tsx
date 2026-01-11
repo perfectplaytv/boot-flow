@@ -10,6 +10,11 @@ import { Switch } from "@/components/ui/switch";
 import { Edit, Loader2, Save, Trash, Plus } from "lucide-react";
 import { toast } from "sonner";
 
+interface PlanFeature {
+    text: string;
+    icon: string;
+}
+
 interface Plan {
     id: number;
     name: string;
@@ -19,7 +24,7 @@ interface Plan {
     clients_limit: string;
     is_popular: boolean;
     highlight: string;
-    features: any[]; // JSON array
+    features: PlanFeature[]; // JSON array
     active: boolean;
     display_order: number;
 }
