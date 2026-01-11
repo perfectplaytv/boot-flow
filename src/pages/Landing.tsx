@@ -855,7 +855,13 @@ const Landing = () => {
                         ? 'shadow-lg hover:shadow-xl hover:scale-105'
                         : 'hover:bg-primary hover:text-primary-foreground hover:border-primary'
                         }`}
-                      onClick={() => navigate('/cadastro')}
+                      onClick={() => {
+                        if (isFree) {
+                          navigate('/cadastro');
+                        } else {
+                          navigate('/checkout', { state: { plan } });
+                        }
+                      }}
                     >
                       {isFree ? "Começar Agora" : "Assinar Agora"}
                       <ArrowRight className={`w-4 h-4 ml-2 transition-transform group-hover:translate-x-1`} />
