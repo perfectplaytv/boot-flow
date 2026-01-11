@@ -216,7 +216,7 @@ export default function ClientClients() {
     setAddUserSuccess(false);
 
     // Timeout de segurança para evitar travamento infinito (30 segundos)
-    let timeoutId: NodeJS.Timeout | null = null;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
     timeoutId = setTimeout(() => {
       console.error("⏰ [DEBUG] Timeout: processo demorou mais de 30 segundos");
       setIsAddingUser(false);
@@ -1556,12 +1556,12 @@ export default function ClientClients() {
                   <TableCell>
                     <Badge
                       className={`text-xs ${user.status === "Ativo"
-                          ? "bg-green-700 text-green-200"
-                          : user.status === "Inativo"
-                            ? "bg-red-700 text-red-200"
-                            : user.status === "Pendente"
-                              ? "bg-yellow-700 text-yellow-200"
-                              : "bg-gray-700 text-gray-300"
+                        ? "bg-green-700 text-green-200"
+                        : user.status === "Inativo"
+                          ? "bg-red-700 text-red-200"
+                          : user.status === "Pendente"
+                            ? "bg-yellow-700 text-yellow-200"
+                            : "bg-gray-700 text-gray-300"
                         }`}
                     >
                       {user.status}
@@ -1605,8 +1605,8 @@ export default function ClientClients() {
                         size="sm"
                         variant={user.pago ? "default" : "outline"}
                         className={`${user.pago
-                            ? "bg-green-600 text-white hover:bg-green-700 border-green-600"
-                            : "border-green-600 text-green-400 hover:bg-green-600 hover:text-white bg-background"
+                          ? "bg-green-600 text-white hover:bg-green-700 border-green-600"
+                          : "border-green-600 text-green-400 hover:bg-green-600 hover:text-white bg-background"
                           } h-8 w-8 sm:h-9 sm:w-9 p-0 rounded-md`}
                         onClick={() => openPagoModal(user)}
                         title={user.pago ? "Marcar como Não Pago" : "Marcar como Pago"}
@@ -1958,8 +1958,8 @@ export default function ClientClients() {
                   {extractionError && (
                     <div
                       className={`border text-xs rounded p-2 mb-2 ${extractionError.includes("Testando proxy")
-                          ? "bg-blue-900/40 border-blue-700 text-blue-300"
-                          : "bg-red-900/40 border-red-700 text-red-300"
+                        ? "bg-blue-900/40 border-blue-700 text-blue-300"
+                        : "bg-red-900/40 border-red-700 text-red-300"
                         }`}
                     >
                       {extractionError.includes("Testando proxy") ? "🔄" : "❌"}{" "}
@@ -2600,8 +2600,8 @@ export default function ClientClients() {
 
               {pagoUser.price && (
                 <div className={`rounded-lg p-4 border-2 ${pagoUser.pago
-                    ? "bg-yellow-900/20 border-yellow-600/50"
-                    : "bg-green-900/20 border-green-600/50"
+                  ? "bg-yellow-900/20 border-yellow-600/50"
+                  : "bg-green-900/20 border-green-600/50"
                   }`}>
                   <div className="flex items-center justify-between">
                     <div>
@@ -2644,8 +2644,8 @@ export default function ClientClients() {
             <AlertDialogAction
               onClick={confirmTogglePago}
               className={`${pagoUser?.pago
-                  ? "bg-yellow-600 hover:bg-yellow-700"
-                  : "bg-green-600 hover:bg-green-700"
+                ? "bg-yellow-600 hover:bg-yellow-700"
+                : "bg-green-600 hover:bg-green-700"
                 } text-white`}
             >
               {pagoUser?.pago ? "Desmarcar Pagamento" : "Confirmar Pagamento"}

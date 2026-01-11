@@ -15,6 +15,25 @@ import { useNavigate } from "react-router-dom";
 
 const MAX_RESELLERS = 5; // Limite de revendas para o plano Essencial
 
+interface Reseller {
+  id: string | number;
+  username: string;
+  password?: string;
+  force_password_change: boolean;
+  permission: 'admin' | 'reseller' | 'subreseller';
+  credits: number;
+  servers?: string;
+  master_reseller?: string;
+  disable_login_days: number;
+  monthly_reseller: boolean;
+  personal_name?: string;
+  email?: string;
+  telegram?: string;
+  whatsapp?: string;
+  observations?: string;
+  status: string;
+}
+
 export default function ClientResellers() {
   const navigate = useNavigate();
   const { revendas, loading, error, addRevenda, updateRevenda, deleteRevenda, fetchRevendas, clearError } = useRevendas();
@@ -37,9 +56,9 @@ export default function ClientResellers() {
   });
 
   // Estados para os modais
-  const [editingReseller, setEditingReseller] = useState<any | null>(null);
-  const [viewingReseller, setViewingReseller] = useState<any | null>(null);
-  const [deletingReseller, setDeletingReseller] = useState<any | null>(null);
+  const [editingReseller, setEditingReseller] = useState<Reseller | null>(null);
+  const [viewingReseller, setViewingReseller] = useState<Reseller | null>(null);
+  const [deletingReseller, setDeletingReseller] = useState<Reseller | null>(null);
 
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
@@ -310,17 +329,17 @@ export default function ClientResellers() {
     }
   };
 
-  const openViewModal = (revenda: any) => {
+  const openViewModal = (revenda: Reseller) => {
     setViewingReseller(revenda);
     setIsViewDialogOpen(true);
   };
 
-  const openEditModal = (revenda: any) => {
+  const openEditModal = (revenda: Reseller) => {
     setEditingReseller({ ...revenda });
     setIsEditDialogOpen(true);
   };
 
-  const openDeleteModal = (revenda: any) => {
+  const openDeleteModal = (revenda: Reseller) => {
     setDeletingReseller(revenda);
     setIsDeleteDialogOpen(true);
   };
@@ -909,7 +928,7 @@ export default function ClientResellers() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => openViewModal(revenda)}
+                        onClick={() => openViewModal(revenda as unknown as Reseller)}
                         aria-label={`Ver ${revenda.username}`}
                         className="text-blue-400 hover:text-blue-300 h-8 w-8 sm:h-9 sm:w-9 p-0"
                       >
@@ -918,7 +937,7 @@ export default function ClientResellers() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => openEditModal(revenda)}
+                        onClick={() => openEditModal(revenda as unknown as Reseller)}
                         aria-label={`Editar ${revenda.username}`}
                         className="text-green-400 hover:text-green-300 h-8 w-8 sm:h-9 sm:w-9 p-0"
                       >
@@ -927,7 +946,7 @@ export default function ClientResellers() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => openDeleteModal(revenda)}
+                        onClick={() => openDeleteModal(revenda as unknown as Reseller)}
                         aria-label={`Excluir ${revenda.username}`}
                         className="text-red-400 hover:text-red-300 h-8 w-8 sm:h-9 sm:w-9 p-0"
                       >
@@ -1014,7 +1033,7 @@ export default function ClientResellers() {
                 </div>
                 <div>
                   <Label className="text-sm font-medium text-white">Permissão</Label>
-                  <Select value={editingReseller.permission} onValueChange={(value) => setEditingReseller({ ...editingReseller, permission: value as any })}>
+                  <Select value={editingReseller.permission} onValueChange={(value) => setEditingReseller({ ...editingReseller, permission: value as 'admin' | 'reseller' | 'subreseller' })}>
                     <SelectTrigger aria-label="Permissão do revendedor" className="bg-[#23272f] border-gray-600 text-white">
                       <SelectValue />
                     </SelectTrigger>
