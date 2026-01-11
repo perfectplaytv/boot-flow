@@ -859,7 +859,12 @@ const Landing = () => {
                         if (isFree) {
                           navigate('/cadastro');
                         } else {
-                          navigate('/checkout', { state: { plan } });
+                          // Remover componentes React (ícones) para evitar erro de DataCloneError na navegação
+                          const serializablePlan = {
+                            ...plan,
+                            features: plan.features.map(f => ({ text: f.text }))
+                          };
+                          navigate('/checkout', { state: { plan: serializablePlan } });
                         }
                       }}
                     >
