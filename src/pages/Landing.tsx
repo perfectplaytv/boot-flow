@@ -451,6 +451,43 @@ const Landing = () => {
     }
   ];
 
+  // --- LÓGICA DINÂMICA (D1 Database) ---
+  const [dynamicPlans, setDynamicPlans] = useState<any[]>([]);
+
+  // Mapa de ícones
+  const iconMap: Record<string, any> = {
+    Users, Bot, Link, MessageSquare, Zap, Mail, FileText, CreditCard, DollarSign,
+    Download, ShoppingCart, ArrowRightCircle, Check, Headphones, BarChart, Crown,
+    Phone, Star, Shield, TrendingUp, Play, ArrowRight, ArrowUp, Sparkles, PhoneCall,
+    Clock, BarChart3, AlertCircle, Info, Calendar
+  };
+
+  useEffect(() => {
+    const fetchPlans = async () => {
+      try {
+        const res = await fetch('/api/plans');
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            const processed = data.map((p: any) => ({
+              ...p,
+              features: Array.isArray(p.features) ? p.features.map((f: any) => ({
+                text: f.text,
+                icon: (typeof f.icon === 'string' ? iconMap[f.icon] : f.icon) || Check
+              })) : []
+            }));
+            setDynamicPlans(processed);
+          }
+        }
+      } catch (err) {
+        // Silently fail to static plans
+      }
+    };
+    fetchPlans();
+  }, []);
+
+  const plansToDisplay = dynamicPlans.length > 0 ? dynamicPlans : plans;
+
   const stats = [
     { icon: Users, value: "10.000+", label: "Clientes Ativos" },
     { icon: PhoneCall, value: "2M+", label: "Chamadas Processadas" },
@@ -769,7 +806,7 @@ const Landing = () => {
 
           {/* Pricing Cards */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-            {plans.map((plan, index) => {
+            {plansToDisplay.map((plan, index) => {
               const IconComponent = plan.features[0]?.icon || Check;
               const isPopular = plan.popular;
               const isFree = plan.price === "R$ 0";
