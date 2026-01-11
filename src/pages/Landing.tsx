@@ -646,8 +646,8 @@ const Landing = () => {
                         <p className="text-xs text-blue-300">Seu vídeo entrará aqui</p>
 
                         <div className="mt-4 p-3 bg-black/40 rounded border border-white/10 text-[10px] font-mono text-green-400 text-left w-64 mx-auto">
-                             > Initializing...<br />
-                             > Ready to scale sales.
+                          &gt; Initializing...<br />
+                          &gt; Ready to scale sales.
                         </div>
                       </div>
 
