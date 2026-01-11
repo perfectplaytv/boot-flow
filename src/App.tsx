@@ -14,7 +14,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 // Pages
 import Landing from "./pages/Landing";
 import Checkout from "./pages/Checkout";
-import Payment from "./pages/Payment";
+import Pagamento from "./pages/Pagamento";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -73,7 +73,7 @@ const App = () => {
                   <Route path="/" element={<Landing />} />
                   <Route path="/preco" element={<Landing />} />
                   <Route path="/checkout" element={<Checkout />} />
-                  <Route path="/payment" element={<Payment />} />
+                  <Route path="/pagamento" element={<Pagamento />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/cadastro" element={<Signup />} />
                   <Route path="/forgot-password" element={<ForgotPassword />} />
