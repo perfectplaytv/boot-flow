@@ -170,7 +170,7 @@ export default function Checkout() {
                                 <CardFooter className="flex-col gap-3">
                                     <Button
                                         className="w-full h-12 text-lg font-bold shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:scale-[1.02] transition-all duration-300 bg-gradient-to-r from-blue-600 to-purple-600 border-0"
-                                        onClick={() => navigate('/cadastro', { state: { selectedPlan: plan } })}
+                                        onClick={() => navigate('/payment', { state: { plan } })}
                                     >
                                         <CreditCard className="w-5 h-5 mr-2" />
                                         Ir para Pagamento

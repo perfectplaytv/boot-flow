@@ -14,6 +14,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 // Pages
 import Landing from "./pages/Landing";
 import Checkout from "./pages/Checkout";
+import Payment from "./pages/Payment";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
