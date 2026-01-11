@@ -189,14 +189,14 @@ export default function ClientClients() {
   const handleAddUser = async () => {
     console.log("🔵 [DEBUG] handleAddUser chamado");
     console.log("🔵 [DEBUG] Estado newUser:", newUser);
-    
+
     // Verificar limite de clientes (5 para plano Essencial)
     const currentClientCount = usersSafe.length;
     if (currentClientCount >= MAX_CLIENTS) {
       alert(`Você atingiu o limite de ${MAX_CLIENTS} clientes do seu plano. Para adicionar mais clientes, faça upgrade do seu plano.`);
       return;
     }
-    
+
     // Validação completa dos campos obrigatórios
     if (!newUser.name || !newUser.email || !newUser.plan) {
       console.log("❌ [DEBUG] Validação falhou: campos obrigatórios não preenchidos");
@@ -266,95 +266,95 @@ export default function ClientClients() {
 
       console.log("✅ [DEBUG] Cliente adicionado com sucesso!");
       setAddUserSuccess(true);
-      
+
       // Cancelar timeout de segurança já que a operação foi bem-sucedida
       if (timeoutId) {
         clearTimeout(timeoutId);
       }
 
-        // Atualizar Dashboard instantaneamente
-        console.log(
-          "📤 Clientes: Disparando evento refresh-dashboard após criar usuário"
+      // Atualizar Dashboard instantaneamente
+      console.log(
+        "📤 Clientes: Disparando evento refresh-dashboard após criar usuário"
+      );
+      try {
+        window.dispatchEvent(
+          new CustomEvent("refresh-dashboard", {
+            detail: { source: "users", action: "create" },
+          })
         );
-        try {
-          window.dispatchEvent(
-            new CustomEvent("refresh-dashboard", {
-              detail: { source: "users", action: "create" },
-            })
-          );
-          console.log("✅ Evento disparado com sucesso");
-        } catch (error) {
-          console.error("❌ Erro ao disparar evento:", error);
-        }
-
-        // Usar localStorage como fallback
-        try {
-          localStorage.setItem("dashboard-refresh", Date.now().toString());
-          console.log("✅ Flag localStorage definida");
-        } catch (error) {
-          console.error("❌ Erro ao definir flag localStorage:", error);
-        }
-
-        // Limpar formulário
-        setNewUser({
-          name: "",
-          email: "",
-          plan: "",
-          price: "",
-          status: "Ativo",
-          telegram: "",
-          observations: "",
-          expirationDate: "",
-          password: "",
-          bouquets: "",
-          realName: "", // Limpando também o campo realName
-          whatsapp: "",
-          devices: 0,
-          credits: 0,
-          notes: "",
-          server: "",
-          m3u_url: "",
-        });
-
-        // Limpar dados de extração
-        setM3uUrl("");
-        setExtractionResult(null);
-        setExtractionError("");
-
-        // Fechar modal após 1 segundo
-        setTimeout(() => {
-          setIsAddDialogOpen(false);
-          setAddUserSuccess(false);
-        }, 1000);
+        console.log("✅ Evento disparado com sucesso");
       } catch (error) {
-        console.error("❌ [DEBUG] Erro ao adicionar usuário:", error);
-        
-        // Cancelar timeout de segurança já que houve erro
-        if (timeoutId) {
-          clearTimeout(timeoutId);
-        }
-        
-        const errorMessage = error?.message || error || "Erro desconhecido ao adicionar usuário.";
-        
-        // Mensagens específicas para diferentes tipos de erro
-        if (errorMessage.includes("duplicate key value") || errorMessage.includes("unique constraint")) {
-          alert("❌ Já existe um usuário com este e-mail!");
-        } else if (errorMessage.includes("row-level security") || errorMessage.includes("RLS")) {
-          alert("❌ Erro de permissão: Verifique se você está autenticado e se as políticas RLS estão configuradas corretamente.");
-        } else if (errorMessage.includes("autenticação") || errorMessage.includes("sessão expirou")) {
-          alert("❌ Sua sessão expirou. Por favor, faça login novamente.");
-        } else if (errorMessage.includes("NOT NULL") || errorMessage.includes("null value")) {
-          alert("❌ Erro: Alguns campos obrigatórios não foram preenchidos corretamente.");
-        } else {
-          alert(`❌ Erro ao adicionar usuário: ${errorMessage}`);
-        }
-      } finally {
-        console.log("🔄 [DEBUG] Finalizando processo (finally)...");
-        if (timeoutId) {
-          clearTimeout(timeoutId);
-        }
-        setIsAddingUser(false);
+        console.error("❌ Erro ao disparar evento:", error);
       }
+
+      // Usar localStorage como fallback
+      try {
+        localStorage.setItem("dashboard-refresh", Date.now().toString());
+        console.log("✅ Flag localStorage definida");
+      } catch (error) {
+        console.error("❌ Erro ao definir flag localStorage:", error);
+      }
+
+      // Limpar formulário
+      setNewUser({
+        name: "",
+        email: "",
+        plan: "",
+        price: "",
+        status: "Ativo",
+        telegram: "",
+        observations: "",
+        expirationDate: "",
+        password: "",
+        bouquets: "",
+        realName: "", // Limpando também o campo realName
+        whatsapp: "",
+        devices: 0,
+        credits: 0,
+        notes: "",
+        server: "",
+        m3u_url: "",
+      });
+
+      // Limpar dados de extração
+      setM3uUrl("");
+      setExtractionResult(null);
+      setExtractionError("");
+
+      // Fechar modal após 1 segundo
+      setTimeout(() => {
+        setIsAddDialogOpen(false);
+        setAddUserSuccess(false);
+      }, 1000);
+    } catch (error) {
+      console.error("❌ [DEBUG] Erro ao adicionar usuário:", error);
+
+      // Cancelar timeout de segurança já que houve erro
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+
+      const errorMessage = error?.message || error || "Erro desconhecido ao adicionar usuário.";
+
+      // Mensagens específicas para diferentes tipos de erro
+      if (errorMessage.includes("duplicate key value") || errorMessage.includes("unique constraint")) {
+        alert("❌ Já existe um usuário com este e-mail!");
+      } else if (errorMessage.includes("row-level security") || errorMessage.includes("RLS")) {
+        alert("❌ Erro de permissão: Verifique se você está autenticado e se as políticas RLS estão configuradas corretamente.");
+      } else if (errorMessage.includes("autenticação") || errorMessage.includes("sessão expirou")) {
+        alert("❌ Sua sessão expirou. Por favor, faça login novamente.");
+      } else if (errorMessage.includes("NOT NULL") || errorMessage.includes("null value")) {
+        alert("❌ Erro: Alguns campos obrigatórios não foram preenchidos corretamente.");
+      } else {
+        alert(`❌ Erro ao adicionar usuário: ${errorMessage}`);
+      }
+    } finally {
+      console.log("🔄 [DEBUG] Finalizando processo (finally)...");
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      setIsAddingUser(false);
+    }
   };
 
   const handleEditUser = async () => {
@@ -455,12 +455,12 @@ export default function ClientClients() {
   const handleDeleteUser = async () => {
     if (deletingUser) {
       console.log("🔄 [AdminUsers] Iniciando exclusão do usuário:", deletingUser.id);
-      
+
       const success = await deleteUser(deletingUser.id);
 
       if (success) {
         console.log("✅ [AdminUsers] Usuário deletado com sucesso do Supabase");
-        
+
         // Atualizar Dashboard instantaneamente
         console.log(
           "📤 [AdminUsers] Disparando evento refresh-dashboard após deletar usuário"
@@ -486,14 +486,14 @@ export default function ClientClients() {
 
         // Forçar atualização da lista local removendo o usuário deletado
         console.log("🔄 [AdminUsers] Atualizando lista local de usuários");
-        
+
         // Fechar modal
         setDeletingUser(null);
         setIsDeleteDialogOpen(false);
-        
+
         // Mostrar mensagem de sucesso
         alert("✅ Cliente excluído com sucesso!");
-        
+
         console.log("✅ [AdminUsers] Processo de exclusão concluído");
       } else {
         const errorMsg = error || "Erro ao deletar usuário. Verifique se você tem permissão no Supabase ou se há policies bloqueando a exclusão.";
@@ -570,16 +570,16 @@ export default function ClientClients() {
         tipoPagoAtual: typeof pagoUser.pago,
         tipoPagoNovo: typeof newPagoStatus
       });
-      
+
       // Garantir que o valor seja boolean
       const pagoValue = Boolean(newPagoStatus);
       console.log(`🔄 [AdminUsers] Valor boolean garantido:`, pagoValue);
-      
+
       const success = await updateUser(pagoUser.id, { pago: pagoValue });
-      
+
       if (success) {
         console.log(`✅ [AdminUsers] Cliente ${pagoUser.name} marcado como ${newPagoStatus ? 'Pago' : 'Não Pago'}`);
-        
+
         // Fechar o modal
         setIsPagoDialogOpen(false);
         const userInfo = { ...pagoUser, pago: newPagoStatus };
@@ -590,9 +590,9 @@ export default function ClientClients() {
         try {
           window.dispatchEvent(
             new CustomEvent("refresh-dashboard", {
-              detail: { 
-                source: "users", 
-                action: "update", 
+              detail: {
+                source: "users",
+                action: "update",
                 field: "pago",
                 userId: userInfo.id,
                 pago: newPagoStatus,
@@ -605,7 +605,7 @@ export default function ClientClients() {
         } catch (error) {
           console.error("❌ [AdminUsers] Erro ao disparar evento:", error);
         }
-        
+
         // Usar localStorage como fallback
         try {
           localStorage.setItem("dashboard-refresh", Date.now().toString());
@@ -618,20 +618,20 @@ export default function ClientClients() {
           setTimeout(async () => {
             console.log('🔄 [AdminUsers] Forçando atualização da lista após delay...');
             await fetchClientes();
-            
+
             // Disparar eventos adicionais para garantir atualização do dashboard
             setTimeout(() => {
               window.dispatchEvent(
                 new CustomEvent("refresh-dashboard", {
-                  detail: { 
-                    source: "users", 
-                    action: "update", 
+                  detail: {
+                    source: "users",
+                    action: "update",
                     field: "pago",
                     forceRefresh: true
                   },
                 })
               );
-              
+
               // Última tentativa de atualização
               if (fetchClientes) {
                 fetchClientes();
@@ -760,8 +760,8 @@ export default function ClientClients() {
               observations: `Usuário: ${data.user_info.username} | Acesso direto`,
               expirationDate: data.user_info.exp_date
                 ? new Date(parseInt(data.user_info.exp_date) * 1000)
-                    .toISOString()
-                    .split("T")[0]
+                  .toISOString()
+                  .split("T")[0]
                 : "",
               password: data.user_info.password || password,
               bouquets: "",
@@ -879,8 +879,8 @@ export default function ClientClients() {
               observations.length > 0 ? observations.join(" | ") : "",
             expirationDate: data.user_info.exp_date
               ? new Date(parseInt(data.user_info.exp_date) * 1000)
-                  .toISOString()
-                  .split("T")[0]
+                .toISOString()
+                .split("T")[0]
               : "",
             password: data.user_info.password || password,
             bouquets: Array.isArray(bouquetsData)
@@ -993,7 +993,7 @@ export default function ClientClients() {
               <div>
                 <strong>Limite de clientes atingido!</strong>
                 <p className="text-sm mt-1">
-                  Você atingiu o limite de {MAX_CLIENTS} clientes do seu plano Essencial. 
+                  Você atingiu o limite de {MAX_CLIENTS} clientes do seu plano Essencial.
                   Para adicionar mais clientes, faça upgrade do seu plano.
                 </p>
               </div>
@@ -1024,7 +1024,7 @@ export default function ClientClients() {
             <div>
               <strong>Atenção: Limite próximo!</strong>
               <p className="text-sm mt-1">
-                Você tem {usersSafe.length} de {MAX_CLIENTS} clientes. 
+                Você tem {usersSafe.length} de {MAX_CLIENTS} clientes.
                 Ainda pode adicionar {MAX_CLIENTS - usersSafe.length} cliente(s).
               </p>
             </div>
@@ -1046,7 +1046,7 @@ export default function ClientClients() {
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
-              <Button 
+              <Button
                 className="flex items-center gap-2 bg-[#7e22ce] hover:bg-[#6d1bb7] text-white h-10 sm:h-auto disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={usersSafe.length >= MAX_CLIENTS}
               >
@@ -1064,9 +1064,9 @@ export default function ClientClients() {
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-2xl font-bold">Adicionar um Cliente</h2>
                   <div className="flex items-center gap-2">
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       className="text-gray-400 hover:text-white"
                       onClick={() => setIsAddDialogOpen(false)}
                     >
@@ -1076,12 +1076,12 @@ export default function ClientClients() {
                     </Button>
                   </div>
                 </div>
-                
-                <form onSubmit={async (e) => { 
-                  e.preventDefault(); 
+
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
                   e.stopPropagation();
                   console.log("🔵 [AdminUsers] Form submit disparado!");
-                  await handleAddUser(); 
+                  await handleAddUser();
                 }} className="space-y-6 flex-1 overflow-y-auto">
                   <div className="flex items-center gap-2 mb-4">
                     <span className="text-green-400 text-xs font-medium">• Campos obrigatórios marcados com *</span>
@@ -1368,7 +1368,7 @@ export default function ClientClients() {
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Botões de Ação */}
                   <div className="flex justify-end gap-3 pt-4 border-t border-gray-700">
                     <Button
@@ -1465,7 +1465,7 @@ export default function ClientClients() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-400">12</div>
+            <div className="text-2xl font-bold text-blue-400">0</div>
             <div className="text-xs text-gray-400 mt-1">Novos usuários</div>
           </CardContent>
         </Card>
@@ -1555,15 +1555,14 @@ export default function ClientClients() {
                   </TableCell>
                   <TableCell>
                     <Badge
-                      className={`text-xs ${
-                        user.status === "Ativo"
+                      className={`text-xs ${user.status === "Ativo"
                           ? "bg-green-700 text-green-200"
                           : user.status === "Inativo"
-                          ? "bg-red-700 text-red-200"
-                          : user.status === "Pendente"
-                          ? "bg-yellow-700 text-yellow-200"
-                          : "bg-gray-700 text-gray-300"
-                      }`}
+                            ? "bg-red-700 text-red-200"
+                            : user.status === "Pendente"
+                              ? "bg-yellow-700 text-yellow-200"
+                              : "bg-gray-700 text-gray-300"
+                        }`}
                     >
                       {user.status}
                     </Badge>
@@ -1572,7 +1571,7 @@ export default function ClientClients() {
                     {user.devices || 0}
                   </TableCell>
                   <TableCell className="hidden lg:table-cell text-gray-300 text-xs sm:text-sm">
-                    {user.expiration_date 
+                    {user.expiration_date
                       ? new Date(user.expiration_date).toLocaleDateString('pt-BR')
                       : "-"}
                   </TableCell>
@@ -1605,11 +1604,10 @@ export default function ClientClients() {
                       <Button
                         size="sm"
                         variant={user.pago ? "default" : "outline"}
-                        className={`${
-                          user.pago
+                        className={`${user.pago
                             ? "bg-green-600 text-white hover:bg-green-700 border-green-600"
                             : "border-green-600 text-green-400 hover:bg-green-600 hover:text-white bg-background"
-                        } h-8 w-8 sm:h-9 sm:w-9 p-0 rounded-md`}
+                          } h-8 w-8 sm:h-9 sm:w-9 p-0 rounded-md`}
                         onClick={() => openPagoModal(user)}
                         title={user.pago ? "Marcar como Não Pago" : "Marcar como Pago"}
                       >
@@ -1721,10 +1719,10 @@ export default function ClientClients() {
                           viewingUser.status === "Ativo"
                             ? "bg-green-600 text-white"
                             : viewingUser.status === "Inativo"
-                            ? "bg-red-600 text-white"
-                            : viewingUser.status === "Pendente"
-                            ? "bg-yellow-600 text-white"
-                            : "bg-gray-600 text-white"
+                              ? "bg-red-600 text-white"
+                              : viewingUser.status === "Pendente"
+                                ? "bg-yellow-600 text-white"
+                                : "bg-gray-600 text-white"
                         }
                       >
                         {viewingUser.status}
@@ -1777,44 +1775,44 @@ export default function ClientClients() {
                 {(viewingUser.phone ||
                   viewingUser.telegram ||
                   viewingUser.whatsapp) && (
-                  <div className="bg-[#23272f] rounded-lg p-4">
-                    <h3 className="text-lg font-semibold text-white mb-4">
-                      Contatos
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {viewingUser.phone && (
-                        <div>
-                          <Label className="text-gray-400 text-sm">
-                            Telefone
-                          </Label>
-                          <p className="text-white font-medium">
-                            {viewingUser.phone}
-                          </p>
-                        </div>
-                      )}
-                      {viewingUser.telegram && (
-                        <div>
-                          <Label className="text-gray-400 text-sm">
-                            Telegram
-                          </Label>
-                          <p className="text-white font-medium">
-                            {viewingUser.telegram}
-                          </p>
-                        </div>
-                      )}
-                      {viewingUser.whatsapp && (
-                        <div>
-                          <Label className="text-gray-400 text-sm">
-                            WhatsApp
-                          </Label>
-                          <p className="text-white font-medium">
-                            {viewingUser.whatsapp}
-                          </p>
-                        </div>
-                      )}
+                    <div className="bg-[#23272f] rounded-lg p-4">
+                      <h3 className="text-lg font-semibold text-white mb-4">
+                        Contatos
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {viewingUser.phone && (
+                          <div>
+                            <Label className="text-gray-400 text-sm">
+                              Telefone
+                            </Label>
+                            <p className="text-white font-medium">
+                              {viewingUser.phone}
+                            </p>
+                          </div>
+                        )}
+                        {viewingUser.telegram && (
+                          <div>
+                            <Label className="text-gray-400 text-sm">
+                              Telegram
+                            </Label>
+                            <p className="text-white font-medium">
+                              {viewingUser.telegram}
+                            </p>
+                          </div>
+                        )}
+                        {viewingUser.whatsapp && (
+                          <div>
+                            <Label className="text-gray-400 text-sm">
+                              WhatsApp
+                            </Label>
+                            <p className="text-white font-medium">
+                              {viewingUser.whatsapp}
+                            </p>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
                 {/* Observações */}
                 {(viewingUser.notes || viewingUser.observations) && (
@@ -1832,43 +1830,43 @@ export default function ClientClients() {
                 {(viewingUser.password ||
                   viewingUser.expiration_date ||
                   viewingUser.bouquets) && (
-                  <div className="bg-[#23272f] rounded-lg p-4">
-                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                      <Activity className="w-5 h-5 text-purple-400" />
-                      Dados Extras
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {viewingUser.password && (
-                        <div>
-                          <Label className="text-gray-400 text-sm">Senha</Label>
-                          <p className="text-white font-medium">
-                            {viewingUser.password}
-                          </p>
-                        </div>
-                      )}
-                      {viewingUser.expiration_date && (
-                        <div>
-                          <Label className="text-gray-400 text-sm">
-                            Data de Vencimento
-                          </Label>
-                          <p className="text-white font-medium">
-                            {new Date(viewingUser.expiration_date).toLocaleDateString('pt-BR')}
-                          </p>
-                        </div>
-                      )}
-                      {viewingUser.bouquets && (
-                        <div>
-                          <Label className="text-gray-400 text-sm">
-                            Bouquets
-                          </Label>
-                          <p className="text-white font-medium">
-                            {viewingUser.bouquets}
-                          </p>
-                        </div>
-                      )}
+                    <div className="bg-[#23272f] rounded-lg p-4">
+                      <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                        <Activity className="w-5 h-5 text-purple-400" />
+                        Dados Extras
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {viewingUser.password && (
+                          <div>
+                            <Label className="text-gray-400 text-sm">Senha</Label>
+                            <p className="text-white font-medium">
+                              {viewingUser.password}
+                            </p>
+                          </div>
+                        )}
+                        {viewingUser.expiration_date && (
+                          <div>
+                            <Label className="text-gray-400 text-sm">
+                              Data de Vencimento
+                            </Label>
+                            <p className="text-white font-medium">
+                              {new Date(viewingUser.expiration_date).toLocaleDateString('pt-BR')}
+                            </p>
+                          </div>
+                        )}
+                        {viewingUser.bouquets && (
+                          <div>
+                            <Label className="text-gray-400 text-sm">
+                              Bouquets
+                            </Label>
+                            <p className="text-white font-medium">
+                              {viewingUser.bouquets}
+                            </p>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
               </div>
             )}
 
@@ -1959,11 +1957,10 @@ export default function ClientClients() {
                   {/* Status de extração */}
                   {extractionError && (
                     <div
-                      className={`border text-xs rounded p-2 mb-2 ${
-                        extractionError.includes("Testando proxy")
+                      className={`border text-xs rounded p-2 mb-2 ${extractionError.includes("Testando proxy")
                           ? "bg-blue-900/40 border-blue-700 text-blue-300"
                           : "bg-red-900/40 border-red-700 text-red-300"
-                      }`}
+                        }`}
                     >
                       {extractionError.includes("Testando proxy") ? "🔄" : "❌"}{" "}
                       {extractionError}
@@ -2294,7 +2291,7 @@ export default function ClientClients() {
                       <label className="block text-gray-300 mb-1 font-medium">
                         Classe de Serviço
                       </label>
-                      <select 
+                      <select
                         className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                         title="Selecione a classe de serviço"
                         aria-label="Classe de serviço"
@@ -2309,7 +2306,7 @@ export default function ClientClients() {
                       <label className="block text-gray-300 mb-1 font-medium">
                         Plano
                       </label>
-                      <select 
+                      <select
                         className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                         title="Selecione o plano"
                         aria-label="Plano"
@@ -2441,15 +2438,15 @@ export default function ClientClients() {
                   </span>
                   <div className="flex items-center gap-2 mb-2">
                     <input type="checkbox" className="accent-purple-600" title="Ativar notificações via WhatsApp" aria-label="Notificações via WhatsApp" />
-                  <div>
-                    <label className="block text-gray-300 mb-1 font-medium">Anotações</label>
-                    <textarea 
-                      placeholder="Anotações..." 
-                      className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 min-h-[60px]"
-                      title="Anotações adicionais"
-                      aria-label="Anotações"
-                    />
-                  </div>
+                    <div>
+                      <label className="block text-gray-300 mb-1 font-medium">Anotações</label>
+                      <textarea
+                        placeholder="Anotações..."
+                        className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 min-h-[60px]"
+                        title="Anotações adicionais"
+                        aria-label="Anotações"
+                      />
+                    </div>
                     <textarea placeholder="Anotações..." className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 min-h-[60px]" />
                   </div>
                 </div>
@@ -2553,9 +2550,8 @@ export default function ClientClients() {
         <AlertDialogContent className="bg-[#1f2937] text-white border border-gray-700">
           <AlertDialogHeader>
             <div className="flex items-center gap-3 mb-4">
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                pagoUser?.pago ? "bg-yellow-600" : "bg-green-600"
-              }`}>
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${pagoUser?.pago ? "bg-yellow-600" : "bg-green-600"
+                }`}>
                 <DollarSign className="w-6 h-6 text-white" />
               </div>
               <div>
@@ -2563,7 +2559,7 @@ export default function ClientClients() {
                   {pagoUser?.pago ? "Desmarcar Pagamento" : "Confirmar Pagamento"}
                 </AlertDialogTitle>
                 <AlertDialogDescription className="text-gray-400">
-                  {pagoUser?.pago 
+                  {pagoUser?.pago
                     ? "Deseja realmente desmarcar o pagamento deste cliente? A receita será atualizada no dashboard."
                     : "Confirme se este cliente realizou o pagamento. O valor será adicionado à receita total no dashboard."
                   }
@@ -2603,11 +2599,10 @@ export default function ClientClients() {
               </div>
 
               {pagoUser.price && (
-                <div className={`rounded-lg p-4 border-2 ${
-                  pagoUser.pago 
-                    ? "bg-yellow-900/20 border-yellow-600/50" 
+                <div className={`rounded-lg p-4 border-2 ${pagoUser.pago
+                    ? "bg-yellow-900/20 border-yellow-600/50"
                     : "bg-green-900/20 border-green-600/50"
-                }`}>
+                  }`}>
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-gray-400 text-sm">
@@ -2619,16 +2614,14 @@ export default function ClientClients() {
                         </span>
                       </p>
                     </div>
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                      pagoUser.pago ? "bg-yellow-600/20" : "bg-green-600/20"
-                    }`}>
-                      <DollarSign className={`w-6 h-6 ${
-                        pagoUser.pago ? "text-yellow-400" : "text-green-400"
-                      }`} />
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${pagoUser.pago ? "bg-yellow-600/20" : "bg-green-600/20"
+                      }`}>
+                      <DollarSign className={`w-6 h-6 ${pagoUser.pago ? "text-yellow-400" : "text-green-400"
+                        }`} />
                     </div>
                   </div>
                   <p className="text-xs text-gray-400 mt-2">
-                    {pagoUser.pago 
+                    {pagoUser.pago
                       ? "Este valor será subtraído da Receita Total no Dashboard."
                       : "Este valor será adicionado à Receita Total no Dashboard."
                     }
@@ -2639,7 +2632,7 @@ export default function ClientClients() {
           )}
 
           <AlertDialogFooter>
-            <AlertDialogCancel 
+            <AlertDialogCancel
               className="bg-gray-700 text-white border border-gray-600 hover:bg-gray-600"
               onClick={() => {
                 setIsPagoDialogOpen(false);
@@ -2650,11 +2643,10 @@ export default function ClientClients() {
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmTogglePago}
-              className={`${
-                pagoUser?.pago 
-                  ? "bg-yellow-600 hover:bg-yellow-700" 
+              className={`${pagoUser?.pago
+                  ? "bg-yellow-600 hover:bg-yellow-700"
                   : "bg-green-600 hover:bg-green-700"
-              } text-white`}
+                } text-white`}
             >
               {pagoUser?.pago ? "Desmarcar Pagamento" : "Confirmar Pagamento"}
             </AlertDialogAction>
@@ -2731,10 +2723,10 @@ function VencimentoDatePicker() {
 }
 
 function RenovacaoDatePicker() {
-    const [time, setTime] = React.useState("");
-    const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      setTime(e.target.value);
-    };
+  const [time, setTime] = React.useState("");
+  const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTime(e.target.value);
+  };
   const [open, setOpen] = React.useState(false);
   const [date, setDate] = React.useState<Date | undefined>(undefined);
 

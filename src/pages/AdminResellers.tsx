@@ -1297,7 +1297,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-400">{shouldShow ? '5' : '0'}</div>
+            <div className="text-2xl font-bold text-yellow-400">{shouldShow ? '0' : '0'}</div>
             <div className="text-xs text-gray-400 mt-1">Novos revendedores</div>
           </CardContent>
         </Card>

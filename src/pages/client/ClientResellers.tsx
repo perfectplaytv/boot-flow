@@ -60,7 +60,7 @@ export default function ClientResellers() {
   useEffect(() => {
     const refreshData = (delay: number = 0, reason: string = '') => {
       if (!fetchRevendas) return;
-      
+
       if (delay > 0) {
         setTimeout(() => {
           console.log(`🔄 [ClientResellers] ${reason} - Atualizando lista após ${delay}ms...`);
@@ -75,7 +75,7 @@ export default function ClientResellers() {
     const refreshFlag = localStorage.getItem('dashboard-refresh');
     const resellerCreatedFlag = localStorage.getItem('reseller-created');
     const hasFlags = refreshFlag || resellerCreatedFlag;
-    
+
     if (hasFlags) {
       console.log('🔄 [ClientResellers] Flag de refresh encontrada ao montar, removendo flags...');
       localStorage.removeItem('dashboard-refresh');
@@ -133,45 +133,45 @@ export default function ClientResellers() {
   const handleAddRevenda = async (e: React.FormEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     // Verificar limite de revendas (5 para plano Essencial)
     const currentResellerCount = revendas.length;
     if (currentResellerCount >= MAX_RESELLERS) {
       alert(`Você atingiu o limite de ${MAX_RESELLERS} revendas do seu plano. Para adicionar mais revendas, faça upgrade do seu plano.`);
       return;
     }
-    
+
     const errors: string[] = [];
-    
+
     if (!newReseller.username || newReseller.username.trim() === '') {
       errors.push('Usuário é obrigatório');
     }
-    
+
     if (!newReseller.password || newReseller.password.trim() === '') {
       errors.push('Senha é obrigatória');
     }
-    
+
     if (!newReseller.permission || newReseller.permission.trim() === '') {
       errors.push('Permissão é obrigatória');
     }
-    
+
     if (errors.length > 0) {
       alert(`❌ Por favor, preencha todos os campos obrigatórios:\n\n${errors.join('\n')}`);
       return;
     }
-    
+
     if (newReseller.email && newReseller.email.trim() !== '' && !newReseller.email.includes('@')) {
       alert('❌ Por favor, forneça um email válido ou deixe o campo vazio.');
       return;
     }
-    
+
     setIsAddingReseller(true);
     setAddResellerSuccess(false);
     if (clearError) {
       clearError();
     }
     setFormError(null);
-    
+
     try {
       const success = await addRevenda({
         username: newReseller.username,
@@ -190,7 +190,7 @@ export default function ClientResellers() {
         observations: newReseller.observations || undefined,
         status: 'Ativo'
       });
-      
+
       if (!success) {
         const errorMessage = error || 'Erro ao adicionar revendedor. Verifique os dados e tente novamente.';
         alert(`❌ Erro ao adicionar revendedor:\n\n${errorMessage}`);
@@ -199,25 +199,25 @@ export default function ClientResellers() {
         setFormError(errorMessage);
         return;
       }
-      
+
       setAddResellerSuccess(true);
-      
+
       if (fetchRevendas) {
         setTimeout(() => {
           fetchRevendas();
         }, 500);
       }
-      
+
       window.dispatchEvent(new CustomEvent('reseller-created'));
       window.dispatchEvent(new CustomEvent('refresh-dashboard', { detail: { source: 'resellers', action: 'create' } }));
-      
+
       try {
         localStorage.setItem('dashboard-refresh', Date.now().toString());
         localStorage.setItem('reseller-created', Date.now().toString());
       } catch (error) {
         console.error('❌ Erro ao definir flag localStorage:', error);
       }
-      
+
       setNewReseller({
         username: "",
         password: "",
@@ -234,7 +234,7 @@ export default function ClientResellers() {
         whatsapp: "",
         observations: ""
       });
-      
+
       setTimeout(() => {
         setIsAddDialogOpen(false);
         setAddResellerSuccess(false);
@@ -269,16 +269,16 @@ export default function ClientResellers() {
         whatsapp: editingReseller.whatsapp,
         observations: editingReseller.observations
       });
-      
+
       if (success) {
         window.dispatchEvent(new CustomEvent('refresh-dashboard', { detail: { source: 'resellers', action: 'update' } }));
-        
+
         try {
           localStorage.setItem('dashboard-refresh', Date.now().toString());
         } catch (error) {
           console.error('❌ Erro ao definir flag localStorage:', error);
         }
-        
+
         setEditingReseller(null);
         setIsEditDialogOpen(false);
       }
@@ -288,18 +288,18 @@ export default function ClientResellers() {
   const handleDeleteRevenda = async () => {
     if (deletingReseller) {
       const success = await deleteRevenda(deletingReseller.id);
-      
+
       if (success) {
-        window.dispatchEvent(new CustomEvent('refresh-dashboard', { 
-          detail: { source: 'resellers', action: 'delete', revendaId: deletingReseller.id } 
+        window.dispatchEvent(new CustomEvent('refresh-dashboard', {
+          detail: { source: 'resellers', action: 'delete', revendaId: deletingReseller.id }
         }));
-        
+
         try {
           localStorage.setItem('dashboard-refresh', Date.now().toString());
         } catch (error) {
           console.error('❌ Erro ao definir flag localStorage:', error);
         }
-        
+
         setDeletingReseller(null);
         setIsDeleteDialogOpen(false);
         alert("✅ Revendedor excluído com sucesso!");
@@ -354,7 +354,7 @@ export default function ClientResellers() {
           </div>
         </div>
       )}
-      
+
       {/* Banner de erro RLS */}
       {error && (
         <RLSErrorBannerResellers error={error} onClearError={clearError} />
@@ -369,7 +369,7 @@ export default function ClientResellers() {
               <div>
                 <strong>Limite de revendas atingido!</strong>
                 <p className="text-sm mt-1">
-                  Você atingiu o limite de {MAX_RESELLERS} revendas do seu plano Essencial. 
+                  Você atingiu o limite de {MAX_RESELLERS} revendas do seu plano Essencial.
                   Para adicionar mais revendas, faça upgrade do seu plano.
                 </p>
               </div>
@@ -400,7 +400,7 @@ export default function ClientResellers() {
             <div>
               <strong>Atenção: Limite próximo!</strong>
               <p className="text-sm mt-1">
-                Você tem {revendas.length} de {MAX_RESELLERS} revendas. 
+                Você tem {revendas.length} de {MAX_RESELLERS} revendas.
                 Ainda pode adicionar {MAX_RESELLERS - revendas.length} revenda(s).
               </p>
             </div>
@@ -420,7 +420,7 @@ export default function ClientResellers() {
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
-              <Button 
+              <Button
                 className="flex items-center gap-2 bg-[#7e22ce] hover:bg-[#6d1bb7] text-white h-10 sm:h-auto disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={revendas.length >= MAX_RESELLERS}
               >
@@ -436,357 +436,357 @@ export default function ClientResellers() {
               </Button>
             </DialogTrigger>
             <DialogContent className="bg-[#1f2937] text-white max-w-4xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col max-h-[90vh] overflow-y-auto scrollbar-hide">
-            <DialogHeader className="sr-only">
-              <DialogTitle>Adicionar Revenda</DialogTitle>
-              <DialogDescription>Preencha os dados do novo revendedor</DialogDescription>
-            </DialogHeader>
-            <div className="p-6 w-full flex flex-col">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold">Adicionar um Revenda</h2>
+              <DialogHeader className="sr-only">
+                <DialogTitle>Adicionar Revenda</DialogTitle>
+                <DialogDescription>Preencha os dados do novo revendedor</DialogDescription>
+              </DialogHeader>
+              <div className="p-6 w-full flex flex-col">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold">Adicionar um Revenda</h2>
                   <div className="flex items-center gap-2">
-                  <Button aria-label="Fechar" variant="ghost" size="sm" className="text-gray-400 hover:text-white" onClick={() => setIsAddDialogOpen(false)}>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </Button>
+                    <Button aria-label="Fechar" variant="ghost" size="sm" className="text-gray-400 hover:text-white" onClick={() => setIsAddDialogOpen(false)}>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </Button>
+                  </div>
                 </div>
-              </div>
-              
-              <form onSubmit={handleAddRevenda} className="space-y-6 flex-1 overflow-y-auto">
-                {formError && (
-                  <div className="rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-200">
-                    {formError}
-                  </div>
-                )}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-white">
-                      Usuário <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      aria-label="Usuário do revendedor"
-                      className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
-                      placeholder="Obrigatório"
-                      value={newReseller.username}
-                      onChange={(e) => setNewReseller({...newReseller, username: e.target.value})}
-                      required
-                    />
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 text-blue-400 text-xs">
-                        <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
-                        <span>O campo usuário só pode conter letras, números e traços.</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-blue-400 text-xs">
-                        <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
-                        <span>O usuário precisa ter no mínimo 6 caracteres.</span>
-                      </div>
+
+                <form onSubmit={handleAddRevenda} className="space-y-6 flex-1 overflow-y-auto">
+                  {formError && (
+                    <div className="rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+                      {formError}
                     </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-white">
-                      Senha <span className="text-red-500">*</span>
-                    </Label>
-                    <div className="flex gap-2">
+                  )}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium text-white">
+                        Usuário <span className="text-red-500">*</span>
+                      </Label>
                       <Input
-                        type="password"
-                        aria-label="Senha do revendedor"
-                        className="bg-[#23272f] border-gray-600 text-white flex-1 placeholder-gray-400 focus:border-blue-500"
-                        placeholder="Digite a senha"
-                        value={newReseller.password}
-                        onChange={(e) => setNewReseller({...newReseller, password: e.target.value})}
+                        aria-label="Usuário do revendedor"
+                        className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
+                        placeholder="Obrigatório"
+                        value={newReseller.username}
+                        onChange={(e) => setNewReseller({ ...newReseller, username: e.target.value })}
                         required
                       />
-                      <Button aria-label="Gerar senha" type="button" variant="outline" size="sm" className="border-gray-600 text-gray-400 hover:text-white">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                        </svg>
-                      </Button>
-                    </div>
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 text-blue-400 text-xs">
-                        <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
-                        <span>A senha precisa ter no mínimo 8 caracteres.</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-blue-400 text-xs">
-                        <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
-                        <span>Pelo menos 8 caracteres de comprimento, mas 14 ou mais é melhor.</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-blue-400 text-xs">
-                        <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
-                        <span>Uma combinação de letras maiúsculas, letras minúsculas, números e símbolos.</span>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 text-blue-400 text-xs">
+                          <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
+                          <span>O campo usuário só pode conter letras, números e traços.</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-blue-400 text-xs">
+                          <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
+                          <span>O usuário precisa ter no mínimo 6 caracteres.</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
 
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id="forcePasswordChange"
-                    aria-label="Forçar troca de senha"
-                    className="rounded border-gray-600 bg-[#23272f] text-blue-500 focus:ring-blue-500"
-                    checked={newReseller.force_password_change}
-                    onChange={(e) => setNewReseller({...newReseller, force_password_change: e.target.checked})}
-                  />
-                  <Label htmlFor="forcePasswordChange" className="text-sm text-gray-300">
-                    Forçar revenda a mudar a senha no próximo login
-                  </Label>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-white">
-                      Permissão <span className="text-red-500">*</span>
-                    </Label>
-                    <Select value={newReseller.permission} onValueChange={(value) => setNewReseller({...newReseller, permission: value})}>
-                      <SelectTrigger aria-label="Permissão do revendedor" className="bg-[#23272f] border-gray-600 text-white focus:border-blue-500">
-                        <SelectValue placeholder="Selecione" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-[#23272f] border-gray-600">
-                        <SelectItem value="admin">Administrador</SelectItem>
-                        <SelectItem value="reseller">Revendedor</SelectItem>
-                        <SelectItem value="subreseller">Sub-Revendedor</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-white">
-                      Créditos <span className="text-red-500">*</span>
-                    </Label>
-                    <div className="flex items-center gap-2">
-                      <Button 
-                        type="button" 
-                        variant="outline" 
-                        size="sm" 
-                        aria-label="Diminuir créditos"
-                        className="border-gray-600 text-gray-400 hover:text-white"
-                        onClick={() => setNewReseller({...newReseller, credits: Math.max(0, newReseller.credits - 1)})}
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
-                        </svg>
-                      </Button>
-                      <Input
-                        type="number"
-                        aria-label="Créditos do revendedor"
-                        className="bg-[#23272f] border-gray-600 text-white text-center placeholder-gray-400 focus:border-blue-500"
-                        placeholder="0"
-                        value={newReseller.credits}
-                        onChange={(e) => setNewReseller({...newReseller, credits: parseInt(e.target.value) || 0})}
-                        min="10"
-                      />
-                      <Button 
-                        type="button" 
-                        variant="outline" 
-                        size="sm" 
-                        aria-label="Aumentar créditos"
-                        className="border-gray-600 text-gray-400 hover:text-white"
-                        onClick={() => setNewReseller({...newReseller, credits: newReseller.credits + 1})}
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                        </svg>
-                      </Button>
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium text-white">
+                        Senha <span className="text-red-500">*</span>
+                      </Label>
+                      <div className="flex gap-2">
+                        <Input
+                          type="password"
+                          aria-label="Senha do revendedor"
+                          className="bg-[#23272f] border-gray-600 text-white flex-1 placeholder-gray-400 focus:border-blue-500"
+                          placeholder="Digite a senha"
+                          value={newReseller.password}
+                          onChange={(e) => setNewReseller({ ...newReseller, password: e.target.value })}
+                          required
+                        />
+                        <Button aria-label="Gerar senha" type="button" variant="outline" size="sm" className="border-gray-600 text-gray-400 hover:text-white">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                          </svg>
+                        </Button>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 text-blue-400 text-xs">
+                          <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
+                          <span>A senha precisa ter no mínimo 8 caracteres.</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-blue-400 text-xs">
+                          <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
+                          <span>Pelo menos 8 caracteres de comprimento, mas 14 ou mais é melhor.</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-blue-400 text-xs">
+                          <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
+                          <span>Uma combinação de letras maiúsculas, letras minúsculas, números e símbolos.</span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-blue-400 text-xs">Mínimo de 10 créditos</div>
                   </div>
-                </div>
 
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-white">Servidores (Opcional)</Label>
-                  <Select value={newReseller.servers} onValueChange={(value) => setNewReseller({...newReseller, servers: value})}>
-                    <SelectTrigger aria-label="Servidores permitidos" className="bg-[#23272f] border-gray-600 text-white focus:border-blue-500">
-                      <SelectValue placeholder="Opcional" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-[#23272f] border-gray-600">
-                      <SelectItem value="none">Opcional</SelectItem>
-                      <SelectItem value="server1">Servidor 1</SelectItem>
-                      <SelectItem value="server2">Servidor 2</SelectItem>
-                      <SelectItem value="server3">Servidor 3</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <div className="text-blue-400 text-xs">
-                    Selecione os servidores que esse revenda pode ter acesso. Deixe em branco para permitir todos os servidores. Essa configuração afeta tanto a revenda quanto as subrevendas.
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-white">Revenda Master</Label>
-                    <Input
-                      aria-label="Nome da revenda master"
-                      className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
-                      placeholder="Nome da revenda master"
-                      value={newReseller.master_reseller}
-                      onChange={(e) => setNewReseller({...newReseller, master_reseller: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-white">
-                      Desativar login se não recarregar - em dias
-                    </Label>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        aria-label="Diminuir dias de desativação"
-                        className="border-gray-600 text-gray-400 hover:text-white"
-                        onClick={() => setNewReseller({...newReseller, disable_login_days: Math.max(0, newReseller.disable_login_days - 1)})}
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
-                        </svg>
-                      </Button>
-                      <Input
-                        type="number"
-                        aria-label="Dias para desativação do login"
-                        className="bg-[#23272f] border-gray-600 text-white text-center placeholder-gray-400 focus:border-blue-500"
-                        placeholder="0"
-                        value={newReseller.disable_login_days}
-                        onChange={(e) => setNewReseller({...newReseller, disable_login_days: parseInt(e.target.value) || 0})}
-                        min="0"
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        aria-label="Aumentar dias de desativação"
-                        className="border-gray-600 text-gray-400 hover:text-white"
-                        onClick={() => setNewReseller({...newReseller, disable_login_days: newReseller.disable_login_days + 1})}
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                        </svg>
-                      </Button>
-                    </div>
-                    <div className="text-blue-400 text-xs">Deixe 0 para desativar essa opção</div>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
                   <div className="flex items-center space-x-2">
                     <input
                       type="checkbox"
-                      id="monthlyReseller"
-                      aria-label="Configuração de Revenda Mensalista"
+                      id="forcePasswordChange"
+                      aria-label="Forçar troca de senha"
                       className="rounded border-gray-600 bg-[#23272f] text-blue-500 focus:ring-blue-500"
-                      checked={newReseller.monthly_reseller}
-                      onChange={(e) => setNewReseller({...newReseller, monthly_reseller: e.target.checked})}
+                      checked={newReseller.force_password_change}
+                      onChange={(e) => setNewReseller({ ...newReseller, force_password_change: e.target.checked })}
                     />
-                    <Label htmlFor="monthlyReseller" className="text-sm text-gray-300">
-                      Configuração de Revenda Mensalista
+                    <Label htmlFor="forcePasswordChange" className="text-sm text-gray-300">
+                      Forçar revenda a mudar a senha no próximo login
                     </Label>
                   </div>
-                  <div className="bg-green-600/20 border border-green-600/30 rounded-lg p-3">
-                    <div className="text-green-400 text-sm">
-                      Apenas você pode visualizar os detalhes pessoais deste revenda.
-                    </div>
-                  </div>
-                </div>
 
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-white">Informações Pessoais (Opcional)</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <Label className="text-sm font-medium text-white">Nome</Label>
+                      <Label className="text-sm font-medium text-white">
+                        Permissão <span className="text-red-500">*</span>
+                      </Label>
+                      <Select value={newReseller.permission} onValueChange={(value) => setNewReseller({ ...newReseller, permission: value })}>
+                        <SelectTrigger aria-label="Permissão do revendedor" className="bg-[#23272f] border-gray-600 text-white focus:border-blue-500">
+                          <SelectValue placeholder="Selecione" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-[#23272f] border-gray-600">
+                          <SelectItem value="admin">Administrador</SelectItem>
+                          <SelectItem value="reseller">Revendedor</SelectItem>
+                          <SelectItem value="subreseller">Sub-Revendedor</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium text-white">
+                        Créditos <span className="text-red-500">*</span>
+                      </Label>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          aria-label="Diminuir créditos"
+                          className="border-gray-600 text-gray-400 hover:text-white"
+                          onClick={() => setNewReseller({ ...newReseller, credits: Math.max(0, newReseller.credits - 1) })}
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                          </svg>
+                        </Button>
+                        <Input
+                          type="number"
+                          aria-label="Créditos do revendedor"
+                          className="bg-[#23272f] border-gray-600 text-white text-center placeholder-gray-400 focus:border-blue-500"
+                          placeholder="0"
+                          value={newReseller.credits}
+                          onChange={(e) => setNewReseller({ ...newReseller, credits: parseInt(e.target.value) || 0 })}
+                          min="10"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          aria-label="Aumentar créditos"
+                          className="border-gray-600 text-gray-400 hover:text-white"
+                          onClick={() => setNewReseller({ ...newReseller, credits: newReseller.credits + 1 })}
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                          </svg>
+                        </Button>
+                      </div>
+                      <div className="text-blue-400 text-xs">Mínimo de 10 créditos</div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-white">Servidores (Opcional)</Label>
+                    <Select value={newReseller.servers} onValueChange={(value) => setNewReseller({ ...newReseller, servers: value })}>
+                      <SelectTrigger aria-label="Servidores permitidos" className="bg-[#23272f] border-gray-600 text-white focus:border-blue-500">
+                        <SelectValue placeholder="Opcional" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-[#23272f] border-gray-600">
+                        <SelectItem value="none">Opcional</SelectItem>
+                        <SelectItem value="server1">Servidor 1</SelectItem>
+                        <SelectItem value="server2">Servidor 2</SelectItem>
+                        <SelectItem value="server3">Servidor 3</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <div className="text-blue-400 text-xs">
+                      Selecione os servidores que esse revenda pode ter acesso. Deixe em branco para permitir todos os servidores. Essa configuração afeta tanto a revenda quanto as subrevendas.
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium text-white">Revenda Master</Label>
                       <Input
-                        aria-label="Nome completo do revendedor"
+                        aria-label="Nome da revenda master"
                         className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
-                        placeholder="Nome completo"
-                        value={newReseller.personal_name}
-                        onChange={(e) => setNewReseller({...newReseller, personal_name: e.target.value})}
+                        placeholder="Nome da revenda master"
+                        value={newReseller.master_reseller}
+                        onChange={(e) => setNewReseller({ ...newReseller, master_reseller: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="space-y-2">
-                      <Label className="text-sm font-medium text-white">E-mail</Label>
-                      <Input
-                        type="email"
-                        aria-label="Email do revendedor"
-                        className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
-                        placeholder="email@exemplo.com"
-                        value={newReseller.email}
-                        onChange={(e) => setNewReseller({...newReseller, email: e.target.value})}
-                      />
+                      <Label className="text-sm font-medium text-white">
+                        Desativar login se não recarregar - em dias
+                      </Label>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          aria-label="Diminuir dias de desativação"
+                          className="border-gray-600 text-gray-400 hover:text-white"
+                          onClick={() => setNewReseller({ ...newReseller, disable_login_days: Math.max(0, newReseller.disable_login_days - 1) })}
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                          </svg>
+                        </Button>
+                        <Input
+                          type="number"
+                          aria-label="Dias para desativação do login"
+                          className="bg-[#23272f] border-gray-600 text-white text-center placeholder-gray-400 focus:border-blue-500"
+                          placeholder="0"
+                          value={newReseller.disable_login_days}
+                          onChange={(e) => setNewReseller({ ...newReseller, disable_login_days: parseInt(e.target.value) || 0 })}
+                          min="0"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          aria-label="Aumentar dias de desativação"
+                          className="border-gray-600 text-gray-400 hover:text-white"
+                          onClick={() => setNewReseller({ ...newReseller, disable_login_days: newReseller.disable_login_days + 1 })}
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                          </svg>
+                        </Button>
+                      </div>
+                      <div className="text-blue-400 text-xs">Deixe 0 para desativar essa opção</div>
                     </div>
-                    
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium text-white">Telegram</Label>
-                      <Input
-                        aria-label="Telegram do revendedor"
-                        className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
-                        placeholder="@usuario"
-                        value={newReseller.telegram}
-                        onChange={(e) => setNewReseller({...newReseller, telegram: e.target.value})}
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="monthlyReseller"
+                        aria-label="Configuração de Revenda Mensalista"
+                        className="rounded border-gray-600 bg-[#23272f] text-blue-500 focus:ring-blue-500"
+                        checked={newReseller.monthly_reseller}
+                        onChange={(e) => setNewReseller({ ...newReseller, monthly_reseller: e.target.checked })}
                       />
+                      <Label htmlFor="monthlyReseller" className="text-sm text-gray-300">
+                        Configuração de Revenda Mensalista
+                      </Label>
                     </div>
-                    
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium text-white">WhatsApp</Label>
-                      <Input
-                        aria-label="WhatsApp do revendedor"
-                        className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
-                        placeholder="55 11 99999 3333"
-                        value={newReseller.whatsapp}
-                        onChange={(e) => setNewReseller({...newReseller, whatsapp: e.target.value})}
-                      />
-                      <div className="text-blue-400 text-xs">
-                        Incluindo o código do país - com ou sem espaço e traços - ex. 55 11 99999 3333
+                    <div className="bg-green-600/20 border border-green-600/30 rounded-lg p-3">
+                      <div className="text-green-400 text-sm">
+                        Apenas você pode visualizar os detalhes pessoais deste revenda.
                       </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="newResellerObservations" className="text-sm font-medium text-white">Observações (Opcional)</Label>
-                  <textarea
-                    id="newResellerObservations"
-                    aria-label="Observações do revendedor"
-                    rows={4}
-                    placeholder="Adicione observações sobre este revendedor..."
-                    className="w-full bg-[#23272f] border border-gray-600 text-white rounded-md px-3 py-2 focus:border-blue-500 focus:outline-none placeholder-gray-400 resize-none"
-                    value={newReseller.observations}
-                    onChange={(e) => setNewReseller({...newReseller, observations: e.target.value})}
-                  />
-                </div>
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-white">Informações Pessoais (Opcional)</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium text-white">Nome</Label>
+                        <Input
+                          aria-label="Nome completo do revendedor"
+                          className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
+                          placeholder="Nome completo"
+                          value={newReseller.personal_name}
+                          onChange={(e) => setNewReseller({ ...newReseller, personal_name: e.target.value })}
+                        />
+                      </div>
 
-                <div className="flex items-center justify-between pt-6 border-t border-gray-700">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="border-gray-600 text-gray-400 hover:text-white"
-                    onClick={() => setIsAddDialogOpen(false)}
-                  >
-                    Cancelar
-                  </Button>
-                  <Button
-                    type="submit"
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
-                    disabled={isAddingReseller}
-                  >
-                    {isAddingReseller ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Salvando...
-                      </>
-                    ) : (
-                      <>
-                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-                        </svg>
-                        Salvar
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </form>
-            </div>
-          </DialogContent>
-        </Dialog>
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium text-white">E-mail</Label>
+                        <Input
+                          type="email"
+                          aria-label="Email do revendedor"
+                          className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
+                          placeholder="email@exemplo.com"
+                          value={newReseller.email}
+                          onChange={(e) => setNewReseller({ ...newReseller, email: e.target.value })}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium text-white">Telegram</Label>
+                        <Input
+                          aria-label="Telegram do revendedor"
+                          className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
+                          placeholder="@usuario"
+                          value={newReseller.telegram}
+                          onChange={(e) => setNewReseller({ ...newReseller, telegram: e.target.value })}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium text-white">WhatsApp</Label>
+                        <Input
+                          aria-label="WhatsApp do revendedor"
+                          className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
+                          placeholder="55 11 99999 3333"
+                          value={newReseller.whatsapp}
+                          onChange={(e) => setNewReseller({ ...newReseller, whatsapp: e.target.value })}
+                        />
+                        <div className="text-blue-400 text-xs">
+                          Incluindo o código do país - com ou sem espaço e traços - ex. 55 11 99999 3333
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="newResellerObservations" className="text-sm font-medium text-white">Observações (Opcional)</Label>
+                    <textarea
+                      id="newResellerObservations"
+                      aria-label="Observações do revendedor"
+                      rows={4}
+                      placeholder="Adicione observações sobre este revendedor..."
+                      className="w-full bg-[#23272f] border border-gray-600 text-white rounded-md px-3 py-2 focus:border-blue-500 focus:outline-none placeholder-gray-400 resize-none"
+                      value={newReseller.observations}
+                      onChange={(e) => setNewReseller({ ...newReseller, observations: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between pt-6 border-t border-gray-700">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="border-gray-600 text-gray-400 hover:text-white"
+                      onClick={() => setIsAddDialogOpen(false)}
+                    >
+                      Cancelar
+                    </Button>
+                    <Button
+                      type="submit"
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                      disabled={isAddingReseller}
+                    >
+                      {isAddingReseller ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          Salvando...
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                          </svg>
+                          Salvar
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </form>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
@@ -804,7 +804,7 @@ export default function ClientResellers() {
             <div className="text-xs text-gray-400 mt-1">Revendedores cadastrados</div>
           </CardContent>
         </Card>
-        
+
         <Card className="bg-gradient-to-br from-green-900/50 to-green-800/30 border border-green-700/40">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm text-gray-300 flex items-center gap-2">
@@ -817,7 +817,7 @@ export default function ClientResellers() {
             <div className="text-xs text-gray-400 mt-1">Revendedores com acesso</div>
           </CardContent>
         </Card>
-        
+
         <Card className="bg-gradient-to-br from-blue-900/50 to-blue-800/30 border border-blue-700/40">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm text-gray-300 flex items-center gap-2">
@@ -830,7 +830,7 @@ export default function ClientResellers() {
             <div className="text-xs text-gray-400 mt-1">Contas de administrador</div>
           </CardContent>
         </Card>
-        
+
         <Card className="bg-gradient-to-br from-yellow-900/50 to-yellow-800/30 border border-yellow-700/40">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm text-gray-300 flex items-center gap-2">
@@ -839,7 +839,7 @@ export default function ClientResellers() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-400">5</div>
+            <div className="text-2xl font-bold text-yellow-400">0</div>
             <div className="text-xs text-gray-400 mt-1">Novos revendedores</div>
           </CardContent>
         </Card>
@@ -1008,13 +1008,13 @@ export default function ClientResellers() {
                   <Label className="text-sm font-medium text-white">Usuário</Label>
                   <Input
                     value={editingReseller.username}
-                    onChange={(e) => setEditingReseller({...editingReseller, username: e.target.value})}
+                    onChange={(e) => setEditingReseller({ ...editingReseller, username: e.target.value })}
                     className="bg-[#23272f] border-gray-600 text-white"
                   />
                 </div>
                 <div>
                   <Label className="text-sm font-medium text-white">Permissão</Label>
-                  <Select value={editingReseller.permission} onValueChange={(value) => setEditingReseller({...editingReseller, permission: value as any})}>
+                  <Select value={editingReseller.permission} onValueChange={(value) => setEditingReseller({ ...editingReseller, permission: value as any })}>
                     <SelectTrigger aria-label="Permissão do revendedor" className="bg-[#23272f] border-gray-600 text-white">
                       <SelectValue />
                     </SelectTrigger>
@@ -1030,7 +1030,7 @@ export default function ClientResellers() {
                   <Input
                     type="number"
                     value={editingReseller.credits}
-                    onChange={(e) => setEditingReseller({...editingReseller, credits: parseInt(e.target.value) || 0})}
+                    onChange={(e) => setEditingReseller({ ...editingReseller, credits: parseInt(e.target.value) || 0 })}
                     className="bg-[#23272f] border-gray-600 text-white"
                   />
                 </div>
@@ -1038,7 +1038,7 @@ export default function ClientResellers() {
                   <Label className="text-sm font-medium text-white">Nome</Label>
                   <Input
                     value={editingReseller.personal_name || ''}
-                    onChange={(e) => setEditingReseller({...editingReseller, personal_name: e.target.value})}
+                    onChange={(e) => setEditingReseller({ ...editingReseller, personal_name: e.target.value })}
                     className="bg-[#23272f] border-gray-600 text-white"
                   />
                 </div>
@@ -1048,7 +1048,7 @@ export default function ClientResellers() {
                 <Input
                   type="email"
                   value={editingReseller.email || ''}
-                  onChange={(e) => setEditingReseller({...editingReseller, email: e.target.value})}
+                  onChange={(e) => setEditingReseller({ ...editingReseller, email: e.target.value })}
                   className="bg-[#23272f] border-gray-600 text-white"
                 />
               </div>
@@ -1059,7 +1059,7 @@ export default function ClientResellers() {
                   id="editResellerObservations"
                   aria-label="Observações do revendedor (edição)"
                   value={editingReseller.observations || ''}
-                  onChange={(e) => setEditingReseller({...editingReseller, observations: e.target.value})}
+                  onChange={(e) => setEditingReseller({ ...editingReseller, observations: e.target.value })}
                   className="w-full bg-[#23272f] border border-gray-600 text-white rounded-md px-3 py-2"
                   rows={3}
                 />
