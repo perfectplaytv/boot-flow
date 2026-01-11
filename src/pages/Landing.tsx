@@ -511,20 +511,20 @@ const Landing = () => {
         </div>
       </header>
 
-      {/* Hero Section Premium */}
-      <section id="hero" className="relative pt-12 pb-24 lg:pt-24 overflow-hidden bg-gradient-to-b from-blue-50/50 to-transparent dark:from-blue-950/20 dark:to-background">
+      {/* Hero Section Premium - Optimized Layout */}
+      <section id="hero" className="relative pt-8 pb-20 lg:pt-16 lg:pb-32 overflow-hidden bg-gradient-to-b from-blue-50/50 to-transparent dark:from-blue-950/20 dark:to-background">
         {/* Background Elements */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl pointer-events-none">
-          <div className="absolute top-20 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl opacity-50 animate-pulse" />
-          <div className="absolute bottom-0 left-0 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl opacity-50 animate-pulse delay-700" />
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl opacity-50 animate-pulse" />
+          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl opacity-50 animate-pulse delay-700" />
         </div>
 
         <div className="container mx-auto px-4 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+          <div className="flex flex-col items-center text-center max-w-5xl mx-auto space-y-10">
 
-            {/* Left Column: Copy & CTA */}
-            <div className="text-center lg:text-left space-y-8">
-              <Badge variant="outline" className="py-1.5 px-4 bg-blue-100/50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800 backdrop-blur-sm animate-fade-in">
+            {/* 1. Badge & Headline */}
+            <div className="space-y-6 animate-fade-in">
+              <Badge variant="outline" className="py-1.5 px-4 bg-blue-100/50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800 backdrop-blur-sm mx-auto">
                 <span className="flex items-center gap-1.5">
                   <span className="relative flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
@@ -534,7 +534,7 @@ const Landing = () => {
                 </span>
               </Badge>
 
-              <h1 className="text-5xl lg:text-7xl font-extrabold tracking-tight leading-tight gradient-text">
+              <h1 className="text-4xl md:text-5xl lg:text-7xl font-extrabold tracking-tight leading-tight gradient-text max-w-4xl mx-auto">
                 Transforme seu Telegram em uma <br />
                 <span className="text-primary relative inline-block">
                   Máquina de Vendas
@@ -544,14 +544,17 @@ const Landing = () => {
                 </span>
               </h1>
 
-              <p className="text-xl text-muted-foreground max-w-2xl mx-auto lg:mx-0 leading-relaxed font-light">
+              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed font-light">
                 Nosso Robô vai trazer <strong>leads segmentados</strong>, encher seus grupos e automatizar seu atendimento. Aumente seu faturamento enquanto você dorme.
               </p>
+            </div>
 
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
+            {/* 2. CTA Buttons & Trust Indicators (Now Above Notebook) */}
+            <div className="space-y-6 w-full animate-fade-in delay-200">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
                   size="xl"
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:scale-105 transition-all duration-300 min-w-[240px]"
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:scale-105 transition-all duration-300 min-w-[280px]"
                   onClick={() => navigate('/cadastro')}
                 >
                   <Sparkles className="w-5 h-5 mr-2 animate-pulse" />
@@ -560,7 +563,7 @@ const Landing = () => {
                 <Button
                   variant="outline"
                   size="xl"
-                  className="border-2 font-semibold hover:bg-muted/50 transition-all duration-300"
+                  className="border-2 font-semibold hover:bg-muted/50 transition-all duration-300 min-w-[200px]"
                   onClick={() => {
                     const el = document.getElementById('features');
                     el?.scrollIntoView({ behavior: 'smooth' });
@@ -571,44 +574,43 @@ const Landing = () => {
                 </Button>
               </div>
 
-              <div className="flex items-center justify-center lg:justify-start gap-6 pt-4 text-sm text-muted-foreground">
-                <div className="flex items-center gap-1.5">
+              <div className="flex flex-wrap justify-center gap-4 md:gap-8 text-sm font-medium text-muted-foreground">
+                <div className="flex items-center gap-1.5 bg-background/50 px-3 py-1 rounded-full border border-border/50">
                   <Check className="w-4 h-4 text-green-500" />
                   <span>Setup Instantâneo</span>
                 </div>
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5 bg-background/50 px-3 py-1 rounded-full border border-border/50">
                   <Check className="w-4 h-4 text-green-500" />
                   <span>Teste Grátis</span>
                 </div>
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5 bg-background/50 px-3 py-1 rounded-full border border-border/50">
                   <Check className="w-4 h-4 text-green-500" />
                   <span>Suporte 24/7</span>
                 </div>
               </div>
             </div>
 
-            {/* Right Column: Interactive Mockup */}
-            <div className="relative lg:h-[600px] flex items-center justify-center perspective-1000">
-              {/* Floating Notifications - Right */}
-              <div className="absolute top-20 right-0 lg:-right-4 z-30 animate-float-slow">
+            {/* 3. Interactive Mockup (Centered & Large) */}
+            <div className="relative w-full max-w-5xl mt-8 md:mt-12 perspective-1000 group">
+              {/* Floating Notifications */}
+              <div className="absolute top-10 right-[5%] md:right-[10%] z-30 animate-float-slow">
                 <div className="bg-white dark:bg-gray-800 p-3 rounded-xl shadow-xl shadow-black/10 border border-border/50 flex items-center gap-3 backdrop-blur-md">
                   <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
                     <DollarSign className="w-5 h-5 text-green-600 dark:text-green-400" />
                   </div>
-                  <div>
+                  <div className="text-left">
                     <div className="text-xs font-medium text-muted-foreground">Venda Realizada</div>
                     <div className="font-bold text-green-600 dark:text-green-400">+ R$ 297,00</div>
                   </div>
                 </div>
               </div>
 
-              {/* Floating Notifications - Left */}
-              <div className="absolute bottom-32 -left-4 lg:-left-8 z-30 animate-float-delayed">
+              <div className="absolute bottom-20 left-[5%] md:left-[10%] z-30 animate-float-delayed">
                 <div className="bg-white dark:bg-gray-800 p-3 rounded-xl shadow-xl shadow-black/10 border border-border/50 flex items-center gap-3 backdrop-blur-md">
                   <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
                     <Users className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                   </div>
-                  <div>
+                  <div className="text-left">
                     <div className="text-xs font-medium text-muted-foreground">Novo Lead</div>
                     <div className="font-bold text-foreground">Grupo Cheio 🚀</div>
                   </div>
@@ -616,37 +618,38 @@ const Landing = () => {
               </div>
 
               {/* Laptop CSS Mockup */}
-              <div className="relative w-full max-w-[600px] aspect-[16/10] bg-gray-900 rounded-[20px] shadow-2xl shadow-blue-500/20 border-[8px] border-gray-800 overflow-hidden transform rotate-y-6 hover:rotate-y-0 transition-transform duration-700 ease-out">
+              <div className="relative w-full aspect-[16/10] bg-gray-900 rounded-[24px] shadow-2xl shadow-blue-500/20 border-[8px] md:border-[12px] border-gray-800 overflow-hidden transform transition-all duration-700 ease-out hover:scale-[1.01] hover:shadow-blue-500/30">
                 {/* Screen Content */}
                 <div className="absolute inset-0 bg-gray-950 flex flex-col">
                   {/* Fake Browser Bar */}
-                  <div className="h-8 bg-gray-900 flex items-center px-4 gap-2 border-b border-gray-800">
-                    <div className="flex gap-1.5">
+                  <div className="h-8 md:h-10 bg-gray-900 flex items-center px-4 gap-2 border-b border-gray-800">
+                    <div className="flex gap-2">
                       <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
                       <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
                       <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
                     </div>
-                    <div className="flex-1 mx-4 h-5 bg-gray-800 rounded-md flex items-center justify-center text-[10px] text-gray-500 font-mono">
+                    <div className="flex-1 mx-4 h-6 bg-gray-800 rounded-md flex items-center justify-center text-xs text-gray-500 font-mono">
                       bootflow.app/dashboard
                     </div>
                   </div>
 
                   {/* Dashboard UI Simulation */}
-                  <div className="flex-1 p-6 relative overflow-hidden flex items-center justify-center bg-gradient-to-br from-gray-900 to-slate-900">
-                    <div className="text-center space-y-4">
-                      <div className="w-20 h-20 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-blue-500/50 animate-pulse">
-                        <Bot className="w-10 h-10 text-white" />
+                  <div className="flex-1 p-8 relative overflow-hidden flex items-center justify-center bg-gradient-to-br from-gray-900 to-slate-900">
+                    <div className="text-center space-y-6 z-10">
+                      <div className="w-24 h-24 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-blue-500/50 animate-pulse">
+                        <Bot className="w-12 h-12 text-white" />
                       </div>
-                      <h3 className="text-white font-bold text-xl">BootFlow AI Active</h3>
-                      <div className="flex gap-2 justify-center">
-                        <div className="h-2 w-24 bg-gray-800 rounded-full overflow-hidden">
+                      <h3 className="text-white font-bold text-2xl md:text-3xl">BootFlow AI Active</h3>
+
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="h-2 w-48 md:w-64 bg-gray-800 rounded-full overflow-hidden">
                           <div className="h-full bg-green-500 animate-progress w-full"></div>
                         </div>
+                        <div className="text-green-400 text-sm font-mono">Processing: 5,420 leads/min</div>
                       </div>
-                      <div className="text-green-400 text-xs font-mono">Processing: 5,420 leads/min</div>
 
                       {/* Fake Code/Logs */}
-                      <div className="mt-8 text-left bg-black/50 p-4 rounded-lg font-mono text-[10px] text-green-500/80 w-full max-w-[300px] space-y-1 border border-white/5">
+                      <div className="mt-8 text-left bg-black/50 p-4 rounded-lg font-mono text-xs text-green-500/80 w-full max-w-sm mx-auto space-y-2 border border-white/5 shadow-inner">
                         <div>[SYSTEM] Initializing bot agents...</div>
                         <div>[SUCCESS] Connected to Telegram API</div>
                         <div>[INFO] Target Group: "Vendas Black Friday"</div>
@@ -656,13 +659,13 @@ const Landing = () => {
                     </div>
 
                     {/* Grid lines */}
-                    <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none"></div>
+                    <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none"></div>
                   </div>
                 </div>
               </div>
 
               {/* Laptop Base */}
-              <div className="absolute -bottom-4 w-[110%] h-4 bg-gray-800 rounded-b-xl shadow-xl transformtranslate-z-[-10px]"></div>
+              <div className="absolute -bottom-4 md:-bottom-6 left-[5%] w-[90%] h-4 md:h-6 bg-gray-800 rounded-b-xl shadow-xl z-[-1]"></div>
             </div>
 
           </div>
@@ -779,8 +782,8 @@ const Landing = () => {
                 <div
                   key={index}
                   className={`relative flex flex-col rounded-2xl border transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 ${isPopular
-                      ? 'lg:scale-105 border-primary/50 bg-gradient-to-br from-primary/5 to-primary/10 shadow-xl ring-2 ring-primary/20'
-                      : 'border-border/50 bg-card/50 backdrop-blur-sm hover:border-primary/30'
+                    ? 'lg:scale-105 border-primary/50 bg-gradient-to-br from-primary/5 to-primary/10 shadow-xl ring-2 ring-primary/20'
+                    : 'border-border/50 bg-card/50 backdrop-blur-sm hover:border-primary/30'
                     } ${isFree ? 'border-green-500/30' : ''}`}
                 >
                   {/* Popular Badge */}
@@ -827,8 +830,8 @@ const Landing = () => {
                         return (
                           <li key={i} className="flex items-start gap-2.5 group/item">
                             <div className={`mt-0.5 flex-shrink-0 rounded-full p-1 ${isPopular
-                                ? 'bg-primary/20 text-primary'
-                                : 'bg-muted text-muted-foreground group-hover/item:bg-primary/10 group-hover/item:text-primary transition-colors'
+                              ? 'bg-primary/20 text-primary'
+                              : 'bg-muted text-muted-foreground group-hover/item:bg-primary/10 group-hover/item:text-primary transition-colors'
                               }`}>
                               <FeatureIcon className="w-4 h-4" />
                             </div>
@@ -853,8 +856,8 @@ const Landing = () => {
                     <Button
                       variant={isPopular ? "hero" : isFree ? "default" : "outline"}
                       className={`w-full h-12 text-base font-semibold transition-all duration-300 ${isPopular
-                          ? 'shadow-lg hover:shadow-xl hover:scale-105'
-                          : 'hover:bg-primary hover:text-primary-foreground hover:border-primary'
+                        ? 'shadow-lg hover:shadow-xl hover:scale-105'
+                        : 'hover:bg-primary hover:text-primary-foreground hover:border-primary'
                         }`}
                       onClick={() => navigate('/cadastro')}
                     >
@@ -910,10 +913,10 @@ const Landing = () => {
                     <div
                       key={step}
                       className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${step === currentStep
-                          ? "bg-gradient-to-r from-purple-600 to-purple-700 text-white scale-110 shadow-lg shadow-purple-500/50"
-                          : step < currentStep
-                            ? "bg-gradient-to-r from-purple-500 to-purple-600 text-white"
-                            : "bg-white/30 border-2 border-white/40 text-white"
+                        ? "bg-gradient-to-r from-purple-600 to-purple-700 text-white scale-110 shadow-lg shadow-purple-500/50"
+                        : step < currentStep
+                          ? "bg-gradient-to-r from-purple-500 to-purple-600 text-white"
+                          : "bg-white/30 border-2 border-white/40 text-white"
                         }`}
                     >
                       {step < currentStep ? <Check className="w-5 h-5 text-white" /> : <span className="text-white font-bold">{step}</span>}
