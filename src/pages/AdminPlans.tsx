@@ -99,10 +99,8 @@ export default function AdminPlans() {
         }
     };
 
-    console.log("RENDERIZANDO ADMIN PLANS - DEBUG MODE");
     return (
-        <div className="p-8 space-y-8 text-white" style={{ border: '2px solid red', minHeight: '50vh' }}>
-            <h1 className="text-2xl text-red-500 font-bold mb-4">DEBUG: Se você vê isso, o componente foi renderizado.</h1>
+        <div className="p-8 space-y-8 text-white">
             <div className="flex justify-between items-center">
                 <div>
                     <h2 className="text-3xl font-bold tracking-tight">Planos e Preços</h2>

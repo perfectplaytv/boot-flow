@@ -1215,7 +1215,7 @@ const AdminDashboard = () => {
     );
   }
 
-  // Função para renderizar o conteúdo da página atual
+  // Função para renderizar o conteúdo da página atual - Plans added
   const renderCurrentPage = () => {
     switch (currentPage) {
       case "plans":
