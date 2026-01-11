@@ -100,49 +100,49 @@ export default function AdminPlans() {
     };
 
     return (
-        <div className="p-8 space-y-8">
+        <div className="p-8 space-y-8 text-white">
             <div className="flex justify-between items-center">
                 <div>
                     <h2 className="text-3xl font-bold tracking-tight">Planos e Preços</h2>
-                    <p className="text-muted-foreground">Gerencie os planos visíveis na Landing Page.</p>
+                    <p className="text-gray-400">Gerencie os planos visíveis na Landing Page.</p>
                 </div>
-                <Button onClick={() => toast.info("Criação de novos planos em breve.")}>
+                <Button onClick={() => toast.info("Criação de novos planos em breve.")} className="bg-purple-600 hover:bg-purple-700 text-white">
                     <Plus className="mr-2 h-4 w-4" /> Novo Plano
                 </Button>
             </div>
 
-            <Card>
+            <Card className="bg-[#1f2937] border-gray-700 text-white">
                 <CardHeader>
-                    <CardTitle>Planos Atuais</CardTitle>
-                    <CardDescription>Edite valores, destacaques e funcionalidades.</CardDescription>
+                    <CardTitle className="text-white">Planos Atuais</CardTitle>
+                    <CardDescription className="text-gray-400">Edite valores, destaques e funcionalidades.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     {loading ? (
-                        <div className="flex justify-center p-8"><Loader2 className="animate-spin" /></div>
+                        <div className="flex justify-center p-8"><Loader2 className="animate-spin text-purple-500" /></div>
                     ) : (
                         <Table>
                             <TableHeader>
-                                <TableRow>
-                                    <TableHead>Ordem</TableHead>
-                                    <TableHead>Nome</TableHead>
-                                    <TableHead>Preço</TableHead>
-                                    <TableHead>Popuar</TableHead>
-                                    <TableHead>Ativo</TableHead>
-                                    <TableHead className="text-right">Ações</TableHead>
+                                <TableRow className="border-gray-700 hover:bg-[#374151]">
+                                    <TableHead className="text-gray-400">Ordem</TableHead>
+                                    <TableHead className="text-gray-400">Nome</TableHead>
+                                    <TableHead className="text-gray-400">Preço</TableHead>
+                                    <TableHead className="text-gray-400">Popular</TableHead>
+                                    <TableHead className="text-gray-400">Ativo</TableHead>
+                                    <TableHead className="text-right text-gray-400">Ações</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {plans.map((plan) => (
-                                    <TableRow key={plan.id}>
+                                    <TableRow key={plan.id} className="border-gray-700 hover:bg-[#374151]">
                                         <TableCell>{plan.display_order}</TableCell>
-                                        <TableCell className="font-medium">{plan.name}</TableCell>
+                                        <TableCell className="font-medium text-white">{plan.name}</TableCell>
                                         <TableCell>{plan.price}</TableCell>
                                         <TableCell>{plan.is_popular ? "⭐ Sim" : "Não"}</TableCell>
                                         <TableCell>
                                             <div className={`w-2 h-2 rounded-full ${plan.active ? 'bg-green-500' : 'bg-red-500'}`} />
                                         </TableCell>
                                         <TableCell className="text-right">
-                                            <Button variant="ghost" size="icon" onClick={() => handleEdit(plan)}>
+                                            <Button variant="ghost" size="icon" onClick={() => handleEdit(plan)} className="text-gray-400 hover:text-white hover:bg-gray-700">
                                                 <Edit className="w-4 h-4" />
                                             </Button>
                                         </TableCell>
