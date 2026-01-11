@@ -13,6 +13,25 @@ import { useRevendas } from '@/hooks/useRevendas';
 import { useAuth } from '@/contexts/AuthContext';
 import { RLSErrorBannerResellers } from '@/components/RLSErrorBannerResellers';
 
+interface Reseller {
+  id: string | number;
+  username: string;
+  password?: string;
+  force_password_change: boolean;
+  permission: 'admin' | 'reseller' | 'subreseller';
+  credits: number;
+  servers?: string;
+  master_reseller?: string;
+  disable_login_days: number;
+  monthly_reseller: boolean;
+  personal_name?: string;
+  email?: string;
+  telegram?: string;
+  whatsapp?: string;
+  observations?: string;
+  status: string;
+}
+
 export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?: boolean }) {
   const { revendas, loading, error, addRevenda, updateRevenda, deleteRevenda, fetchRevendas, clearError } = useRevendas();
 
@@ -34,9 +53,9 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
   });
 
   // Estados para os modais
-  const [editingReseller, setEditingReseller] = useState<any | null>(null);
-  const [viewingReseller, setViewingReseller] = useState<any | null>(null);
-  const [deletingReseller, setDeletingReseller] = useState<any | null>(null);
+  const [editingReseller, setEditingReseller] = useState<Reseller | null>(null);
+  const [viewingReseller, setViewingReseller] = useState<Reseller | null>(null);
+  const [deletingReseller, setDeletingReseller] = useState<Reseller | null>(null);
 
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(autoOpenForm);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
@@ -59,9 +78,9 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
       // ignore
     }
 
-    const handler = (e: any) => {
+    const handler = (e: Event) => {
       try {
-        const source = e?.detail?.source;
+        const source = (e as CustomEvent).detail?.source;
         if (source === 'resellers') setShowRealData(true);
       } catch (err) {
         // ignore
@@ -76,7 +95,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
     };
   }, []);
 
-  const shouldShow = (user?.user_metadata?.role === 'reseller') ? showRealData : true;
+  const shouldShow = ((user as any)?.user_metadata?.role === 'reseller') ? showRealData : true;
 
   const filteredRevendas = revendas
     .filter(revenda =>
@@ -87,7 +106,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
     // Se o usuário logado for um revendedor, não mostrar a própria conta na lista
     .filter(revenda => {
       try {
-        const role = user?.user_metadata?.role || user?.role || null;
+        const role = (user as any)?.user_metadata?.role || user?.role || null;
         if (role === 'reseller') {
           // Evitar mostrar o próprio revendedor (comparar por email quando disponível)
           if (user?.email && revenda.email && revenda.email.toLowerCase() === user.email.toLowerCase()) {
@@ -432,17 +451,17 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
     }
   };
 
-  const openViewModal = (revenda: any) => {
+  const openViewModal = (revenda: Reseller) => {
     setViewingReseller(revenda);
     setIsViewDialogOpen(true);
   };
 
-  const openEditModal = (revenda: any) => {
+  const openEditModal = (revenda: Reseller) => {
     setEditingReseller({ ...revenda });
     setIsEditDialogOpen(true);
   };
 
-  const openDeleteModal = (revenda: any) => {
+  const openDeleteModal = (revenda: Reseller) => {
     setDeletingReseller(revenda);
     setIsDeleteDialogOpen(true);
   };
@@ -1469,7 +1488,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
                 </div>
                 <div>
                   <Label htmlFor="edit-permission" className="text-sm font-medium text-white">Permissão</Label>
-                  <Select value={editingReseller.permission} onValueChange={(value) => setEditingReseller({ ...editingReseller, permission: value as any })}>
+                  <Select value={editingReseller.permission} onValueChange={(value) => setEditingReseller({ ...editingReseller, permission: value as 'admin' | 'reseller' | 'subreseller' })}>
                     <SelectTrigger id="edit-permission" aria-label="Permissão" className="bg-[#23272f] border-gray-600 text-white">
                       <SelectValue />
                     </SelectTrigger>
