@@ -1,3 +1,19 @@
+interface MercadoPagoResponse {
+    id?: string;
+    status?: string;
+    point_of_interaction?: {
+        transaction_data?: {
+            qr_code: string;
+            qr_code_base64: string;
+            ticket_url: string;
+        }
+    };
+    error?: string;
+    message?: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    cause?: any;
+}
+
 export const onRequestPost = async (context) => {
     // Token de Produção fornecido pelo usuário
     const token = "APP_USR-233787625021211-011103-2cfc9a9b55695cb0faddbfc47c7b08ef-3095772720";
@@ -45,7 +61,7 @@ export const onRequestPost = async (context) => {
             body: JSON.stringify(payload)
         });
 
-        const data: any = await response.json();
+        const data = await response.json() as MercadoPagoResponse;
 
         if (!response.ok) {
             console.error("Erro MP:", data);
