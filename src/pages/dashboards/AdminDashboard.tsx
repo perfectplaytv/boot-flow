@@ -646,7 +646,7 @@ const AdminDashboard = () => {
     setIsAddingUser(true);
 
     // Timeout de segurança para evitar travamento infinito (30 segundos)
-    let timeoutId: NodeJS.Timeout | null = null;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
     timeoutId = setTimeout(() => {
       console.error("⏰ [AdminDashboard] Timeout: processo demorou mais de 30 segundos");
       setIsAddingUser(false);
