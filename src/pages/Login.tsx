@@ -37,8 +37,9 @@ export default function Login() {
       if (error) throw error;
 
       // O redirecionamento será feito automaticamente pelo AuthContext baseado no role
-    } catch (error: any) {
-      setError(error.message || "Erro ao fazer login. Tente novamente.");
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Erro ao fazer login. Tente novamente.";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -193,8 +194,9 @@ export default function Login() {
                       if (error) {
                         setError(error.message || 'Erro ao fazer login com Google. Tente novamente.');
                       }
-                    } catch (err: any) {
-                      setError(err.message || 'Erro ao fazer login com Google. Tente novamente.');
+                    } catch (err: unknown) {
+                      const errorMessage = err instanceof Error ? err.message : 'Erro ao fazer login com Google. Tente novamente.';
+                      setError(errorMessage);
                     } finally {
                       setGoogleLoading(false);
                     }
