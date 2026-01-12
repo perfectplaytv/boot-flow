@@ -1,11 +1,15 @@
+
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { Check, Clock, Loader2, MessageCircle, RefreshCw, Package, CheckCircle2, AlertCircle } from "lucide-react";
+import { Check, Clock, Loader2, MessageCircle, RefreshCw, Package, CheckCircle2, AlertCircle, Copy, Eye, EyeOff, Lock, ArrowRight } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 interface Subscription {
     id: number;
@@ -27,12 +31,17 @@ const statusSteps = [
 export default function AcompanhamentoPedido() {
     const location = useLocation();
     const navigate = useNavigate();
+    const { signIn } = useAuth();
+
     const [subscription, setSubscription] = useState<Subscription | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [showPassword, setShowPassword] = useState(false);
+    const [loggingIn, setLoggingIn] = useState(false);
 
     // Pegar ID do pedido da URL ou do state
     const subscriptionId = location.state?.subscription_id || new URLSearchParams(location.search).get('id');
+    const credentials = location.state as { username?: string, password?: string } | null;
 
     const fetchSubscription = async () => {
         if (!subscriptionId) {
@@ -49,12 +58,8 @@ export default function AcompanhamentoPedido() {
             const data = await response.json();
             setSubscription(data);
 
-            // Se o pedido foi aprovado, redirecionar para o dashboard após alguns segundos
-            if (data.status === 'approved' || data.status === 'active') {
-                setTimeout(() => {
-                    navigate('/dashboard/revendas');
-                }, 3000);
-            }
+            // Removido redirecionamento automático genérico para evitar loop se não estiver logado
+            // O usuário deve clicar para logar explicitamente agora que mostramos as credenciais
         } catch (err) {
             setError(err instanceof Error ? err.message : "Erro ao carregar pedido");
         } finally {
@@ -68,6 +73,29 @@ export default function AcompanhamentoPedido() {
         const interval = setInterval(fetchSubscription, 10000);
         return () => clearInterval(interval);
     }, [subscriptionId]);
+
+    const handleAutoLogin = async () => {
+        if (!subscription || !credentials?.password) return;
+
+        setLoggingIn(true);
+        try {
+            // Tenta logar com email e senha gerada
+            await signIn(subscription.customer_email, credentials.password);
+            toast.success("Login efetuado com sucesso!");
+            navigate('/dashboard/revendas');
+        } catch (error) {
+            console.error("Erro no auto-login:", error);
+            toast.error("Erro ao realizar login automático. Tente manualmente.");
+            navigate('/login');
+        } finally {
+            setLoggingIn(false);
+        }
+    };
+
+    const copyToClipboard = (text: string) => {
+        navigator.clipboard.writeText(text);
+        toast.success("Copiado!");
+    };
 
     const getStepStatus = (stepKey: string) => {
         if (!subscription) return 'waiting';
@@ -152,6 +180,71 @@ export default function AcompanhamentoPedido() {
                         </p>
                     </CardHeader>
                 </Card>
+
+                {/* Card de Credenciais - Só aparece se tiver credentials no state e pedido aprovado */}
+                {credentials?.username && credentials?.password && (subscription.status === 'approved' || subscription.status === 'active') && (
+                    <Card className="mb-6 border-purple-500 shadow-lg bg-gradient-to-br from-purple-500/10 to-background animate-in slide-in-from-bottom-4 duration-700">
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2 text-purple-500 text-xl">
+                                <Lock className="w-6 h-6" />
+                                Suas Credenciais de Acesso
+                            </CardTitle>
+                            <CardDescription>
+                                Guarde estas informações com segurança. Você precisará delas para acessar o painel.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="grid sm:grid-cols-2 gap-4">
+                                <div className="space-y-1">
+                                    <span className="text-xs font-medium text-muted-foreground uppercase">Usuário</span>
+                                    <div className="flex gap-2">
+                                        <Input value={credentials.username} readOnly className="font-mono bg-background/80" />
+                                        <Button size="icon" variant="outline" onClick={() => copyToClipboard(credentials.username!)}>
+                                            <Copy className="w-4 h-4" />
+                                        </Button>
+                                    </div>
+                                </div>
+                                <div className="space-y-1">
+                                    <span className="text-xs font-medium text-muted-foreground uppercase">Senha</span>
+                                    <div className="flex gap-2">
+                                        <Input
+                                            type={showPassword ? "text" : "password"}
+                                            value={credentials.password}
+                                            readOnly
+                                            className="font-mono bg-background/80"
+                                        />
+                                        <Button size="icon" variant="outline" onClick={() => setShowPassword(!showPassword)}>
+                                            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                        </Button>
+                                        <Button size="icon" variant="outline" onClick={() => copyToClipboard(credentials.password!)}>
+                                            <Copy className="w-4 h-4" />
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <Separator />
+
+                            <Button
+                                className="w-full h-12 text-lg font-bold bg-purple-600 hover:bg-purple-700 text-white shadow-purple-500/20 shadow-lg transition-all hover:scale-[1.02]"
+                                onClick={handleAutoLogin}
+                                disabled={loggingIn}
+                            >
+                                {loggingIn ? (
+                                    <>
+                                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                                        Entrando...
+                                    </>
+                                ) : (
+                                    <>
+                                        Acessar Painel Agora
+                                        <ArrowRight className="w-5 h-5 ml-2" />
+                                    </>
+                                )}
+                            </Button>
+                        </CardContent>
+                    </Card>
+                )}
 
                 {/* Progress Steps */}
                 <Card className="mb-6">
@@ -247,12 +340,12 @@ export default function AcompanhamentoPedido() {
                         Atualizar Status
                     </Button>
 
-                    {(subscription.status === 'approved' || subscription.status === 'active') && (
+                    {!credentials && (subscription.status === 'approved' || subscription.status === 'active') && (
                         <Button
                             className="w-full bg-primary hover:bg-primary/90"
-                            onClick={() => navigate('/dashboard/revendas')}
+                            onClick={() => navigate('/login')}
                         >
-                            Acessar Meu Dashboard
+                            Ir para Login
                         </Button>
                     )}
 
