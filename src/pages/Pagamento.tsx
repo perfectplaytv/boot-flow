@@ -58,36 +58,49 @@ export default function Pagamento() {
         }
     };
 
-    // Função para criar o revendedor no banco de dados
-    const createReseller = async () => {
+    // Função para criar um pedido de assinatura (pendente de aprovação)
+    const createSubscription = async (paymentId?: string) => {
         try {
-            const response = await fetch('/api/create-reseller', {
+            const response = await fetch('/api/subscriptions', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     name: formData.name,
                     email: formData.email,
                     cpf: formData.cpf,
-                    plan: plan?.name || 'Plano Padrão',
-                    price: plan?.price || 'R$ 0',
-                    whatsapp: formData.whatsapp || ''
+                    whatsapp: formData.whatsapp || '',
+                    plan_name: plan?.name || 'Plano Padrão',
+                    plan_price: plan?.price || 'R$ 0',
+                    payment_id: paymentId || ''
                 })
             });
 
-            const data = await response.json();
+            const data = await response.json() as { subscription_id: number; success?: boolean; error?: string };
 
-            if (!response.ok && response.status !== 409) {
-                console.error('Erro ao criar revendedor:', data);
-                toast.error('Erro ao registrar conta. Entre em contato com o suporte.');
-                return false;
+            if (!response.ok) {
+                console.error('Erro ao criar pedido:', data);
+                toast.error('Erro ao registrar pedido. Tente novamente.');
+                return null;
             }
 
-            toast.success('Conta criada com sucesso!');
-            return true;
+            toast.success('Pedido registrado com sucesso!');
+            return data.subscription_id;
         } catch (err) {
-            console.error('Erro ao criar revendedor:', err);
-            toast.error('Erro ao registrar conta.');
-            return false;
+            console.error('Erro ao criar pedido:', err);
+            toast.error('Erro ao registrar pedido.');
+            return null;
+        }
+    };
+
+    // Função chamada quando o usuário clica "Já paguei"
+    const handleAlreadyPaid = async () => {
+        setLoading(true);
+        const subscriptionId = await createSubscription();
+        setLoading(false);
+
+        if (subscriptionId) {
+            // Redirecionar para página de acompanhamento
+            navigate('/pedido', { state: { subscription_id: subscriptionId } });
         }
     };
 
@@ -103,7 +116,7 @@ export default function Pagamento() {
 
         try {
             if (paymentMethod === 'pix') {
-                // Chamada à API Serverless
+                // Chamada à API Serverless para gerar PIX
                 const response = await fetch('/api/create-payment', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -121,21 +134,18 @@ export default function Pagamento() {
 
                 if (data.qr_code && data.qr_code_base64) {
                     setPixData({ qr_code: data.qr_code, qr_code_base64: data.qr_code_base64 });
-                    // Criar revendedor imediatamente após gerar o PIX (para não perder os dados)
-                    await createReseller();
+                    // PIX gerado - o pedido será criado quando clicar em "Já paguei"
                 } else {
                     alert("Erro: Mercado Pago não retornou QR Code.");
                 }
 
             } else {
                 // Pagamento com Cartão (Simulação)
-                // Primeiro cria o revendedor, depois redireciona
-                const success = await createReseller();
-                if (success) {
-                    toast.success("Pagamento processado com sucesso!");
-                    setTimeout(() => {
-                        navigate('/dashboard/revendas');
-                    }, 1500);
+                // Cria o pedido de assinatura e redireciona para acompanhamento
+                const subscriptionId = await createSubscription();
+                if (subscriptionId) {
+                    toast.success("Pedido registrado! Aguardando aprovação.");
+                    navigate('/pedido', { state: { subscription_id: subscriptionId } });
                 }
             }
         } catch (err: unknown) {
@@ -201,13 +211,15 @@ export default function Pagamento() {
                                     </div>
 
                                     <div className="text-center text-sm text-muted-foreground">
-                                        Após o pagamento, seu acesso será liberado automaticamente em alguns instantes.
-                                        (Simulação: Atualize a página ou aguarde o webhook).
+                                        Após o pagamento, clique em "Já paguei" para acompanhar seu pedido.
+                                        O acesso será liberado após confirmação.
                                     </div>
                                 </CardContent>
                                 <CardFooter className="justify-center gap-4">
                                     <Button variant="outline" onClick={() => setPixData(null)}>Voltar</Button>
-                                    <Button onClick={() => navigate('/dashboard/client')}>Já paguei!</Button>
+                                    <Button onClick={handleAlreadyPaid} disabled={loading}>
+                                        {loading ? 'Processando...' : 'Já paguei!'}
+                                    </Button>
                                 </CardFooter>
                             </Card>
                         ) : (
