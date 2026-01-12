@@ -58,6 +58,39 @@ export default function Pagamento() {
         }
     };
 
+    // Função para criar o revendedor no banco de dados
+    const createReseller = async () => {
+        try {
+            const response = await fetch('/api/create-reseller', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: formData.name,
+                    email: formData.email,
+                    cpf: formData.cpf,
+                    plan: plan?.name || 'Plano Padrão',
+                    price: plan?.price || 'R$ 0',
+                    whatsapp: formData.whatsapp || ''
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok && response.status !== 409) {
+                console.error('Erro ao criar revendedor:', data);
+                toast.error('Erro ao registrar conta. Entre em contato com o suporte.');
+                return false;
+            }
+
+            toast.success('Conta criada com sucesso!');
+            return true;
+        } catch (err) {
+            console.error('Erro ao criar revendedor:', err);
+            toast.error('Erro ao registrar conta.');
+            return false;
+        }
+    };
+
     const handlePayment = async () => {
         // Validação simples
         if (!formData.name || !formData.email || !formData.cpf) {
@@ -88,16 +121,22 @@ export default function Pagamento() {
 
                 if (data.qr_code && data.qr_code_base64) {
                     setPixData({ qr_code: data.qr_code, qr_code_base64: data.qr_code_base64 });
+                    // Criar revendedor imediatamente após gerar o PIX (para não perder os dados)
+                    await createReseller();
                 } else {
                     alert("Erro: Mercado Pago não retornou QR Code.");
                 }
 
             } else {
-                // Simulação Cartão
-                setTimeout(() => {
-                    alert("Pagamento com cartão (Simulação) processado com sucesso!");
-                    navigate('/dashboard/revendas'); // Redireciona para dashboard de revenda
-                }, 1500);
+                // Pagamento com Cartão (Simulação)
+                // Primeiro cria o revendedor, depois redireciona
+                const success = await createReseller();
+                if (success) {
+                    toast.success("Pagamento processado com sucesso!");
+                    setTimeout(() => {
+                        navigate('/dashboard/revendas');
+                    }, 1500);
+                }
             }
         } catch (err: unknown) {
             console.error(err);
