@@ -1300,48 +1300,163 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
         toast.success('Job removido!');
     };
 
-    // Simular progresso do job (MVP - será substituído por workers reais)
+    // Processamento de Jobs REAL (Conectado ao Backend)
     useEffect(() => {
-        const interval = setInterval(() => {
-            setFillJobs(prevJobs => {
-                let hasChanges = false;
-                const updated = prevJobs.map(job => {
-                    if (job.status === 'rodando' && job.addedCount < job.targetCount) {
-                        hasChanges = true;
-                        const sourceGroup = telegramGroups.find(g => g.id === job.sourceGroupId);
-                        const maxAnalyzed = sourceGroup?.membersCount || 1000;
+        const interval = setInterval(async () => {
+            const activeJobs = fillJobs.filter(j => j.status === 'rodando');
+            if (activeJobs.length === 0) return;
 
-                        const newAnalyzed = Math.min(job.analyzedCount + Math.floor(Math.random() * 3) + 1, maxAnalyzed);
-                        const successRate = job.stealthMode ? 0.6 : 0.8;
-                        const newAdded = Math.min(
-                            job.addedCount + (Math.random() < successRate ? 1 : 0),
-                            job.targetCount
-                        );
-                        const newFailed = job.failedCount + (newAdded === job.addedCount && newAnalyzed > job.analyzedCount ? 1 : 0);
+            for (const job of activeJobs) {
+                const now = Date.now();
+                // Usando 'any' para propriedades novas que não estão na interface original
+                const j = job as any;
+                const lastAction = j.lastAction ? new Date(j.lastAction).getTime() : 0;
+                const minDelayMs = (job.delayMin || 30) * 1000;
 
-                        const isFinished = newAdded >= job.targetCount || newAnalyzed >= maxAnalyzed;
+                // Verificação de Delay (respeita o delay configurado)
+                if (now - lastAction < minDelayMs) continue;
 
-                        return {
-                            ...job,
-                            analyzedCount: newAnalyzed,
-                            addedCount: newAdded,
-                            failedCount: newFailed,
-                            status: isFinished ? 'finalizado' as const : job.status,
-                            finishedAt: isFinished ? new Date().toISOString() : job.finishedAt
-                        };
+                // FASE 1: Extração de Membros
+                if (!j.membersToProcess || j.membersToProcess.length === 0) {
+                    // Só extrai se ainda não começou ou se precisa (e não terminou)
+                    if (job.addedCount === 0 && job.analyzedCount === 0) {
+                        try {
+                            const sourceGroup = telegramGroups.find(g => g.id === job.sourceGroupId);
+                            // Pega a primeira conta associada ao job
+                            const account = tgAccounts.find(a => job.accountIds.includes(a.id));
+
+                            if (!sourceGroup || !account) {
+                                addSystemLog('error', 'job', `Job ${job.name} pausado`, 'Grupo origem ou conta indisponível');
+                                toggleJobStatus(job.id); // Pausa
+                                continue;
+                            }
+
+                            addSystemLog('info', 'job', `Iniciando extração: ${sourceGroup.name}`, 'Aguarde...');
+
+                            // Chama o Backend: /extract-members
+                            const response = await fetch(`${TELEGRAM_API_URL}/extract-members`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    phone: account.phone,
+                                    group_link: sourceGroup.link || sourceGroup.username || `t.me/${sourceGroup.username}`
+                                })
+                            });
+
+                            if (!response.ok) throw new Error('Falha API Extração');
+
+                            const data = await response.json();
+                            const memberList = data.members.map((m: any) => m.username || m.id);
+
+                            // Atualiza o Job com a lista de membros
+                            const updatedJobs = fillJobs.map(curr => {
+                                if (curr.id === job.id) {
+                                    return {
+                                        ...curr,
+                                        membersToProcess: memberList,
+                                        analyzedCount: memberList.length,
+                                        lastAction: new Date().toISOString()
+                                    };
+                                }
+                                return curr;
+                            });
+
+                            setFillJobs(updatedJobs as any); // Update state
+                            saveJobsToStorage(updatedJobs);
+
+                            addSystemLog('success', 'job', `Extração concluída: ${memberList.length} membros`, `Iniciando adições...`);
+                            continue;
+
+                        } catch (e) {
+                            console.error(e);
+                            addSystemLog('error', 'job', `Erro na extração: ${e}`, 'Job pausado');
+                            toggleJobStatus(job.id); // Pausa
+                            continue;
+                        }
+                    } else if (job.addedCount >= job.targetCount) {
+                        // Já acabou
+                        continue;
                     }
-                    return job;
-                });
-
-                if (hasChanges) {
-                    localStorage.setItem('fill_group_jobs', JSON.stringify(updated));
+                    // Se added > 0 e lista vazia, assumimos que acabou a lista disponivel
+                    addSystemLog('success', 'job', `Job ${job.name} finalizado`, 'Todos membros processados');
+                    toggleJobStatus(job.id); // Ou marcar como finalizado
+                    continue;
                 }
-                return updated;
-            });
-        }, 2000); // Update every 2 seconds for demo
+
+                // FASE 2: Adição de Membro (Um por vez)
+                try {
+                    const nextMember = j.membersToProcess[0];
+                    if (!nextMember) continue;
+
+                    const destGroup = telegramGroups.find(g => g.id === job.destinationGroupId);
+                    const accountId = job.accountIds[job.addedCount % job.accountIds.length];
+                    const account = tgAccounts.find(a => a.id === accountId);
+
+                    if (!destGroup || !account) {
+                        toggleJobStatus(job.id); continue;
+                    }
+
+                    // Log discreto ou system log
+                    // addSystemLog('action', 'job', `Adicionando ${nextMember}...`);
+
+                    // Chama Backend: /add-member
+                    const response = await fetch(`${TELEGRAM_API_URL}/add-member`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            phone: account.phone,
+                            group_link: destGroup.link || destGroup.username,
+                            user_input: String(nextMember)
+                        })
+                    });
+
+                    const resData = await response.json();
+
+                    let newStatus = job.status;
+                    let newLogs = job.logs;
+                    let newAdded = job.addedCount;
+                    let newFailed = job.failedCount;
+
+                    if (resData.success) {
+                        newAdded++;
+                        addSystemLog('success', 'job', `Membro adicionado: ${nextMember} em ${destGroup.name}`);
+                    } else {
+                        newFailed++;
+                        addSystemLog('warning', 'job', `Falha ao adicionar ${nextMember}`, resData.message || resData.error);
+                        if (resData.error === 'FLOOD_WAIT') {
+                            // Pausar job?
+                            addSystemLog('warning', 'job', `FLOOD WAIT detectado. Pausando Job.`);
+                            newStatus = 'pausado';
+                        }
+                    }
+
+                    // Atualizar Job
+                    const updatedJobs = fillJobs.map(curr => {
+                        if (curr.id === job.id) {
+                            return {
+                                ...curr,
+                                status: newStatus,
+                                addedCount: newAdded,
+                                failedCount: newFailed,
+                                membersToProcess: (curr as any).membersToProcess.slice(1),
+                                lastAction: new Date().toISOString()
+                            };
+                        }
+                        return curr;
+                    });
+
+                    setFillJobs(updatedJobs as any);
+                    saveJobsToStorage(updatedJobs);
+
+                } catch (error) {
+                    console.error(error);
+                    addSystemLog('error', 'job', `Erro de conexão ao adicionar`, String(error));
+                }
+            }
+        }, 5000);
 
         return () => clearInterval(interval);
-    }, [telegramGroups]);
+    }, [fillJobs, telegramGroups, tgAccounts]);
 
     // ========== Stats ==========
 
