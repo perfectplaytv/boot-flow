@@ -1219,7 +1219,15 @@ const AdminDashboard = () => {
   const renderCurrentPage = () => {
     switch (currentPage) {
       case "plans":
-        return <AdminPlans />;
+        return (
+          <div className="p-8 space-y-8">
+            <h1 className="text-3xl font-bold text-white">Planos e Preços</h1>
+            <p className="text-gray-400">Esta é uma página de teste. Se você está vendo isso, o switch está funcionando!</p>
+            <div className="bg-[#1f2937] border border-gray-700 rounded-lg p-6">
+              <p className="text-white">O componente será substituído em breve.</p>
+            </div>
+          </div>
+        );
       case "dashboard":
         return (
           <div className="space-y-6">
