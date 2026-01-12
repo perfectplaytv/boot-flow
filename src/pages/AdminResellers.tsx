@@ -114,12 +114,20 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
       });
 
       if (response.ok) {
+        const data = await response.json() as {
+          success: boolean;
+          username: string;
+          password: string;
+          plan_name: string;
+          plan_price: string;
+          max_clients: number;
+        };
         // Remover da lista de pendentes
         setPendingSubscriptions(prev => prev.filter(s => s.id !== subscriptionId));
         // Recarregar a lista de revendedores
         fetchRevendas();
-        // Mostrar sucesso
-        alert('✅ Pedido aprovado com sucesso! Revendedor criado.');
+        // Mostrar sucesso com credenciais
+        alert(`✅ Pedido aprovado com sucesso!\n\n📋 Plano: ${data.plan_name} (${data.plan_price})\n👤 Limite: ${data.max_clients} clientes\n\n🔐 Credenciais de Acesso:\nUsuário: ${data.username}\nSenha: ${data.password}\n\n⚠️ Envie estas credenciais ao revendedor!`);
       } else {
         const data = await response.json() as { error?: string };
         alert('Erro ao aprovar: ' + (data.error || 'Erro desconhecido'));
@@ -1599,6 +1607,37 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
                   <p className="text-white">{viewingReseller.observations}</p>
                 </div>
               )}
+
+              {/* Informações do Plano */}
+              {viewingReseller.plan_name && (
+                <div className="mt-4 pt-4 border-t border-gray-700">
+                  <h3 className="text-lg font-bold text-purple-400 mb-3">📋 Plano Assinado</h3>
+                  <div className="grid grid-cols-2 gap-4 bg-purple-900/20 p-4 rounded-lg border border-purple-700/40">
+                    <div>
+                      <Label className="text-sm font-medium text-gray-400">Plano</Label>
+                      <p className="text-white font-bold">{viewingReseller.plan_name}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-400">Valor</Label>
+                      <p className="text-green-400 font-bold">{viewingReseller.plan_price}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-400">Limite de Clientes</Label>
+                      <p className="text-white">{viewingReseller.max_clients || 5}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-400">Data da Assinatura</Label>
+                      <p className="text-white">
+                        {viewingReseller.subscription_date
+                          ? new Date(viewingReseller.subscription_date).toLocaleString('pt-BR')
+                          : viewingReseller.created_at
+                            ? new Date(viewingReseller.created_at).toLocaleString('pt-BR')
+                            : 'N/A'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </DialogContent>
@@ -1676,6 +1715,37 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
                   rows={3}
                 />
               </div>
+
+              {/* Informações do Plano (somente leitura) */}
+              {editingReseller.plan_name && (
+                <div className="mt-4 pt-4 border-t border-gray-700">
+                  <h3 className="text-lg font-bold text-purple-400 mb-3">📋 Plano Assinado</h3>
+                  <div className="grid grid-cols-2 gap-4 bg-purple-900/20 p-4 rounded-lg border border-purple-700/40">
+                    <div>
+                      <Label className="text-sm font-medium text-gray-400">Plano</Label>
+                      <p className="text-white font-bold">{editingReseller.plan_name}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-400">Valor</Label>
+                      <p className="text-green-400 font-bold">{editingReseller.plan_price}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-400">Limite de Clientes</Label>
+                      <p className="text-white">{editingReseller.max_clients || 5}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-400">Data da Assinatura</Label>
+                      <p className="text-white">
+                        {editingReseller.subscription_date
+                          ? new Date(editingReseller.subscription_date).toLocaleString('pt-BR')
+                          : editingReseller.created_at
+                            ? new Date(editingReseller.created_at).toLocaleString('pt-BR')
+                            : 'N/A'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
           <DialogFooter>
