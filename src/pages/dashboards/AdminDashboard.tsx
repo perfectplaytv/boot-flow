@@ -3042,6 +3042,7 @@ const AdminDashboard = () => {
             {currentPage === "gateways" && <AdminGateways />}
             {currentPage === "cobrancas" && <AdminCobrancas />}
             {currentPage === "notificacoes" && <Notifications />}
+            {currentPage === "plans" && <AdminPlans />}
             {currentPage === "profile" && <Profile />}
           </div>
         </main>
