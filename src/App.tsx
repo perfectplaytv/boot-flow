@@ -20,6 +20,7 @@ import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
 // import AuthCallback from "./pages/AuthCallback"; // Removido
 import NotFound from "./pages/NotFound";
+import AcompanhamentoPedido from "./pages/AcompanhamentoPedido";
 import Sobre from "./pages/empresa/Sobre";
 import Blog from "./pages/empresa/Blog";
 
@@ -74,6 +75,7 @@ const App = () => {
                   <Route path="/preco" element={<Landing />} />
                   <Route path="/checkout" element={<Checkout />} />
                   <Route path="/pagamento" element={<Pagamento />} />
+                  <Route path="/pedido" element={<AcompanhamentoPedido />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/cadastro" element={<Signup />} />
                   <Route path="/forgot-password" element={<ForgotPassword />} />
