@@ -1685,6 +1685,17 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
                   />
                 </div>
                 <div>
+                  <Label htmlFor="edit-password" className="text-sm font-medium text-white">Senha</Label>
+                  <Input
+                    id="edit-password"
+                    value={editingReseller.password || ''}
+                    onChange={(e) => setEditingReseller({ ...editingReseller, password: e.target.value })}
+                    className="bg-[#23272f] border-gray-600 text-white"
+                    placeholder="Digite para alterar"
+                  />
+                  <p className="text-xs text-gray-400 mt-1">Deixe em branco para manter a senha atual</p>
+                </div>
+                <div>
                   <Label htmlFor="edit-name" className="text-sm font-medium text-white">Nome</Label>
                   <Input
                     id="edit-name"
