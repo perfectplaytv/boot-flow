@@ -3,6 +3,24 @@ interface Env {
     DB: D1Database;
 }
 
+// Configuração de limite de clientes por plano
+const PLAN_MAX_CLIENTS: Record<string, number> = {
+    'Essencial': 5,
+    'Profissional': 50,
+    'Business': 100,
+    'Elite': 1000
+};
+
+// Função para gerar senha aleatória
+function generatePassword(length: number = 8): string {
+    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let password = '';
+    for (let i = 0; i < length; i++) {
+        password += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return password;
+}
+
 export const onRequestPost: PagesFunction<Env> = async (context) => {
     try {
         const { subscription_id } = await context.request.json() as { subscription_id: number };
@@ -26,6 +44,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
             plan_name: string;
             plan_price: string;
             status: string;
+            created_at: string;
         } | null;
 
         if (!subscription) {
@@ -45,29 +64,45 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         // Gerar username a partir do email
         const username = subscription.customer_email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
 
-        // Criar o revendedor
+        // Gerar senha aleatória
+        const password = generatePassword(10);
+
+        // Obter limite de clientes pelo plano
+        const maxClients = PLAN_MAX_CLIENTS[subscription.plan_name] || 5;
+
+        // Criar o revendedor com todos os dados do plano
         const resellerResult = await context.env.DB.prepare(`
             INSERT INTO resellers (
                 username,
                 email,
+                password,
                 personal_name,
                 permission,
                 credits,
                 status,
                 whatsapp,
                 observations,
+                plan_name,
+                plan_price,
+                max_clients,
+                subscription_date,
                 created_at,
                 updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
         `).bind(
             username,
             subscription.customer_email,
+            password,
             subscription.customer_name,
             'reseller',
             10,
             'Ativo',
             subscription.customer_whatsapp || '',
-            `Plano: ${subscription.plan_name} - Valor: ${subscription.plan_price} - CPF: ${subscription.customer_cpf}`
+            `CPF: ${subscription.customer_cpf}`,
+            subscription.plan_name,
+            subscription.plan_price,
+            maxClients,
+            subscription.created_at
         ).run();
 
         const resellerId = resellerResult.meta.last_row_id;
@@ -86,7 +121,11 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
             success: true,
             message: "Pedido aprovado com sucesso! Revendedor criado.",
             reseller_id: resellerId,
-            username: username
+            username: username,
+            password: password,
+            plan_name: subscription.plan_name,
+            plan_price: subscription.plan_price,
+            max_clients: maxClients
         }), {
             status: 200,
             headers: { "Content-Type": "application/json" }
