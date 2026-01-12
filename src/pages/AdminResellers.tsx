@@ -87,7 +87,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
     try {
       const response = await fetch('/api/subscriptions?status=pending');
       if (response.ok) {
-        const data = await response.json();
+        const data = await response.json() as PendingSubscription[];
         setPendingSubscriptions(data);
       }
     } catch (err) {
@@ -115,7 +115,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
         // Mostrar sucesso
         alert('✅ Pedido aprovado com sucesso! Revendedor criado.');
       } else {
-        const data = await response.json();
+        const data = await response.json() as { error?: string };
         alert('Erro ao aprovar: ' + (data.error || 'Erro desconhecido'));
       }
     } catch (err) {
