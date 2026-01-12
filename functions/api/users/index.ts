@@ -1,29 +1,62 @@
 
 import { getDb } from '../../../db';
 import { users } from '../../../db/schema';
+import { verifyToken } from '../../utils/auth';
+import { eq } from 'drizzle-orm';
 
 interface Env {
     DB: D1Database;
 }
 
-export const onRequestGet: PagesFunction<Env> = async (context) => {
-    const db = getDb(context.env.DB);
+interface TokenPayload {
+    id: number;
+    email: string;
+    role: string;
+    type: string;
+    is_super_admin?: boolean;
+}
 
+// GET: Listar Clientes (Com Isolamento)
+export const onRequestGet: PagesFunction<Env> = async (context) => {
+    const authHeader = context.request.headers.get('Authorization');
+    if (!authHeader) return new Response(JSON.stringify({ error: 'Token não fornecido' }), { status: 401 });
+
+    const token = await verifyToken(authHeader.split(' ')[1]) as unknown as TokenPayload;
+    if (!token) return new Response(JSON.stringify({ error: 'Token inválido' }), { status: 401 });
+
+    const db = getDb(context.env.DB);
     try {
-        const allUsers = await db.select().from(users).all();
-        return new Response(JSON.stringify(allUsers), {
+        // Regra 1: Super Admin vê tudo
+        if (token.is_super_admin) {
+            const allUsers = await db.select().from(users).all();
+            return new Response(JSON.stringify(allUsers), {
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+
+        // Regra 2: Outros veem apenas seus clientes
+        const ownerId = `${token.type}:${token.id}`;
+        const myUsers = await db.select().from(users).where(eq(users.owner_uid, ownerId)).all();
+
+        return new Response(JSON.stringify(myUsers), {
             headers: { 'Content-Type': 'application/json' }
         });
+
     } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Erro desconhecido';
-        console.error('GET /api/users error:', message);
         return new Response(JSON.stringify({ error: message }), { status: 500 });
     }
 }
 
+// POST: Criar Cliente (Com Vínculo de Dono)
 export const onRequestPost: PagesFunction<Env> = async (context) => {
-    const db = getDb(context.env.DB);
+    const authHeader = context.request.headers.get('Authorization');
+    if (!authHeader) return new Response(JSON.stringify({ error: 'Token não fornecido' }), { status: 401 });
 
+    const token = await verifyToken(authHeader.split(' ')[1]) as unknown as TokenPayload;
+    if (!token) return new Response(JSON.stringify({ error: 'Token inválido' }), { status: 401 });
+
+    const db = getDb(context.env.DB);
     try {
         const body = await context.request.json() as Record<string, unknown>;
 
@@ -37,7 +70,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
             }), { status: 400, headers: { 'Content-Type': 'application/json' } });
         }
 
-        // Prepare data with defaults
+        // Definir Dono (Forçado pelo Token)
+        const ownerId = `${token.type}:${token.id}`;
+
         const userData = {
             name: body.name as string,
             email: body.email as string,
@@ -56,7 +91,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
             credits: typeof body.credits === 'number' ? body.credits : 0,
             notes: (body.notes as string) || null,
             server: (body.server as string) || null,
-            owner_uid: (body.owner_uid as string) || null,
+            owner_uid: ownerId, // Garante o isolamento
             renewal_date: (body.renewal_date as string) || null,
         };
 
@@ -71,7 +106,6 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         const message = error instanceof Error ? error.message : 'Erro desconhecido';
         console.error('POST /api/users error:', message);
 
-        // Check for unique constraint violation
         if (message.includes('UNIQUE constraint failed')) {
             return new Response(JSON.stringify({
                 error: 'Este email já está cadastrado.'

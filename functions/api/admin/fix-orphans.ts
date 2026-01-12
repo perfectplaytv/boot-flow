@@ -1,6 +1,6 @@
 
 import { getDb } from '../../../db';
-import { resellers } from '../../../db/schema';
+import { resellers, users } from '../../../db/schema';
 import { isNull } from 'drizzle-orm';
 import { verifyToken } from '../../utils/auth';
 
@@ -31,16 +31,25 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     try {
         const myOwnerId = `${token.type}:${token.id}`;
 
-        // Atualizar todos os revendedores sem dono para serem meus
-        const result = await db.update(resellers)
+        // 1. Vincular Revendedores Órfãos
+        const resellersResult = await db.update(resellers)
             .set({ owner_uid: myOwnerId })
             .where(isNull(resellers.owner_uid))
             .returning();
 
+        // 2. Vincular Clientes/Usuários Órfãos
+        const usersResult = await db.update(users)
+            .set({ owner_uid: myOwnerId })
+            .where(isNull(users.owner_uid))
+            .returning();
+
         return new Response(JSON.stringify({
             success: true,
-            message: `Migração concluída. ${result.length} revendedores foram vinculados à sua conta.`,
-            updated_count: result.length
+            message: `Migração concluída!`,
+            details: {
+                resellers_adopted: resellersResult.length,
+                users_adopted: usersResult.length
+            }
         }), {
             headers: { 'Content-Type': 'application/json' }
         });

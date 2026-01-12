@@ -1,4 +1,7 @@
+
 // API para criar um pedido de assinatura (subscription)
+import { verifyToken } from '../utils/auth';
+
 interface Env {
     DB: D1Database;
 }
@@ -13,6 +16,14 @@ interface SubscriptionData {
     payment_id?: string;
 }
 
+interface TokenPayload {
+    id: number;
+    email: string;
+    role: string;
+    type: string;
+    is_super_admin?: boolean;
+}
+
 export const onRequestPost: PagesFunction<Env> = async (context) => {
     try {
         const data = await context.request.json() as SubscriptionData;
@@ -24,7 +35,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
             });
         }
 
-        // Inserir novo pedido de assinatura
+        // Inserir novo pedido
         const result = await context.env.DB.prepare(`
             INSERT INTO subscriptions (
                 customer_name,
@@ -70,15 +81,28 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     }
 };
 
-// GET - Buscar pedido por ID ou listar todos pendentes
+// GET - Buscar pedido (Apenas Super Admin vê histórico geral)
 export const onRequestGet: PagesFunction<Env> = async (context) => {
     try {
+        const authHeader = context.request.headers.get('Authorization');
+        if (!authHeader) return new Response(JSON.stringify({ error: 'Token não fornecido' }), { status: 401 });
+
+        const token = await verifyToken(authHeader.split(' ')[1]) as unknown as TokenPayload;
+        if (!token) return new Response(JSON.stringify({ error: 'Token inválido' }), { status: 401 });
+
+        // Apenas Super Admin vê assinaturas de revenda (Revenue Share do Sistema)
+        if (!token.is_super_admin) {
+            return new Response(JSON.stringify([]), {
+                headers: { "Content-Type": "application/json" }
+            });
+        }
+
+        // Lógica Original para Super Admin
         const url = new URL(context.request.url);
         const id = url.searchParams.get('id');
         const status = url.searchParams.get('status') || 'pending';
 
         if (id) {
-            // Buscar pedido específico
             const subscription = await context.env.DB.prepare(
                 "SELECT * FROM subscriptions WHERE id = ?"
             ).bind(id).first();
@@ -94,7 +118,6 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
                 headers: { "Content-Type": "application/json" }
             });
         } else {
-            // Listar pedidos por status
             const subscriptions = await context.env.DB.prepare(
                 "SELECT * FROM subscriptions WHERE status = ? ORDER BY created_at DESC"
             ).bind(status).all();
