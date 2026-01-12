@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +12,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { toast } from "sonner";
 
 interface PaymentResponse {
+    id?: string;
     qr_code?: string;
     qr_code_base64?: string;
     error?: string;
@@ -34,8 +36,13 @@ export default function Pagamento() {
         cpf: ""
     });
 
-    // Estado do resultado PIX
+    // Estado do resultado PIX e Pedido
     const [pixData, setPixData] = useState<{ qr_code: string, qr_code_base64: string } | null>(null);
+    const [currentPaymentId, setCurrentPaymentId] = useState<string | null>(null);
+    const [currentSubscriptionId, setCurrentSubscriptionId] = useState<number | null>(null);
+
+    // Polling status
+    const [paymentStatus, setPaymentStatus] = useState<'pending' | 'approved'>('pending');
 
     // Se não houver plano, volta para preços
     if (!plan) {
@@ -54,11 +61,11 @@ export default function Pagamento() {
     const copyToClipboard = () => {
         if (pixData?.qr_code) {
             navigator.clipboard.writeText(pixData.qr_code);
-            alert("Código PIX copiado!");
+            toast.success("Código PIX copiado!");
         }
     };
 
-    // Função para criar um pedido de assinatura (pendente de aprovação)
+    // Função para criar um pedido de assinatura
     const createSubscription = async (paymentId?: string) => {
         try {
             const response = await fetch('/api/subscriptions', {
@@ -79,30 +86,64 @@ export default function Pagamento() {
 
             if (!response.ok) {
                 console.error('Erro ao criar pedido:', data);
-                toast.error('Erro ao registrar pedido. Tente novamente.');
+                toast.error('Erro ao registrar pedido no sistema.');
                 return null;
             }
 
-            toast.success('Pedido registrado com sucesso!');
             return data.subscription_id;
         } catch (err) {
             console.error('Erro ao criar pedido:', err);
-            toast.error('Erro ao registrar pedido.');
             return null;
         }
     };
 
-    // Função chamada quando o usuário clica "Já paguei"
-    const handleAlreadyPaid = async () => {
-        setLoading(true);
-        const subscriptionId = await createSubscription();
-        setLoading(false);
+    // Polling para verificar pagamento
+    useEffect(() => {
+        let interval: NodeJS.Timeout;
 
-        if (subscriptionId) {
-            // Redirecionar para página de acompanhamento
-            navigate('/pedido', { state: { subscription_id: subscriptionId } });
+        if (pixData && currentPaymentId && currentSubscriptionId && paymentStatus === 'pending') {
+            console.log("Iniciando verificação de pagamento...");
+            interval = setInterval(async () => {
+                try {
+                    const res = await fetch('/api/check-payment', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            payment_id: currentPaymentId,
+                            subscription_id: currentSubscriptionId
+                        })
+                    });
+
+                    if (res.ok) {
+                        const data = await res.json() as any;
+                        if (data.status === 'approved') {
+                            setPaymentStatus('approved');
+                            clearInterval(interval);
+                            toast.success("Pagamento confirmado!");
+
+                            // Redirecionar com credenciais
+                            setTimeout(() => {
+                                navigate('/pedido', {
+                                    state: {
+                                        subscription_id: currentSubscriptionId,
+                                        approved: true,
+                                        username: data.username,
+                                        password: data.password
+                                    }
+                                });
+                            }, 1500);
+                        }
+                    }
+                } catch (error) {
+                    console.error("Erro no polling:", error);
+                }
+            }, 5000); // Verifica a cada 5 segundos
         }
-    };
+
+        return () => {
+            if (interval) clearInterval(interval);
+        };
+    }, [pixData, currentPaymentId, currentSubscriptionId, paymentStatus, navigate]);
 
     const handlePayment = async () => {
         // Validação simples
@@ -116,7 +157,7 @@ export default function Pagamento() {
 
         try {
             if (paymentMethod === 'pix') {
-                // Chamada à API Serverless para gerar PIX
+                // 1. Gerar Pagamento no Mercado Pago
                 const response = await fetch('/api/create-payment', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -132,17 +173,25 @@ export default function Pagamento() {
                     throw new Error(data.error || "Erro ao processar pagamento");
                 }
 
-                if (data.qr_code && data.qr_code_base64) {
-                    setPixData({ qr_code: data.qr_code, qr_code_base64: data.qr_code_base64 });
-                    // PIX gerado - o pedido será criado quando clicar em "Já paguei"
+                if (data.qr_code && data.qr_code_base64 && data.id) {
+                    // 2. Criar Pedido no Sistema IMEDIATAMENTE (status pending)
+                    const subId = await createSubscription(data.id);
+
+                    if (subId) {
+                        setPixData({ qr_code: data.qr_code, qr_code_base64: data.qr_code_base64 });
+                        setCurrentPaymentId(data.id);
+                        setCurrentSubscriptionId(subId);
+                        toast.info("Aguardando pagamento... Não feche esta tela.");
+                    } else {
+                        throw new Error("Falha ao registrar pedido interno.");
+                    }
                 } else {
                     alert("Erro: Mercado Pago não retornou QR Code.");
                 }
 
             } else {
-                // Pagamento com Cartão (Simulação)
-                // Cria o pedido de assinatura e redireciona para acompanhamento
-                const subscriptionId = await createSubscription();
+                // Pagamento Cartão (Simulação)
+                const subscriptionId = await createSubscription('CARD_SIMULATED');
                 if (subscriptionId) {
                     toast.success("Pedido registrado! Aguardando aprovação.");
                     navigate('/pedido', { state: { subscription_id: subscriptionId } });
@@ -175,52 +224,73 @@ export default function Pagamento() {
                 <div className="max-w-6xl mx-auto grid lg:grid-cols-12 gap-8">
 
                     <div className="lg:col-span-8 space-y-8">
-                        <div className="flex items-center gap-2 text-muted-foreground mb-6 cursor-pointer hover:text-foreground transition-colors w-fit" onClick={() => navigate(-1)}>
-                            <ArrowLeft className="w-4 h-4" />
-                            <span>Voltar</span>
-                        </div>
+                        {!pixData && (
+                            <div className="flex items-center gap-2 text-muted-foreground mb-6 cursor-pointer hover:text-foreground transition-colors w-fit" onClick={() => navigate(-1)}>
+                                <ArrowLeft className="w-4 h-4" />
+                                <span>Voltar</span>
+                            </div>
+                        )}
 
-                        {/* Se já tem PIX gerado, mostra o QR Code Overlay ou substitui o form */}
+                        {/* Se já tem PIX gerado, mostra o QR Code Overlay */}
                         {pixData ? (
                             <Card className="border-green-500/50 bg-green-500/5 shadow-lg animate-in fade-in zoom-in-95">
                                 <CardHeader className="text-center">
                                     <div className="mx-auto bg-green-500 rounded-full p-3 w-fit mb-2">
-                                        <Check className="w-8 h-8 text-white" />
+                                        {paymentStatus === 'approved' ? <Check className="w-8 h-8 text-white" /> : <QrCode className="w-8 h-8 text-white" />}
                                     </div>
-                                    <CardTitle className="text-2xl text-green-500">Pagamento Pix Gerado!</CardTitle>
-                                    <CardDescription>Escaneie o QR Code ou copie o código abaixo para finalizar.</CardDescription>
+                                    <CardTitle className="text-2xl text-green-500">
+                                        {paymentStatus === 'approved' ? "Pagamento Confirmado!" : "Escaneie o QR Code"}
+                                    </CardTitle>
+                                    <CardDescription>
+                                        {paymentStatus === 'approved'
+                                            ? "Redirecionando para seu pedido..."
+                                            : "Abra o app do seu banco e pague via Pix."}
+                                    </CardDescription>
                                 </CardHeader>
                                 <CardContent className="flex flex-col items-center gap-6">
-                                    {/* Imagem QR Code */}
-                                    <div className="bg-white p-4 rounded-lg shadow-sm">
-                                        <img
-                                            src={`data:image/png;base64,${pixData.qr_code_base64}`}
-                                            alt="QR Code Pix"
-                                            className="w-64 h-64 object-contain"
-                                        />
-                                    </div>
+                                    {paymentStatus === 'pending' && (
+                                        <>
+                                            {/* Imagem QR Code */}
+                                            <div className="bg-white p-4 rounded-lg shadow-sm relative">
+                                                <img
+                                                    src={`data:image/png;base64,${pixData.qr_code_base64}`}
+                                                    alt="QR Code Pix"
+                                                    className="w-64 h-64 object-contain"
+                                                />
+                                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                                    {/* Placeholder para scan animation se quiser */}
+                                                </div>
+                                            </div>
 
-                                    <div className="w-full max-w-md space-y-2">
-                                        <Label>Código Copia e Cola</Label>
-                                        <div className="flex gap-2">
-                                            <Input value={pixData.qr_code} readOnly className="bg-background text-xs font-mono" />
-                                            <Button size="icon" variant="outline" onClick={copyToClipboard}>
-                                                <Copy className="w-4 h-4" />
-                                            </Button>
+                                            <div className="w-full max-w-md space-y-2">
+                                                <Label>Código Copia e Cola</Label>
+                                                <div className="flex gap-2">
+                                                    <Input value={pixData.qr_code} readOnly className="bg-background text-xs font-mono" />
+                                                    <Button size="icon" variant="outline" onClick={copyToClipboard}>
+                                                        <Copy className="w-4 h-4" />
+                                                    </Button>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex flex-col items-center gap-2 mt-4 p-4 bg-muted/40 rounded-lg w-full max-w-md">
+                                                <div className="flex items-center gap-2 text-primary font-medium animate-pulse">
+                                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                                    <span>Aguardando confirmação do banco...</span>
+                                                </div>
+                                                <p className="text-xs text-muted-foreground text-center">
+                                                    Não feche esta página. A liberação será automática assim que o pagamento for identificado.
+                                                </p>
+                                            </div>
+                                        </>
+                                    )}
+
+                                    {paymentStatus === 'approved' && (
+                                        <div className="flex flex-col items-center justify-center p-8">
+                                            <Loader2 className="w-12 h-12 text-primary animate-spin mb-4" />
+                                            <p className="text-lg font-medium">Gerando suas credenciais de acesso...</p>
                                         </div>
-                                    </div>
-
-                                    <div className="text-center text-sm text-muted-foreground">
-                                        Após o pagamento, clique em "Já paguei" para acompanhar seu pedido.
-                                        O acesso será liberado após confirmação.
-                                    </div>
+                                    )}
                                 </CardContent>
-                                <CardFooter className="justify-center gap-4">
-                                    <Button variant="outline" onClick={() => setPixData(null)}>Voltar</Button>
-                                    <Button onClick={handleAlreadyPaid} disabled={loading}>
-                                        {loading ? 'Processando...' : 'Já paguei!'}
-                                    </Button>
-                                </CardFooter>
                             </Card>
                         ) : (
                             <>
@@ -291,7 +361,7 @@ export default function Pagamento() {
                                                 <RadioGroupItem value="card" id="card" className="peer sr-only" />
                                                 <Label
                                                     htmlFor="card"
-                                                    className="flex flex-col items-center justify-between rounded-xl border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 cursor-pointer transition-all h-full"
+                                                    className="flex flex-col items-center justify-between rounded-xl border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 cursor-pointer transition-all h-full opacity-50 cursor-not-allowed"
                                                 >
                                                     <div className="mb-3 rounded-full bg-blue-500/10 p-2 text-blue-500">
                                                         <CreditCard className="h-6 w-6" />
