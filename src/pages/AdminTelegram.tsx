@@ -5777,9 +5777,16 @@ Com o Broadcast, você pode alcançar todos os seus leads de uma só vez, com ap
                                         <Button variant="outline" className="flex-1" onClick={() => setShowAddJobModal(false)}>
                                             Cancelar
                                         </Button>
-                                        <Button className="flex-1 gap-1" onClick={handleAddJob}>
+                                        <Button
+                                            type="button"
+                                            className="flex-1 gap-1 bg-green-600 hover:bg-green-700 text-white font-bold"
+                                            onClick={(e) => {
+                                                console.log('🛑 Botão visual clicado!');
+                                                handleAddJob();
+                                            }}
+                                        >
                                             <Zap className="w-4 h-4" />
-                                            Criar Job
+                                            CRIAR JOB AGORA
                                         </Button>
                                     </div>
                                 </CardContent>
