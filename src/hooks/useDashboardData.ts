@@ -46,7 +46,7 @@ const parsePrice = (price: string | number | undefined): number => {
 };
 
 export function useDashboardData() {
-  const { user, userRole } = useAuth();
+  const { user, userRole, token } = useAuth();
 
   const [stats, setStats] = useState<DashboardStats>({
     totalUsers: 0,
@@ -63,15 +63,25 @@ export function useDashboardData() {
   const [error, setError] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
-    if (!user) return;
+    if (!user || !token) return;
 
     try {
       setLoading(true);
       setError(null);
 
       const [usersRes, resellersRes] = await Promise.all([
-        fetch('/api/users'),
-        fetch('/api/resellers')
+        fetch('/api/users', {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        }),
+        fetch('/api/resellers', {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        })
       ]);
 
       const clientesData = usersRes.ok ? await usersRes.json() : [];
@@ -143,7 +153,7 @@ export function useDashboardData() {
     } finally {
       setLoading(false);
     }
-  }, [user, userRole]);
+  }, [user, userRole, token]);
 
   // Ref para debounce
   const lastRefreshTime = useRef(0);
