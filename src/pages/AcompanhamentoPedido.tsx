@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,7 @@ export default function AcompanhamentoPedido() {
     const navigate = useNavigate();
     const { signIn } = useAuth();
 
+    // Estados
     const [subscription, setSubscription] = useState<Subscription | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -43,7 +44,7 @@ export default function AcompanhamentoPedido() {
     const subscriptionId = location.state?.subscription_id || new URLSearchParams(location.search).get('id');
     const credentials = location.state as { username?: string, password?: string } | null;
 
-    const fetchSubscription = async () => {
+    const fetchSubscription = useCallback(async () => {
         if (!subscriptionId) {
             setError("ID do pedido não encontrado");
             setLoading(false);
@@ -55,24 +56,22 @@ export default function AcompanhamentoPedido() {
             if (!response.ok) {
                 throw new Error("Pedido não encontrado");
             }
-            const data = await response.json();
+            const data = await response.json() as Subscription;
             setSubscription(data);
 
-            // Removido redirecionamento automático genérico para evitar loop se não estiver logado
-            // O usuário deve clicar para logar explicitamente agora que mostramos as credenciais
         } catch (err) {
             setError(err instanceof Error ? err.message : "Erro ao carregar pedido");
         } finally {
             setLoading(false);
         }
-    };
+    }, [subscriptionId]);
 
     useEffect(() => {
         fetchSubscription();
         // Polling a cada 10 segundos para verificar o status
         const interval = setInterval(fetchSubscription, 10000);
         return () => clearInterval(interval);
-    }, [subscriptionId]);
+    }, [fetchSubscription]);
 
     const handleAutoLogin = async () => {
         if (!subscription || !credentials?.password) return;
