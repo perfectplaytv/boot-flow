@@ -1220,15 +1220,7 @@ const AdminDashboard = () => {
     console.log('[DEBUG] renderCurrentPage chamado, currentPage =', currentPage);
     switch (currentPage) {
       case "plans":
-        return (
-          <div className="p-8 space-y-8">
-            <h1 className="text-3xl font-bold text-white">Planos e Preços - TESTE</h1>
-            <div className="bg-red-600 border-4 border-yellow-400 rounded-lg p-8">
-              <p className="text-white text-2xl font-bold">🔴 CARD VERMELHO DE TESTE 🔴</p>
-              <p className="text-white mt-2">Se você está vendo isso, o deploy e o switch funcionaram!</p>
-            </div>
-          </div>
-        );
+        return <AdminPlans />;
       case "dashboard":
         return (
           <div className="space-y-6">

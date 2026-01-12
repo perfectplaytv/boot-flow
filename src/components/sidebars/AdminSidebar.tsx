@@ -1,3 +1,4 @@
+
 import {
   Brain,
   Users,
@@ -57,6 +58,7 @@ const menuItems = [
   { title: "Clientes", page: "users", icon: Users },
   { title: "Revendas", page: "resellers", icon: Building2 },
   { title: "BootGram", page: "telegram", icon: UserPlus },
+  { title: "Planos e Preços", page: "plans", icon: CreditCard },
   { title: "Cobranças", page: "cobrancas", icon: DollarSign },
   { title: "WhatsApp", page: "whatsapp", icon: MessageSquare },
   { title: "Notificações", page: "notificacoes", icon: Bell },
@@ -65,7 +67,6 @@ const menuItems = [
   { title: "Gamificação", page: "games", icon: Gamepad2 },
   { title: "Gateways", page: "gateways", icon: Server },
   { title: "Análises", page: "analytics", icon: BarChart3 },
-  { title: "Planos e Preços", page: "plans", icon: CreditCard },
   { title: "Configurações", page: "settings", icon: Settings },
 ];
 
