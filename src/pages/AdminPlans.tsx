@@ -128,7 +128,22 @@ export default function AdminPlans() {
                 </CardHeader>
                 <CardContent>
                     {loading ? (
-                        <div className="flex justify-center p-8"><Loader2 className="animate-spin text-purple-500" /></div>
+                        <div className="flex flex-col items-center justify-center p-8">
+                            <Loader2 className="animate-spin text-purple-500 w-8 h-8" />
+                            <p className="text-gray-400 mt-2">Carregando planos...</p>
+                        </div>
+                    ) : error ? (
+                        <div className="flex flex-col items-center justify-center p-8 text-center">
+                            <p className="text-red-400 mb-4">{error}</p>
+                            <Button onClick={fetchPlans} variant="outline" className="border-gray-600 text-gray-300 hover:text-white">
+                                Tentar novamente
+                            </Button>
+                        </div>
+                    ) : plans.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center p-8 text-center">
+                            <p className="text-gray-400 mb-2">Nenhum plano encontrado.</p>
+                            <p className="text-gray-500 text-sm">Verifique se a tabela 'plans' foi criada no banco de dados D1.</p>
+                        </div>
                     ) : (
                         <Table>
                             <TableHeader>
@@ -144,10 +159,10 @@ export default function AdminPlans() {
                             <TableBody>
                                 {plans.map((plan) => (
                                     <TableRow key={plan.id} className="border-gray-700 hover:bg-[#374151]">
-                                        <TableCell>{plan.display_order}</TableCell>
+                                        <TableCell className="text-white">{plan.display_order}</TableCell>
                                         <TableCell className="font-medium text-white">{plan.name}</TableCell>
-                                        <TableCell>{plan.price}</TableCell>
-                                        <TableCell>{plan.is_popular ? "⭐ Sim" : "Não"}</TableCell>
+                                        <TableCell className="text-white">{plan.price}</TableCell>
+                                        <TableCell className="text-white">{plan.is_popular ? "⭐ Sim" : "Não"}</TableCell>
                                         <TableCell>
                                             <div className={`w-2 h-2 rounded-full ${plan.active ? 'bg-green-500' : 'bg-red-500'}`} />
                                         </TableCell>
