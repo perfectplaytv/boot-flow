@@ -5778,15 +5778,11 @@ Com o Broadcast, você pode alcançar todos os seus leads de uma só vez, com ap
                                             Cancelar
                                         </Button>
                                         <Button
-                                            type="button"
-                                            className="flex-1 gap-1 bg-green-600 hover:bg-green-700 text-white font-bold"
-                                            onClick={(e) => {
-                                                console.log('🛑 Botão visual clicado!');
-                                                handleAddJob();
-                                            }}
+                                            className="flex-1 gap-1"
+                                            onClick={handleAddJob}
                                         >
                                             <Zap className="w-4 h-4" />
-                                            CRIAR JOB AGORA
+                                            Criar Job
                                         </Button>
                                     </div>
                                 </CardContent>
