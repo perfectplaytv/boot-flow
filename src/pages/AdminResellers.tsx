@@ -1387,6 +1387,70 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
         </Card>
       </div>
 
+      {/* Seção de Pedidos Pendentes */}
+      {pendingSubscriptions.length > 0 && (
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-3 h-3 bg-yellow-500 rounded-full animate-pulse"></div>
+            <h2 className="text-xl font-bold text-yellow-500">
+              Aguardando Liberação de Pagamento ({pendingSubscriptions.length})
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {pendingSubscriptions.map((sub) => (
+              <Card key={sub.id} className="bg-gradient-to-br from-yellow-900/30 to-orange-900/20 border border-yellow-700/50">
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-start mb-3">
+                    <div>
+                      <h3 className="font-bold text-white text-lg uppercase">{sub.customer_name}</h3>
+                      <p className="text-gray-400 text-sm">{new Date(sub.created_at).toLocaleString('pt-BR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })}</p>
+                    </div>
+                    <span className="bg-yellow-600/80 text-yellow-100 text-xs px-2 py-1 rounded font-medium">
+                      PIX Pendente
+                    </span>
+                  </div>
+
+                  <div className="text-green-400 font-bold text-xl mb-2">{sub.plan_price}</div>
+                  <p className="text-gray-300 text-sm mb-3">{sub.plan_name}</p>
+
+                  {sub.customer_whatsapp && (
+                    <a
+                      href={`https://wa.me/${sub.customer_whatsapp.replace(/\D/g, '')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-green-400 text-sm mb-3 hover:underline"
+                    >
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
+                      </svg>
+                      {sub.customer_whatsapp}
+                    </a>
+                  )}
+
+                  <Button
+                    className="w-full bg-green-600 hover:bg-green-700 text-white"
+                    onClick={() => handleApproveSubscription(sub.id)}
+                    disabled={approvingId === sub.id}
+                  >
+                    {approvingId === sub.id ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Aprovando...
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="w-4 h-4 mr-2" />
+                        Confirmar Recebimento (Liberar)
+                      </>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Barra de pesquisa */}
       <div className="flex items-center gap-4">
         <div className="relative flex-1">
