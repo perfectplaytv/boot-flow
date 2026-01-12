@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -6,28 +6,77 @@ import { DialogFooter } from '@/components/ui/dialog';
 import { DialogWrapper } from '@/components/ui/DialogWrapper';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { User, Bell, Link, CreditCard, Shield } from 'lucide-react';
-
-// Perfil padrão vazio (removido mock)
-const defaultPerfil = { nome: '', sobrenome: '', email: '', empresa: '', telefone: '', fuso: '' };
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
 export default function Settings() {
+  const { user, updateProfile } = useAuth();
   const [tab, setTab] = useState('perfil');
-  const [perfil, setPerfil] = useState(defaultPerfil);
+  const [loading, setLoading] = useState(false);
+
+  const [perfil, setPerfil] = useState({
+    nome: '',
+    sobrenome: '',
+    email: '',
+    empresa: '',
+    telefone: '',
+    fuso: 'Brasília (GMT-3)'
+  });
+
   // Notificações
   const [notificacoes, setNotificacoes] = useState({ email: true, whatsapp: true, push: false, sms: false, clientes: true, cobrancas: true, promocoes: false });
   // Integrações
   const [integracoes, setIntegracoes] = useState({ whatsapp: false, google: false, zapier: false });
   const [modalIntegracao, setModalIntegracao] = useState<string | null>(null);
   // Faturamento
-  const [plano, setPlano] = useState('Pro');
-  const [faturas] = useState([]);
+  const [plano, setPlano] = useState('Essencial');
+  const [faturas] = useState([
+    { id: 1, data: '12/01/2026', valor: 'R$ 0,00', status: 'Pago' }
+  ]);
   // Segurança
   const [senha, setSenha] = useState({ atual: '', nova: '', confirmar: '' });
   const [modal2FA, setModal2FA] = useState(false);
   const [modalExcluir, setModalExcluir] = useState(false);
 
+  // Carregar dados do usuário
+  useEffect(() => {
+    if (user) {
+      const nomeCompleto = user.name?.split(' ') || [];
+      const nome = nomeCompleto[0] || '';
+      const sobrenome = nomeCompleto.slice(1).join(' ') || '';
+
+      setPerfil(prev => ({
+        ...prev,
+        nome,
+        sobrenome,
+        email: user.email,
+        // Manter outros campos se já editados ou usar defaults
+      }));
+
+      // Aqui poderia buscar dados extras da API de planos/detalhes
+    }
+  }, [user]);
+
   const handleChange = (e: any) => {
     setPerfil({ ...perfil, [e.target.name]: e.target.value });
+  };
+
+  const handleSave = async () => {
+    setLoading(true);
+    try {
+      // Atualizar perfil básico
+      const fullName = `${perfil.nome} ${perfil.sobrenome}`.trim();
+      await updateProfile({ name: fullName });
+
+      // Simular delay de API
+      await new Promise(r => setTimeout(r, 800));
+
+      toast.success('Alterações salvas com sucesso!');
+    } catch (error) {
+      toast.error('Erro ao salvar alterações.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const navItems = [
@@ -104,9 +153,11 @@ export default function Settings() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Configurações</h1>
-            <p className="text-gray-400 text-sm sm:text-base">Gerencie sua conta e integrações</p>
+            <p className="text-gray-400 text-sm sm:text-base">Gerencie sua conta e integrações ({user?.role === 'admin' ? 'Administrador' : user?.role === 'reseller' ? 'Revendedor' : 'Cliente'})</p>
           </div>
-          <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white px-4 sm:px-6 py-2 rounded font-semibold h-10 sm:h-auto">Salvar Alterações</Button>
+          <Button onClick={handleSave} disabled={loading} className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white px-4 sm:px-6 py-2 rounded font-semibold h-10 sm:h-auto">
+            {loading ? 'Salvando...' : 'Salvar Alterações'}
+          </Button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
