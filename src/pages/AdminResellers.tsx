@@ -129,6 +129,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
   // Buscar pedidos pendentes ao carregar a página
   useEffect(() => {
     fetchPendingSubscriptions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const { user } = useAuth();
