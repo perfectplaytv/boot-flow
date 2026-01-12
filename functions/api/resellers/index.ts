@@ -9,18 +9,42 @@ interface Env {
     DB: D1Database;
 }
 
+interface TokenPayload {
+    id: number;
+    email: string;
+    role: string;
+    type: string;
+    is_super_admin?: boolean;
+}
+
+interface ResellerBody {
+    username: string;
+    email?: string;
+    password?: string;
+    permission?: string;
+    credits?: number;
+    personal_name?: string;
+    servers?: string;
+    master_reseller?: string;
+    disable_login_days?: number;
+    monthly_reseller?: boolean;
+    telegram?: string;
+    whatsapp?: string;
+    observations?: string;
+}
+
 // GET: Listar Revendedores (Com Isolamento)
 export const onRequestGet: PagesFunction<Env> = async (context) => {
     const authHeader = context.request.headers.get('Authorization');
     if (!authHeader) return new Response(JSON.stringify({ error: 'Token não fornecido' }), { status: 401 });
 
-    const token = await verifyToken(authHeader.split(' ')[1]);
+    // Cast Token
+    const token = await verifyToken(authHeader.split(' ')[1]) as unknown as TokenPayload;
     if (!token) return new Response(JSON.stringify({ error: 'Token inválido' }), { status: 401 });
 
     const db = getDb(context.env.DB);
     try {
-        // Regra 1: Super Admin (pontonois) vê tudo
-        // @ts-ignore
+        // Regra 1: Super Admin vê tudo
         if (token.is_super_admin) {
             const list = await db.select().from(resellers).all();
             return new Response(JSON.stringify(list), {
@@ -29,7 +53,6 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
         }
 
         // Regra 2: Outros admins veem apenas o que criaram
-        // @ts-ignore
         const ownerId = `${token.type}:${token.id}`;
         const list = await db.select().from(resellers).where(eq(resellers.owner_uid, ownerId)).all();
 
@@ -48,18 +71,17 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     const authHeader = context.request.headers.get('Authorization');
     if (!authHeader) return new Response(JSON.stringify({ error: 'Token não fornecido' }), { status: 401 });
 
-    const token = await verifyToken(authHeader.split(' ')[1]);
+    const token = await verifyToken(authHeader.split(' ')[1]) as unknown as TokenPayload;
     if (!token) return new Response(JSON.stringify({ error: 'Token inválido' }), { status: 401 });
 
     // Permissões: Apenas Admin e Revendedor podem criar sub-revendedores
-    // @ts-ignore
     if (token.role !== 'admin' && token.role !== 'reseller') {
         return new Response(JSON.stringify({ error: 'Sem permissão para criar revendedores' }), { status: 403 });
     }
 
     const db = getDb(context.env.DB);
     try {
-        const body = await context.request.json() as any;
+        const body = await context.request.json() as ResellerBody;
 
         const {
             username,
@@ -98,7 +120,6 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Definir Dono (Owner)
-        // @ts-ignore
         const ownerId = `${token.type}:${token.id}`;
 
         // Insere na tabela RESELLERS
