@@ -96,7 +96,7 @@ export default function Pagamento() {
                 // Simulação Cartão
                 setTimeout(() => {
                     alert("Pagamento com cartão (Simulação) processado com sucesso!");
-                    navigate('/dashboard/client'); // Redireciona para dashboard simulado
+                    navigate('/dashboard/revendas'); // Redireciona para dashboard de revenda
                 }, 1500);
             }
         } catch (err: unknown) {
