@@ -1188,46 +1188,86 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
     };
 
     const handleAddJob = () => {
-        if (!newJob.sourceGroupId || !newJob.destinationGroupId) {
-            toast.error('Selecione origem e destino');
-            return;
+        console.log('handleAddJob iniciado', newJob);
+
+        try {
+            if (!newJob.sourceGroupId) {
+                toast.error('Selecione o grupo de origem');
+                return;
+            }
+            if (!newJob.destinationGroupId) {
+                toast.error('Selecione o grupo de destino');
+                return;
+            }
+            if (newJob.sourceGroupId === newJob.destinationGroupId) {
+                toast.error('O grupo de origem e destino não podem ser o mesmo');
+                return;
+            }
+            if (!newJob.accountIds || newJob.accountIds.length === 0) {
+                toast.error('Selecione pelo menos uma conta para realizar o trabalho');
+                return;
+            }
+
+            const sourceGroup = telegramGroups.find(g => g.id === newJob.sourceGroupId);
+            const destGroup = telegramGroups.find(g => g.id === newJob.destinationGroupId);
+
+            if (!sourceGroup) {
+                console.error('Grupo de origem não encontrado:', newJob.sourceGroupId);
+                toast.error('Erro: Grupo de origem não encontrado na lista');
+                return;
+            }
+            if (!destGroup) {
+                console.error('Grupo de destino não encontrado:', newJob.destinationGroupId);
+                toast.error('Erro: Grupo de destino não encontrado na lista');
+                return;
+            }
+
+            const job: FillGroupJob = {
+                id: Date.now(),
+                name: newJob.name.trim() || `Job ${fillJobs.length + 1}`,
+                sourceGroupId: newJob.sourceGroupId,
+                destinationGroupId: newJob.destinationGroupId,
+                accountIds: newJob.accountIds,
+                targetCount: newJob.targetCount,
+                analyzedCount: 0,
+                addedCount: 0,
+                failedCount: 0,
+                status: 'pausado',
+                delayMin: newJob.delayMin,
+                delayMax: newJob.delayMax,
+                stealthMode: newJob.stealthMode,
+                createdAt: new Date().toISOString(),
+                logs: [{
+                    time: new Date().toISOString(),
+                    type: 'info',
+                    message: `Job criado: ${sourceGroup.name} → ${destGroup.name}`
+                }]
+            };
+
+            const updated = [...fillJobs, job];
+            saveJobsToStorage(updated);
+
+            // Reset form
+            setNewJob({
+                name: '',
+                sourceGroupId: 0,
+                destinationGroupId: 0,
+                accountIds: [],
+                targetCount: 100,
+                delayMin: 30,
+                delayMax: 60,
+                stealthMode: true
+            });
+
+            setShowAddJobModal(false);
+
+            addSystemLog('success', 'job', `Job criado: ${sourceGroup.name} → ${destGroup.name}`, `Meta: ${job.targetCount} leads`);
+            toast.success('Job criado com sucesso!');
+
+        } catch (error) {
+            console.error('Erro crítico ao criar job:', error);
+            toast.error('Ocorreu um erro interno ao tentar criar o job. Verifique o console.');
         }
-        if (newJob.accountIds.length === 0) {
-            toast.error('Selecione pelo menos uma conta');
-            return;
-        }
-
-        const sourceGroup = telegramGroups.find(g => g.id === newJob.sourceGroupId);
-        const destGroup = telegramGroups.find(g => g.id === newJob.destinationGroupId);
-
-        const job: FillGroupJob = {
-            id: Date.now(),
-            name: newJob.name.trim() || `Job ${fillJobs.length + 1}`,
-            sourceGroupId: newJob.sourceGroupId,
-            destinationGroupId: newJob.destinationGroupId,
-            accountIds: newJob.accountIds,
-            targetCount: newJob.targetCount,
-            analyzedCount: 0,
-            addedCount: 0,
-            failedCount: 0,
-            status: 'pausado',
-            delayMin: newJob.delayMin,
-            delayMax: newJob.delayMax,
-            stealthMode: newJob.stealthMode,
-            createdAt: new Date().toISOString(),
-            logs: [{
-                time: new Date().toISOString(),
-                type: 'info',
-                message: `Job criado: ${sourceGroup?.name} → ${destGroup?.name}`
-            }]
-        };
-
-        const updated = [...fillJobs, job];
-        saveJobsToStorage(updated);
-        setNewJob({ name: '', sourceGroupId: 0, destinationGroupId: 0, accountIds: [], targetCount: 100, delayMin: 30, delayMax: 60, stealthMode: true });
-        setShowAddJobModal(false);
-        addSystemLog('success', 'job', `Job criado: ${sourceGroup?.name} → ${destGroup?.name}`, `Meta: ${job.targetCount} leads`);
-        toast.success('Job criado!');
     };
 
     const toggleJobStatus = (id: number) => {
