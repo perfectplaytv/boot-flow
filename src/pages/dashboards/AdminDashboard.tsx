@@ -1221,20 +1221,10 @@ const AdminDashboard = () => {
       case "plans":
         return (
           <div className="p-8 space-y-8">
-            <h1 className="text-3xl font-bold text-white">Planos e Preços</h1>
-            <p className="text-gray-400">Esta é uma página de teste. Se você está vendo isso, o switch está funcionando!</p>
-            <div className="bg-[#1f2937] border border-gray-700 rounded-lg p-6">
-              <p className="text-white">O componente será substituído em breve.</p>
-            </div>
-          </div>
-        );
-      case "analytics":
-        return (
-          <div className="p-8 space-y-8">
-            <h1 className="text-3xl font-bold text-white">Análises - TESTE</h1>
+            <h1 className="text-3xl font-bold text-white">Planos e Preços - TESTE</h1>
             <div className="bg-red-600 border-4 border-yellow-400 rounded-lg p-8">
               <p className="text-white text-2xl font-bold">🔴 CARD VERMELHO DE TESTE 🔴</p>
-              <p className="text-white mt-2">Se você está vendo isso, o deploy funcionou!</p>
+              <p className="text-white mt-2">Se você está vendo isso, o deploy e o switch funcionaram!</p>
             </div>
           </div>
         );
