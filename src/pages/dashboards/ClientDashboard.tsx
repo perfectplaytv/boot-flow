@@ -1545,7 +1545,7 @@ const ClientDashboard = () => {
           {currentPage === "ai" && <ClientAI />}
           {currentPage === "games" && <ClientGames />}
           {currentPage === "analytics" && <ClientAnalytics />}
-          {currentPage === "settings" && <ClientSettings />}
+          {currentPage === "settings" && <SettingsPage />}
           {currentPage === "profile" && <ClientProfile />}
         </main>
       </div>
