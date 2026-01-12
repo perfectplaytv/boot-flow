@@ -52,9 +52,11 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
                 status,
                 whatsapp,
                 observations,
+                plan_name,
+                plan_price,
                 created_at,
                 updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
         `).bind(
             username,
             data.email,
@@ -63,7 +65,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
             10, // créditos iniciais
             'Ativo',
             data.whatsapp || '',
-            `Plano: ${data.plan} - Valor: ${data.price} - CPF: ${data.cpf}`
+            `CPF: ${data.cpf}`,
+            data.plan || '',
+            data.price || ''
         ).run();
 
         return new Response(JSON.stringify({
