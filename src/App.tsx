@@ -90,10 +90,8 @@ const App = () => {
 
                   {/* Dashboard Admin - Acesso direto */}
                   <Route path="/admin" element={<AdminDashboard />} />
-                  {/* Dashboard Revendas (protegido: apenas role 'reseller') */}
-                  <Route element={<ProtectedRoute allowedRoles={['reseller']} />}>
-                    <Route path="/dashboard/revendas" element={<ResellerDashboard />} />
-                  </Route>
+                  {/* Dashboard Revendas (acessível para qualquer usuário após pagamento) */}
+                  <Route path="/dashboard/revendas" element={<ResellerDashboard />} />
                   {/* Página de acesso negado */}
                   <Route path="/unauthorized" element={<Unauthorized />} />
                   <Route path="/admin/revendedores" element={<AdminResellers />} />
