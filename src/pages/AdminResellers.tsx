@@ -30,6 +30,12 @@ interface Reseller {
   whatsapp?: string;
   observations?: string;
   status: string;
+  // Campos do plano
+  plan_name?: string;
+  plan_price?: string;
+  max_clients?: number;
+  subscription_date?: string;
+  created_at?: string;
 }
 
 export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?: boolean }) {
