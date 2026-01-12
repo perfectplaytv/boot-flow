@@ -26,6 +26,12 @@ export interface Revenda {
   telegram?: string;
   observations?: string;
   force_password_change?: boolean;
+
+  // Campos do plano
+  plan_name?: string;
+  plan_price?: string;
+  max_clients?: number;
+  subscription_date?: string;
 }
 
 export function useRevendas() {
