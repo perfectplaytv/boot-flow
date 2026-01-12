@@ -1,11 +1,12 @@
+
 import { useState, useEffect } from "react";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { DialogFooter } from '@/components/ui/dialog';
 import { DialogWrapper } from '@/components/ui/DialogWrapper';
-import { Card, CardHeader, CardTitle } from '@/components/ui/card';
-import { User, Bell, Link, CreditCard, Shield } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { User, Bell, Link, CreditCard, Shield, Eye, EyeOff, Copy } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
@@ -52,8 +53,6 @@ export default function Settings() {
         email: user.email,
         // Manter outros campos se já editados ou usar defaults
       }));
-
-      // Aqui poderia buscar dados extras da API de planos/detalhes
     }
   }, [user]);
 
@@ -365,10 +364,77 @@ const FaturamentoContent = ({ plano, faturas }) => {
 };
 
 const SegurancaContent = ({ senha, setSenha, modal2FA, setModal2FA, modalExcluir, setModalExcluir }) => {
+  const { user } = useAuth();
+  const [credentials, setCredentials] = useState<{ username: string, password: string } | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    // Buscar credenciais se for revendedor
+    if (user && (user.role === 'reseller' || user.role === 'admin')) {
+      const token = localStorage.getItem('token');
+      if (token) {
+        fetch('/api/me/credentials', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+          .then(res => {
+            if (res.ok) return res.json();
+            throw new Error("Falha ao buscar");
+          })
+          .then(data => {
+            if (data.username) setCredentials(data);
+          })
+          .catch(err => {
+            console.error("Erro ao carregar credenciais:", err);
+          });
+      }
+    }
+  }, [user]);
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success("Copiado para a área de transferência!");
+  };
+
   return (
     <div className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 rounded-xl p-6 border border-purple-700/40 mt-4">
       <h2 className="text-xl font-bold text-foreground mb-2">Segurança</h2>
       <p className="text-gray-400 mb-6">Proteja sua conta</p>
+
+      {/* Credenciais do Revendedor */}
+      {credentials && (
+        <div className="mb-6 p-4 bg-purple-500/10 border border-purple-500/30 rounded-lg">
+          <h3 className="text-lg font-semibold text-purple-300 mb-3 flex items-center gap-2">
+            <Shield className="w-5 h-5" />
+            Credenciais de Acesso ao Painel
+          </h3>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <span className="block text-gray-400 text-sm mb-1">Usuário / Login</span>
+              <div className="flex gap-2">
+                <Input value={credentials.username} readOnly className="bg-background/50 border-gray-700 text-white font-mono" />
+                <Button size="icon" variant="outline" onClick={() => copyToClipboard(credentials.username)}><Copy className="w-4 h-4" /></Button>
+              </div>
+            </div>
+            <div>
+              <span className="block text-gray-400 text-sm mb-1">Senha</span>
+              <div className="flex gap-2">
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  value={credentials.password}
+                  readOnly
+                  className="bg-background/50 border-gray-700 text-white font-mono"
+                />
+                <Button size="icon" variant="outline" onClick={() => setShowPassword(!showPassword)}>
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </Button>
+                <Button size="icon" variant="outline" onClick={() => copyToClipboard(credentials.password)}><Copy className="w-4 h-4" /></Button>
+              </div>
+            </div>
+          </div>
+          <p className="text-xs text-gray-500 mt-2">Use estas credenciais para acessar o painel de revenda.</p>
+        </div>
+      )}
+
       <div className="mb-4">
         <span className="block text-gray-300 font-medium mb-1">Alterar Senha</span>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-2">
