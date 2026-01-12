@@ -32,6 +32,7 @@ interface Plan {
 export default function AdminPlans() {
     const [plans, setPlans] = useState<Plan[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [editingPlan, setEditingPlan] = useState<Plan | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [saving, setSaving] = useState(false);
@@ -43,15 +44,24 @@ export default function AdminPlans() {
 
     const fetchPlans = async () => {
         setLoading(true);
+        setError(null);
+        console.log('[AdminPlans] Fetching plans from /api/plans...');
         try {
             const res = await fetch('/api/plans');
+            console.log('[AdminPlans] Response status:', res.status);
             if (res.ok) {
                 const data = await res.json();
+                console.log('[AdminPlans] Plans loaded:', data);
                 setPlans(data as Plan[]);
             } else {
+                const errorText = await res.text();
+                console.error('[AdminPlans] API Error:', errorText);
+                setError(`Erro ao carregar planos: ${res.status}`);
                 toast.error("Erro ao carregar planos");
             }
         } catch (err) {
+            console.error('[AdminPlans] Network error:', err);
+            setError("Erro de conexão com a API");
             toast.error("Erro de conexão");
         } finally {
             setLoading(false);
