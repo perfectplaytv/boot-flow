@@ -1228,6 +1228,16 @@ const AdminDashboard = () => {
             </div>
           </div>
         );
+      case "analytics":
+        return (
+          <div className="p-8 space-y-8">
+            <h1 className="text-3xl font-bold text-white">Análises - TESTE</h1>
+            <div className="bg-red-600 border-4 border-yellow-400 rounded-lg p-8">
+              <p className="text-white text-2xl font-bold">🔴 CARD VERMELHO DE TESTE 🔴</p>
+              <p className="text-white mt-2">Se você está vendo isso, o deploy funcionou!</p>
+            </div>
+          </div>
+        );
       case "dashboard":
         return (
           <div className="space-y-6">
