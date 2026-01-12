@@ -42,7 +42,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         }
 
         const mpData = await mpResponse.json() as any;
-        const status = mpData.status; // pending, approved, authorized, in_process, in_mediation, rejected, cancelled, refunded, charged_back
+        const status = mpData.status;
 
         // Buscar Subscription
         const subscription = await context.env.DB.prepare(
@@ -54,51 +54,51 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         }
 
         if (status === 'approved') {
-            // Se já foi processado/aprovado anteriormente, apenas retornar sucesso e credenciais se possível
             if (subscription.status === 'approved' && subscription.reseller_id) {
-                // Buscar credenciais do revendedor já existente para retornar (opcional, mas bom user experience se ele recarregar a página)
                 const reseller = await context.env.DB.prepare("SELECT username, password FROM resellers WHERE id = ?").bind(subscription.reseller_id).first() as any;
 
                 return new Response(JSON.stringify({
                     status: 'approved',
                     message: "Pagamento já processado.",
                     username: reseller?.username,
-                    password: reseller?.password // Apenas se quiser exibir novamente
+                    password: reseller?.password
                 }), { headers: { "Content-Type": "application/json" } });
             }
 
-            // Se ainda está pendente, aprovar e criar revendedor
             if (subscription.status === 'pending') {
-                // 1. Gerar Username/Password
                 const username = subscription.customer_email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
                 const password = generatePassword(10);
                 const maxClients = PLAN_MAX_CLIENTS[subscription.plan_name] || 5;
 
-                // 2. Criar Revendedor
+                // Buscar ID do Super Admin para atribuir a revenda (Isolamento de Dados)
+                // Se não achar, atribui null (órfão)
+                const superAdmin = await context.env.DB.prepare("SELECT id FROM users WHERE email = ?").bind('pontonois@gmail.com').first() as any;
+                const ownerUid = superAdmin ? `user:${superAdmin.id}` : null;
+
+                // Criar Revendedor
                 const resellerResult = await context.env.DB.prepare(`
                     INSERT INTO resellers (
                         username, email, password, personal_name, permission, credits, status, whatsapp, observations,
-                        plan_name, plan_price, max_clients, subscription_date, created_at, updated_at
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'), datetime('now'))
+                        plan_name, plan_price, max_clients, subscription_date, owner_uid, created_at, updated_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), ?, datetime('now'), datetime('now'))
                 `).bind(
                     username,
                     subscription.customer_email,
                     password,
                     subscription.customer_name,
-                    'reseller', // Permission
-                    10, // Default credits
+                    'reseller',
+                    10,
                     'Ativo',
                     subscription.customer_whatsapp || '',
                     `CPF: ${subscription.customer_cpf} | Auto-aprovado via Mercado Pago (ID: ${payment_id})`,
                     subscription.plan_name,
                     subscription.plan_price,
                     maxClients,
-                    subscription.created_at
+                    ownerUid // Atribui ao Super Admin
                 ).run();
 
                 const resellerId = resellerResult.meta.last_row_id;
 
-                // 3. Atualizar Subscription
                 await context.env.DB.prepare(`
                     UPDATE subscriptions 
                     SET status = 'approved', reseller_id = ?, approved_at = datetime('now'), updated_at = datetime('now'), payment_id = ?
@@ -115,9 +115,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
             }
         }
 
-        // Se não aprovado
         return new Response(JSON.stringify({
-            status: status, // pending, in_process, etc
+            status: status,
             message: "Aguardando pagamento..."
         }), { headers: { "Content-Type": "application/json" } });
 
