@@ -1217,6 +1217,7 @@ const AdminDashboard = () => {
 
   // Função para renderizar o conteúdo da página atual - Plans added
   const renderCurrentPage = () => {
+    console.log('[DEBUG] renderCurrentPage chamado, currentPage =', currentPage);
     switch (currentPage) {
       case "plans":
         return (
