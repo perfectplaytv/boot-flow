@@ -38,7 +38,6 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         }
 
         // Verificar Senha
-        // Verificar Senha
         let isValid = false;
         if (user.password && user.password.startsWith('$2')) {
             try {
@@ -57,13 +56,17 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
             return new Response(JSON.stringify({ error: 'Credenciais inválidas' }), { status: 401 });
         }
 
-        // Determinar Role
+        // Determinar Role e Tipo
         let role = 'client';
+        let type = 'user'; // 'user' (admin/client) ou 'reseller'
+
         if (isReseller) {
             // Se veio da tabela resellers, usa o campo permission ou define como reseller
+            type = 'reseller';
             // @ts-ignore
             role = user.permission === 'admin' ? 'admin' : (user.permission || 'reseller');
         } else {
+            type = 'user';
             if (user.plan === 'admin' || user.email === 'pontonois@gmail.com') {
                 role = 'admin';
             } else if (user.plan === 'revenda') {
@@ -71,8 +74,16 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
             }
         }
 
-        // Gerar Token com a role correta
-        const token = await createToken({ id: user.id, email: user.email, role: role });
+        const isSuperAdmin = user.email === 'pontonois@gmail.com';
+
+        // Gerar Token com a role correta e flags de identidade
+        const token = await createToken({
+            id: user.id,
+            email: user.email,
+            role: role,
+            type: type,
+            is_super_admin: isSuperAdmin
+        });
 
         return new Response(JSON.stringify({
             token,
@@ -80,7 +91,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
                 id: user.id,
                 email: user.email,
                 name: user.name,
-                role: role // AGORA SIM ENVIAMOS A ROLE!
+                role: role,
+                is_super_admin: isSuperAdmin
             }
         }), {
             headers: { 'Content-Type': 'application/json' }

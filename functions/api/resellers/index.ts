@@ -3,27 +3,60 @@ import { getDb } from '../../../db';
 import { resellers } from '../../../db/schema';
 import { eq } from 'drizzle-orm';
 import * as bcrypt from 'bcryptjs';
+import { verifyToken } from '../../utils/auth';
 
 interface Env {
     DB: D1Database;
 }
 
-// GET: Listar Revendedores
+// GET: Listar Revendedores (Com Isolamento)
 export const onRequestGet: PagesFunction<Env> = async (context) => {
+    const authHeader = context.request.headers.get('Authorization');
+    if (!authHeader) return new Response(JSON.stringify({ error: 'Token não fornecido' }), { status: 401 });
+
+    const token = await verifyToken(authHeader.split(' ')[1]);
+    if (!token) return new Response(JSON.stringify({ error: 'Token inválido' }), { status: 401 });
+
     const db = getDb(context.env.DB);
     try {
-        const list = await db.select().from(resellers).all();
+        // Regra 1: Super Admin (pontonois) vê tudo
+        // @ts-ignore
+        if (token.is_super_admin) {
+            const list = await db.select().from(resellers).all();
+            return new Response(JSON.stringify(list), {
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+
+        // Regra 2: Outros admins veem apenas o que criaram
+        // @ts-ignore
+        const ownerId = `${token.type}:${token.id}`;
+        const list = await db.select().from(resellers).where(eq(resellers.owner_uid, ownerId)).all();
+
         return new Response(JSON.stringify(list), {
             headers: { 'Content-Type': 'application/json' }
         });
+
     } catch (e: unknown) {
         const message = e instanceof Error ? e.message : 'Erro desconhecido';
         return new Response(JSON.stringify({ error: message }), { status: 500 });
     }
 }
 
-// POST: Criar Novo Revendedor
+// POST: Criar Novo Revendedor (Com Vínculo de Dono)
 export const onRequestPost: PagesFunction<Env> = async (context) => {
+    const authHeader = context.request.headers.get('Authorization');
+    if (!authHeader) return new Response(JSON.stringify({ error: 'Token não fornecido' }), { status: 401 });
+
+    const token = await verifyToken(authHeader.split(' ')[1]);
+    if (!token) return new Response(JSON.stringify({ error: 'Token inválido' }), { status: 401 });
+
+    // Permissões: Apenas Admin e Revendedor podem criar sub-revendedores
+    // @ts-ignore
+    if (token.role !== 'admin' && token.role !== 'reseller') {
+        return new Response(JSON.stringify({ error: 'Sem permissão para criar revendedores' }), { status: 403 });
+    }
+
     const db = getDb(context.env.DB);
     try {
         const body = await context.request.json() as any;
@@ -49,7 +82,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
             return new Response(JSON.stringify({ error: 'Campos obrigatórios (Usuário/Senha/Permissão) faltando' }), { status: 400 });
         }
 
-        // Verifica se já existe por username ou email
+        // Verifica se já existe
         const existingUsername = await db.select().from(resellers).where(eq(resellers.username, username)).limit(1);
         if (existingUsername.length > 0) {
             return new Response(JSON.stringify({ error: 'Usuário já cadastrado' }), { status: 400 });
@@ -64,10 +97,14 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        // Definir Dono (Owner)
+        // @ts-ignore
+        const ownerId = `${token.type}:${token.id}`;
+
         // Insere na tabela RESELLERS
         const result = await db.insert(resellers).values({
             username,
-            email: email || `${username}@system.local`, // Fallback se email for opcional no banco, mas unique requer valor
+            email: email || `${username}@system.local`,
             password: hashedPassword,
             permission: permission || 'reseller',
             credits: credits || 0,
@@ -79,7 +116,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
             telegram: telegram || null,
             whatsapp: whatsapp || null,
             observations: observations || null,
-            status: 'Ativo'
+            status: 'Ativo',
+            owner_uid: ownerId // Vínculo criado!
         }).returning();
 
         return new Response(JSON.stringify(result[0]), {
