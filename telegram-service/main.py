@@ -355,6 +355,113 @@ async def get_account_limits():
     
     return {"accounts": accounts}
 
+@app.post("/active-sessions")
+async def get_active_sessions():
+    """Debug endpoint to see loaded clients"""
+    return {
+        "active": list(active_clients.keys()),
+        "pending": list(pending_auth_clients.keys())
+    }
+
+class JoinGroupRequest(BaseModel):
+    phone: str
+    group_link: str
+
+@app.post("/join-group")
+async def join_group(request: JoinGroupRequest):
+    ph = clean_phone(request.phone)
+    client = await get_client(ph)
+    
+    if not client or not await client.is_user_authorized():
+        raise HTTPException(401, "Account not connected")
+        
+    try:
+        from telethon.tl.functions.channels import JoinChannelRequest
+        from telethon.tl.functions.messages import ImportChatInviteRequest
+        
+        link = request.group_link
+        if "joinchat" in link or "+" in link:
+            # Private link logic could be added here
+            hash = link.split("/")[-1].replace("+", "")
+            try:
+                await client(ImportChatInviteRequest(hash))
+            except Exception as e:
+                if "UserAlreadyParticipant" in str(e):
+                    return {"success": True, "message": "Already in group"}
+                raise e
+        else:
+            # Public username
+            username = extract_group_username(link)
+            entity = await client.get_entity(username)
+            await client(JoinChannelRequest(entity))
+            
+        return {"success": True}
+    except Exception as e:
+        if "UserAlreadyParticipant" in str(e):
+             return {"success": True, "message": "Already in group"}
+        raise HTTPException(400, str(e))
+
+class AddMemberRequest(BaseModel):
+    phone: str
+    group_link: str
+    user_input: str # username or phone
+
+@app.post("/add-member")
+async def add_member(request: AddMemberRequest):
+    ph = clean_phone(request.phone)
+    client = await get_client(ph)
+    
+    if not client or not await client.is_user_authorized():
+        raise HTTPException(401, "Account not connected")
+
+    try:
+        from telethon.tl.functions.channels import InviteToChannelRequest
+        from telethon.errors import PeerFloodError, UserPrivacyRestrictedError, UserNotMutualContactError, UserChannelsTooMuchError, UserBotError
+        
+        # Resolve Group
+        group_identifier = extract_group_username(request.group_link)
+        try:
+            entity_group = await client.get_entity(group_identifier)
+        except:
+             raise HTTPException(404, f"Group not found: {group_identifier}")
+             
+        # Resolve User
+        user_input = request.user_input
+        try:
+            if user_input.isdigit():
+                 # Try to find by ID (requires access hash access usually, but maybe cached)
+                 # This is tricky with Telethon without access hash.
+                 # Assuming InputPeerUser if we extracted it previously with this session?
+                 # Safest is username.
+                 user_to_add = await client.get_input_entity(int(user_input))
+            else:
+                 user_to_add = await client.get_input_entity(user_input)
+        except Exception as e:
+            return {"success": False, "error": "USER_NOT_FOUND", "message": f"Could not resolve user {user_input}"}
+
+        # Invite
+        await client(InviteToChannelRequest(
+            entity_group,
+            [user_to_add]
+        ))
+        
+        increment_usage(ph)
+        
+        return {"success": True, "user": user_input}
+        
+    except PeerFloodError:
+        return {"success": False, "error": "FLOOD_WAIT", "message": "Too many requests"}
+    except UserPrivacyRestrictedError:
+        return {"success": False, "error": "PRIVACY_RESTRICTED", "message": "User privacy settings prevent adding"}
+    except UserNotMutualContactError:
+         return {"success": False, "error": "NOT_MUTUAL", "message": "User needs to be contact"}
+    except UserChannelsTooMuchError:
+         return {"success": False, "error": "TOO_MANY_CHANNELS", "message": "User is in too many channels"}
+    except UserBotError:
+         return {"success": False, "error": "USER_IS_BOT", "message": "Cannot add bots"}
+    except Exception as e:
+        return {"success": False, "error": "UNKNOWN", "message": str(e)}
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", 8000)))
