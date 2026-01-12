@@ -13,6 +13,30 @@ const PLAN_MAX_CLIENTS: Record<string, number> = {
     'Elite': 1000
 };
 
+interface Subscription {
+    id: number;
+    customer_name: string;
+    customer_email: string;
+    customer_cpf: string;
+    customer_whatsapp?: string;
+    plan_name: string;
+    plan_price: string;
+    status: string;
+    reseller_id?: number | null;
+    created_at: string;
+}
+
+interface ResellerResult {
+    meta: {
+        last_row_id: number;
+    };
+}
+
+interface User {
+    id: number;
+    email: string;
+}
+
 function generatePassword(length: number = 8): string {
     const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let password = '';
@@ -41,13 +65,13 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
             return new Response(JSON.stringify({ error: "Erro ao consultar Mercado Pago" }), { status: 502 });
         }
 
-        const mpData = await mpResponse.json() as any;
+        const mpData = await mpResponse.json() as { status: string };
         const status = mpData.status;
 
         // Buscar Subscription
         const subscription = await context.env.DB.prepare(
             "SELECT * FROM subscriptions WHERE id = ?"
-        ).bind(subscription_id).first() as any;
+        ).bind(subscription_id).first() as unknown as Subscription | null;
 
         if (!subscription) {
             return new Response(JSON.stringify({ error: "Pedido não encontrado" }), { status: 404 });
@@ -55,7 +79,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
         if (status === 'approved') {
             if (subscription.status === 'approved' && subscription.reseller_id) {
-                const reseller = await context.env.DB.prepare("SELECT username, password FROM resellers WHERE id = ?").bind(subscription.reseller_id).first() as any;
+                const reseller = await context.env.DB.prepare("SELECT username, password FROM resellers WHERE id = ?").bind(subscription.reseller_id).first() as unknown as { username: string, password?: string } | null;
 
                 return new Response(JSON.stringify({
                     status: 'approved',
@@ -70,9 +94,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
                 const password = generatePassword(10);
                 const maxClients = PLAN_MAX_CLIENTS[subscription.plan_name] || 5;
 
-                // Buscar ID do Super Admin para atribuir a revenda (Isolamento de Dados)
-                // Se não achar, atribui null (órfão)
-                const superAdmin = await context.env.DB.prepare("SELECT id FROM users WHERE email = ?").bind('pontonois@gmail.com').first() as any;
+                // Buscar ID do Super Admin
+                const superAdmin = await context.env.DB.prepare("SELECT id FROM users WHERE email = ?").bind('pontonois@gmail.com').first() as unknown as User | null;
                 const ownerUid = superAdmin ? `user:${superAdmin.id}` : null;
 
                 // Criar Revendedor
@@ -94,8 +117,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
                     subscription.plan_name,
                     subscription.plan_price,
                     maxClients,
-                    ownerUid // Atribui ao Super Admin
-                ).run();
+                    ownerUid
+                ).run() as unknown as ResellerResult;
 
                 const resellerId = resellerResult.meta.last_row_id;
 
@@ -120,7 +143,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
             message: "Aguardando pagamento..."
         }), { headers: { "Content-Type": "application/json" } });
 
-    } catch (err: any) {
-        return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: { "Content-Type": "application/json" } });
+    } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : "Wait error";
+        return new Response(JSON.stringify({ error: errorMessage }), { status: 500, headers: { "Content-Type": "application/json" } });
     }
 };

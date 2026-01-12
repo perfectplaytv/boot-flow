@@ -1,26 +1,34 @@
 
 import { getDb } from '../../../db';
-import { users, resellers } from '../../../db/schema';
-import { eq, isNull } from 'drizzle-orm';
+import { resellers } from '../../../db/schema';
+import { isNull } from 'drizzle-orm';
 import { verifyToken } from '../../utils/auth';
 
 interface Env {
     DB: D1Database;
 }
 
+interface TokenPayload {
+    id: number;
+    email: string;
+    role: string;
+    type: string;
+    is_super_admin?: boolean;
+}
+
 export const onRequestPost: PagesFunction<Env> = async (context) => {
     const authHeader = context.request.headers.get('Authorization');
     if (!authHeader) return new Response(JSON.stringify({ error: 'Token não fornecido' }), { status: 401 });
 
-    const token = await verifyToken(authHeader.split(' ')[1]);
-    // @ts-ignore
+    // Cast para interface customizada
+    const token = await verifyToken(authHeader.split(' ')[1]) as unknown as TokenPayload;
+
     if (!token || !token.is_super_admin) {
         return new Response(JSON.stringify({ error: 'Acesso negado. Apenas Super Admin.' }), { status: 403 });
     }
 
     const db = getDb(context.env.DB);
     try {
-        // @ts-ignore
         const myOwnerId = `${token.type}:${token.id}`;
 
         // Atualizar todos os revendedores sem dono para serem meus
