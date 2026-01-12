@@ -66,6 +66,71 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
   const [addResellerSuccess, setAddResellerSuccess] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
+  // Estados para pedidos de assinatura pendentes
+  interface PendingSubscription {
+    id: number;
+    customer_name: string;
+    customer_email: string;
+    customer_whatsapp: string;
+    plan_name: string;
+    plan_price: string;
+    status: string;
+    created_at: string;
+  }
+  const [pendingSubscriptions, setPendingSubscriptions] = useState<PendingSubscription[]>([]);
+  const [loadingSubscriptions, setLoadingSubscriptions] = useState(false);
+  const [approvingId, setApprovingId] = useState<number | null>(null);
+
+  // Buscar pedidos pendentes
+  const fetchPendingSubscriptions = async () => {
+    setLoadingSubscriptions(true);
+    try {
+      const response = await fetch('/api/subscriptions?status=pending');
+      if (response.ok) {
+        const data = await response.json();
+        setPendingSubscriptions(data);
+      }
+    } catch (err) {
+      console.error('Erro ao buscar pedidos pendentes:', err);
+    } finally {
+      setLoadingSubscriptions(false);
+    }
+  };
+
+  // Aprovar um pedido
+  const handleApproveSubscription = async (subscriptionId: number) => {
+    setApprovingId(subscriptionId);
+    try {
+      const response = await fetch('/api/approve-subscription', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subscription_id: subscriptionId })
+      });
+
+      if (response.ok) {
+        // Remover da lista de pendentes
+        setPendingSubscriptions(prev => prev.filter(s => s.id !== subscriptionId));
+        // Recarregar a lista de revendedores
+        fetchRevendas();
+        // Mostrar sucesso
+        alert('✅ Pedido aprovado com sucesso! Revendedor criado.');
+      } else {
+        const data = await response.json();
+        alert('Erro ao aprovar: ' + (data.error || 'Erro desconhecido'));
+      }
+    } catch (err) {
+      console.error('Erro ao aprovar pedido:', err);
+      alert('Erro ao aprovar pedido');
+    } finally {
+      setApprovingId(null);
+    }
+  };
+
+  // Buscar pedidos pendentes ao carregar a página
+  useEffect(() => {
+    fetchPendingSubscriptions();
+  }, []);
+
   const { user } = useAuth();
 
   // Mostrar dados reais somente após ação vinda da página de Revendas
