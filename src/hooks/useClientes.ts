@@ -35,7 +35,7 @@ export interface Cliente {
 }
 
 export function useClientes() {
-  const { user, userRole } = useAuth();
+  const { user, userRole, token } = useAuth();
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -43,6 +43,12 @@ export function useClientes() {
   const abortControllerRef = useRef<AbortController | null>(null);
 
   const fetchClientes = useCallback(async () => {
+    // Se não tiver token ou usuário, não tenta buscar
+    if (!token || !user?.id) {
+      setLoading(false);
+      return;
+    }
+
     if (isFetchingRef.current) return;
 
     if (abortControllerRef.current) {
@@ -54,20 +60,16 @@ export function useClientes() {
       setLoading(true);
       setError(null);
 
-      if (!user?.id) {
-        setClientes([]);
-        setLoading(false);
-        isFetchingRef.current = false;
-        return;
-      }
-
       const controller = new AbortController();
       abortControllerRef.current = controller;
       const timeoutId = setTimeout(() => controller.abort(), 10000);
 
       try {
         const response = await fetch('/api/users', {
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
           signal: controller.signal
         });
 
@@ -80,10 +82,11 @@ export function useClientes() {
         const data = await response.json() as Cliente[];
         if (Array.isArray(data)) {
           // Filtrar administradores para não aparecerem na lista de clientes
+          // O backend já deve filtrar por owner, mas filtramos aqui extras
           const filteredClients = data.filter(client =>
             client.plan !== 'admin' &&
             client.email !== 'pontonois@gmail.com' &&
-            client.role !== 'admin' // Caso venha do backend
+            client.role !== 'admin'
           );
           setClientes(filteredClients);
         } else {
@@ -104,12 +107,12 @@ export function useClientes() {
       isFetchingRef.current = false;
       abortControllerRef.current = null;
     }
-  }, [user?.id]);
+  }, [user?.id, token]);
 
   async function addCliente(cliente: Omit<Cliente, 'id'>) {
     try {
       setError(null);
-      if (!user?.id) {
+      if (!user?.id || !token) {
         setError('Você precisa estar logado.');
         return false;
       }
@@ -122,7 +125,10 @@ export function useClientes() {
       try {
         response = await fetch('/api/users', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
           body: JSON.stringify(clienteComAdmin),
           signal: controller.signal,
         });
@@ -164,13 +170,20 @@ export function useClientes() {
   }
 
   async function updateCliente(id: number, updates: Partial<Cliente>) {
+    if (!token) {
+      setError("Token não encontrado");
+      return false;
+    }
     try {
       setError(null);
       if ('pago' in updates) updates.pago = Boolean(updates.pago);
 
       const response = await fetch(`/api/users/${id}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify(updates)
       });
 
@@ -191,9 +204,15 @@ export function useClientes() {
   }
 
   async function deleteCliente(id: number) {
+    if (!token) return false;
     try {
       setError(null);
-      const response = await fetch(`/api/users/${id}`, { method: 'DELETE' });
+      const response = await fetch(`/api/users/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
 
       if (!response.ok) {
         const txt = await response.text();

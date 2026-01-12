@@ -1,5 +1,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 
 // Interface compatível com o resto da aplicação
 export interface User {
@@ -26,20 +27,30 @@ export interface User {
   server?: string;
   pago?: boolean | number | string;
   price?: string;
-  admin_id?: string;
 }
 
 export const useUsers = () => {
+  const { token } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchUsers = useCallback(async () => {
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
 
-      const response = await fetch('/api/users');
+      const response = await fetch('/api/users', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
       if (!response.ok) {
         throw new Error(`Erro API: ${response.status}`);
       }
@@ -53,14 +64,19 @@ export const useUsers = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [token]);
 
   const addUser = async (user: Omit<User, 'id' | 'created_at' | 'updated_at'>) => {
+    if (!token) throw new Error('Token não fornecido');
+
     try {
       setError(null);
       const response = await fetch('/api/users', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify(user)
       });
 
@@ -80,11 +96,16 @@ export const useUsers = () => {
   };
 
   const updateUser = async (id: number, updates: Partial<User>) => {
+    if (!token) throw new Error('Token não fornecido');
+
     try {
       setError(null);
       const response = await fetch(`/api/users/${id}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify(updates)
       });
 
@@ -106,10 +127,15 @@ export const useUsers = () => {
   };
 
   const deleteUser = async (id: number) => {
+    if (!token) throw new Error('Token não fornecido');
+
     try {
       setError(null);
       const response = await fetch(`/api/users/${id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
 
       if (!response.ok) {
