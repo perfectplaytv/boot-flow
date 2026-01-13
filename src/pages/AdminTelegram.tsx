@@ -1301,6 +1301,7 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
     };
 
     // Processamento de Jobs REAL (Conectado ao Backend)
+    // Processamento de Jobs REAL (Conectado ao Backend)
     useEffect(() => {
         const interval = setInterval(async () => {
             const activeJobs = fillJobs.filter(j => j.status === 'rodando');
@@ -1308,7 +1309,7 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
 
             for (const job of activeJobs) {
                 const now = Date.now();
-                // Usando 'any' para propriedades novas que não estão na interface original
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const j = job as any;
                 const lastAction = j.lastAction ? new Date(j.lastAction).getTime() : 0;
                 const minDelayMs = (job.delayMin || 30) * 1000;
@@ -1333,19 +1334,24 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
 
                             addSystemLog('info', 'job', `Iniciando extração: ${sourceGroup.name}`, 'Aguarde...');
 
+                            // @ts-ignore
+                            const groupLink = sourceGroup.link || sourceGroup.username || `t.me/${sourceGroup.name}`;
+
                             // Chama o Backend: /extract-members
                             const response = await fetch(`${TELEGRAM_API_URL}/extract-members`, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({
                                     phone: account.phone,
-                                    group_link: sourceGroup.link || sourceGroup.username || `t.me/${sourceGroup.username}`
+                                    group_link: groupLink
                                 })
                             });
 
                             if (!response.ok) throw new Error('Falha API Extração');
 
-                            const data = await response.json();
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            const data = await response.json() as any;
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             const memberList = data.members.map((m: any) => m.username || m.id);
 
                             // Atualiza o Job com a lista de membros
@@ -1361,7 +1367,8 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
                                 return curr;
                             });
 
-                            setFillJobs(updatedJobs as any); // Update state
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            setFillJobs(updatedJobs as any);
                             saveJobsToStorage(updatedJobs);
 
                             addSystemLog('success', 'job', `Extração concluída: ${memberList.length} membros`, `Iniciando adições...`);
@@ -1389,6 +1396,7 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
                     if (!nextMember) continue;
 
                     const destGroup = telegramGroups.find(g => g.id === job.destinationGroupId);
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const accountId = job.accountIds[job.addedCount % job.accountIds.length];
                     const account = tgAccounts.find(a => a.id === accountId);
 
@@ -1396,8 +1404,8 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
                         toggleJobStatus(job.id); continue;
                     }
 
-                    // Log discreto ou system log
-                    // addSystemLog('action', 'job', `Adicionando ${nextMember}...`);
+                    // @ts-ignore
+                    const destLink = destGroup.link || destGroup.username;
 
                     // Chama Backend: /add-member
                     const response = await fetch(`${TELEGRAM_API_URL}/add-member`, {
@@ -1405,15 +1413,15 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             phone: account.phone,
-                            group_link: destGroup.link || destGroup.username,
+                            group_link: destLink,
                             user_input: String(nextMember)
                         })
                     });
 
-                    const resData = await response.json();
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    const resData = await response.json() as any;
 
                     let newStatus = job.status;
-                    let newLogs = job.logs;
                     let newAdded = job.addedCount;
                     let newFailed = job.failedCount;
 
@@ -1438,6 +1446,7 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
                                 status: newStatus,
                                 addedCount: newAdded,
                                 failedCount: newFailed,
+                                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                 membersToProcess: (curr as any).membersToProcess.slice(1),
                                 lastAction: new Date().toISOString()
                             };
@@ -1445,6 +1454,7 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
                         return curr;
                     });
 
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     setFillJobs(updatedJobs as any);
                     saveJobsToStorage(updatedJobs);
 
@@ -1456,6 +1466,7 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
         }, 5000);
 
         return () => clearInterval(interval);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [fillJobs, telegramGroups, tgAccounts]);
 
     // ========== Stats ==========
