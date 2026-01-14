@@ -1335,7 +1335,8 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
                             addSystemLog('info', 'job', `Iniciando extração: ${sourceGroup.name}`, 'Aguarde...');
 
 
-                            const groupLink = sourceGroup.link || sourceGroup.username || `t.me/${sourceGroup.name}`;
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            const groupLink = sourceGroup.link || (sourceGroup as any).username || `t.me/${sourceGroup.name}`;
 
                             // Chama o Backend: /extract-members
                             const response = await fetch(`${TELEGRAM_API_URL}/extract-members`, {
@@ -1405,7 +1406,8 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
                     }
 
 
-                    const destLink = destGroup.link || destGroup.username;
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    const destLink = destGroup.link || (destGroup as any).username;
 
                     // Chama Backend: /add-member
                     const response = await fetch(`${TELEGRAM_API_URL}/add-member`, {
