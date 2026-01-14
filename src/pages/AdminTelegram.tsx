@@ -1334,7 +1334,7 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
 
                             addSystemLog('info', 'job', `Iniciando extração: ${sourceGroup.name}`, 'Aguarde...');
 
-                            // @ts-ignore
+
                             const groupLink = sourceGroup.link || sourceGroup.username || `t.me/${sourceGroup.name}`;
 
                             // Chama o Backend: /extract-members
@@ -1396,7 +1396,7 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
                     if (!nextMember) continue;
 
                     const destGroup = telegramGroups.find(g => g.id === job.destinationGroupId);
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
                     const accountId = job.accountIds[job.addedCount % job.accountIds.length];
                     const account = tgAccounts.find(a => a.id === accountId);
 
@@ -1404,7 +1404,7 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
                         toggleJobStatus(job.id); continue;
                     }
 
-                    // @ts-ignore
+
                     const destLink = destGroup.link || destGroup.username;
 
                     // Chama Backend: /add-member
