@@ -4363,19 +4363,23 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
                     {/* Botões de Ação */}
                     <div className="flex justify-between items-center">
                         <div className="flex gap-2">
-                            <Button variant="outline" className="gap-1">
+                            <Button variant="outline" className="gap-1" onClick={handleExportCSV}>
                                 <Download className="w-4 h-4" />
                                 Exportar
                             </Button>
-                            <Button variant="outline" className="gap-1">
+                            <Button variant="outline" className="gap-1" onClick={() => document.getElementById('file-upload')?.click()}>
                                 <Upload className="w-4 h-4" />
                                 Importar
                             </Button>
                         </div>
                         <div className="flex gap-2">
-                            <Button variant="outline" className="gap-1">
-                                <Play className="w-4 h-4" />
-                                Enviar agora
+                            <Button
+                                className="gap-1 bg-green-600 hover:bg-green-700 text-white"
+                                onClick={handleBulkSend}
+                                disabled={isSending}
+                            >
+                                {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
+                                {isSending ? 'Enviando...' : 'Enviar Agora'}
                             </Button>
                             <Button className="gap-1">
                                 <Save className="w-4 h-4" />
