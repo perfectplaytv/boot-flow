@@ -28,3 +28,10 @@ dist-ssr
 *.sln
 *.sw?
 .vercel
+
+# Electron build
+release/
+*.exe
+*.dmg
+*.AppImage
+*.deb
