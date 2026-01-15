@@ -377,10 +377,10 @@ const SegurancaContent = ({ senha, setSenha, modal2FA, setModal2FA, modalExcluir
           headers: { 'Authorization': `Bearer ${token}` }
         })
           .then(res => {
-            if (res.ok) return res.json();
+            if (res.ok) return res.json() as Promise<{ username: string; password: string }>;
             throw new Error("Falha ao buscar");
           })
-          .then(data => {
+          .then((data: { username: string; password: string }) => {
             if (data.username) setCredentials(data);
           })
           .catch(err => {
