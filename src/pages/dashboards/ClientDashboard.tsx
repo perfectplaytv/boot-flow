@@ -188,7 +188,7 @@ const ClientDashboard = () => {
   // Estados para a extração M3U
   const [m3uUrl, setM3uUrl] = useState("");
   const [isExtracting, setIsExtracting] = useState(false);
-  const [extractionResult, setExtractionResult] = useState<any>(null);
+  const [extractionResult, setExtractionResult] = useState<{ success: boolean; message: string; data: unknown } | null>(null);
   const [extractionError, setExtractionError] = useState("");
   const [isAddingUser, setIsAddingUser] = useState(false);
 
@@ -201,8 +201,8 @@ const ClientDashboard = () => {
   const { revendas: revendasFromHook, fetchRevendas } = useRevendas();
 
   // Estados locais para os dados
-  const [clientes, setClientes] = useState<any[]>([]);
-  const [revendas, setRevendas] = useState<any[]>([]);
+  const [clientes, setClientes] = useState<ClienteData[]>([]);
+  const [revendas, setRevendas] = useState<RevendaData[]>([]);
   const [loadingClientes, setLoadingClientes] = useState(true);
   const [loadingRevendas, setLoadingRevendas] = useState(true);
 
@@ -216,26 +216,26 @@ const ClientDashboard = () => {
     // Filtrar por admin_id se houver cliente logado (garantir que apenas dados do cliente sejam exibidos)
     if (user?.id) {
       if (clientesToUse && Array.isArray(clientesToUse)) {
-        clientesToUse = clientesToUse.filter((cliente: any) => {
+        clientesToUse = clientesToUse.filter((cliente: ClienteData) => {
           return cliente.admin_id === user.id || cliente.admin_id === null || cliente.admin_id === undefined;
-        }) as any[];
+        }) as ClienteData[];
       }
       if (revendasToUse && Array.isArray(revendasToUse)) {
-        revendasToUse = revendasToUse.filter((revenda: any) => {
+        revendasToUse = revendasToUse.filter((revenda: RevendaData) => {
           return revenda.admin_id === user.id || revenda.admin_id === null || revenda.admin_id === undefined;
-        }) as any[];
+        }) as RevendaData[];
       }
       console.log('🔄 [ClientDashboard] Dados filtrados por admin_id:', user.id, 'Clientes:', clientesToUse?.length, 'Revendas:', revendasToUse?.length);
     }
 
     if (clientesToUse) {
-      setClientes(clientesToUse as any[]);
+      setClientes(clientesToUse as ClienteData[]);
       setLoadingClientes(false);
     }
 
     if (revendasToUse) {
       console.log('✅ [ClientDashboard] Atualizando estado revendas com', revendasToUse.length, 'revendedores');
-      setRevendas(revendasToUse as any[]);
+      setRevendas(revendasToUse as RevendaData[]);
       setLoadingRevendas(false);
     }
   }, [realtimeClientes, realtimeRevendas, clientesFromHook, revendasFromHook, user?.id]);
