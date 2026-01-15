@@ -27,13 +27,13 @@ export const APIBrasilRealtimeSection: React.FC<APIBrasilRealtimeSectionProps> =
   isLoadingQR,
   setIsLoadingQR,
 }) => {
-  const pollingRef = useRef<NodeJS.Timeout | null>(null);
+  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Função para buscar status e QR Code
   const fetchStatusAndQR = useCallback(async () => {
     console.log('[APIBrasilRealtimeSection] Iniciando fetchStatusAndQR');
-    console.log('[APIBrasilRealtimeSection] Estado atual:', { 
+    console.log('[APIBrasilRealtimeSection] Estado atual:', {
       apiToken: apiToken ? '***' + apiToken.slice(-4) : 'não definido',
       profileId: profileId || 'não definido',
       isConnected,
@@ -47,12 +47,12 @@ export const APIBrasilRealtimeSection: React.FC<APIBrasilRealtimeSectionProps> =
       toast.error(errorMsg);
       return;
     }
-    
+
     try {
       console.log('[APIBrasilRealtimeSection] Verificando status da conexão...');
       const statusRes = await checkConnectionStatus(apiToken, profileId);
       console.log('[APIBrasilRealtimeSection] Resposta do status:', statusRes);
-      
+
       if (statusRes.success && statusRes.data?.connected) {
         console.log('[APIBrasilRealtimeSection] Dispositivo conectado com sucesso');
         setIsConnected(true);
@@ -63,21 +63,21 @@ export const APIBrasilRealtimeSection: React.FC<APIBrasilRealtimeSectionProps> =
       } else if (!statusRes.success) {
         console.warn('[APIBrasilRealtimeSection] Erro ao verificar status:', statusRes.error);
       }
-      
+
       console.log('[APIBrasilRealtimeSection] Dispositivo não conectado, gerando QR Code...');
       setIsLoadingQR(true);
       setError(null);
-      
+
       try {
         // generateQRCode espera: token, devicePassword, deviceToken, authorization
         // Passamos apenas o token (apiToken), os outros têm valores padrão
         const qrRes = await generateQRCode(apiToken);
-        console.log('[APIBrasilRealtimeSection] Resposta do QR Code:', { 
+        console.log('[APIBrasilRealtimeSection] Resposta do QR Code:', {
           success: qrRes.success,
           hasQRCode: !!(qrRes.data?.qrCode),
           error: qrRes.error
         });
-        
+
         if (qrRes.success && qrRes.data?.qrCode) {
           console.log('[APIBrasilRealtimeSection] QR Code gerado com sucesso');
           setQrCodeData(qrRes.data.qrCode);
@@ -89,24 +89,24 @@ export const APIBrasilRealtimeSection: React.FC<APIBrasilRealtimeSectionProps> =
           setError(errorMsg);
           toast.error('Erro ao gerar QR Code: ' + errorMsg);
         }
-      } catch (qrError: any) {
-        const errorMsg = qrError?.message || 'Erro ao gerar QR Code';
+      } catch (qrError: unknown) {
+        const errorMsg = qrError instanceof Error ? qrError.message : 'Erro ao gerar QR Code';
         console.error('[APIBrasilRealtimeSection] Exceção ao gerar QR Code:', qrError);
         setQrCodeData(null);
         setError(errorMsg);
         toast.error('Erro ao gerar QR Code: ' + errorMsg);
         throw qrError; // Re-throw para ser capturado pelo bloco catch externo
       }
-    } catch (err: any) {
-      const errorMsg = err?.message || 'Erro desconhecido ao verificar status/QR Code';
-      console.error('[APIBrasilRealtimeSection] Erro no fetchStatusAndQR:', { 
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : 'Erro desconhecido ao verificar status/QR Code';
+      console.error('[APIBrasilRealtimeSection] Erro no fetchStatusAndQR:', {
         error: err,
-        message: errorMsg 
+        message: errorMsg
       });
-      
+
       setQrCodeData(null);
       setError(errorMsg);
-      
+
       // Mostrar toast apenas se não for um erro de polling
       if (!errorMsg.includes('cancelado') && !errorMsg.includes('timeout')) {
         toast.error('Erro ao verificar status/QR Code: ' + errorMsg);
@@ -122,7 +122,7 @@ export const APIBrasilRealtimeSection: React.FC<APIBrasilRealtimeSectionProps> =
       console.log('API Token ou Profile ID ausentes');
       return;
     }
-    
+
     if (!isConnected) {
       console.log('Iniciando polling para verificar status...');
       fetchStatusAndQR();
@@ -131,7 +131,7 @@ export const APIBrasilRealtimeSection: React.FC<APIBrasilRealtimeSectionProps> =
       console.log('Dispositivo conectado, parando polling');
       setQrCodeData(null);
     }
-    
+
     return () => {
       if (pollingRef.current) {
         console.log('Limpando intervalo de polling');
@@ -147,18 +147,18 @@ export const APIBrasilRealtimeSection: React.FC<APIBrasilRealtimeSectionProps> =
     setQrCodeData(null);
     setError(null);
     setIsLoadingQR(true);
-    
+
     try {
       console.log('[APIBrasilRealtimeSection] Gerando novo QR Code...');
       // generateQRCode espera: token, devicePassword, deviceToken, authorization
       // Passamos apenas o token (apiToken), os outros têm valores padrão
       const qrRes = await generateQRCode(apiToken);
-      console.log('[APIBrasilRealtimeSection] Resposta do QR Code (recarregado):', { 
+      console.log('[APIBrasilRealtimeSection] Resposta do QR Code (recarregado):', {
         success: qrRes.success,
         hasQRCode: !!(qrRes.data?.qrCode),
         error: qrRes.error
       });
-      
+
       if (qrRes.success && qrRes.data?.qrCode) {
         console.log('[APIBrasilRealtimeSection] Novo QR Code gerado com sucesso');
         setQrCodeData(qrRes.data.qrCode);
@@ -171,13 +171,13 @@ export const APIBrasilRealtimeSection: React.FC<APIBrasilRealtimeSectionProps> =
         setError(errorMsg);
         toast.error('Erro ao gerar QR Code: ' + errorMsg);
       }
-    } catch (err: any) {
-      const errorMsg = err?.message || 'Erro desconhecido ao recarregar QR Code';
-      console.error('[APIBrasilRealtimeSection] Exceção ao recarregar QR Code:', { 
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : 'Erro desconhecido ao recarregar QR Code';
+      console.error('[APIBrasilRealtimeSection] Exceção ao recarregar QR Code:', {
         error: err,
-        message: errorMsg 
+        message: errorMsg
       });
-      
+
       setQrCodeData(null);
       setError(errorMsg);
       toast.error('Erro ao recarregar QR Code: ' + errorMsg);
@@ -207,7 +207,7 @@ export const APIBrasilRealtimeSection: React.FC<APIBrasilRealtimeSectionProps> =
           )}
           WhatsApp Business
         </span>
-        
+
         <Button
           variant="outline"
           size="sm"
@@ -235,8 +235,8 @@ export const APIBrasilRealtimeSection: React.FC<APIBrasilRealtimeSectionProps> =
             Conectado
           </span>
           <div className="flex gap-2">
-            <Button 
-              className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs" 
+            <Button
+              className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs"
               size="sm"
               onClick={() => {
                 setIsConnected(false);
@@ -246,8 +246,8 @@ export const APIBrasilRealtimeSection: React.FC<APIBrasilRealtimeSectionProps> =
             >
               Desconectar
             </Button>
-            <Button 
-              className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs" 
+            <Button
+              className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs"
               size="sm"
               onClick={fetchStatusAndQR}
             >
@@ -279,9 +279,9 @@ export const APIBrasilRealtimeSection: React.FC<APIBrasilRealtimeSectionProps> =
                     </div>
                   ) : qrCodeData ? (
                     <div className="flex flex-col items-center">
-                      <img 
-                        src={qrCodeData} 
-                        alt="QR Code para conexão do WhatsApp" 
+                      <img
+                        src={qrCodeData}
+                        alt="QR Code para conexão do WhatsApp"
                         className="rounded-lg border border-gray-600 max-w-xs w-full"
                       />
                       <p className="mt-4 text-sm text-gray-300">
@@ -296,9 +296,9 @@ export const APIBrasilRealtimeSection: React.FC<APIBrasilRealtimeSectionProps> =
                   ) : error ? (
                     <div className="text-center py-4">
                       <p className="text-red-400 mb-2">Erro: {error}</p>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
+                      <Button
+                        variant="outline"
+                        size="sm"
                         onClick={handleRefreshQR}
                         className="mt-2"
                       >
@@ -312,7 +312,7 @@ export const APIBrasilRealtimeSection: React.FC<APIBrasilRealtimeSectionProps> =
                   )}
                 </div>
               )}
-              <button 
+              <button
                 onClick={handleRefreshQR}
                 className="absolute top-2 right-2 bg-green-600 hover:bg-green-700 text-white p-2 rounded-full shadow-lg transition-colors border-2 border-white z-10"
                 title="Atualizar QR Code"
