@@ -35,6 +35,11 @@ export interface DashboardStats {
   iptvUsers: number;
   radioListeners: number;
   aiInteractions: number;
+  // Propriedades adicionais usadas no ClientDashboard
+  iptvHours?: number;
+  radioHours?: number;
+  aiChats?: number;
+  gamePoints?: number;
 }
 
 const parsePrice = (price: string | number | undefined): number => {
