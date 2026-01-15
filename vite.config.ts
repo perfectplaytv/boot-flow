@@ -10,15 +10,17 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  // Use relative paths for Electron file:// protocol
+  base: mode === 'development' ? '/' : './',
   server: {
-    port: 3000,
+    port: 5173,
     host: true,
-    open: true,
+    open: mode !== 'electron', // Don't open browser when running with Electron
   },
   build: {
     outDir: 'dist',
-    sourcemap: true,
-    chunkSizeWarningLimit: 1000, // Aumenta o limite de aviso para 1000 kB
+    sourcemap: mode === 'development',
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
         manualChunks: {
@@ -29,7 +31,7 @@ export default defineConfig(({ mode }) => ({
     },
   },
   preview: {
-    port: 3000,
+    port: 5173,
     host: true,
   },
 }))
