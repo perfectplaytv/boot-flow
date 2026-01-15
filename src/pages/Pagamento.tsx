@@ -44,6 +44,61 @@ export default function Pagamento() {
     // Polling status
     const [paymentStatus, setPaymentStatus] = useState<'pending' | 'approved'>('pending');
 
+    // Interface para resposta da API de check-payment
+    interface CheckPaymentResponse {
+        status: 'pending' | 'approved' | 'rejected';
+        username?: string;
+        password?: string;
+    }
+
+    // Polling para verificar pagamento - DEVE estar antes de qualquer early return
+    useEffect(() => {
+        let interval: ReturnType<typeof setInterval> | undefined;
+
+        if (pixData && currentPaymentId && currentSubscriptionId && paymentStatus === 'pending') {
+            console.log("Iniciando verificação de pagamento...");
+            interval = setInterval(async () => {
+                try {
+                    const res = await fetch('/api/check-payment', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            payment_id: currentPaymentId,
+                            subscription_id: currentSubscriptionId
+                        })
+                    });
+
+                    if (res.ok) {
+                        const data = await res.json() as CheckPaymentResponse;
+                        if (data.status === 'approved') {
+                            setPaymentStatus('approved');
+                            if (interval) clearInterval(interval);
+                            toast.success("Pagamento confirmado!");
+
+                            // Redirecionar com credenciais
+                            setTimeout(() => {
+                                navigate('/pedido', {
+                                    state: {
+                                        subscription_id: currentSubscriptionId,
+                                        approved: true,
+                                        username: data.username,
+                                        password: data.password
+                                    }
+                                });
+                            }, 1500);
+                        }
+                    }
+                } catch (error) {
+                    console.error("Erro no polling:", error);
+                }
+            }, 5000); // Verifica a cada 5 segundos
+        }
+
+        return () => {
+            if (interval) clearInterval(interval);
+        };
+    }, [pixData, currentPaymentId, currentSubscriptionId, paymentStatus, navigate]);
+
     // Se não houver plano, volta para preços
     if (!plan) {
         return (
@@ -97,53 +152,7 @@ export default function Pagamento() {
         }
     };
 
-    // Polling para verificar pagamento
-    useEffect(() => {
-        let interval: NodeJS.Timeout;
 
-        if (pixData && currentPaymentId && currentSubscriptionId && paymentStatus === 'pending') {
-            console.log("Iniciando verificação de pagamento...");
-            interval = setInterval(async () => {
-                try {
-                    const res = await fetch('/api/check-payment', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            payment_id: currentPaymentId,
-                            subscription_id: currentSubscriptionId
-                        })
-                    });
-
-                    if (res.ok) {
-                        const data = await res.json() as any;
-                        if (data.status === 'approved') {
-                            setPaymentStatus('approved');
-                            clearInterval(interval);
-                            toast.success("Pagamento confirmado!");
-
-                            // Redirecionar com credenciais
-                            setTimeout(() => {
-                                navigate('/pedido', {
-                                    state: {
-                                        subscription_id: currentSubscriptionId,
-                                        approved: true,
-                                        username: data.username,
-                                        password: data.password
-                                    }
-                                });
-                            }, 1500);
-                        }
-                    }
-                } catch (error) {
-                    console.error("Erro no polling:", error);
-                }
-            }, 5000); // Verifica a cada 5 segundos
-        }
-
-        return () => {
-            if (interval) clearInterval(interval);
-        };
-    }, [pixData, currentPaymentId, currentSubscriptionId, paymentStatus, navigate]);
 
     const handlePayment = async () => {
         // Validação simples
