@@ -28,6 +28,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
             const reseller = await db.select().from(resellers).where(eq(resellers.email, email)).get();
             if (reseller) {
                 // Adaptar objeto reseller para ter interface compatível (password, id, email, name)
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 user = { ...reseller, name: reseller.username, plan: 'revenda' } as any;
                 isReseller = true;
             }
@@ -63,8 +64,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         if (isReseller) {
             // Se veio da tabela resellers, usa o campo permission ou define como reseller
             type = 'reseller';
-            // @ts-ignore
-            role = user.permission === 'admin' ? 'admin' : (user.permission || 'reseller');
+            role = (user as any).permission === 'admin' ? 'admin' : ((user as any).permission || 'reseller');
         } else {
             type = 'user';
             if (user.plan === 'admin' || user.email === 'pontonois@gmail.com') {
