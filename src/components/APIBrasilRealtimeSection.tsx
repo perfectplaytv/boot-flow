@@ -114,7 +114,7 @@ export const APIBrasilRealtimeSection: React.FC<APIBrasilRealtimeSectionProps> =
     } finally {
       setIsLoadingQR(false);
     }
-  }, [apiToken, profileId, isConnected, setIsConnected, setConnectionStatus, setQrCodeData, setIsLoadingQR]);
+  }, [apiToken, profileId, isConnected, isLoadingQR, setIsConnected, setConnectionStatus, setQrCodeData, setIsLoadingQR]);
 
   // Polling enquanto desconectado
   useEffect(() => {
