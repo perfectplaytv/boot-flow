@@ -64,6 +64,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         if (isReseller) {
             // Se veio da tabela resellers, usa o campo permission ou define como reseller
             type = 'reseller';
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             role = (user as any).permission === 'admin' ? 'admin' : ((user as any).permission || 'reseller');
         } else {
             type = 'user';
