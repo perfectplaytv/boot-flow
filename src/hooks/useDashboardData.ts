@@ -61,7 +61,11 @@ export function useDashboardData() {
     monthlyGrowth: 0,
     iptvUsers: 0,
     radioListeners: 0,
-    aiInteractions: 0
+    aiInteractions: 0,
+    iptvHours: 0,
+    radioHours: 0,
+    aiChats: 0,
+    gamePoints: 0
   });
 
   const [loading, setLoading] = useState(true);
