@@ -45,9 +45,39 @@ import { ClientSidebar } from "@/components/sidebars/ClientSidebar";
 import { AIModalManager } from "@/components/modals/AIModalManager";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription, DialogHeader } from '@/components/ui/dialog';
-import { DndContext, closestCenter } from '@dnd-kit/core';
+import { DndContext, closestCenter, DragEndEvent } from '@dnd-kit/core';
 import { SortableContext, useSortable, rectSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+
+// Interfaces para tipagem
+interface ClienteData {
+  id?: string | number;
+  name?: string;
+  email?: string;
+  plan?: string;
+  price?: string;
+  status?: string;
+  expiration_date?: string;
+  admin_id?: string | number | null;
+  [key: string]: unknown;
+}
+
+interface RevendaData {
+  id?: string | number;
+  username?: string;
+  email?: string;
+  status?: string;
+  credits?: number;
+  admin_id?: string | number | null;
+  [key: string]: unknown;
+}
+
+interface SortableCardProps {
+  id: string;
+  content: string;
+  body: string;
+  onClick?: () => void;
+}
 
 // Importando as páginas como componentes
 import ClientClients from "../client/ClientClients";
