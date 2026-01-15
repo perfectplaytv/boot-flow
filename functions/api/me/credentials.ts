@@ -39,7 +39,8 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
             headers: { "Content-Type": "application/json" }
         });
 
-    } catch (err: any) {
-        return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+    } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
+        return new Response(JSON.stringify({ error: errorMessage }), { status: 500 });
     }
 };

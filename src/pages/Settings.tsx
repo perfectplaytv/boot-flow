@@ -56,7 +56,7 @@ export default function Settings() {
     }
   }, [user]);
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPerfil({ ...perfil, [e.target.name]: e.target.value });
   };
 
