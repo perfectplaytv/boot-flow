@@ -265,7 +265,7 @@ const ClientDashboard = () => {
   }, [clientesError, revendasError]);
 
   // Função para adicionar um novo cliente (usa o hook useClientes)
-  const addCliente = useCallback(async (clienteData: any) => {
+  const addCliente = useCallback(async (clienteData: ClienteData) => {
     try {
       console.log('🔄 [ClientDashboard] addCliente wrapper chamado com:', clienteData);
 
@@ -282,15 +282,16 @@ const ClientDashboard = () => {
         console.error('Erro ao adicionar cliente - verifique o console para detalhes');
         return false;
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erro no wrapper addCliente:', error);
-      toast.error(`Erro ao adicionar cliente: ${error?.message || 'Erro desconhecido'}`, { duration: 5000 });
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+      toast.error(`Erro ao adicionar cliente: ${errorMessage}`, { duration: 5000 });
       return false;
     }
   }, [addClienteHook]);
 
   // Função para adicionar um novo revendedor
-  const addRevenda = useCallback(async (revendaData: any) => {
+  const addRevenda = useCallback(async (revendaData: RevendaData) => {
     try {
       const { data, error } = await (supabase
         .from('revendas') as any)
@@ -714,7 +715,7 @@ const ClientDashboard = () => {
     setIsAddingUser(true);
 
     // Timeout de segurança para evitar travamento infinito (30 segundos)
-    let timeoutId: NodeJS.Timeout | null = null;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
     timeoutId = setTimeout(() => {
       console.error("⏰ [ClientDashboard] Timeout: processo demorou mais de 30 segundos");
       setIsAddingUser(false);
