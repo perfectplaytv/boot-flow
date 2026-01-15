@@ -802,7 +802,7 @@ const ClientDashboard = () => {
 
       // Atualizar dashboard
       setRefreshTrigger(prev => prev + 1);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("❌ [ClientDashboard] Erro ao adicionar usuário:", error);
 
       // Cancelar timeout de segurança já que houve erro
@@ -810,7 +810,7 @@ const ClientDashboard = () => {
         clearTimeout(timeoutId);
       }
 
-      const errorMessage = error?.message || error || "Erro desconhecido ao adicionar usuário.";
+      const errorMessage = error instanceof Error ? error.message : String(error) || "Erro desconhecido ao adicionar usuário.";
 
       // Mensagens específicas para diferentes tipos de erro
       if (errorMessage.includes("duplicate key value") || errorMessage.includes("unique constraint")) {
@@ -1137,7 +1137,7 @@ const ClientDashboard = () => {
   }, [revendas, stats.activeResellers]);
 
   // Componente SortableCard
-  function SortableCard({ id, content, body, onClick }: any) {
+  function SortableCard({ id, content, body, onClick }: SortableCardProps) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
     const localRef = useRef<HTMLDivElement | null>(null);
 
@@ -1251,7 +1251,7 @@ const ClientDashboard = () => {
     );
   }
 
-  const handleDragEnd = (event: any) => {
+  const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
     if (!active || !over) return;
