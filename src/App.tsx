@@ -73,7 +73,7 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="system" storageKey="bootflow-ui-theme">
         <TooltipProvider>
-          <BrowserRouter>
+          <Router>
             <AuthProviderWithNavigation>
               <WhatsAppStatusContext.Provider value={{ isConnected, setIsConnected, connectionStatus, setConnectionStatus }}>
                 <Routes>
@@ -125,7 +125,7 @@ const App = () => {
                 </Routes>
               </WhatsAppStatusContext.Provider>
             </AuthProviderWithNavigation>
-          </BrowserRouter>
+          </Router>
         </TooltipProvider>
       </ThemeProvider>
     </QueryClientProvider>
