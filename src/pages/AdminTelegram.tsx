@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -155,8 +155,28 @@ interface ScheduledMessage {
     createdAt: string;
 }
 
+
+// Custom hook for polling with auto-cleanup
+function useInterval(callback: () => void, delay: number | null) {
+    const savedCallback = useRef(callback);
+
+    // Remember the latest callback
+    useEffect(() => {
+        savedCallback.current = callback;
+    }, [callback]);
+
+    // Set up the interval
+    useEffect(() => {
+        if (delay !== null) {
+            const id = setInterval(() => savedCallback.current(), delay);
+            return () => clearInterval(id);
+        }
+    }, [delay]);
+}
+
 // URL da API do Telegram (Railway) - Configure no .env
 const TELEGRAM_API_URL = import.meta.env.VITE_TELEGRAM_API_URL || "";
+
 
 export default function AdminTelegram() {
     const { addCliente } = useClientes();
@@ -197,6 +217,13 @@ export default function AdminTelegram() {
     const [memberFilter, setMemberFilter] = useState<'all' | 'with_username' | 'without_username' | 'with_phone'>('all');
     const [showSavedAudiences, setShowSavedAudiences] = useState(false);
     const [audienceName, setAudienceName] = useState("");
+
+    // Real-time update tracking states
+    const [lastSessionsUpdate, setLastSessionsUpdate] = useState<Date | null>(null);
+    const [lastStatusUpdate, setLastStatusUpdate] = useState<Date | null>(null);
+    const [isRefreshingSessions, setIsRefreshingSessions] = useState(false);
+    const [isRefreshingStatus, setIsRefreshingStatus] = useState(false);
+
 
     // Phase 2: Bulk Send States
     const [showBulkSend, setShowBulkSend] = useState(false);
