@@ -1,0 +1,57 @@
+{
+    "appId": "com.bootflow.app",
+    "productName": "BootFlow",
+    "copyright": "Copyright © 2026 BootFlow",
+    "directories": {
+        "output": "release",
+        "buildResources": "electron/assets"
+    },
+    "files": [
+        "dist/**/*",
+        "electron/**/*",
+        "!electron/assets/README.md"
+    ],
+    "extraMetadata": {
+        "main": "electron/main.cjs"
+    },
+    "win": {
+        "target": [
+            {
+                "target": "nsis",
+                "arch": [
+                    "x64"
+                ]
+            }
+        ],
+        "verifyUpdateCodeSignature": false,
+        "icon": "electron/assets/icon.png",
+        "artifactName": "${productName}-Setup-${version}.${ext}"
+    },
+    "nsis": {
+        "oneClick": false,
+        "allowToChangeInstallationDirectory": true,
+        "installerIcon": "electron/assets/icon.png",
+        "uninstallerIcon": "electron/assets/icon.png",
+        "installerHeaderIcon": "electron/assets/icon.png",
+        "createDesktopShortcut": true,
+        "createStartMenuShortcut": true,
+        "shortcutName": "BootFlow",
+        "perMachine": true
+    },
+    "mac": {
+        "target": [
+            "dmg"
+        ],
+        "icon": "electron/assets/icon.png",
+        "category": "public.app-category.business"
+    },
+    "linux": {
+        "target": [
+            "AppImage",
+            "deb"
+        ],
+        "icon": "electron/assets/icon.png",
+        "category": "Office"
+    },
+    "publish": null
+}
