@@ -37,8 +37,8 @@ function createWindow() {
     });
 
 
-    // App URL - IMPORTANTE: Coloque aqui a URL do seu BootFlow hospedado
-    const APP_URL = 'http://localhost:5173'; // Altere para a URL de produção quando fizer deploy
+    // App URL - URL de produção do BootFlow no Cloudflare
+    const APP_URL = 'https://bootflow.com.br';
 
     // Load the app
     if (isDev) {
