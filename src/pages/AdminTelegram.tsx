@@ -1710,11 +1710,12 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
     }
 
     // States para Proxy
-    const [proxies, setProxies] = useState<ProxyConfig[]>([]);
-    const [activeProxy, setActiveProxy] = useState<ProxyConfig | null>(null);
-    const [showAddProxyModal, setShowAddProxyModal] = useState(false);
-    const [testingProxyId, setTestingProxyId] = useState<number | null>(null);
-    const [newProxy, setNewProxy] = useState({
+    // DESATIVADO: Duplicado - usar Phase 9 (linha ~882)
+    // const [proxies, setProxies] = useState<ProxyConfig[]>([]);
+    // const [activeProxy, setActiveProxy] = useState<ProxyConfig | null>(null);
+    // const [showAddProxyModal, setShowAddProxyModal] = useState(false);
+    // const [testingProxyId, setTestingProxyId] = useState<number | null>(null);
+    const [newProxyOld, setNewProxyOld] = useState({
         type: 'socks5' as const,
         host: '',
         port: 8080,
