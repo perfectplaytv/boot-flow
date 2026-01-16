@@ -17,6 +17,13 @@ export default defineConfig(({ mode }) => ({
     port: 5173,
     host: true,
     open: mode !== 'electron', // Don't open browser when running with Electron
+    proxy: {
+      '/api': {
+        target: 'https://bootflow.com.br',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   },
   build: {
     outDir: 'dist',
