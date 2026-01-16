@@ -121,49 +121,5 @@
     "electron-builder": "^24.9.1",
     "concurrently": "^8.2.2",
     "wait-on": "^7.2.0"
-  },
-  "build": {
-    "appId": "com.bootflow.app",
-    "productName": "BootFlow",
-    "copyright": "Copyright © 2026 BootFlow",
-    "directories": {
-      "output": "release",
-      "buildResources": "electron/assets"
-    },
-    "files": [
-      "dist/**/*",
-      "electron/**/*"
-    ],
-    "win": {
-      "target": [
-        "nsis",
-        "portable"
-      ],
-      "artifactName": "${productName}-${version}-Setup.${ext}"
-    },
-    "nsis": {
-      "oneClick": false,
-      "perMachine": true,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true,
-      "shortcutName": "BootFlow"
-    },
-    "mac": {
-      "target": [
-        "dmg",
-        "zip"
-      ],
-      "icon": "electron/assets/icon.png",
-      "category": "public.app-category.productivity"
-    },
-    "linux": {
-      "target": [
-        "AppImage",
-        "deb"
-      ],
-      "icon": "electron/assets/icon.png",
-      "category": "Utility"
-    }
   }
 }
