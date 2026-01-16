@@ -12,7 +12,7 @@
         "!electron/assets/README.md"
     ],
     "extraMetadata": {
-        "main": "electron/main.cjs"
+        "main": "electron/main.js"
     },
     "win": {
         "target": [
