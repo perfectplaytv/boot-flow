@@ -36,12 +36,18 @@ function createWindow() {
         backgroundColor: '#0a0a0a',
     });
 
+
+    // App URL - IMPORTANTE: Coloque aqui a URL do seu BootFlow hospedado
+    const APP_URL = 'http://localhost:5173'; // Altere para a URL de produção quando fizer deploy
+
     // Load the app
     if (isDev) {
         mainWindow.loadURL('http://localhost:5173');
         mainWindow.webContents.openDevTools();
     } else {
-        mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
+        // Em produção, carrega a URL online em vez de arquivos locais
+        // Isso permite que a aplicação se conecte ao backend
+        mainWindow.loadURL(APP_URL);
     }
 
     // Show window when ready
