@@ -24,15 +24,11 @@
             }
         ],
         "verifyUpdateCodeSignature": false,
-        "icon": "electron/assets/icon.png",
         "artifactName": "${productName}-Setup-${version}.${ext}"
     },
     "nsis": {
         "oneClick": false,
         "allowToChangeInstallationDirectory": true,
-        "installerIcon": "electron/assets/icon.png",
-        "uninstallerIcon": "electron/assets/icon.png",
-        "installerHeaderIcon": "electron/assets/icon.png",
         "createDesktopShortcut": true,
         "createStartMenuShortcut": true,
         "shortcutName": "BootFlow",
@@ -42,7 +38,6 @@
         "target": [
             "dmg"
         ],
-        "icon": "electron/assets/icon.png",
         "category": "public.app-category.business"
     },
     "linux": {
@@ -50,7 +45,6 @@
             "AppImage",
             "deb"
         ],
-        "icon": "electron/assets/icon.png",
         "category": "Office"
     },
     "publish": null
