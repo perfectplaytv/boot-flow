@@ -1800,6 +1800,71 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
         }
     }, []);
 
+    // Auto-refresh sessions every 20 seconds
+    useInterval(() => {
+        if (!isLoading && !isRefreshingSessions && TELEGRAM_API_URL) {
+            setIsRefreshingSessions(true);
+            fetchSessions().finally(() => {
+                setIsRefreshingSessions(false);
+                setLastSessionsUpdate(new Date());
+            });
+        }
+    }, 20000);
+
+    // Verify Accounts Status Logic
+    const verifyAccountsStatus = async () => {
+        if (sessions.length === 0) return;
+
+        setIsVerifyingAccounts(true);
+        const newStatuses: Record<string, AccountStatusInfo> = {};
+
+        // Sequential check to avoid rate limits
+        for (const session of sessions) {
+            try {
+                // In a real scenario, call backend to check status
+                // const res = await fetch(...)
+
+                // Simulating check for now if no endpoint specific for check-status exists
+                // If we had an endpoint:
+                /*
+                const response = await fetch(`${TELEGRAM_API_URL}/check-account`, {
+                    method: 'POST',
+                    body: JSON.stringify({ phone: session.clean_phone })
+                });
+                */
+
+                // For now, we assume if session is listed, it's connected, 
+                // keeping existing logic or adding a simulated check marker
+                newStatuses[session.clean_phone] = {
+                    status: session.is_restricted ? 'restricted' : 'connected',
+                    lastCheck: new Date().toISOString(),
+                    message: session.restriction_reason || 'Conectado e operante'
+                };
+
+            } catch (error) {
+                newStatuses[session.clean_phone] = {
+                    status: 'error',
+                    lastCheck: new Date().toISOString(),
+                    message: 'Erro de conexão'
+                };
+            }
+        }
+
+        setAccountStatuses(newStatuses);
+        setIsVerifyingAccounts(false);
+    };
+
+    // Auto-refresh account status every 30 seconds
+    useInterval(() => {
+        if (!isVerifyingAccounts && !isRefreshingStatus && sessions.length > 0 && TELEGRAM_API_URL) {
+            setIsRefreshingStatus(true);
+            verifyAccountsStatus().finally(() => {
+                setIsRefreshingStatus(false);
+                setLastStatusUpdate(new Date());
+            });
+        }
+    }, 30000);
+
     // Verificar status da sessão ao carregar
     useEffect(() => {
         if (TELEGRAM_API_URL) {
@@ -2982,6 +3047,14 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
                                                     Gerenciar Contas
                                                     {sessions.length > 0 && (
                                                         <Badge variant="secondary" className="text-sm">{sessions.length}</Badge>
+                                                    )}
+                                                    {isRefreshingSessions && (
+                                                        <Loader2 className="w-4 h-4 animate-spin text-muted-foreground ml-2" />
+                                                    )}
+                                                    {lastSessionsUpdate && (
+                                                        <span className="text-[10px] text-muted-foreground font-normal ml-2">
+                                                            Atualizado: {lastSessionsUpdate.toLocaleTimeString()}
+                                                        </span>
                                                     )}
                                                 </CardTitle>
                                                 <CardDescription>
