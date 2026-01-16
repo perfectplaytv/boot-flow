@@ -2304,17 +2304,33 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
         toast.success(`Público "${newAudience.name}" salvo com ${newAudience.totalMembers} membros!`);
     };
 
-    // Phase 1: Load saved audiences from localStorage
-    useEffect(() => {
+    // Phase 1: Load and Polling saved audiences
+    const loadSavedAudiences = useCallback(() => {
         const saved = localStorage.getItem('telegram_saved_audiences');
         if (saved) {
             try {
-                setSavedAudiences(JSON.parse(saved));
+                const parsed = JSON.parse(saved);
+                // Only update if different (simple check)
+                setSavedAudiences(prev => {
+                    if (JSON.stringify(prev) !== JSON.stringify(parsed)) {
+                        return parsed;
+                    }
+                    return prev;
+                });
             } catch (e) {
                 console.error('Error loading saved audiences:', e);
             }
         }
     }, []);
+
+    useEffect(() => {
+        loadSavedAudiences();
+    }, [loadSavedAudiences]);
+
+    // Poll for external changes (other tabs/windows) every 40s
+    useInterval(() => {
+        loadSavedAudiences();
+    }, 40000);
 
     // Phase 1: Load audience into members
     const handleLoadAudience = (audience: SavedAudience) => {
