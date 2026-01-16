@@ -10,8 +10,9 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  // Use relative paths for Electron file:// protocol
-  base: mode === 'development' ? '/' : './',
+  // Usar paths absolutos para que APIs funcionem corretamente
+  // Quando carregar de file://, usar './'; quando de https://, paths absolutos funcionam
+  base: '/',
   server: {
     port: 5173,
     host: true,
