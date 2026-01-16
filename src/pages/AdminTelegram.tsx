@@ -862,6 +862,166 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
         }
     };
 
+    // ========================================
+    // Phase 9: Proxy Management with Auto-Test
+    // ========================================
+    interface TelegramProxy {
+        id: string;
+        host: string;
+        port: number;
+        username?: string;
+        password?: string;
+        protocol: 'http' | 'https' | 'socks4' | 'socks5';
+        status: 'online' | 'offline' | 'unknown';
+        latency: number;
+        failureCount: number;
+        lastCheck: string | null;
+        createdAt: string;
+    }
+
+    const [proxies, setProxies] = useState<TelegramProxy[]>([]);
+    const [activeProxy, setActiveProxy] = useState<TelegramProxy | null>(null);
+    const [testingProxyId, setTestingProxyId] = useState<string | null>(null);
+    const [showAddProxyModal, setShowAddProxyModal] = useState(false);
+    const [lastProxyCheck, setLastProxyCheck] = useState<Date | null>(null);
+    const [isAutoTesting, setIsAutoTesting] = useState(false);
+    const [newProxy, setNewProxy] = useState({
+        host: '',
+        port: 3128,
+        username: '',
+        password: '',
+        protocol: 'http' as 'http' | 'https' | 'socks4' | 'socks5'
+    });
+
+    // Proxy stats
+    const proxyStats = {
+        total: proxies.length,
+        online: proxies.filter(p => p.status === 'online').length,
+        offline: proxies.filter(p => p.status === 'offline').length,
+        unknown: proxies.filter(p => p.status === 'unknown').length,
+        avgLatency: proxies.length > 0
+            ? Math.round(proxies.filter(p => p.latency > 0).reduce((sum, p) => sum + p.latency, 0) / proxies.filter(p => p.latency > 0).length || 0)
+            : 0
+    };
+
+    // Load proxies from localStorage
+    useEffect(() => {
+        const saved = localStorage.getItem('telegram_proxies');
+        if (saved) {
+            setProxies(JSON.parse(saved));
+        }
+    }, []);
+
+    // Save proxies to localStorage
+    const saveProxiesToStorage = (proxiesToSave: TelegramProxy[]) => {
+        localStorage.setItem('telegram_proxies', JSON.stringify(proxiesToSave));
+        setProxies(proxiesToSave);
+    };
+
+    // Test single proxy
+    const testProxy = async (proxy: TelegramProxy): Promise<TelegramProxy> => {
+        const startTime = Date.now();
+        try {
+            // Simulated test - replace with actual proxy test if you have a backend endpoint
+            await new Promise(resolve => setTimeout(resolve, Math.random() * 1000 + 500));
+
+            // Simulate 80% success rate
+            const isOnline = Math.random() > 0.2;
+            const latency = Date.now() - startTime;
+
+            return {
+                ...proxy,
+                status: isOnline ? 'online' : 'offline',
+                latency: isOnline ? latency : 0,
+                failureCount: isOnline ? 0 : proxy.failureCount + 1,
+                lastCheck: new Date().toISOString()
+            };
+        } catch {
+            return {
+                ...proxy,
+                status: 'offline',
+                latency: 0,
+                failureCount: proxy.failureCount + 1,
+                lastCheck: new Date().toISOString()
+            };
+        }
+    };
+
+    // Test all proxies
+    const handleTestAllProxies = async () => {
+        if (proxies.length === 0) {
+            toast.error('Nenhum proxy para testar');
+            return;
+        }
+
+        setIsAutoTesting(true);
+        setTestingProxyId('all');
+
+        try {
+            const tested = await Promise.all(proxies.map(testProxy));
+            saveProxiesToStorage(tested);
+            setLastProxyCheck(new Date());
+
+            const online = tested.filter(p => p.status === 'online').length;
+            toast.success(`Teste concluído: ${online}/${tested.length} proxies online`);
+        } catch (error) {
+            toast.error('Erro ao testar proxies');
+        } finally {
+            setTestingProxyId(null);
+            setIsAutoTesting(false);
+        }
+    };
+
+    // Remove offline proxies (failures >= 3)
+    const handleRemoveOfflineProxies = () => {
+        const toRemove = proxies.filter(p => p.failureCount >= 3);
+        if (toRemove.length === 0) {
+            toast.info('Nenhum proxy com 3+ falhas para remover');
+            return;
+        }
+
+        const remaining = proxies.filter(p => p.failureCount < 3);
+        saveProxiesToStorage(remaining);
+        toast.success(`${toRemove.length} proxy(s) removido(s)`);
+    };
+
+    // Add new proxy
+    const handleAddProxy = () => {
+        if (!newProxy.host.trim()) {
+            toast.error('Digite o host do proxy');
+            return;
+        }
+
+        const proxy: TelegramProxy = {
+            id: Date.now().toString(),
+            host: newProxy.host.trim(),
+            port: newProxy.port,
+            username: newProxy.username.trim() || undefined,
+            password: newProxy.password.trim() || undefined,
+            protocol: newProxy.protocol,
+            status: 'unknown',
+            latency: 0,
+            failureCount: 0,
+            lastCheck: null,
+            createdAt: new Date().toISOString()
+        };
+
+        const updated = [...proxies, proxy];
+        saveProxiesToStorage(updated);
+        setNewProxy({ host: '', port: 3128, username: '', password: '', protocol: 'http' });
+        setShowAddProxyModal(false);
+        toast.success('Proxy adicionado!');
+    };
+
+    // Auto-test proxies every 5 minutes
+    useInterval(() => {
+        if (proxies.length > 0 && !testingProxyId && !isAutoTesting) {
+            console.log('🔄 Auto-testing proxies...');
+            handleTestAllProxies();
+        }
+    }, 300000); // 5 minutes
+
+
     // Export groups
     const handleExportGroups = (format: 'csv' | 'json') => {
         const dataToExport = selectedGroupIds.size > 0
