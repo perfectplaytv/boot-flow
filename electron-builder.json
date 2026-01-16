@@ -15,6 +15,7 @@
         "main": "electron/main.cjs"
     },
     "win": {
+        "icon": "electron/assets/icon.ico",
         "target": [
             {
                 "target": "nsis",
