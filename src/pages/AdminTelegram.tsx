@@ -89,7 +89,7 @@ interface SavedAudience {
 }
 
 // Account status types
-type AccountStatus = 'connected' | 'flood' | 'restricted' | 'free' | 'checking';
+type AccountStatus = 'connected' | 'flood' | 'restricted' | 'free' | 'checking' | 'error' | 'unknown';
 
 interface AccountStatusInfo {
     status: AccountStatus;
