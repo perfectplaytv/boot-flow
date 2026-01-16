@@ -41,6 +41,10 @@ function createWindow() {
     const APP_URL = 'https://bootflow.com.br';
 
     // Load the app
+    console.log('🚀 [BootFlow] Carregando aplicação...');
+    console.log('🌐 [BootFlow] Modo:', isDev ? 'Desenvolvimento' : 'Produção');
+    console.log('🔗 [BootFlow] URL:', isDev ? 'http://localhost:5173' : APP_URL);
+
     if (isDev) {
         mainWindow.loadURL('http://localhost:5173');
         mainWindow.webContents.openDevTools();
@@ -48,6 +52,8 @@ function createWindow() {
         // Em produção, carrega a URL online em vez de arquivos locais
         // Isso permite que a aplicação se conecte ao backend
         mainWindow.loadURL(APP_URL);
+        // TEMPORÁRIO: Habilitar DevTools para debug
+        mainWindow.webContents.openDevTools();
     }
 
     // Show window when ready
