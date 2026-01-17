@@ -674,23 +674,44 @@ const Landing = () => {
                       </div>
                     </div>
 
-                    {/* VIDEO CONTAINER - Substituir pelo <video> real depois */}
-                    <div className="flex-1 p-6 relative overflow-hidden flex items-center justify-center bg-gradient-to-br from-gray-900 to-slate-900">
-                      <div className="text-center space-y-4 z-10">
-                        <div className="w-16 h-16 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-blue-500/50 animate-pulse">
-                          <Bot className="w-8 h-8 text-white" />
+                    {/* VIDEO CONTAINER */}
+                    <div className="flex-1 relative overflow-hidden group/video">
+                      {/* Video Player */}
+                      <video
+                        className="w-full h-full object-cover"
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        poster="/video-poster.jpg"
+                      >
+                        <source src="/demo.mp4" type="video/mp4" />
+                        {/* Fallback se o vídeo não carregar */}
+                        <div className="flex-1 p-6 relative overflow-hidden flex items-center justify-center bg-gradient-to-br from-gray-900 to-slate-900">
+                          <div className="text-center space-y-4 z-10">
+                            <div className="w-16 h-16 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-blue-500/50 animate-pulse">
+                              <Bot className="w-8 h-8 text-white" />
+                            </div>
+                            <h3 className="text-white font-bold text-xl md:text-2xl">BootFlow Demo</h3>
+                            <p className="text-xs text-blue-300">Vídeo em breve</p>
+                          </div>
                         </div>
-                        <h3 className="text-white font-bold text-xl md:text-2xl">BootFlow Video Placeholder</h3>
-                        <p className="text-xs text-blue-300">Seu vídeo entrará aqui</p>
+                      </video>
 
-                        <div className="mt-4 p-3 bg-black/40 rounded border border-white/10 text-[10px] font-mono text-green-400 text-left w-64 mx-auto">
-                          &gt; Initializing...<br />
-                          &gt; Ready to scale sales.
+                      {/* Play/Pause overlay on hover */}
+                      <div className="absolute inset-0 bg-black/0 group-hover/video:bg-black/20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover/video:opacity-100">
+                        <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center cursor-pointer hover:bg-white/30 transition-all">
+                          <Play className="w-8 h-8 text-white ml-1" />
                         </div>
                       </div>
 
-                      {/* Grid lines */}
-                      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none"></div>
+                      {/* Video controls overlay */}
+                      <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover/video:opacity-100 transition-opacity duration-300 flex items-end pb-2 px-4">
+                        <div className="flex items-center gap-2 text-white/80 text-xs">
+                          <Bot className="w-4 h-4" />
+                          <span>BootFlow Demo</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
