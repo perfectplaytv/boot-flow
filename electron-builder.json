@@ -2,6 +2,7 @@
     "appId": "com.bootflow.app",
     "productName": "BootFlow",
     "copyright": "Copyright © 2026 BootFlow",
+    "asar": true,
     "directories": {
         "output": "release",
         "buildResources": "public"
@@ -10,7 +11,12 @@
     "files": [
         "dist/**/*",
         "electron/**/*",
-        "!electron/assets/README.md"
+        "!electron/assets/README.md",
+        "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
+        "!**/node_modules/.cache/**/*",
+        "!**/node_modules/bcrypt/**/*",
+        "!**/node_modules/sharp/**/*",
+        "!**/*.map"
     ],
     "extraMetadata": {
         "main": "electron/main.cjs"
