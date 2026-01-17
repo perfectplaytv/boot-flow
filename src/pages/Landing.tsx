@@ -51,8 +51,26 @@ const Landing = () => {
     email: "",
     phone: ""
   });
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const videoRef = React.useRef<HTMLVideoElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Função para iniciar o vídeo
+  const handlePlayVideo = () => {
+    const videoElement = videoRef.current;
+    if (videoElement) {
+      // Scroll até o vídeo
+      videoElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      // Pequeno delay para o scroll terminar
+      setTimeout(() => {
+        videoElement.muted = false;
+        videoElement.play();
+        setIsVideoPlaying(true);
+      }, 500);
+    }
+  };
 
   // Efeito para garantir que a página sempre comece no topo
   useEffect(() => {
@@ -622,10 +640,7 @@ const Landing = () => {
                     variant="outline"
                     size="xl"
                     className="border-2 font-semibold hover:bg-muted/50 transition-all duration-300 w-full sm:w-auto min-w-[180px]"
-                    onClick={() => {
-                      const el = document.getElementById('features');
-                      el?.scrollIntoView({ behavior: 'smooth' });
-                    }}
+                    onClick={handlePlayVideo}
                   >
                     <Play className="w-5 h-5 mr-2" />
                     Ver na Prática
@@ -695,12 +710,15 @@ const Landing = () => {
                     <div className="flex-1 relative overflow-hidden group/video">
                       {/* Video Player */}
                       <video
+                        ref={videoRef}
                         className="w-full h-full object-cover"
-                        autoPlay
                         loop
                         muted
                         playsInline
+                        controls={isVideoPlaying}
                         poster="/video-poster.jpg"
+                        onPlay={() => setIsVideoPlaying(true)}
+                        onPause={() => setIsVideoPlaying(false)}
                       >
                         <source src="/demo.mp4" type="video/mp4" />
                         {/* Fallback se o vídeo não carregar */}
@@ -715,20 +733,20 @@ const Landing = () => {
                         </div>
                       </video>
 
-                      {/* Play/Pause overlay on hover */}
-                      <div className="absolute inset-0 bg-black/0 group-hover/video:bg-black/20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover/video:opacity-100">
-                        <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center cursor-pointer hover:bg-white/30 transition-all">
-                          <Play className="w-8 h-8 text-white ml-1" />
+                      {/* Play overlay - visível quando vídeo não está tocando */}
+                      {!isVideoPlaying && (
+                        <div
+                          className="absolute inset-0 bg-black/40 flex items-center justify-center cursor-pointer transition-all duration-300 hover:bg-black/50"
+                          onClick={handlePlayVideo}
+                        >
+                          <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center shadow-2xl shadow-blue-500/50 hover:scale-110 transition-transform duration-300">
+                            <Play className="w-10 h-10 text-white ml-1" />
+                          </div>
+                          <div className="absolute bottom-6 text-white text-sm font-medium">
+                            Clique para assistir a demonstração
+                          </div>
                         </div>
-                      </div>
-
-                      {/* Video controls overlay */}
-                      <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover/video:opacity-100 transition-opacity duration-300 flex items-end pb-2 px-4">
-                        <div className="flex items-center gap-2 text-white/80 text-xs">
-                          <Bot className="w-4 h-4" />
-                          <span>BootFlow Demo</span>
-                        </div>
-                      </div>
+                      )}
                     </div>
                   </div>
                 </div>
