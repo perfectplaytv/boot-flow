@@ -4,8 +4,9 @@
     "copyright": "Copyright © 2026 BootFlow",
     "directories": {
         "output": "release",
-        "buildResources": "electron/assets"
+        "buildResources": "public"
     },
+    "icon": "public/favicon.ico",
     "files": [
         "dist/**/*",
         "electron/**/*",
@@ -15,7 +16,7 @@
         "main": "electron/main.cjs"
     },
     "win": {
-        "icon": "electron/assets/icon.ico",
+        "icon": "public/favicon.ico",
         "target": [
             {
                 "target": "nsis",
