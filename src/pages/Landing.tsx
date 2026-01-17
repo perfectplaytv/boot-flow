@@ -452,10 +452,26 @@ const Landing = () => {
   ];
 
   // --- LÓGICA DINÂMICA (D1 Database) ---
-  const [dynamicPlans, setDynamicPlans] = useState<any[]>([]);
+  interface PlanFeature {
+    text: string;
+    icon?: React.ComponentType<{ className?: string }> | string;
+  }
+
+  interface DynamicPlan {
+    name: string;
+    price: string;
+    period: string;
+    description: string;
+    clients: string;
+    features: PlanFeature[];
+    popular: boolean;
+    highlight: string;
+  }
+
+  const [dynamicPlans, setDynamicPlans] = useState<DynamicPlan[]>([]);
 
   // Mapa de ícones
-  const iconMap: Record<string, any> = {
+  const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
     Users, Bot, Link, MessageSquare, Zap, Mail, FileText, CreditCard, DollarSign,
     Download, ShoppingCart, ArrowRightCircle, Check, Headphones, BarChart, Crown,
     Phone, Star, Shield, TrendingUp, Play, ArrowRight, ArrowUp, Sparkles, PhoneCall,
@@ -469,9 +485,9 @@ const Landing = () => {
         if (res.ok) {
           const data = await res.json();
           if (Array.isArray(data) && data.length > 0) {
-            const processed = data.map((p: any) => ({
+            const processed = data.map((p: DynamicPlan) => ({
               ...p,
-              features: Array.isArray(p.features) ? p.features.map((f: any) => ({
+              features: Array.isArray(p.features) ? p.features.map((f: PlanFeature) => ({
                 text: f.text,
                 icon: (typeof f.icon === 'string' ? iconMap[f.icon] : f.icon) || Check
               })) : []
@@ -479,11 +495,12 @@ const Landing = () => {
             setDynamicPlans(processed);
           }
         }
-      } catch (err) {
+      } catch {
         // Silently fail to static plans
       }
     };
     fetchPlans();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const plansToDisplay = dynamicPlans.length > 0 ? dynamicPlans : plans;
