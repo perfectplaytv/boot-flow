@@ -56,14 +56,13 @@ export default function AdminAplicativos() {
     );
 
     // Handlers
-    const handleAdicionarServidor = () => {
+    const handleAdicionarServidor = async () => {
         if (!novoServidor.nome || !novoServidor.ip || !novoServidor.porta || !novoServidor.tipo) {
             toast.error('Preencha todos os campos obrigatórios');
             return;
         }
 
-        const novo: Servidor = {
-            id: Date.now(),
+        const sucesso = await addServer({
             nome: novoServidor.nome,
             ip: novoServidor.ip,
             porta: parseInt(novoServidor.porta),
@@ -73,22 +72,21 @@ export default function AdminAplicativos() {
             memoria: 0,
             disco: 0,
             ultimaAtualizacao: new Date().toLocaleDateString('pt-BR'),
-        };
+        });
 
-        setServidores(prev => [...prev, novo]);
-        setNovoServidor({ nome: '', ip: '', porta: '', tipo: '' });
-        setModalNovoServidor(false);
-        toast.success('Servidor adicionado com sucesso!');
+        if (sucesso) {
+            setNovoServidor({ nome: '', ip: '', porta: '', tipo: '' });
+            setModalNovoServidor(false);
+        }
     };
 
-    const handleAdicionarAplicativo = () => {
+    const handleAdicionarAplicativo = async () => {
         if (!novoAplicativo.nome || !novoAplicativo.versao || !novoAplicativo.servidor || !novoAplicativo.tipo) {
             toast.error('Preencha todos os campos obrigatórios');
             return;
         }
 
-        const novo: Aplicativo = {
-            id: Date.now(),
+        const sucesso = await addApplication({
             nome: novoAplicativo.nome,
             versao: novoAplicativo.versao,
             servidor: novoAplicativo.servidor,
@@ -96,48 +94,48 @@ export default function AdminAplicativos() {
             tipo: novoAplicativo.tipo,
             usuarios: 0,
             ultimaAtualizacao: new Date().toLocaleDateString('pt-BR'),
-        };
+        });
 
-        setAplicativos(prev => [...prev, novo]);
-        setNovoAplicativo({ nome: '', versao: '', servidor: '', tipo: '' });
-        setModalNovoAplicativo(false);
-        toast.success('Aplicativo adicionado com sucesso!');
+        if (sucesso) {
+            setNovoAplicativo({ nome: '', versao: '', servidor: '', tipo: '' });
+            setModalNovoAplicativo(false);
+        }
     };
 
-    const handleExcluirServidor = () => {
+    const handleExcluirServidor = async () => {
         if (modalExcluirServidor) {
-            setServidores(prev => prev.filter(s => s.id !== modalExcluirServidor.id));
-            setModalExcluirServidor(null);
-            toast.success('Servidor excluído com sucesso!');
+            const sucesso = await deleteServer(modalExcluirServidor.id);
+            if (sucesso) {
+                setModalExcluirServidor(null);
+            }
         }
     };
 
-    const handleExcluirAplicativo = () => {
+    const handleExcluirAplicativo = async () => {
         if (modalExcluirAplicativo) {
-            setAplicativos(prev => prev.filter(a => a.id !== modalExcluirAplicativo.id));
-            setModalExcluirAplicativo(null);
-            toast.success('Aplicativo excluído com sucesso!');
+            const sucesso = await deleteApplication(modalExcluirAplicativo.id);
+            if (sucesso) {
+                setModalExcluirAplicativo(null);
+            }
         }
     };
 
-    const handleSalvarEdicaoServidor = () => {
+    const handleSalvarEdicaoServidor = async () => {
         if (!modalEditarServidor) return;
 
-        setServidores(prev => prev.map(s =>
-            s.id === modalEditarServidor.id ? modalEditarServidor : s
-        ));
-        setModalEditarServidor(null);
-        toast.success('Servidor atualizado com sucesso!');
+        const sucesso = await updateServer(modalEditarServidor.id, modalEditarServidor);
+        if (sucesso) {
+            setModalEditarServidor(null);
+        }
     };
 
-    const handleSalvarEdicaoAplicativo = () => {
+    const handleSalvarEdicaoAplicativo = async () => {
         if (!modalEditarAplicativo) return;
 
-        setAplicativos(prev => prev.map(a =>
-            a.id === modalEditarAplicativo.id ? modalEditarAplicativo : a
-        ));
-        setModalEditarAplicativo(null);
-        toast.success('Aplicativo atualizado com sucesso!');
+        const sucesso = await updateApplication(modalEditarAplicativo.id, modalEditarAplicativo);
+        if (sucesso) {
+            setModalEditarAplicativo(null);
+        }
     };
 
     const getStatusColor = (status: string) => {
