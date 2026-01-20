@@ -65,6 +65,7 @@ import Notifications from "../Notifications";
 import Profile from "../Profile";
 import AdminTelegram from "../AdminTelegram";
 import AdminPlans from "../AdminPlans";
+import AdminAplicativos from "../AdminAplicativos";
 
 // Wrapper para AdminResellers que aceita callback quando um revendedor é criado
 const AdminResellersWrapper = ({ onResellerCreated, onCloseModal }: { onResellerCreated: () => void; onCloseModal: () => void }) => {
@@ -1864,6 +1865,8 @@ const AdminDashboard = () => {
         return <Notifications />;
       case "profile":
         return <Profile />;
+      case "aplicativos":
+        return <AdminAplicativos />;
       default:
         return <div>Página não encontrada</div>;
     }
