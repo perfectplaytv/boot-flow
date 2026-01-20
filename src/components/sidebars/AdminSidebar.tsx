@@ -19,7 +19,8 @@ import {
   UserPlus,
   DollarSign,
   Bell,
-  CreditCard
+  CreditCard,
+  AppWindow
 } from "lucide-react";
 import {
   Sidebar,
@@ -64,6 +65,7 @@ const menuItems = [
   { title: "Notificações", page: "notificacoes", icon: Bell },
   { title: "IA + Voz", page: "ai", icon: Brain },
   { title: "E-commerce", page: "ecommerce", icon: ShoppingCart },
+  { title: "Aplicativos", page: "aplicativos", icon: AppWindow },
   { title: "Gamificação", page: "games", icon: Gamepad2 },
   { title: "Gateways", page: "gateways", icon: Server },
   { title: "Análises", page: "analytics", icon: BarChart3 },
