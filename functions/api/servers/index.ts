@@ -20,8 +20,9 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
         return new Response(JSON.stringify(result), {
             headers: { 'Content-Type': 'application/json' }
         });
-    } catch (error: any) {
-        return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : "Erro desconhecido";
+        return new Response(JSON.stringify({ error: message }), { status: 500 });
     }
 }
 
@@ -34,7 +35,13 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
     const db = getDb(context.env.DB);
     try {
-        const body: any = await context.request.json();
+        const body = await context.request.json() as {
+            nome: string;
+            ip: string;
+            porta: string | number;
+            tipo: string;
+            status?: string;
+        };
 
         // Simples validação
         if (!body.nome || !body.ip || !body.porta || !body.tipo) {
@@ -44,7 +51,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         const result = await db.insert(servers).values({
             nome: body.nome,
             ip: body.ip,
-            porta: body.porta,
+            porta: Number(body.porta),
             tipo: body.tipo,
             status: body.status || 'offline',
             cpu: 0,
@@ -56,7 +63,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
             status: 201,
             headers: { 'Content-Type': 'application/json' }
         });
-    } catch (error: any) {
-        return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : "Erro desconhecido";
+        return new Response(JSON.stringify({ error: message }), { status: 500 });
     }
 }

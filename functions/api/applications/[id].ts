@@ -22,8 +22,9 @@ export const onRequestDelete: PagesFunction<Env> = async (context) => {
         return new Response(JSON.stringify({ success: true }), {
             headers: { 'Content-Type': 'application/json' }
         });
-    } catch (error: any) {
-        return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : "Erro desconhecido";
+        return new Response(JSON.stringify({ error: message }), { status: 500 });
     }
 }
 
@@ -37,7 +38,7 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
 
     const db = getDb(context.env.DB);
     try {
-        const body: any = await context.request.json();
+        const body = await context.request.json() as Record<string, unknown>;
 
         // Remove campos que não devem ser editados
         const updateData = { ...body };
@@ -55,7 +56,8 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
         return new Response(JSON.stringify(result[0]), {
             headers: { 'Content-Type': 'application/json' }
         });
-    } catch (error: any) {
-        return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : "Erro desconhecido";
+        return new Response(JSON.stringify({ error: message }), { status: 500 });
     }
 }
