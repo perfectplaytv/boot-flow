@@ -822,7 +822,7 @@ export default function AdminAplicativos() {
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-sm font-medium text-gray-300">Status *</label>
-                                    <Select value={modalEditarAplicativo.status} onValueChange={value => setModalEditarAplicativo({ ...modalEditarAplicativo, status: value as any })}>
+                                    <Select value={modalEditarAplicativo.status} onValueChange={value => setModalEditarAplicativo({ ...modalEditarAplicativo, status: value as 'ativo' | 'inativo' | 'atualizando' })}>
                                         <SelectTrigger className="bg-[#23272f] border-gray-600 text-white">
                                             <SelectValue placeholder="Selecione o status" />
                                         </SelectTrigger>
