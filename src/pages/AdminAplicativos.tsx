@@ -35,16 +35,9 @@ interface Aplicativo {
 }
 
 export default function AdminAplicativos() {
-    console.log("AdminAplicativos mounted");
     const [activeTab, setActiveTab] = useState('servidor');
     const [busca, setBusca] = useState("");
 
-    // Debug
-    return (
-        <div className="p-6 text-white">
-            <h1>Teste Renderização</h1>
-        </div>
-    );
 
     // Modal states
     const [modalNovoServidor, setModalNovoServidor] = useState(false);
