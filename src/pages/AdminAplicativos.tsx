@@ -676,6 +676,177 @@ export default function AdminAplicativos() {
                 </DialogContent>
             </Dialog>
 
+            {/* Modal Editar Servidor */}
+            <Dialog open={!!modalEditarServidor} onOpenChange={(open) => !open && setModalEditarServidor(null)}>
+                <DialogContent className="bg-[#1f2937] border border-purple-700/40 text-white max-w-lg">
+                    <DialogHeader>
+                        <DialogTitle className="text-xl font-bold flex items-center gap-2">
+                            <Edit className="w-5 h-5 text-purple-400" />
+                            Editar Servidor
+                        </DialogTitle>
+                        <DialogDescription className="text-gray-400">
+                            Atualize os dados do servidor
+                        </DialogDescription>
+                    </DialogHeader>
+                    {modalEditarServidor && (
+                        <div className="space-y-4 py-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-gray-300">Nome do Servidor *</label>
+                                <Input
+                                    className="bg-[#23272f] border-gray-600 text-white"
+                                    value={modalEditarServidor.nome}
+                                    onChange={e => setModalEditarServidor({ ...modalEditarServidor, nome: e.target.value })}
+                                />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-gray-300">Endereço IP *</label>
+                                    <Input
+                                        className="bg-[#23272f] border-gray-600 text-white"
+                                        value={modalEditarServidor.ip}
+                                        onChange={e => setModalEditarServidor({ ...modalEditarServidor, ip: e.target.value })}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-gray-300">Porta *</label>
+                                    <Input
+                                        type="number"
+                                        className="bg-[#23272f] border-gray-600 text-white"
+                                        value={modalEditarServidor.porta}
+                                        onChange={e => setModalEditarServidor({ ...modalEditarServidor, porta: parseInt(e.target.value) || 0 })}
+                                    />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-gray-300">Tipo *</label>
+                                    <Select value={modalEditarServidor.tipo} onValueChange={value => setModalEditarServidor({ ...modalEditarServidor, tipo: value })}>
+                                        <SelectTrigger className="bg-[#23272f] border-gray-600 text-white">
+                                            <SelectValue placeholder="Selecione o tipo" />
+                                        </SelectTrigger>
+                                        <SelectContent className="bg-[#23272f] border-gray-600">
+                                            <SelectItem value="VPS">VPS</SelectItem>
+                                            <SelectItem value="Dedicado">Dedicado</SelectItem>
+                                            <SelectItem value="Cloud">Cloud</SelectItem>
+                                            <SelectItem value="Local">Local</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-gray-300">Status *</label>
+                                    <Select value={modalEditarServidor.status} onValueChange={value => setModalEditarServidor({ ...modalEditarServidor, status: value as any })}>
+                                        <SelectTrigger className="bg-[#23272f] border-gray-600 text-white">
+                                            <SelectValue placeholder="Selecione o status" />
+                                        </SelectTrigger>
+                                        <SelectContent className="bg-[#23272f] border-gray-600">
+                                            <SelectItem value="online">Online</SelectItem>
+                                            <SelectItem value="offline">Offline</SelectItem>
+                                            <SelectItem value="manutencao">Manutenção</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    <DialogFooter>
+                        <Button variant="outline" className="border-gray-600 text-gray-400 hover:text-white" onClick={() => setModalEditarServidor(null)}>
+                            Cancelar
+                        </Button>
+                        <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white" onClick={handleSalvarEdicaoServidor}>
+                            Salvar Alterações
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Modal Editar Aplicativo */}
+            <Dialog open={!!modalEditarAplicativo} onOpenChange={(open) => !open && setModalEditarAplicativo(null)}>
+                <DialogContent className="bg-[#1f2937] border border-purple-700/40 text-white max-w-lg">
+                    <DialogHeader>
+                        <DialogTitle className="text-xl font-bold flex items-center gap-2">
+                            <Edit className="w-5 h-5 text-purple-400" />
+                            Editar Aplicativo
+                        </DialogTitle>
+                        <DialogDescription className="text-gray-400">
+                            Atualize os dados do aplicativo
+                        </DialogDescription>
+                    </DialogHeader>
+                    {modalEditarAplicativo && (
+                        <div className="space-y-4 py-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-gray-300">Nome do Aplicativo *</label>
+                                <Input
+                                    className="bg-[#23272f] border-gray-600 text-white"
+                                    value={modalEditarAplicativo.nome}
+                                    onChange={e => setModalEditarAplicativo({ ...modalEditarAplicativo, nome: e.target.value })}
+                                />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-gray-300">Versão *</label>
+                                    <Input
+                                        className="bg-[#23272f] border-gray-600 text-white"
+                                        value={modalEditarAplicativo.versao}
+                                        onChange={e => setModalEditarAplicativo({ ...modalEditarAplicativo, versao: e.target.value })}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-gray-300">Servidor *</label>
+                                    <Select value={modalEditarAplicativo.servidor} onValueChange={value => setModalEditarAplicativo({ ...modalEditarAplicativo, servidor: value })}>
+                                        <SelectTrigger className="bg-[#23272f] border-gray-600 text-white">
+                                            <SelectValue placeholder="Selecione" />
+                                        </SelectTrigger>
+                                        <SelectContent className="bg-[#23272f] border-gray-600">
+                                            {servidores.map(s => (
+                                                <SelectItem key={s.id} value={s.nome}>{s.nome}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-gray-300">Tipo *</label>
+                                    <Select value={modalEditarAplicativo.tipo} onValueChange={value => setModalEditarAplicativo({ ...modalEditarAplicativo, tipo: value })}>
+                                        <SelectTrigger className="bg-[#23272f] border-gray-600 text-white">
+                                            <SelectValue placeholder="Selecione o tipo" />
+                                        </SelectTrigger>
+                                        <SelectContent className="bg-[#23272f] border-gray-600">
+                                            <SelectItem value="Web">Web</SelectItem>
+                                            <SelectItem value="Mobile">Mobile</SelectItem>
+                                            <SelectItem value="Desktop">Desktop</SelectItem>
+                                            <SelectItem value="API">API</SelectItem>
+                                            <SelectItem value="Bot">Bot</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-gray-300">Status *</label>
+                                    <Select value={modalEditarAplicativo.status} onValueChange={value => setModalEditarAplicativo({ ...modalEditarAplicativo, status: value as any })}>
+                                        <SelectTrigger className="bg-[#23272f] border-gray-600 text-white">
+                                            <SelectValue placeholder="Selecione o status" />
+                                        </SelectTrigger>
+                                        <SelectContent className="bg-[#23272f] border-gray-600">
+                                            <SelectItem value="ativo">Ativo</SelectItem>
+                                            <SelectItem value="inativo">Inativo</SelectItem>
+                                            <SelectItem value="atualizando">Atualizando</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    <DialogFooter>
+                        <Button variant="outline" className="border-gray-600 text-gray-400 hover:text-white" onClick={() => setModalEditarAplicativo(null)}>
+                            Cancelar
+                        </Button>
+                        <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white" onClick={handleSalvarEdicaoAplicativo}>
+                            Salvar Alterações
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
             {/* Modal Excluir Servidor */}
             <Dialog open={!!modalExcluirServidor} onOpenChange={() => setModalExcluirServidor(null)}>
                 <DialogContent className="bg-[#1f2937] border border-red-700/40 text-white max-w-md">
