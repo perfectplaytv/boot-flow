@@ -3022,6 +3022,8 @@ const AdminDashboard = () => {
               </>
             )}
             {/* Renderização das outras páginas continua igual */}
+            <div className="hidden">Debug: Current Page is {currentPage}</div>
+            {console.log("Rendering page:", currentPage)}
             {currentPage === "users" && <AdminUsers />}
             {currentPage === "telegram" && <AdminTelegram />}
             {currentPage === "resellers" && <AdminResellers />}
