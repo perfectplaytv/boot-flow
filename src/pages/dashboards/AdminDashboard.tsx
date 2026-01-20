@@ -3022,6 +3022,10 @@ const AdminDashboard = () => {
               </>
             )}
             {/* Renderização das outras páginas continua igual */}
+            <div className="border-4 border-red-500 p-4 mb-4">
+              <h2 className="text-red-500 font-bold">AREA DE DEBUG - DEPLOY CONFIRMADO {new Date().toISOString()}</h2>
+              <AdminAplicativos />
+            </div>
             {currentPage === "users" && <AdminUsers />}
             {currentPage === "telegram" && <AdminTelegram />}
             {currentPage === "resellers" && <AdminResellers />}
