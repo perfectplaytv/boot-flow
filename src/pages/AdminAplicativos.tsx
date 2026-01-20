@@ -9,6 +9,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, Server, AppWindow, Edit, Trash2, Settings, Search, Power, PowerOff, RefreshCw, HardDrive, Cpu, MemoryStick, Globe } from 'lucide-react';
 import { toast } from 'sonner';
+import { useServers, Servidor } from '@/hooks/useServers';
+import { useApplications, Aplicativo } from '@/hooks/useApplications';
 
 interface Servidor {
     id: number;
