@@ -12,34 +12,13 @@ import { toast } from 'sonner';
 import { useServers, Servidor } from '@/hooks/useServers';
 import { useApplications, Aplicativo } from '@/hooks/useApplications';
 
-interface Servidor {
-    id: number;
-    nome: string;
-    ip: string;
-    porta: number;
-    status: 'online' | 'offline' | 'manutencao';
-    tipo: string;
-    cpu: number;
-    memoria: number;
-    disco: number;
-    ultimaAtualizacao: string;
-}
-
-interface Aplicativo {
-    id: number;
-    nome: string;
-    versao: string;
-    servidor: string;
-    status: 'ativo' | 'inativo' | 'atualizando';
-    tipo: string;
-    usuarios: number;
-    ultimaAtualizacao: string;
-}
 
 export default function AdminAplicativos() {
     const [activeTab, setActiveTab] = useState('servidor');
     const [busca, setBusca] = useState("");
 
+    const { servers: servidores, addServer, updateServer, deleteServer } = useServers();
+    const { applications: aplicativos, addApplication, updateApplication, deleteApplication } = useApplications();
 
     // Modal states
     const [modalNovoServidor, setModalNovoServidor] = useState(false);
@@ -64,10 +43,6 @@ export default function AdminAplicativos() {
         servidor: '',
         tipo: '',
     });
-
-    // Sample data - empty by default (real data should come from backend)
-    const [servidores, setServidores] = useState<Servidor[]>([]);
-    const [aplicativos, setAplicativos] = useState<Aplicativo[]>([]);
 
     // Filtered data
     const servidoresFiltrados = servidores.filter(s =>
