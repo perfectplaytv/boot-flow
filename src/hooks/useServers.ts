@@ -30,7 +30,7 @@ export function useServers() {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (res.ok) {
-                const data = await res.json();
+                const data = await res.json() as Servidor[];
                 setServers(data);
             } else {
                 console.error('Erro ao buscar servidores:', res.statusText);
@@ -55,12 +55,12 @@ export function useServers() {
             });
 
             if (res.ok) {
-                const newServer = await res.json();
+                const newServer = await res.json() as Servidor;
                 setServers(prev => [...prev, newServer]);
                 toast.success('Servidor adicionado com sucesso!');
                 return true;
             } else {
-                const err = await res.json();
+                const err = await res.json() as { error?: string };
                 toast.error(`Erro ao adicionar: ${err.error || res.statusText}`);
                 return false;
             }
@@ -84,7 +84,7 @@ export function useServers() {
             });
 
             if (res.ok) {
-                const updated = await res.json();
+                const updated = await res.json() as Servidor; // Corrigido para Servidor completo ou parcial
                 setServers(prev => prev.map(s => s.id === id ? { ...s, ...updated } : s));
                 toast.success('Servidor atualizado com sucesso!');
                 return true;
