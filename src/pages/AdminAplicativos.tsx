@@ -143,6 +143,26 @@ export default function AdminAplicativos() {
         }
     };
 
+    const handleSalvarEdicaoServidor = () => {
+        if (!modalEditarServidor) return;
+
+        setServidores(prev => prev.map(s =>
+            s.id === modalEditarServidor.id ? modalEditarServidor : s
+        ));
+        setModalEditarServidor(null);
+        toast.success('Servidor atualizado com sucesso!');
+    };
+
+    const handleSalvarEdicaoAplicativo = () => {
+        if (!modalEditarAplicativo) return;
+
+        setAplicativos(prev => prev.map(a =>
+            a.id === modalEditarAplicativo.id ? modalEditarAplicativo : a
+        ));
+        setModalEditarAplicativo(null);
+        toast.success('Aplicativo atualizado com sucesso!');
+    };
+
     const getStatusColor = (status: string) => {
         switch (status) {
             case 'online':
