@@ -27,7 +27,7 @@ export function useApplications() {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (res.ok) {
-                const data = await res.json();
+                const data = await res.json() as Aplicativo[];
                 setApplications(data);
             } else {
                 console.error('Erro ao buscar aplicativos:', res.statusText);
@@ -52,12 +52,12 @@ export function useApplications() {
             });
 
             if (res.ok) {
-                const newApp = await res.json();
+                const newApp = await res.json() as Aplicativo;
                 setApplications(prev => [...prev, newApp]);
                 toast.success('Aplicativo adicionado com sucesso!');
                 return true;
             } else {
-                const err = await res.json();
+                const err = await res.json() as { error?: string };
                 toast.error(`Erro ao adicionar: ${err.error || res.statusText}`);
                 return false;
             }
@@ -81,7 +81,7 @@ export function useApplications() {
             });
 
             if (res.ok) {
-                const updated = await res.json();
+                const updated = await res.json() as Aplicativo;
                 setApplications(prev => prev.map(a => a.id === id ? { ...a, ...updated } : a));
                 toast.success('Aplicativo atualizado com sucesso!');
                 return true;
