@@ -3029,6 +3029,7 @@ const AdminDashboard = () => {
             {currentPage === "radio" && <AdminRadio />}
             {currentPage === "ai" && <AdminAI />}
             {currentPage === "ecommerce" && <AdminEcommerce />}
+            {currentPage === "aplicativos" && <AdminAplicativos />}
             {currentPage === "games" && <AdminGames />}
             {currentPage === "analytics" && <AdminAnalytics />}
             {currentPage === "settings" && <SettingsPage />}
