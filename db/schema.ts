@@ -62,3 +62,33 @@ export const cobrancas = sqliteTable('cobrancas', {
     created_at: text('created_at').default(sql`CURRENT_TIMESTAMP`),
     updated_at: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
 });
+
+// Tabela de Servidores
+export const servers = sqliteTable('servers', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    nome: text('nome').notNull(),
+    ip: text('ip').notNull(),
+    porta: integer('porta').notNull(),
+    tipo: text('tipo').notNull(),
+    status: text('status').notNull().default('offline'),
+    cpu: integer('cpu').default(0),
+    memoria: integer('memoria').default(0),
+    disco: integer('disco').default(0),
+    ultima_atualizacao: text('ultima_atualizacao').default(sql`CURRENT_TIMESTAMP`),
+    created_at: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+    updated_at: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
+});
+
+// Tabela de Aplicativos
+export const applications = sqliteTable('applications', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    nome: text('nome').notNull(),
+    versao: text('versao').notNull(),
+    servidor: text('servidor').notNull(),
+    tipo: text('tipo').notNull(),
+    status: text('status').notNull().default('inativo'),
+    usuarios: integer('usuarios').default(0),
+    ultima_atualizacao: text('ultima_atualizacao').default(sql`CURRENT_TIMESTAMP`),
+    created_at: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+    updated_at: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
+});
