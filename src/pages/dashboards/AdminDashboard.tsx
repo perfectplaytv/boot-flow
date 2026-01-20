@@ -3022,9 +3022,7 @@ const AdminDashboard = () => {
               </>
             )}
             {/* Renderização das outras páginas continua igual */}
-            <div className="border-4 border-red-500 p-4 mb-4">
-              <h2 className="text-red-500 font-bold">AREA DE DEBUG - SEM O COMPONENTE - APENAS TEXTO</h2>
-            </div>
+            {/* Renderização das outras páginas continua igual */}
             {currentPage === "users" && <AdminUsers />}
             {currentPage === "telegram" && <AdminTelegram />}
             {currentPage === "resellers" && <AdminResellers />}
@@ -3032,7 +3030,7 @@ const AdminDashboard = () => {
             {currentPage === "radio" && <AdminRadio />}
             {currentPage === "ai" && <AdminAI />}
             {currentPage === "ecommerce" && <AdminEcommerce />}
-            {/* {currentPage === "aplicativos" && <AdminAplicativos />} */}
+            {currentPage === "aplicativos" && <AdminAplicativos />}
             {currentPage === "games" && <AdminGames />}
             {currentPage === "analytics" && <AdminAnalytics />}
             {currentPage === "settings" && <SettingsPage />}
