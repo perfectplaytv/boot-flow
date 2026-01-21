@@ -1049,16 +1049,9 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
         }
     };
 
-    // Remove offline proxies
-    const handleRemoveOfflineProxies = () => {
-        const toRemove = proxies.filter(p => p.failureCount >= 3);
-        if (toRemove.length === 0) {
-            toast.info('Nenhum proxy com 3+ falhas');
-            return;
-        }
-        const remaining = proxies.filter(p => p.failureCount < 3);
-        saveProxiesToStorage(remaining);
-        toast.success(`${toRemove.length} proxy(s) removido(s)`);
+    // Remove offline proxies - now uses D1 API
+    const handleRemoveOfflineProxies = async () => {
+        await removeOfflineProxiesD1();
     };
 
     // Set Active - now uses D1 API
