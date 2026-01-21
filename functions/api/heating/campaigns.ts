@@ -4,6 +4,27 @@ interface Env {
     DB: D1Database;
 }
 
+interface CampaignRecord {
+    id: number;
+    admin_id: string;
+    name: string;
+    group_id: number;
+    group_name: string | null;
+    status: string;
+    send_mode: string;
+    interval_min: number;
+    interval_max: number;
+    window_start: string;
+    window_end: string;
+    max_messages_per_bot_per_day: number;
+    message_index: number;
+    total_messages_sent: number;
+    total_errors: number;
+    last_sent_at: string | null;
+    created_at: string;
+    updated_at: string;
+}
+
 export const onRequestGet: PagesFunction<Env> = async (context) => {
     const { DB } = context.env;
     const url = new URL(context.request.url);
@@ -17,11 +38,11 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
             LEFT JOIN heating_groups g ON c.group_id = g.id 
             WHERE c.admin_id = ? 
             ORDER BY c.created_at DESC
-        `).bind(adminId).all();
+        `).bind(adminId).all<CampaignRecord>();
 
         // For each campaign, get bots and messages
         const enrichedCampaigns = await Promise.all(
-            campaigns.results.map(async (campaign: any) => {
+            campaigns.results.map(async (campaign) => {
                 const bots = await DB.prepare(`
                     SELECT cb.*, b.name as bot_name, b.username as bot_username 
                     FROM heating_campaign_bots cb 
