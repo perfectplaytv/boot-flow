@@ -862,6 +862,8 @@ export function AquecerContasTab() {
                                 {newCampaign.messages.map((msg, index) => (
                                     <div key={index} className="flex gap-2">
                                         <Textarea
+                                            id={`campaign-message-${index}`}
+                                            name={`campaign-message-${index}`}
                                             placeholder={`Mensagem ${index + 1}...`}
                                             value={msg}
                                             onChange={(e) => updateMessage(index, e.target.value)}
@@ -913,16 +915,20 @@ export function AquecerContasTab() {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label>Intervalo Mín (seg)</Label>
+                                    <Label htmlFor="campaign-interval-min">Intervalo Mín (seg)</Label>
                                     <Input
+                                        id="campaign-interval-min"
+                                        name="campaign-interval-min"
                                         type="number"
                                         value={newCampaign.interval_min}
                                         onChange={(e) => setNewCampaign(prev => ({ ...prev, interval_min: parseInt(e.target.value) || 90 }))}
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label>Intervalo Máx (seg)</Label>
+                                    <Label htmlFor="campaign-interval-max">Intervalo Máx (seg)</Label>
                                     <Input
+                                        id="campaign-interval-max"
+                                        name="campaign-interval-max"
                                         type="number"
                                         value={newCampaign.interval_max}
                                         onChange={(e) => setNewCampaign(prev => ({ ...prev, interval_max: parseInt(e.target.value) || 180 }))}
@@ -932,16 +938,20 @@ export function AquecerContasTab() {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label>Horário Início</Label>
+                                    <Label htmlFor="campaign-window-start">Horário Início</Label>
                                     <Input
+                                        id="campaign-window-start"
+                                        name="campaign-window-start"
                                         type="time"
                                         value={newCampaign.window_start}
                                         onChange={(e) => setNewCampaign(prev => ({ ...prev, window_start: e.target.value }))}
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label>Horário Fim</Label>
+                                    <Label htmlFor="campaign-window-end">Horário Fim</Label>
                                     <Input
+                                        id="campaign-window-end"
+                                        name="campaign-window-end"
                                         type="time"
                                         value={newCampaign.window_end}
                                         onChange={(e) => setNewCampaign(prev => ({ ...prev, window_end: e.target.value }))}
