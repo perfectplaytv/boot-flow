@@ -905,9 +905,7 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
         createdAt: string;
     }
 
-    const [proxies, setProxies] = useState<TelegramProxy[]>([]);
-    const [activeProxy, setActiveProxy] = useState<TelegramProxy | null>(null);
-    const [testingProxyId, setTestingProxyId] = useState<string | null>(null);
+    // Note: proxies, activeProxy, and testingProxyId are now provided by useProxies hook (converted above)
     const [showAddProxyModal, setShowAddProxyModal] = useState(false);
     const [lastProxyCheck, setLastProxyCheck] = useState<Date | null>(null);
     const [isAutoTesting, setIsAutoTesting] = useState(false);
@@ -920,33 +918,51 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
         requiresAuth: false
     });
 
-    // Proxy stats
-    const proxyStats = {
-        total: proxies.length,
-        online: proxies.filter(p => p.status === 'online').length,
-        offline: proxies.filter(p => p.status === 'offline').length,
-        unknown: proxies.filter(p => p.status === 'unknown').length,
-        avgLatency: proxies.length > 0
-            ? Math.round(proxies.filter(p => p.latency && p.latency > 0).reduce((sum, p) => sum + (p.latency || 0), 0) / proxies.filter(p => p.latency && p.latency > 0).length || 0)
-            : 0
-    };
+    // Convert D1 proxies to TelegramProxy format for UI compatibility
+    const proxies: TelegramProxy[] = d1Proxies.map(p => ({
+        id: p.id.toString(),
+        type: p.type,
+        host: p.host,
+        port: p.port,
+        username: p.username,
+        password: p.password,
+        status: p.status,
+        latency: p.latency,
+        country: p.country,
+        countryCode: p.country_code,
+        city: p.city,
+        isActive: p.is_active,
+        lastTested: p.last_tested,
+        failureCount: p.failure_count,
+        createdAt: p.created_at,
+    }));
 
-    // Load proxies from localStorage
-    useEffect(() => {
-        const saved = localStorage.getItem('telegram_proxies');
-        const savedActive = localStorage.getItem('active_proxy');
-        if (saved) {
-            setProxies(JSON.parse(saved));
-        }
-        if (savedActive) {
-            setActiveProxy(JSON.parse(savedActive));
-        }
-    }, []);
+    const activeProxy = d1ActiveProxy ? {
+        id: d1ActiveProxy.id.toString(),
+        type: d1ActiveProxy.type,
+        host: d1ActiveProxy.host,
+        port: d1ActiveProxy.port,
+        username: d1ActiveProxy.username,
+        password: d1ActiveProxy.password,
+        status: d1ActiveProxy.status,
+        latency: d1ActiveProxy.latency,
+        isActive: true,
+        failureCount: d1ActiveProxy.failure_count,
+        createdAt: d1ActiveProxy.created_at,
+    } as TelegramProxy : null;
 
-    // Save proxies to localStorage
-    const saveProxiesToStorage = (proxiesToSave: TelegramProxy[]) => {
-        localStorage.setItem('telegram_proxies', JSON.stringify(proxiesToSave));
-        setProxies(proxiesToSave);
+    const testingProxyId = d1TestingProxyId?.toString() || null;
+
+    // Proxy stats from D1
+    const proxyStats = proxyStatsFromD1;
+
+    // No need to load from localStorage - data comes from D1 via useProxies hook
+    // Legacy localStorage is no longer used
+
+    // Save proxies - now calls D1 API (placeholder for compatibility)
+    const saveProxiesToStorage = async (proxiesToSave: TelegramProxy[]) => {
+        // This function is deprecated - use addProxyToD1 or deleteProxyFromD1 instead
+        console.log('[Proxy] saveProxiesToStorage is deprecated. Use D1 API functions.');
     };
 
     // Helper: Country flags
@@ -1010,28 +1026,12 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
         }
     };
 
-    // Handle Manual Single Proxy Test
+    // Handle Manual Single Proxy Test - now uses D1 API
     const handleTestProxy = async (id: string) => {
-        setTestingProxyId(id);
-        const proxy = proxies.find(p => p.id === id);
-        if (!proxy) {
-            setTestingProxyId(null);
-            return;
-        }
-
-        const tested = await testProxy(proxy);
-        const updated = proxies.map(p => p.id === id ? tested : p);
-        saveProxiesToStorage(updated);
-        setTestingProxyId(null);
-
-        if (tested.status === 'online') {
-            toast.success(`Proxy Online! ${tested.latency}ms`);
-        } else {
-            toast.error('Proxy Offline');
-        }
+        await testProxyD1(parseInt(id));
     };
 
-    // Test all proxies
+    // Test all proxies - now uses D1 API
     const handleTestAllProxies = async () => {
         if (proxies.length === 0) {
             toast.error('Nenhum proxy para testar');
@@ -1039,23 +1039,12 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
         }
 
         setIsAutoTesting(true);
-        setTestingProxyId('all'); // UI checks if testingProxyId === proxy.id, so 'all' won't show loading on specific btn unless we handle it, but that's fine.
-
         try {
-            // Sequential to avoid overwhelming - simulate real behavior
-            const testedList = [...proxies];
-            for (let i = 0; i < testedList.length; i++) {
-                testedList[i] = await testProxy(testedList[i]);
-            }
-            saveProxiesToStorage(testedList);
+            await testAllProxiesD1();
             setLastProxyCheck(new Date());
-
-            const online = testedList.filter(p => p.status === 'online').length;
-            toast.success(`Teste concluído: ${online}/${testedList.length} proxies online`);
         } catch (error) {
             toast.error('Erro ao testar proxies');
         } finally {
-            setTestingProxyId(null);
             setIsAutoTesting(false);
         }
     };
@@ -1072,61 +1061,41 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
         toast.success(`${toRemove.length} proxy(s) removido(s)`);
     };
 
-    // Set Active
-    const handleSetActiveProxy = (proxy: TelegramProxy) => {
-        const updated = proxies.map(p => ({ ...p, isActive: p.id === proxy.id }));
-        saveProxiesToStorage(updated);
-        setActiveProxy(proxy);
-        localStorage.setItem('active_proxy', JSON.stringify(proxy));
-        toast.success('Proxy ativado!');
-    };
-
-    // Clear Active
-    const handleClearActiveProxy = () => {
-        const updated = proxies.map(p => ({ ...p, isActive: false }));
-        saveProxiesToStorage(updated);
-        setActiveProxy(null);
-        localStorage.removeItem('active_proxy');
-        toast.success('Proxy desativado!');
-    };
-
-    // Delete Proxy
-    const handleDeleteProxy = (id: string) => {
-        const updated = proxies.filter(p => p.id !== id);
-        saveProxiesToStorage(updated);
-        if (activeProxy?.id === id) {
-            handleClearActiveProxy();
+    // Set Active - now uses D1 API
+    const handleSetActiveProxy = async (proxy: TelegramProxy) => {
+        const d1Proxy = d1Proxies.find(p => p.id.toString() === proxy.id);
+        if (d1Proxy) {
+            await setActiveProxyD1(d1Proxy);
         }
-        toast.success('Proxy removido');
     };
 
-    // Add new proxy
-    const handleAddProxy = () => {
+    // Clear Active - now uses D1 API
+    const handleClearActiveProxy = async () => {
+        await deactivateProxyD1();
+    };
+
+    // Delete Proxy - now uses D1 API
+    const handleDeleteProxy = async (id: string) => {
+        await deleteProxyFromD1(parseInt(id));
+    };
+
+    // Add new proxy - now uses D1 API
+    const handleAddProxy = async () => {
         if (!newProxy.host.trim()) {
             toast.error('Digite o host do proxy');
             return;
         }
 
-        const proxy: TelegramProxy = {
-            id: Date.now().toString(),
+        await addProxyToD1({
             host: newProxy.host.trim(),
             port: newProxy.port,
             username: newProxy.requiresAuth ? newProxy.username.trim() : undefined,
             password: newProxy.requiresAuth ? newProxy.password.trim() : undefined,
             type: newProxy.type,
-            status: 'unknown',
-            latency: 0,
-            failureCount: 0,
-            lastTested: undefined,
-            isActive: false,
-            createdAt: new Date().toISOString()
-        };
+        });
 
-        const updated = [...proxies, proxy];
-        saveProxiesToStorage(updated);
         setNewProxy({ host: '', port: 3128, username: '', password: '', type: 'socks5', requiresAuth: false });
         setShowAddProxyModal(false);
-        toast.success('Proxy adicionado!');
     };
 
     // Auto-test proxies every 5 minutes
