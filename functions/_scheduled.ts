@@ -5,6 +5,48 @@ interface Env {
     DB: D1Database;
 }
 
+// Type definitions for database records
+interface HeatingCampaign {
+    id: number;
+    admin_id: string;
+    name: string;
+    group_id: number;
+    status: string;
+    send_mode: string;
+    interval_min: number;
+    interval_max: number;
+    window_start: string;
+    window_end: string;
+    max_messages_per_bot_per_day: number;
+    message_index: number;
+    total_messages_sent: number;
+    total_errors: number;
+    last_sent_at: string | null;
+}
+
+interface HeatingGroup {
+    id: number;
+    chat_id: string;
+    name: string;
+}
+
+interface HeatingCampaignBot {
+    id: number;
+    campaign_id: number;
+    bot_id: number;
+    messages_sent_today: number;
+    name: string;
+    token: string;
+    username: string;
+}
+
+interface HeatingMessage {
+    id: number;
+    campaign_id: number;
+    content: string;
+    order_index: number;
+}
+
 // The scheduled handler for Cloudflare Workers
 export default {
     async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
@@ -14,11 +56,11 @@ export default {
             // Process running campaigns
             const campaigns = await env.DB.prepare(
                 "SELECT * FROM heating_campaigns WHERE status = 'running'"
-            ).all();
+            ).all<HeatingCampaign>();
 
             console.log(`[Cron] Found ${campaigns.results.length} running campaigns`);
 
-            for (const campaign of campaigns.results as any[]) {
+            for (const campaign of campaigns.results) {
                 await processCampaign(env.DB, campaign);
             }
         } catch (error) {
@@ -27,7 +69,7 @@ export default {
     },
 };
 
-async function processCampaign(DB: D1Database, campaign: any) {
+async function processCampaign(DB: D1Database, campaign: HeatingCampaign) {
     try {
         // Check time window
         if (!isWithinTimeWindow(campaign.window_start, campaign.window_end)) {
@@ -50,7 +92,7 @@ async function processCampaign(DB: D1Database, campaign: any) {
         // Get group
         const group = await DB.prepare(
             'SELECT * FROM heating_groups WHERE id = ?'
-        ).bind(campaign.group_id).first();
+        ).bind(campaign.group_id).first<HeatingGroup>();
 
         if (!group) {
             console.log(`[Cron] Campaign ${campaign.name}: Group not found`);
@@ -64,7 +106,7 @@ async function processCampaign(DB: D1Database, campaign: any) {
             JOIN heating_bots b ON cb.bot_id = b.id 
             WHERE cb.campaign_id = ? AND b.status = 'active'
             AND cb.messages_sent_today < ?
-        `).bind(campaign.id, campaign.max_messages_per_bot_per_day).all();
+        `).bind(campaign.id, campaign.max_messages_per_bot_per_day).all<HeatingCampaignBot>();
 
         if (bots.results.length === 0) {
             console.log(`[Cron] Campaign ${campaign.name}: No available bots`);
@@ -74,7 +116,7 @@ async function processCampaign(DB: D1Database, campaign: any) {
         // Get messages
         const messages = await DB.prepare(
             'SELECT * FROM heating_messages WHERE campaign_id = ? ORDER BY order_index'
-        ).bind(campaign.id).all();
+        ).bind(campaign.id).all<HeatingMessage>();
 
         if (messages.results.length === 0) {
             console.log(`[Cron] Campaign ${campaign.name}: No messages`);
@@ -82,9 +124,9 @@ async function processCampaign(DB: D1Database, campaign: any) {
         }
 
         // Select bot and message
-        const selectedBot = bots.results[Math.floor(Math.random() * bots.results.length)] as any;
+        const selectedBot = bots.results[Math.floor(Math.random() * bots.results.length)];
 
-        let selectedMessage: any;
+        let selectedMessage: HeatingMessage;
         if (campaign.send_mode === 'sequential') {
             const index = campaign.message_index % messages.results.length;
             selectedMessage = messages.results[index];
@@ -97,8 +139,8 @@ async function processCampaign(DB: D1Database, campaign: any) {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                chat_id: (group as any).chat_id,
-                text: (selectedMessage as any).content,
+                chat_id: group.chat_id,
+                text: selectedMessage.content,
                 disable_web_page_preview: true,
             }),
         });
