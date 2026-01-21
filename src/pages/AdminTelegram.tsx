@@ -184,6 +184,23 @@ const TELEGRAM_API_URL = import.meta.env.VITE_TELEGRAM_API_URL || "";
 export default function AdminTelegram() {
     const { addCliente } = useClientes();
 
+    // Global Proxy Management - loads from D1 database
+    const {
+        proxies: d1Proxies,
+        activeProxy: d1ActiveProxy,
+        stats: proxyStatsFromD1,
+        isLoading: proxiesLoading,
+        testingProxyId: d1TestingProxyId,
+        addProxy: addProxyToD1,
+        deleteProxy: deleteProxyFromD1,
+        setActive: setActiveProxyD1,
+        deactivate: deactivateProxyD1,
+        testProxy: testProxyD1,
+        testAllProxies: testAllProxiesD1,
+        removeOfflineProxies: removeOfflineProxiesD1,
+        loadProxies: reloadProxies,
+    } = useProxies();
+
     const [members, setMembers] = useState<TelegramMember[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isDragOver, setIsDragOver] = useState(false);
