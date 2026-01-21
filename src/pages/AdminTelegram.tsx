@@ -1,5 +1,6 @@
 ﻿import { useState, useCallback, useEffect, useRef } from "react";
 import { AquecerContasTab } from "@/components/telegram/AquecerContasTab";
+import { useProxies } from "@/hooks/useProxies";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
