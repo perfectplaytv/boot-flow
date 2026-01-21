@@ -726,16 +726,20 @@ export function AquecerContasTab() {
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
-                                <Label>Nome do Bot *</Label>
+                                <Label htmlFor="bot-name">Nome do Bot *</Label>
                                 <Input
+                                    id="bot-name"
+                                    name="bot-name"
                                     placeholder="Ex: Bot Vendedor 1"
                                     value={newBot.name}
                                     onChange={(e) => setNewBot(prev => ({ ...prev, name: e.target.value }))}
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label>Token do Bot *</Label>
+                                <Label htmlFor="bot-token">Token do Bot *</Label>
                                 <Input
+                                    id="bot-token"
+                                    name="bot-token"
                                     placeholder="Ex: 123456789:ABCdefGHIjklMNOpqrsTUVwxyz"
                                     value={newBot.token}
                                     onChange={(e) => setNewBot(prev => ({ ...prev, token: e.target.value }))}
@@ -746,16 +750,20 @@ export function AquecerContasTab() {
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label>Limite/Hora</Label>
+                                    <Label htmlFor="bot-limit-hour">Limite/Hora</Label>
                                     <Input
+                                        id="bot-limit-hour"
+                                        name="bot-limit-hour"
                                         type="number"
                                         value={newBot.max_messages_per_hour}
                                         onChange={(e) => setNewBot(prev => ({ ...prev, max_messages_per_hour: parseInt(e.target.value) || 10 }))}
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label>Limite/Dia</Label>
+                                    <Label htmlFor="bot-limit-day">Limite/Dia</Label>
                                     <Input
+                                        id="bot-limit-day"
+                                        name="bot-limit-day"
                                         type="number"
                                         value={newBot.max_messages_per_day}
                                         onChange={(e) => setNewBot(prev => ({ ...prev, max_messages_per_day: parseInt(e.target.value) || 100 }))}
@@ -797,8 +805,10 @@ export function AquecerContasTab() {
                         </CardHeader>
                         <CardContent className="space-y-4 max-h-[70vh] overflow-y-auto">
                             <div className="space-y-2">
-                                <Label>Nome da Campanha *</Label>
+                                <Label htmlFor="campaign-name">Nome da Campanha *</Label>
                                 <Input
+                                    id="campaign-name"
+                                    name="campaign-name"
                                     placeholder="Ex: Aquecimento Grupo Vendas"
                                     value={newCampaign.name}
                                     onChange={(e) => setNewCampaign(prev => ({ ...prev, name: e.target.value }))}
@@ -806,12 +816,13 @@ export function AquecerContasTab() {
                             </div>
 
                             <div className="space-y-2">
-                                <Label>Grupo Alvo *</Label>
+                                <Label htmlFor="campaign-group">Grupo Alvo *</Label>
                                 <Select
                                     value={newCampaign.group_id.toString()}
                                     onValueChange={(v) => setNewCampaign(prev => ({ ...prev, group_id: parseInt(v) }))}
+                                    name="campaign-group"
                                 >
-                                    <SelectTrigger>
+                                    <SelectTrigger id="campaign-group">
                                         <SelectValue placeholder="Selecione um grupo" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -872,12 +883,13 @@ export function AquecerContasTab() {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label>Modo de Envio</Label>
+                                    <Label htmlFor="campaign-send-mode">Modo de Envio</Label>
                                     <Select
                                         value={newCampaign.send_mode}
                                         onValueChange={(v: typeof newCampaign.send_mode) => setNewCampaign(prev => ({ ...prev, send_mode: v }))}
+                                        name="campaign-send-mode"
                                     >
-                                        <SelectTrigger>
+                                        <SelectTrigger id="campaign-send-mode">
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -888,8 +900,10 @@ export function AquecerContasTab() {
                                     </Select>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label>Limite msgs/dia por bot</Label>
+                                    <Label htmlFor="campaign-max-msgs">Limite msgs/dia por bot</Label>
                                     <Input
+                                        id="campaign-max-msgs"
+                                        name="campaign-max-msgs"
                                         type="number"
                                         value={newCampaign.max_messages_per_bot_per_day}
                                         onChange={(e) => setNewCampaign(prev => ({ ...prev, max_messages_per_bot_per_day: parseInt(e.target.value) || 50 }))}
