@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+﻿import { useState, useCallback, useEffect, useRef } from "react";
 import { AquecerContasTab } from "@/components/telegram/AquecerContasTab";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6795,11 +6795,3 @@ Com o Broadcast, você pode alcançar todos os seus leads de uma só vez, com ap
         </div >
     );
 }
-
-/ / 
- 
- D e p l o y 
- 
- t r i g g e r 
- 
- 
