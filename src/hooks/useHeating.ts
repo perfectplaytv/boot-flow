@@ -173,9 +173,9 @@ export function useHeating() {
         // Check if D1 already has data
         try {
             const checkRes = await fetch(`${API_BASE}/sync?admin_id=${ADMIN_ID}`);
-            const checkData = await checkRes.json();
+            const checkData: SyncCheckResponse = await checkRes.json();
 
-            if (checkData.success && checkData.data.hasData) {
+            if (checkData.success && checkData.data?.hasData) {
                 console.log('[Heating] D1 already has data, skipping migration');
                 localStorage.setItem(STORAGE_KEYS.migrated, 'true');
                 return;
@@ -205,9 +205,9 @@ export function useHeating() {
                 }),
             });
 
-            const data = await res.json();
+            const data: SyncResponse = await res.json();
 
-            if (data.success) {
+            if (data.success && data.results) {
                 localStorage.setItem(STORAGE_KEYS.migrated, 'true');
                 toast.success(`Migração concluída! ${data.results.groups.imported} grupos, ${data.results.bots.imported} bots, ${data.results.campaigns.imported} campanhas`);
                 console.log('[Heating] Migration completed:', data.results);
@@ -215,7 +215,7 @@ export function useHeating() {
                 // Reload data from API
                 await loadFromAPI();
             } else {
-                throw new Error(data.error);
+                throw new Error(data.error || 'Migration failed');
             }
         } catch (e) {
             console.error('[Heating] Migration error:', e);
@@ -297,10 +297,10 @@ export function useHeating() {
 
                 // Call backend process
                 const res = await fetch(`${API_BASE}/process`, { method: 'POST' });
-                const data = await res.json();
+                const data: ProcessResponse = await res.json();
 
                 if (data.success && data.results) {
-                    const sentCount = data.results.filter((r: { status: string }) => r.status === 'sent').length;
+                    const sentCount = data.results.filter(r => r.status === 'sent').length;
                     if (sentCount > 0) {
                         console.log(`[Heating] Backend processed: ${sentCount} messages sent`);
                         // Reload data to get updated stats
