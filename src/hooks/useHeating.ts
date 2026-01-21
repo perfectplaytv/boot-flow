@@ -4,7 +4,6 @@ import type {
     HeatingGroup,
     HeatingBot,
     HeatingCampaign,
-    HeatingMessage,
     HeatingLog,
     HeatingStats,
     CreateHeatingGroupForm,
@@ -15,13 +14,15 @@ import type {
 } from '@/types/heating';
 
 const API_BASE = '/api/heating';
+const ADMIN_ID = 'default'; // Can be replaced with actual user ID
 
-// Local storage keys for offline/demo mode - defined outside hook to avoid dependency issues
+// Local storage keys for migration check
 const STORAGE_KEYS = {
     groups: 'heating_groups',
     bots: 'heating_bots',
     campaigns: 'heating_campaigns',
     logs: 'heating_logs',
+    migrated: 'heating_migrated_to_d1',
 } as const;
 
 export function useHeating() {
@@ -42,34 +43,160 @@ export function useHeating() {
     });
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [isMigrating, setIsMigrating] = useState(false);
 
-    // Load data from localStorage (fallback for demo mode)
-    const loadFromLocalStorage = useCallback(() => {
+    // ========== API HELPERS ==========
+
+    const apiGet = async <T>(endpoint: string): Promise<T[]> => {
+        const res = await fetch(`${API_BASE}/${endpoint}?admin_id=${ADMIN_ID}`);
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error);
+        return data.data;
+    };
+
+    const apiPost = async <T>(endpoint: string, body: unknown): Promise<T> => {
+        const res = await fetch(`${API_BASE}/${endpoint}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ...body as object, admin_id: ADMIN_ID }),
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error);
+        return data.data;
+    };
+
+    const apiPut = async (endpoint: string, body: unknown): Promise<void> => {
+        const res = await fetch(`${API_BASE}/${endpoint}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error);
+    };
+
+    const apiDelete = async (endpoint: string, id: number): Promise<void> => {
+        const res = await fetch(`${API_BASE}/${endpoint}?id=${id}`, {
+            method: 'DELETE',
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error);
+    };
+
+    // ========== LOAD DATA FROM API ==========
+
+    const loadFromAPI = useCallback(async () => {
         try {
-            const savedGroups = localStorage.getItem(STORAGE_KEYS.groups);
-            const savedBots = localStorage.getItem(STORAGE_KEYS.bots);
-            const savedCampaigns = localStorage.getItem(STORAGE_KEYS.campaigns);
-            const savedLogs = localStorage.getItem(STORAGE_KEYS.logs);
+            setIsLoading(true);
+            const [groupsData, botsData, campaignsData, logsData] = await Promise.all([
+                apiGet<HeatingGroup>('groups'),
+                apiGet<HeatingBot>('bots'),
+                apiGet<HeatingCampaign>('campaigns'),
+                apiGet<HeatingLog>('logs'),
+            ]);
 
-            if (savedGroups) setGroups(JSON.parse(savedGroups));
-            if (savedBots) setBots(JSON.parse(savedBots));
-            if (savedCampaigns) setCampaigns(JSON.parse(savedCampaigns));
-            if (savedLogs) setLogs(JSON.parse(savedLogs));
+            setGroups(groupsData);
+            setBots(botsData);
+            setCampaigns(campaignsData);
+            setLogs(logsData);
+
+            console.log('[Heating] Loaded from API:', {
+                groups: groupsData.length,
+                bots: botsData.length,
+                campaigns: campaignsData.length,
+                logs: logsData.length,
+            });
         } catch (e) {
-            console.error('Error loading from localStorage:', e);
+            console.error('[Heating] Error loading from API:', e);
+            setError(e instanceof Error ? e.message : 'Error loading data');
+        } finally {
+            setIsLoading(false);
         }
     }, []);
 
-    // Save to localStorage
-    const saveToLocalStorage = useCallback((key: string, data: unknown) => {
-        try {
-            localStorage.setItem(key, JSON.stringify(data));
-        } catch (e) {
-            console.error('Error saving to localStorage:', e);
-        }
-    }, []);
+    // ========== MIGRATION ==========
 
-    // Calculate stats
+    const migrateToD1 = useCallback(async () => {
+        const alreadyMigrated = localStorage.getItem(STORAGE_KEYS.migrated);
+        if (alreadyMigrated) return;
+
+        // Check if there's local data to migrate
+        const localGroups = localStorage.getItem(STORAGE_KEYS.groups);
+        const localBots = localStorage.getItem(STORAGE_KEYS.bots);
+        const localCampaigns = localStorage.getItem(STORAGE_KEYS.campaigns);
+
+        if (!localGroups && !localBots && !localCampaigns) {
+            localStorage.setItem(STORAGE_KEYS.migrated, 'true');
+            return;
+        }
+
+        // Check if D1 already has data
+        try {
+            const checkRes = await fetch(`${API_BASE}/sync?admin_id=${ADMIN_ID}`);
+            const checkData = await checkRes.json();
+
+            if (checkData.success && checkData.data.hasData) {
+                console.log('[Heating] D1 already has data, skipping migration');
+                localStorage.setItem(STORAGE_KEYS.migrated, 'true');
+                return;
+            }
+        } catch (e) {
+            console.error('[Heating] Error checking D1:', e);
+            return;
+        }
+
+        // Migrate data
+        setIsMigrating(true);
+        toast.info('Migrando dados para a nuvem...');
+
+        try {
+            const groups = localGroups ? JSON.parse(localGroups) : [];
+            const bots = localBots ? JSON.parse(localBots) : [];
+            const campaigns = localCampaigns ? JSON.parse(localCampaigns) : [];
+
+            const res = await fetch(`${API_BASE}/sync`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    adminId: ADMIN_ID,
+                    groups,
+                    bots,
+                    campaigns,
+                }),
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                localStorage.setItem(STORAGE_KEYS.migrated, 'true');
+                toast.success(`Migração concluída! ${data.results.groups.imported} grupos, ${data.results.bots.imported} bots, ${data.results.campaigns.imported} campanhas`);
+                console.log('[Heating] Migration completed:', data.results);
+
+                // Reload data from API
+                await loadFromAPI();
+            } else {
+                throw new Error(data.error);
+            }
+        } catch (e) {
+            console.error('[Heating] Migration error:', e);
+            toast.error('Erro na migração. Usando dados locais.');
+        } finally {
+            setIsMigrating(false);
+        }
+    }, [loadFromAPI]);
+
+    // ========== INITIAL LOAD ==========
+
+    useEffect(() => {
+        const init = async () => {
+            await migrateToD1();
+            await loadFromAPI();
+        };
+        init();
+    }, [migrateToD1, loadFromAPI]);
+
+    // ========== CALCULATE STATS ==========
+
     const calculateStats = useCallback(() => {
         const runningCampaigns = campaigns.filter(c => c.status === 'running').length;
         const activeBots = bots.filter(b => b.status === 'active').length;
@@ -89,22 +216,15 @@ export function useHeating() {
         });
     }, [groups, bots, campaigns]);
 
-    // Initial load
-    useEffect(() => {
-        loadFromLocalStorage();
-        setIsLoading(false);
-    }, [loadFromLocalStorage]);
-
-    // Recalculate stats when data changes
     useEffect(() => {
         calculateStats();
     }, [calculateStats]);
 
-    // Track last send time per campaign to respect intervals
+    // ========== AUTOMATIC SENDING LOOP ==========
+
     const lastSendTimeRef = useRef<Record<number, number>>({});
     const sendingRef = useRef<boolean>(false);
 
-    // Helper: Check if current time is within campaign window
     const isWithinTimeWindow = useCallback((windowStart: string, windowEnd: string): boolean => {
         const now = new Date();
         const currentMinutes = now.getHours() * 60 + now.getMinutes();
@@ -118,229 +238,103 @@ export function useHeating() {
         return currentMinutes >= startMinutes && currentMinutes <= endMinutes;
     }, []);
 
-    // Helper: Get random interval between min and max
     const getRandomInterval = useCallback((min: number, max: number): number => {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }, []);
 
-    // Automatic sending loop for running campaigns
+    // Call backend process endpoint periodically
     useEffect(() => {
-        const runSendingLoop = async () => {
-            if (sendingRef.current) return; // Prevent concurrent runs
+        const processViaBackend = async () => {
+            if (sendingRef.current) return;
             sendingRef.current = true;
 
             try {
                 const runningCampaigns = campaigns.filter(c => c.status === 'running');
+                if (runningCampaigns.length === 0) {
+                    sendingRef.current = false;
+                    return;
+                }
 
-                for (const campaign of runningCampaigns) {
-                    // Check time window
-                    if (!isWithinTimeWindow(campaign.window_start, campaign.window_end)) {
-                        continue;
-                    }
+                // Call backend process
+                const res = await fetch(`${API_BASE}/process`, { method: 'POST' });
+                const data = await res.json();
 
-                    // Check if enough time has passed since last send
-                    const lastSend = lastSendTimeRef.current[campaign.id] || 0;
-                    const now = Date.now();
-                    const minInterval = campaign.interval_min * 1000;
-                    const maxInterval = campaign.interval_max * 1000;
-                    const requiredInterval = getRandomInterval(minInterval, maxInterval);
-
-                    if (now - lastSend < requiredInterval) {
-                        continue;
-                    }
-
-                    // Get available bots for this campaign
-                    const campaignBots = campaign.bots || [];
-                    if (campaignBots.length === 0) continue;
-
-                    // Pick a random bot
-                    const randomBotData = campaignBots[Math.floor(Math.random() * campaignBots.length)];
-                    const bot = bots.find(b => b.id === randomBotData.bot_id);
-                    if (!bot || bot.status !== 'active') continue;
-
-                    // Check daily limit for bot
-                    if (bot.messages_sent_today >= campaign.max_messages_per_bot_per_day) continue;
-
-                    // Get messages for this campaign
-                    const campaignMessages = campaign.messages || [];
-                    if (campaignMessages.length === 0) continue;
-
-                    // Pick message based on send mode
-                    let messageIndex = 0;
-                    if (campaign.send_mode === 'sequential') {
-                        const currentIndex = (campaign.message_index || 0) % campaignMessages.length;
-                        messageIndex = currentIndex;
-                    } else {
-                        messageIndex = Math.floor(Math.random() * campaignMessages.length);
-                    }
-
-                    const message = campaignMessages[messageIndex];
-                    if (!message) continue;
-
-                    // Get group
-                    const group = groups.find(g => g.id === campaign.group_id);
-                    if (!group) continue;
-
-                    // SEND THE MESSAGE
-                    try {
-                        const url = `https://api.telegram.org/bot${bot.token}/sendMessage`;
-                        const res = await fetch(url, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                chat_id: group.chat_id,
-                                text: message.content,
-                                disable_web_page_preview: true,
-                            }),
-                        });
-
-                        const data: TelegramSendMessageResponse = await res.json();
-
-                        // Update last send time
-                        lastSendTimeRef.current[campaign.id] = Date.now();
-
-                        // Add log
-                        const newLog: HeatingLog = {
-                            id: Date.now(),
-                            campaign_id: campaign.id,
-                            bot_id: bot.id,
-                            bot_name: bot.name,
-                            message_id: message.id,
-                            message_preview: message.content.slice(0, 50),
-                            status: data.ok ? 'success' : 'error',
-                            error_message: data.ok ? undefined : data.description,
-                            telegram_message_id: data.result?.message_id?.toString(),
-                            sent_at: new Date().toISOString(),
-                        };
-
-                        setLogs(prev => {
-                            const updated = [newLog, ...prev].slice(0, 500);
-                            saveToLocalStorage(STORAGE_KEYS.logs, updated);
-                            return updated;
-                        });
-
-                        // Update campaign stats
-                        setCampaigns(prev => {
-                            const updated = prev.map(c => {
-                                if (c.id === campaign.id) {
-                                    return {
-                                        ...c,
-                                        total_messages_sent: c.total_messages_sent + (data.ok ? 1 : 0),
-                                        total_errors: c.total_errors + (data.ok ? 0 : 1),
-                                        message_index: (c.message_index || 0) + 1,
-                                        last_sent_at: new Date().toISOString(),
-                                    };
-                                }
-                                return c;
-                            });
-                            saveToLocalStorage(STORAGE_KEYS.campaigns, updated);
-                            return updated;
-                        });
-
-                        // Update bot message count
-                        setBots(prev => {
-                            const updated = prev.map(b => {
-                                if (b.id === bot.id) {
-                                    return {
-                                        ...b,
-                                        messages_sent_today: (b.messages_sent_today || 0) + 1,
-                                    };
-                                }
-                                return b;
-                            });
-                            saveToLocalStorage(STORAGE_KEYS.bots, updated);
-                            return updated;
-                        });
-
-                        if (data.ok) {
-                            console.log(`✅ Mensagem enviada: ${bot.name} -> ${group.name}`);
-                        } else {
-                            console.error(`❌ Erro: ${data.description}`);
-                        }
-                    } catch (err) {
-                        console.error('Erro ao enviar mensagem:', err);
+                if (data.success && data.results) {
+                    const sentCount = data.results.filter((r: { status: string }) => r.status === 'sent').length;
+                    if (sentCount > 0) {
+                        console.log(`[Heating] Backend processed: ${sentCount} messages sent`);
+                        // Reload data to get updated stats
+                        await loadFromAPI();
                     }
                 }
+            } catch (e) {
+                console.error('[Heating] Backend process error:', e);
             } finally {
                 sendingRef.current = false;
             }
         };
 
-        // Run every 10 seconds
-        const interval = setInterval(runSendingLoop, 10000);
+        // Run every 30 seconds
+        const interval = setInterval(processViaBackend, 30000);
 
-        // Run immediately on mount
-        runSendingLoop();
+        // Run immediately
+        processViaBackend();
 
         return () => clearInterval(interval);
-    }, [campaigns, bots, groups, isWithinTimeWindow, getRandomInterval, saveToLocalStorage]);
+    }, [campaigns, loadFromAPI]);
 
     // ========== GROUP OPERATIONS ==========
 
     const addGroup = useCallback(async (data: CreateHeatingGroupForm): Promise<HeatingGroup | null> => {
         try {
-            const newGroup: HeatingGroup = {
-                id: Date.now(),
-                admin_id: 'local',
+            const result = await apiPost<{ id: number }>('groups', {
                 name: data.name,
                 chat_id: data.chat_id,
                 description: data.description,
                 tags: data.tags ? data.tags.split(',').map(t => t.trim()) : [],
-                is_active: true,
-                test_status: 'pending',
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString(),
-            };
+            });
 
-            const updated = [...groups, newGroup];
-            setGroups(updated);
-            saveToLocalStorage(STORAGE_KEYS.groups, updated);
-            toast.success(`Grupo "${newGroup.name}" adicionado!`);
-            return newGroup;
+            toast.success(`Grupo "${data.name}" adicionado!`);
+            await loadFromAPI();
+            return groups.find(g => g.id === result.id) || null;
         } catch (e) {
             const msg = e instanceof Error ? e.message : 'Erro ao adicionar grupo';
             toast.error(msg);
-            setError(msg);
             return null;
         }
-    }, [groups, saveToLocalStorage]);
+    }, [loadFromAPI, groups]);
 
     const updateGroup = useCallback(async (id: number, data: Partial<HeatingGroup>): Promise<boolean> => {
         try {
-            const updated = groups.map(g =>
-                g.id === id ? { ...g, ...data, updated_at: new Date().toISOString() } : g
-            );
-            setGroups(updated);
-            saveToLocalStorage(STORAGE_KEYS.groups, updated);
+            await apiPut('groups', { id, ...data });
             toast.success('Grupo atualizado!');
+            await loadFromAPI();
             return true;
         } catch (e) {
             const msg = e instanceof Error ? e.message : 'Erro ao atualizar grupo';
             toast.error(msg);
             return false;
         }
-    }, [groups, saveToLocalStorage]);
+    }, [loadFromAPI]);
 
     const deleteGroup = useCallback(async (id: number): Promise<boolean> => {
         try {
-            const updated = groups.filter(g => g.id !== id);
-            setGroups(updated);
-            saveToLocalStorage(STORAGE_KEYS.groups, updated);
+            await apiDelete('groups', id);
             toast.success('Grupo removido!');
+            await loadFromAPI();
             return true;
         } catch (e) {
             const msg = e instanceof Error ? e.message : 'Erro ao remover grupo';
             toast.error(msg);
             return false;
         }
-    }, [groups, saveToLocalStorage]);
+    }, [loadFromAPI]);
 
     const testGroup = useCallback(async (groupId: number, token: string): Promise<boolean> => {
         try {
             const group = groups.find(g => g.id === groupId);
             if (!group) throw new Error('Grupo não encontrado');
 
-            // Send test message via Telegram API
             const url = `https://api.telegram.org/bot${token}/sendMessage`;
             const res = await fetch(url, {
                 method: 'POST',
@@ -354,7 +348,6 @@ export function useHeating() {
 
             const data: TelegramSendMessageResponse = await res.json();
             const status = data.ok ? 'success' : 'failed';
-            const errorMsg = data.ok ? undefined : data.description;
 
             await updateGroup(groupId, {
                 test_status: status,
@@ -365,7 +358,7 @@ export function useHeating() {
                 toast.success('Teste enviado com sucesso!');
                 return true;
             } else {
-                toast.error(`Falha no teste: ${errorMsg}`);
+                toast.error(`Falha no teste: ${data.description}`);
                 return false;
             }
         } catch (e) {
@@ -377,102 +370,89 @@ export function useHeating() {
 
     // ========== BOT OPERATIONS ==========
 
-    const validateBotToken = useCallback(async (token: string): Promise<TelegramBotInfo> => {
-        const url = `https://api.telegram.org/bot${token}/getMe`;
-        const res = await fetch(url);
-        return res.json();
+    const validateBotToken = useCallback(async (token: string): Promise<TelegramBotInfo | null> => {
+        try {
+            const url = `https://api.telegram.org/bot${token}/getMe`;
+            const res = await fetch(url);
+            const data: TelegramBotInfo = await res.json();
+            return data;
+        } catch {
+            return null;
+        }
     }, []);
 
     const addBot = useCallback(async (data: CreateHeatingBotForm): Promise<HeatingBot | null> => {
         try {
             // Validate token first
             const validation = await validateBotToken(data.token);
-            if (!validation.ok) {
-                toast.error(`Token inválido: ${validation.description}`);
+            if (!validation?.ok) {
+                toast.error('Token inválido');
                 return null;
             }
 
-            const newBot: HeatingBot = {
-                id: Date.now(),
-                admin_id: 'local',
+            const result = await apiPost<{ id: number }>('bots', {
                 name: data.name,
                 token: data.token,
                 username: validation.result?.username,
-                status: 'active',
                 max_messages_per_hour: data.max_messages_per_hour,
                 max_messages_per_day: data.max_messages_per_day,
-                messages_sent_today: 0,
-                messages_sent_this_hour: 0,
-                last_validated_at: new Date().toISOString(),
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString(),
-            };
+            });
 
-            const updated = [...bots, newBot];
-            setBots(updated);
-            saveToLocalStorage(STORAGE_KEYS.bots, updated);
-            toast.success(`Bot @${newBot.username} adicionado!`);
-            return newBot;
+            toast.success(`Bot "${data.name}" adicionado!`);
+            await loadFromAPI();
+            return bots.find(b => b.id === result.id) || null;
         } catch (e) {
             const msg = e instanceof Error ? e.message : 'Erro ao adicionar bot';
             toast.error(msg);
             return null;
         }
-    }, [bots, saveToLocalStorage, validateBotToken]);
+    }, [validateBotToken, loadFromAPI, bots]);
 
     const updateBot = useCallback(async (id: number, data: Partial<HeatingBot>): Promise<boolean> => {
         try {
-            const updated = bots.map(b =>
-                b.id === id ? { ...b, ...data, updated_at: new Date().toISOString() } : b
-            );
-            setBots(updated);
-            saveToLocalStorage(STORAGE_KEYS.bots, updated);
-            toast.success('Bot atualizado!');
+            await apiPut('bots', { id, ...data });
+            await loadFromAPI();
             return true;
         } catch (e) {
             const msg = e instanceof Error ? e.message : 'Erro ao atualizar bot';
             toast.error(msg);
             return false;
         }
-    }, [bots, saveToLocalStorage]);
+    }, [loadFromAPI]);
 
     const deleteBot = useCallback(async (id: number): Promise<boolean> => {
         try {
-            const updated = bots.filter(b => b.id !== id);
-            setBots(updated);
-            saveToLocalStorage(STORAGE_KEYS.bots, updated);
+            await apiDelete('bots', id);
             toast.success('Bot removido!');
+            await loadFromAPI();
             return true;
         } catch (e) {
             const msg = e instanceof Error ? e.message : 'Erro ao remover bot';
             toast.error(msg);
             return false;
         }
-    }, [bots, saveToLocalStorage]);
+    }, [loadFromAPI]);
 
     const revalidateBot = useCallback(async (id: number): Promise<boolean> => {
-        try {
-            const bot = bots.find(b => b.id === id);
-            if (!bot) throw new Error('Bot não encontrado');
+        const bot = bots.find(b => b.id === id);
+        if (!bot) return false;
 
-            const validation = await validateBotToken(bot.token);
+        const validation = await validateBotToken(bot.token);
+        if (validation?.ok) {
             await updateBot(id, {
-                status: validation.ok ? 'active' : 'error',
                 username: validation.result?.username,
+                status: 'active',
                 last_validated_at: new Date().toISOString(),
-                validation_error: validation.ok ? undefined : validation.description,
+                validation_error: undefined,
             });
-
-            if (validation.ok) {
-                toast.success(`Bot @${validation.result?.username} validado!`);
-                return true;
-            } else {
-                toast.error(`Erro na validação: ${validation.description}`);
-                return false;
-            }
-        } catch (e) {
-            const msg = e instanceof Error ? e.message : 'Erro na validação';
-            toast.error(msg);
+            toast.success('Bot revalidado!');
+            return true;
+        } else {
+            await updateBot(id, {
+                status: 'error',
+                validation_error: validation?.description || 'Token inválido',
+            });
+            toast.error('Falha na revalidação');
             return false;
         }
     }, [bots, validateBotToken, updateBot]);
@@ -481,88 +461,58 @@ export function useHeating() {
 
     const addCampaign = useCallback(async (data: CreateHeatingCampaignForm): Promise<HeatingCampaign | null> => {
         try {
-            const group = groups.find(g => g.id === data.group_id);
-            if (!group) throw new Error('Grupo não encontrado');
+            if (!data.group_id || data.bot_ids.length === 0 || data.messages.length === 0) {
+                toast.error('Preencha todos os campos obrigatórios');
+                return null;
+            }
 
-            const newCampaign: HeatingCampaign = {
-                id: Date.now(),
-                admin_id: 'local',
+            const result = await apiPost<{ id: number }>('campaigns', {
                 name: data.name,
                 group_id: data.group_id,
-                group_name: group.name,
-                status: 'paused',
+                bot_ids: data.bot_ids,
+                messages: data.messages.filter(m => m.trim()),
                 send_mode: data.send_mode,
                 interval_min: data.interval_min,
                 interval_max: data.interval_max,
                 window_start: data.window_start,
                 window_end: data.window_end,
                 max_messages_per_bot_per_day: data.max_messages_per_bot_per_day,
-                message_index: 0,
-                total_messages_sent: 0,
-                total_errors: 0,
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString(),
-                bots: data.bot_ids.map(botId => {
-                    const bot = bots.find(b => b.id === botId);
-                    return {
-                        id: Date.now() + botId,
-                        campaign_id: Date.now(),
-                        bot_id: botId,
-                        bot_name: bot?.name,
-                        bot_username: bot?.username,
-                        messages_sent_today: 0,
-                    };
-                }),
-                messages: data.messages.filter(m => m.trim()).map((content, index) => ({
-                    id: Date.now() + index,
-                    campaign_id: Date.now(),
-                    content,
-                    order_index: index,
-                    times_sent: 0,
-                    created_at: new Date().toISOString(),
-                })),
-            };
+            });
 
-            const updated = [...campaigns, newCampaign];
-            setCampaigns(updated);
-            saveToLocalStorage(STORAGE_KEYS.campaigns, updated);
-            toast.success(`Campanha "${newCampaign.name}" criada!`);
-            return newCampaign;
+            toast.success(`Campanha "${data.name}" criada!`);
+            await loadFromAPI();
+            return campaigns.find(c => c.id === result.id) || null;
         } catch (e) {
             const msg = e instanceof Error ? e.message : 'Erro ao criar campanha';
             toast.error(msg);
             return null;
         }
-    }, [groups, bots, campaigns, saveToLocalStorage]);
+    }, [loadFromAPI, campaigns]);
 
     const updateCampaign = useCallback(async (id: number, data: Partial<HeatingCampaign>): Promise<boolean> => {
         try {
-            const updated = campaigns.map(c =>
-                c.id === id ? { ...c, ...data, updated_at: new Date().toISOString() } : c
-            );
-            setCampaigns(updated);
-            saveToLocalStorage(STORAGE_KEYS.campaigns, updated);
+            await apiPut('campaigns', { id, ...data });
+            await loadFromAPI();
             return true;
         } catch (e) {
             const msg = e instanceof Error ? e.message : 'Erro ao atualizar campanha';
             toast.error(msg);
             return false;
         }
-    }, [campaigns, saveToLocalStorage]);
+    }, [loadFromAPI]);
 
     const deleteCampaign = useCallback(async (id: number): Promise<boolean> => {
         try {
-            const updated = campaigns.filter(c => c.id !== id);
-            setCampaigns(updated);
-            saveToLocalStorage(STORAGE_KEYS.campaigns, updated);
+            await apiDelete('campaigns', id);
             toast.success('Campanha removida!');
+            await loadFromAPI();
             return true;
         } catch (e) {
             const msg = e instanceof Error ? e.message : 'Erro ao remover campanha';
             toast.error(msg);
             return false;
         }
-    }, [campaigns, saveToLocalStorage]);
+    }, [loadFromAPI]);
 
     const startCampaign = useCallback(async (id: number): Promise<boolean> => {
         const success = await updateCampaign(id, { status: 'running' });
@@ -578,66 +528,58 @@ export function useHeating() {
 
     const stopCampaign = useCallback(async (id: number): Promise<boolean> => {
         const success = await updateCampaign(id, { status: 'stopped' });
-        if (success) toast.warning('Campanha parada');
+        if (success) toast.info('Campanha parada');
         return success;
     }, [updateCampaign]);
 
     const duplicateCampaign = useCallback(async (id: number): Promise<HeatingCampaign | null> => {
         const original = campaigns.find(c => c.id === id);
-        if (!original) {
-            toast.error('Campanha não encontrada');
-            return null;
-        }
+        if (!original) return null;
 
-        const copy: HeatingCampaign = {
-            ...original,
-            id: Date.now(),
+        return addCampaign({
             name: `${original.name} (cópia)`,
-            status: 'paused',
-            total_messages_sent: 0,
-            total_errors: 0,
-            message_index: 0,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-        };
-
-        const updated = [...campaigns, copy];
-        setCampaigns(updated);
-        saveToLocalStorage(STORAGE_KEYS.campaigns, updated);
-        toast.success('Campanha duplicada!');
-        return copy;
-    }, [campaigns, saveToLocalStorage]);
+            group_id: original.group_id,
+            bot_ids: original.bots?.map(b => b.bot_id) || [],
+            messages: original.messages?.map(m => m.content) || [],
+            send_mode: original.send_mode,
+            interval_min: original.interval_min,
+            interval_max: original.interval_max,
+            window_start: original.window_start,
+            window_end: original.window_end,
+            max_messages_per_bot_per_day: original.max_messages_per_bot_per_day,
+        });
+    }, [campaigns, addCampaign]);
 
     // ========== LOG OPERATIONS ==========
 
-    const addLog = useCallback((log: Omit<HeatingLog, 'id' | 'sent_at'>): void => {
-        const newLog: HeatingLog = {
-            ...log,
-            id: Date.now(),
-            sent_at: new Date().toISOString(),
-        };
-        const updated = [newLog, ...logs].slice(0, 1000); // Keep last 1000 logs
-        setLogs(updated);
-        saveToLocalStorage(STORAGE_KEYS.logs, updated);
-    }, [logs, saveToLocalStorage]);
+    const addLog = useCallback(async (logData: Omit<HeatingLog, 'id' | 'sent_at'>): Promise<void> => {
+        // Logs are added by the backend, this is just for compatibility
+        console.log('[Heating] Log would be added:', logData);
+    }, []);
 
-    const clearLogs = useCallback((campaignId?: number): void => {
-        const updated = campaignId ? logs.filter(l => l.campaign_id !== campaignId) : [];
-        setLogs(updated);
-        saveToLocalStorage(STORAGE_KEYS.logs, updated);
-        toast.success('Logs limpos!');
-    }, [logs, saveToLocalStorage]);
+    const clearLogs = useCallback(async (campaignId?: number): Promise<void> => {
+        try {
+            const url = campaignId
+                ? `${API_BASE}/logs?campaign_id=${campaignId}`
+                : `${API_BASE}/logs`;
+            await fetch(url, { method: 'DELETE' });
+            toast.success('Logs limpos!');
+            await loadFromAPI();
+        } catch (e) {
+            toast.error('Erro ao limpar logs');
+        }
+    }, [loadFromAPI]);
 
     const getLogsByCampaign = useCallback((campaignId: number, limit = 100): HeatingLog[] => {
         return logs.filter(l => l.campaign_id === campaignId).slice(0, limit);
     }, [logs]);
 
-    // ========== SEND MESSAGE ==========
+    // ========== SEND MESSAGE (for testing) ==========
 
     const sendMessage = useCallback(async (
         campaign: HeatingCampaign,
         bot: HeatingBot,
-        message: HeatingMessage
+        message: { id: number; content: string }
     ): Promise<boolean> => {
         try {
             const group = groups.find(g => g.id === campaign.group_id);
@@ -656,39 +598,15 @@ export function useHeating() {
 
             const data: TelegramSendMessageResponse = await res.json();
 
-            // Add log
-            addLog({
-                campaign_id: campaign.id,
-                bot_id: bot.id,
-                bot_name: bot.name,
-                message_id: message.id,
-                message_preview: message.content.slice(0, 50),
-                status: data.ok ? 'success' : 'error',
-                error_message: data.ok ? undefined : data.description,
-                telegram_message_id: data.result?.message_id?.toString(),
-            });
-
-            // Update campaign stats
-            await updateCampaign(campaign.id, {
-                total_messages_sent: campaign.total_messages_sent + (data.ok ? 1 : 0),
-                total_errors: campaign.total_errors + (data.ok ? 0 : 1),
-                last_sent_at: new Date().toISOString(),
-            });
+            // Reload to get updated stats
+            await loadFromAPI();
 
             return data.ok;
         } catch (e) {
-            const msg = e instanceof Error ? e.message : 'Erro ao enviar mensagem';
-            addLog({
-                campaign_id: campaign.id,
-                bot_id: bot.id,
-                bot_name: bot.name,
-                message_id: message.id,
-                status: 'error',
-                error_message: msg,
-            });
+            console.error('[Heating] Send message error:', e);
             return false;
         }
-    }, [groups, addLog, updateCampaign]);
+    }, [groups, loadFromAPI]);
 
     return {
         // Data
@@ -698,6 +616,7 @@ export function useHeating() {
         logs,
         stats,
         isLoading,
+        isMigrating,
         error,
 
         // Group operations
@@ -729,5 +648,6 @@ export function useHeating() {
 
         // Actions
         sendMessage,
+        loadFromAPI,
     };
 }
