@@ -11,6 +11,7 @@ import type {
     CreateHeatingBotForm,
     CreateHeatingCampaignForm,
     TelegramBotInfo,
+    TelegramSendMessageResponse,
 } from '@/types/heating';
 
 const API_BASE = '/api/heating';
@@ -176,7 +177,7 @@ export function useHeating() {
                 }),
             });
 
-            const data = await res.json();
+            const data: TelegramSendMessageResponse = await res.json();
             const status = data.ok ? 'success' : 'failed';
             const errorMsg = data.ok ? undefined : data.description;
 
@@ -478,7 +479,7 @@ export function useHeating() {
                 }),
             });
 
-            const data = await res.json();
+            const data: TelegramSendMessageResponse = await res.json();
 
             // Add log
             addLog({
