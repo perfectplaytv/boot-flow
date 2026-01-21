@@ -168,7 +168,7 @@ export function useHeating() {
                     // Pick message based on send mode
                     let messageIndex = 0;
                     if (campaign.send_mode === 'sequential') {
-                        const currentIndex = (campaign.current_message_index || 0) % campaignMessages.length;
+                        const currentIndex = (campaign.message_index || 0) % campaignMessages.length;
                         messageIndex = currentIndex;
                     } else {
                         messageIndex = Math.floor(Math.random() * campaignMessages.length);
@@ -227,7 +227,7 @@ export function useHeating() {
                                         ...c,
                                         total_messages_sent: c.total_messages_sent + (data.ok ? 1 : 0),
                                         total_errors: c.total_errors + (data.ok ? 0 : 1),
-                                        current_message_index: (c.current_message_index || 0) + 1,
+                                        message_index: (c.message_index || 0) + 1,
                                         last_sent_at: new Date().toISOString(),
                                     };
                                 }
