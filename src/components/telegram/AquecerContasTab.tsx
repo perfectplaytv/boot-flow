@@ -577,8 +577,8 @@ export function AquecerContasTab() {
                             Logs de Envio
                         </h3>
                         <div className="flex gap-2">
-                            <Select value={logFilter} onValueChange={(v: typeof logFilter) => setLogFilter(v)}>
-                                <SelectTrigger className="w-32 h-8">
+                            <Select value={logFilter} onValueChange={(v: typeof logFilter) => setLogFilter(v)} name="log-filter">
+                                <SelectTrigger className="w-32 h-8" id="log-filter">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -653,16 +653,20 @@ export function AquecerContasTab() {
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
-                                <Label>Nome do Grupo *</Label>
+                                <Label htmlFor="group-name">Nome do Grupo *</Label>
                                 <Input
+                                    id="group-name"
+                                    name="group-name"
                                     placeholder="Ex: Grupo de Vendas"
                                     value={newGroup.name}
                                     onChange={(e) => setNewGroup(prev => ({ ...prev, name: e.target.value }))}
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label>Chat ID *</Label>
+                                <Label htmlFor="group-chat-id">Chat ID *</Label>
                                 <Input
+                                    id="group-chat-id"
+                                    name="group-chat-id"
                                     placeholder="Ex: -1001234567890"
                                     value={newGroup.chat_id}
                                     onChange={(e) => setNewGroup(prev => ({ ...prev, chat_id: e.target.value }))}
@@ -672,16 +676,20 @@ export function AquecerContasTab() {
                                 </p>
                             </div>
                             <div className="space-y-2">
-                                <Label>Descrição</Label>
+                                <Label htmlFor="group-description">Descrição</Label>
                                 <Input
+                                    id="group-description"
+                                    name="group-description"
                                     placeholder="Descrição opcional"
                                     value={newGroup.description}
                                     onChange={(e) => setNewGroup(prev => ({ ...prev, description: e.target.value }))}
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label>Tags (separadas por vírgula)</Label>
+                                <Label htmlFor="group-tags">Tags (separadas por vírgula)</Label>
                                 <Input
+                                    id="group-tags"
+                                    name="group-tags"
                                     placeholder="Ex: vendas, promoções"
                                     value={newGroup.tags}
                                     onChange={(e) => setNewGroup(prev => ({ ...prev, tags: e.target.value }))}
