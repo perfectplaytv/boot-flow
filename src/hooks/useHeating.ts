@@ -16,6 +16,14 @@ import type {
 
 const API_BASE = '/api/heating';
 
+// Local storage keys for offline/demo mode - defined outside hook to avoid dependency issues
+const STORAGE_KEYS = {
+    groups: 'heating_groups',
+    bots: 'heating_bots',
+    campaigns: 'heating_campaigns',
+    logs: 'heating_logs',
+} as const;
+
 export function useHeating() {
     // States
     const [groups, setGroups] = useState<HeatingGroup[]>([]);
@@ -34,14 +42,6 @@ export function useHeating() {
     });
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-
-    // Local storage keys for offline/demo mode
-    const STORAGE_KEYS = {
-        groups: 'heating_groups',
-        bots: 'heating_bots',
-        campaigns: 'heating_campaigns',
-        logs: 'heating_logs',
-    };
 
     // Load data from localStorage (fallback for demo mode)
     const loadFromLocalStorage = useCallback(() => {
