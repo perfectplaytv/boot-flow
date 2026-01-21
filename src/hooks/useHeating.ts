@@ -16,6 +16,46 @@ import type {
 const API_BASE = '/api/heating';
 const ADMIN_ID = 'default'; // Can be replaced with actual user ID
 
+// API Response types
+interface ApiResponse<T> {
+    success: boolean;
+    data?: T;
+    error?: string;
+}
+
+interface ApiListResponse<T> {
+    success: boolean;
+    data?: T[];
+    error?: string;
+}
+
+interface SyncCheckResponse {
+    success: boolean;
+    data?: {
+        hasData: boolean;
+        groups: number;
+        bots: number;
+        campaigns: number;
+    };
+    error?: string;
+}
+
+interface SyncResponse {
+    success: boolean;
+    results?: {
+        groups: { imported: number; errors: number };
+        bots: { imported: number; errors: number };
+        campaigns: { imported: number; errors: number };
+    };
+    error?: string;
+}
+
+interface ProcessResponse {
+    success: boolean;
+    results?: Array<{ status: string; campaign: string; message?: string }>;
+    error?: string;
+}
+
 // Local storage keys for migration check
 const STORAGE_KEYS = {
     groups: 'heating_groups',
@@ -49,9 +89,9 @@ export function useHeating() {
 
     const apiGet = async <T>(endpoint: string): Promise<T[]> => {
         const res = await fetch(`${API_BASE}/${endpoint}?admin_id=${ADMIN_ID}`);
-        const data = await res.json();
-        if (!data.success) throw new Error(data.error);
-        return data.data;
+        const data: ApiListResponse<T> = await res.json();
+        if (!data.success) throw new Error(data.error || 'Unknown error');
+        return data.data || [];
     };
 
     const apiPost = async <T>(endpoint: string, body: unknown): Promise<T> => {
@@ -60,9 +100,9 @@ export function useHeating() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ ...body as object, admin_id: ADMIN_ID }),
         });
-        const data = await res.json();
-        if (!data.success) throw new Error(data.error);
-        return data.data;
+        const data: ApiResponse<T> = await res.json();
+        if (!data.success) throw new Error(data.error || 'Unknown error');
+        return data.data as T;
     };
 
     const apiPut = async (endpoint: string, body: unknown): Promise<void> => {
@@ -71,16 +111,16 @@ export function useHeating() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body),
         });
-        const data = await res.json();
-        if (!data.success) throw new Error(data.error);
+        const data: ApiResponse<void> = await res.json();
+        if (!data.success) throw new Error(data.error || 'Unknown error');
     };
 
     const apiDelete = async (endpoint: string, id: number): Promise<void> => {
         const res = await fetch(`${API_BASE}/${endpoint}?id=${id}`, {
             method: 'DELETE',
         });
-        const data = await res.json();
-        if (!data.success) throw new Error(data.error);
+        const data: ApiResponse<void> = await res.json();
+        if (!data.success) throw new Error(data.error || 'Unknown error');
     };
 
     // ========== LOAD DATA FROM API ==========
