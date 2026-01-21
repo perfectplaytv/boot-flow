@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from "react";
+import { AquecerContasTab } from "@/components/telegram/AquecerContasTab";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,6 +49,7 @@ import {
     Radio,
     Sparkles,
     Copy,
+    Flame,
 } from "lucide-react";
 
 interface TelegramMember {
@@ -2658,7 +2660,7 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
 
             {/* Tabs para métodos de importação */}
             <Tabs defaultValue="automatic" className="w-full">
-                <TabsList className="grid w-full grid-cols-9 mb-6">
+                <TabsList className="grid w-full grid-cols-10 mb-6">
                     <TabsTrigger value="automatic" className="flex items-center gap-1 text-[10px]">
                         <Link className="w-3 h-3" />
                         Extração
@@ -2670,6 +2672,10 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
                     <TabsTrigger value="enchergrupos" className="flex items-center gap-1 text-[10px]">
                         <Zap className="w-3 h-3" />
                         Encher
+                    </TabsTrigger>
+                    <TabsTrigger value="aquecercontas" className="flex items-center gap-1 text-[10px]">
+                        <Flame className="w-3 h-3" />
+                        Aquecer
                     </TabsTrigger>
                     <TabsTrigger value="campaigns" className="flex items-center gap-1 text-[10px]">
                         <Calendar className="w-3 h-3" />
@@ -6326,6 +6332,11 @@ Com o Broadcast, você pode alcançar todos os seus leads de uma só vez, com ap
                             </Card>
                         </div>
                     )}
+                </TabsContent>
+
+                {/* Tab: Aquecer Contas (Group Heating) */}
+                <TabsContent value="aquecercontas" className="space-y-4">
+                    <AquecerContasTab />
                 </TabsContent>
             </Tabs>
 
