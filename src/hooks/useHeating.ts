@@ -100,6 +100,181 @@ export function useHeating() {
         calculateStats();
     }, [calculateStats]);
 
+    // Track last send time per campaign to respect intervals
+    const lastSendTimeRef = useRef<Record<number, number>>({});
+    const sendingRef = useRef<boolean>(false);
+
+    // Helper: Check if current time is within campaign window
+    const isWithinTimeWindow = useCallback((windowStart: string, windowEnd: string): boolean => {
+        const now = new Date();
+        const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+        const [startH, startM] = windowStart.split(':').map(Number);
+        const [endH, endM] = windowEnd.split(':').map(Number);
+
+        const startMinutes = startH * 60 + startM;
+        const endMinutes = endH * 60 + endM;
+
+        return currentMinutes >= startMinutes && currentMinutes <= endMinutes;
+    }, []);
+
+    // Helper: Get random interval between min and max
+    const getRandomInterval = useCallback((min: number, max: number): number => {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }, []);
+
+    // Automatic sending loop for running campaigns
+    useEffect(() => {
+        const runSendingLoop = async () => {
+            if (sendingRef.current) return; // Prevent concurrent runs
+            sendingRef.current = true;
+
+            try {
+                const runningCampaigns = campaigns.filter(c => c.status === 'running');
+
+                for (const campaign of runningCampaigns) {
+                    // Check time window
+                    if (!isWithinTimeWindow(campaign.window_start, campaign.window_end)) {
+                        continue;
+                    }
+
+                    // Check if enough time has passed since last send
+                    const lastSend = lastSendTimeRef.current[campaign.id] || 0;
+                    const now = Date.now();
+                    const minInterval = campaign.interval_min * 1000;
+                    const maxInterval = campaign.interval_max * 1000;
+                    const requiredInterval = getRandomInterval(minInterval, maxInterval);
+
+                    if (now - lastSend < requiredInterval) {
+                        continue;
+                    }
+
+                    // Get available bots for this campaign
+                    const campaignBots = campaign.bots || [];
+                    if (campaignBots.length === 0) continue;
+
+                    // Pick a random bot
+                    const randomBotData = campaignBots[Math.floor(Math.random() * campaignBots.length)];
+                    const bot = bots.find(b => b.id === randomBotData.bot_id);
+                    if (!bot || bot.status !== 'active') continue;
+
+                    // Check daily limit for bot
+                    if (bot.messages_sent_today >= campaign.max_messages_per_bot_per_day) continue;
+
+                    // Get messages for this campaign
+                    const campaignMessages = campaign.messages || [];
+                    if (campaignMessages.length === 0) continue;
+
+                    // Pick message based on send mode
+                    let messageIndex = 0;
+                    if (campaign.send_mode === 'sequential') {
+                        const currentIndex = (campaign.current_message_index || 0) % campaignMessages.length;
+                        messageIndex = currentIndex;
+                    } else {
+                        messageIndex = Math.floor(Math.random() * campaignMessages.length);
+                    }
+
+                    const message = campaignMessages[messageIndex];
+                    if (!message) continue;
+
+                    // Get group
+                    const group = groups.find(g => g.id === campaign.group_id);
+                    if (!group) continue;
+
+                    // SEND THE MESSAGE
+                    try {
+                        const url = `https://api.telegram.org/bot${bot.token}/sendMessage`;
+                        const res = await fetch(url, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                chat_id: group.chat_id,
+                                text: message.content,
+                                disable_web_page_preview: true,
+                            }),
+                        });
+
+                        const data: TelegramSendMessageResponse = await res.json();
+
+                        // Update last send time
+                        lastSendTimeRef.current[campaign.id] = Date.now();
+
+                        // Add log
+                        const newLog: HeatingLog = {
+                            id: Date.now(),
+                            campaign_id: campaign.id,
+                            bot_id: bot.id,
+                            bot_name: bot.name,
+                            message_id: message.id,
+                            message_preview: message.content.slice(0, 50),
+                            status: data.ok ? 'success' : 'error',
+                            error_message: data.ok ? undefined : data.description,
+                            telegram_message_id: data.result?.message_id?.toString(),
+                            sent_at: new Date().toISOString(),
+                        };
+
+                        setLogs(prev => {
+                            const updated = [newLog, ...prev].slice(0, 500);
+                            saveToLocalStorage(STORAGE_KEYS.logs, updated);
+                            return updated;
+                        });
+
+                        // Update campaign stats
+                        setCampaigns(prev => {
+                            const updated = prev.map(c => {
+                                if (c.id === campaign.id) {
+                                    return {
+                                        ...c,
+                                        total_messages_sent: c.total_messages_sent + (data.ok ? 1 : 0),
+                                        total_errors: c.total_errors + (data.ok ? 0 : 1),
+                                        current_message_index: (c.current_message_index || 0) + 1,
+                                        last_sent_at: new Date().toISOString(),
+                                    };
+                                }
+                                return c;
+                            });
+                            saveToLocalStorage(STORAGE_KEYS.campaigns, updated);
+                            return updated;
+                        });
+
+                        // Update bot message count
+                        setBots(prev => {
+                            const updated = prev.map(b => {
+                                if (b.id === bot.id) {
+                                    return {
+                                        ...b,
+                                        messages_sent_today: (b.messages_sent_today || 0) + 1,
+                                    };
+                                }
+                                return b;
+                            });
+                            saveToLocalStorage(STORAGE_KEYS.bots, updated);
+                            return updated;
+                        });
+
+                        if (data.ok) {
+                            console.log(`✅ Mensagem enviada: ${bot.name} -> ${group.name}`);
+                        } else {
+                            console.error(`❌ Erro: ${data.description}`);
+                        }
+                    } catch (err) {
+                        console.error('Erro ao enviar mensagem:', err);
+                    }
+                }
+            } finally {
+                sendingRef.current = false;
+            }
+        };
+
+        // Run every 10 seconds
+        const interval = setInterval(runSendingLoop, 10000);
+
+        // Run immediately on mount
+        runSendingLoop();
+
+        return () => clearInterval(interval);
+    }, [campaigns, bots, groups, isWithinTimeWindow, getRandomInterval, saveToLocalStorage]);
+
     // ========== GROUP OPERATIONS ==========
 
     const addGroup = useCallback(async (data: CreateHeatingGroupForm): Promise<HeatingGroup | null> => {
