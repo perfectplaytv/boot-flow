@@ -19,7 +19,7 @@ export const onRequestPost = async (context) => {
     const token = "APP_USR-233787625021211-011103-2cfc9a9b55695cb0faddbfc47c7b08ef-3095772720";
 
     try {
-        const { plan, payer } = await context.request.json();
+        const { plan, payer, device_id } = await context.request.json();
 
         if (!plan || !payer) {
             return new Response(JSON.stringify({ error: "Dados incompletos" }), { status: 400 });
@@ -47,17 +47,33 @@ export const onRequestPost = async (context) => {
                     number: payer.cpf.replace(/\D/g, "") // Apenas números
                 }
             },
+            // Additional info for fraud prevention
+            additional_info: {
+                ip_address: context.request.headers.get('cf-connecting-ip') || context.request.headers.get('x-forwarded-for') || '',
+                payer: {
+                    first_name: payer.name.split(" ")[0],
+                    last_name: payer.name.split(" ").slice(1).join(" ") || "Cliente",
+                }
+            },
             // Expira em 30 minutos
             date_of_expiration: new Date(Date.now() + 30 * 60 * 1000).toISOString()
         };
 
+        // Add device_id if available (required for Mercado Pago fraud prevention)
+        const headers: Record<string, string> = {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+            "X-Idempotency-Key": crypto.randomUUID()
+        };
+
+        // Add device ID header if provided
+        if (device_id) {
+            headers["X-meli-session-id"] = device_id;
+        }
+
         const response = await fetch("https://api.mercadopago.com/v1/payments", {
             method: "POST",
-            headers: {
-                "Authorization": `Bearer ${token}`,
-                "Content-Type": "application/json",
-                "X-Idempotency-Key": crypto.randomUUID()
-            },
+            headers,
             body: JSON.stringify(payload)
         });
 

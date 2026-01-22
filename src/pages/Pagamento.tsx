@@ -206,7 +206,8 @@ export default function Pagamento() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         plan,
-                        payer: formData
+                        payer: formData,
+                        device_id: deviceId // Send device ID for fraud prevention
                     })
                 });
 
