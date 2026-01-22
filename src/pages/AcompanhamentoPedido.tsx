@@ -57,9 +57,9 @@ export default function AcompanhamentoPedido() {
             if (!response.ok) {
                 throw new Error("Pedido não encontrado");
             }
-            const result = await response.json();
+            const result = await response.json() as { success: boolean; data?: Subscription; error?: string };
             if (result.success && result.data) {
-                setSubscription(result.data as Subscription);
+                setSubscription(result.data);
             } else {
                 throw new Error(result.error || "Pedido não encontrado");
             }
