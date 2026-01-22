@@ -4,7 +4,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { generateThemeFromId } from '@/utils/themeGenerator';
 
 export function ThemeInjector() {
-    // @ts-expect-error - Assuming user object structure
     const { user } = useAuth();
 
     useEffect(() => {
