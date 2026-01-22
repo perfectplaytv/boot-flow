@@ -72,8 +72,37 @@ export const validateDemoCredentials = (email: string, password: string): DemoUs
   return null;
 };
 
+// Interface para sessão demo
+interface DemoSession {
+  access_token: string;
+  refresh_token: string;
+  expires_in: number;
+  expires_at: number;
+  token_type: string;
+  user: {
+    id: string;
+    email: string;
+    user_metadata: { full_name: string; role: string };
+    app_metadata: { role: string };
+  };
+}
+
+interface StoredDemoSession {
+  session: DemoSession;
+  user: DemoUser;
+  profile: {
+    id: string;
+    email: string;
+    full_name: string;
+    role: string;
+    avatar_url?: string;
+    created_at: string;
+    updated_at: string;
+  };
+}
+
 // Cria sessão demo
-export const createDemoSession = (user: DemoUser): any => {
+export const createDemoSession = (user: DemoUser): DemoSession => {
   const session = {
     access_token: `demo_token_${user.id}_${Date.now()}`,
     refresh_token: `demo_refresh_${user.id}_${Date.now()}`,
@@ -111,7 +140,7 @@ export const createDemoSession = (user: DemoUser): any => {
 };
 
 // Recupera sessão demo do localStorage
-export const getDemoSession = (): any => {
+export const getDemoSession = (): StoredDemoSession | null => {
   const stored = localStorage.getItem(DEMO_SESSION_KEY);
   if (stored) {
     try {
