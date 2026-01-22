@@ -42,7 +42,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useUser } from "@/contexts/UserContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { AvatarSelectionModal } from "@/components/modals/AvatarSelectionModal";
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 
 // Definição de níveis de plano (menor = mais básico)
 const PLAN_LEVELS: Record<string, number> = {
