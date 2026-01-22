@@ -20,7 +20,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { ThemeInjector } from "@/components/ThemeInjector";
 
-// Definição dos temas por plano
+// Definição dos temas por plano - Atualizado para deploy
 const PLAN_THEMES: Record<string, { color: string; lightColor: string; borderColor: string; gradient: string }> = {
     'Essencial': {
         color: 'text-blue-500',
