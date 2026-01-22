@@ -460,7 +460,9 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
         email: editingReseller.email,
         telegram: editingReseller.telegram,
         whatsapp: editingReseller.whatsapp,
-        observations: editingReseller.observations
+        observations: editingReseller.observations,
+        plan_name: editingReseller.plan_name,
+        max_clients: editingReseller.max_clients
       });
 
       if (success) {
@@ -1727,36 +1729,41 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
                 />
               </div>
 
-              {/* Informações do Plano (somente leitura) */}
-              {editingReseller.plan_name && (
-                <div className="mt-4 pt-4 border-t border-gray-700">
-                  <h3 className="text-lg font-bold text-purple-400 mb-3">📋 Plano Assinado</h3>
-                  <div className="grid grid-cols-2 gap-4 bg-purple-900/20 p-4 rounded-lg border border-purple-700/40">
-                    <div>
-                      <Label className="text-sm font-medium text-gray-400">Plano</Label>
-                      <p className="text-white font-bold">{editingReseller.plan_name}</p>
-                    </div>
-                    <div>
-                      <Label className="text-sm font-medium text-gray-400">Valor</Label>
-                      <p className="text-green-400 font-bold">{editingReseller.plan_price}</p>
-                    </div>
-                    <div>
-                      <Label className="text-sm font-medium text-gray-400">Limite de Clientes</Label>
-                      <p className="text-white">{editingReseller.max_clients || 5}</p>
-                    </div>
-                    <div>
-                      <Label className="text-sm font-medium text-gray-400">Data da Assinatura</Label>
-                      <p className="text-white">
-                        {editingReseller.subscription_date
-                          ? new Date(editingReseller.subscription_date).toLocaleString('pt-BR')
-                          : editingReseller.created_at
-                            ? new Date(editingReseller.created_at).toLocaleString('pt-BR')
-                            : 'N/A'}
-                      </p>
-                    </div>
+              {/* Configuração do Plano */}
+              <div className="mt-4 pt-4 border-t border-gray-700">
+                <h3 className="text-lg font-bold text-purple-400 mb-3">📋 Plano do Revendedor</h3>
+                <div className="grid grid-cols-2 gap-4 bg-purple-900/20 p-4 rounded-lg border border-purple-700/40">
+                  <div>
+                    <Label htmlFor="edit-plan" className="text-sm font-medium text-gray-400">Plano</Label>
+                    <Select
+                      value={editingReseller.plan_name || 'Essencial'}
+                      onValueChange={(value) => setEditingReseller({ ...editingReseller, plan_name: value })}
+                    >
+                      <SelectTrigger id="edit-plan" className="bg-[#23272f] border-gray-600 text-white mt-1">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-[#23272f] border-gray-600">
+                        <SelectItem value="Essencial">Essencial</SelectItem>
+                        <SelectItem value="Business">Business</SelectItem>
+                        <SelectItem value="Elite">Elite</SelectItem>
+                        <SelectItem value="Enterprise">Enterprise</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="edit-max-clients" className="text-sm font-medium text-gray-400">Limite de Clientes</Label>
+                    <Input
+                      id="edit-max-clients"
+                      type="number"
+                      value={editingReseller.max_clients || 5}
+                      onChange={(e) => setEditingReseller({ ...editingReseller, max_clients: parseInt(e.target.value) || 5 })}
+                      className="bg-[#23272f] border-gray-600 text-white mt-1"
+                      min={1}
+                    />
                   </div>
                 </div>
-              )}
+                <p className="text-xs text-gray-400 mt-2">⚠️ Alterar o plano refletirá imediatamente no painel do revendedor.</p>
+              </div>
             </div>
           )}
           <DialogFooter>
