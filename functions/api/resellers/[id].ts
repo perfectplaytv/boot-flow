@@ -39,7 +39,27 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
     }
 
     try {
-        const body = await context.request.json() as any;
+        interface ResellerUpdateBody {
+            username?: string;
+            email?: string;
+            password?: string;
+            permission?: string;
+            credits?: number;
+            personal_name?: string;
+            status?: string;
+            force_password_change?: boolean;
+            servers?: string;
+            master_reseller?: string;
+            disable_login_days?: number;
+            monthly_reseller?: boolean;
+            telegram?: string;
+            whatsapp?: string;
+            observations?: string;
+            plan_name?: string;
+            plan_price?: string;
+            max_clients?: number;
+        }
+        const body = await context.request.json() as ResellerUpdateBody;
 
         const updates: Record<string, unknown> = {};
 
