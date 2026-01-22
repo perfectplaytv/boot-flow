@@ -3042,31 +3042,28 @@ const AdminDashboard = () => {
             {currentPage === "notificacoes" && <Notifications />}
             {currentPage === "plans" && <AdminPlans />}
             {currentPage === "profile" && <Profile />}
+            {currentPage === "resellers-plans" && <AdminResellersPlans />}
+            {currentPage === "telegram" && <AdminTelegram />}
           </div>
-          )}
+        </main>
 
-          {currentPage === "resellers-plans" && <AdminResellersPlans />}
+        {/* Modals */}
+        <AIModalManager
+          activeModal={activeModal}
+          onClose={handleModalClose}
+          onAddReseller={handleAddReseller}
+        />
 
-      </div>
-    </main>
+        {/* Modal Customizar Marca */}
+        <Dialog open={brandingModal} onOpenChange={setBrandingModal}>
+          <DialogContent className="max-w-4xl bg-[#232a36] border border-purple-700 text-white p-0">
+            <div className="overflow-y-auto max-h-[80vh]">
+              <AdminBranding />
+            </div>
+          </DialogContent>
+        </Dialog>
 
-        {/* Modals */ }
-  <AIModalManager
-    activeModal={activeModal}
-    onClose={handleModalClose}
-    onAddReseller={handleAddReseller}
-  />
-
-  {/* Modal Customizar Marca */ }
-  <Dialog open={brandingModal} onOpenChange={setBrandingModal}>
-    <DialogContent className="max-w-4xl bg-[#232a36] border border-purple-700 text-white p-0">
-      <div className="overflow-y-auto max-h-[80vh]">
-        <AdminBranding />
-      </div>
-    </DialogContent>
-  </Dialog>
-
-  {/* Modais dos cards Kanban */ }
+        {/* Modais dos cards Kanban */}
         <Dialog open={activeModal === 'iptv_management'} onOpenChange={handleModalClose}>
           <DialogContent className="max-w-2xl bg-[#232a36] text-white">
             <DialogHeader>
@@ -3122,7 +3119,7 @@ const AdminDashboard = () => {
           </DialogContent>
         </Dialog>
 
-  {/* Modais para cada card */ }
+        {/* Modais para cada card */}
         <Dialog open={activeModal === 'iptv'} onOpenChange={() => setActiveModal(null)}>
           <DialogContent className="bg-[#1f2937] text-white max-w-2xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col items-center justify-center max-h-[80vh] overflow-y-auto scrollbar-hide">
             <DialogHeader className="sr-only">
