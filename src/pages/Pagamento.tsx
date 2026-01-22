@@ -11,6 +11,15 @@ import { Check, CreditCard, Lock, Smartphone, User, Mail, Shield, QrCode, ArrowL
 import { ThemeToggle } from "@/components/theme-toggle";
 import { toast } from "sonner";
 
+// Declare MercadoPago SDK type
+declare global {
+    interface Window {
+        MercadoPago?: new (publicKey: string, options?: { locale?: string }) => {
+            getDeviceId: () => string;
+        };
+    }
+}
+
 interface PaymentResponse {
     id?: string;
     qr_code?: string;
@@ -27,6 +36,7 @@ export default function Pagamento() {
 
     const [paymentMethod, setPaymentMethod] = useState("pix");
     const [loading, setLoading] = useState(false);
+    const [deviceId, setDeviceId] = useState<string | null>(null);
 
     // Estado do formulário
     const [formData, setFormData] = useState({
@@ -43,6 +53,30 @@ export default function Pagamento() {
 
     // Polling status
     const [paymentStatus, setPaymentStatus] = useState<'pending' | 'approved'>('pending');
+
+    // Initialize Mercado Pago SDK and get Device ID
+    useEffect(() => {
+        const initMercadoPago = () => {
+            if (window.MercadoPago) {
+                try {
+                    // Use your Mercado Pago PUBLIC KEY here
+                    const mp = new window.MercadoPago('APP_USR-71c07c3d-7481-4ff9-8f23-cf2fa3203c2b', {
+                        locale: 'pt-BR'
+                    });
+                    const id = mp.getDeviceId();
+                    setDeviceId(id);
+                    console.log('[MP] Device ID obtained:', id);
+                } catch (error) {
+                    console.error('[MP] Error initializing SDK:', error);
+                }
+            } else {
+                // Retry after SDK loads
+                setTimeout(initMercadoPago, 500);
+            }
+        };
+
+        initMercadoPago();
+    }, []);
 
     // Interface para resposta da API de check-payment
     interface CheckPaymentResponse {
