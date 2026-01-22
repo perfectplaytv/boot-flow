@@ -15,6 +15,11 @@ import {
     HelpCircle,
     BarChart,
     Bot,
+    Store,
+    Smartphone,
+    MessageCircle,
+    Wallet,
+    Tags,
 } from "lucide-react";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { cn } from "@/lib/utils";
@@ -55,15 +60,28 @@ const PLAN_THEMES: Record<string, { color: string; lightColor: string; borderCol
     }
 };
 
-// Menu items com nível de acesso
+// Menu items mapeados conforme especificações dos planos
 const ALL_MENU_ITEMS = [
+    // Essencial e Superiores
     { icon: LayoutDashboard, label: "Dashboard", path: "/reseller", plans: ['Essencial', 'Profissional', 'Business', 'Elite'] },
     { icon: Users, label: "Meus Clientes", path: "/reseller/clientes", plans: ['Essencial', 'Profissional', 'Business', 'Elite'] },
+    { icon: Store, label: "Minhas Revendas", path: "/reseller/revendas", plans: ['Essencial', 'Profissional', 'Business', 'Elite'] },
+    { icon: Smartphone, label: "Meus Aplicativos", path: "/reseller/apps", plans: ['Essencial', 'Profissional', 'Business', 'Elite'] },
     { icon: CreditCard, label: "Cobranças", path: "/reseller/cobrancas", plans: ['Essencial', 'Profissional', 'Business', 'Elite'] },
-    { icon: Package, label: "Planos", path: "/reseller/planos", plans: ['Profissional', 'Business', 'Elite'] },
+    { icon: MessageCircle, label: "WhatsApp", path: "/reseller/whatsapp", plans: ['Essencial', 'Profissional', 'Business', 'Elite'] },
+    { icon: Wallet, label: "Gateways", path: "/reseller/gateways", plans: ['Essencial', 'Profissional', 'Business', 'Elite'] },
+
+    // Profissional e Superiores
     { icon: Bell, label: "Notificações", path: "/reseller/notificacoes", plans: ['Profissional', 'Business', 'Elite'] },
+
+    // Business e Superiores
+    { icon: Tags, label: "Planos e Preços", path: "/reseller/planos", plans: ['Business', 'Elite'] },
     { icon: BarChart, label: "Análises", path: "/reseller/analises", plans: ['Business', 'Elite'] },
+
+    // Elite Exclusivo
     { icon: Bot, label: "BotGram", path: "/reseller/botgram", plans: ['Elite'] },
+
+    // Todos (Configurações internas mudam por plano, mas o menu existe)
     { icon: Settings, label: "Configurações", path: "/reseller/configuracoes", plans: ['Essencial', 'Profissional', 'Business', 'Elite'] },
     { icon: HelpCircle, label: "Suporte", path: "/reseller/suporte", plans: ['Essencial', 'Profissional', 'Business', 'Elite'] },
 ];
