@@ -40,12 +40,10 @@ export const PLANS: Record<string, PlanConfig> = {
             'Lista de Servidores (5)',
             'Lista de Aplicativos (5)',
             '5 Cobranças',
-            '1 Conexão WhatsApp Business',
+            '1 Conexão de WhatsApp Business',
             '5 Notificações WhatsApp',
             '4 Gateways de Pagamentos',
-            'Perfil',
-            'Faturamento',
-            'Segurança'
+            'Configurações: Perfil, Faturamento, Segurança'
         ]
     },
     'Profissional': {
@@ -70,11 +68,10 @@ export const PLANS: Record<string, PlanConfig> = {
             'Lista de Servidores (15)',
             'Lista de Aplicativos (15)',
             '50 Cobranças',
-            '1 Conexão WhatsApp Business',
+            '1 Conexão de WhatsApp Business',
             '25 Notificações WhatsApp',
             '4 Gateways de Pagamentos',
-            'Perfil + Notificações + Integrações',
-            'Faturamento + Segurança',
+            'Configurações: Perfil, Notificações, Integrações, Faturamento, Segurança',
             'Tudo do Essencial',
             'Prioridade no suporte'
         ]
@@ -106,8 +103,7 @@ export const PLANS: Record<string, PlanConfig> = {
             '100 Notificações WhatsApp',
             '5 Gateways de Pagamentos',
             'Painel de Análises completo',
-            'Perfil + Notificações + Integrações',
-            'Faturamento + Segurança',
+            'Configurações: Perfil, Notificações, Integrações, Faturamento, Segurança',
             'Tudo do Profissional',
             'Recursos avançados de automação'
         ]
@@ -122,10 +118,10 @@ export const PLANS: Record<string, PlanConfig> = {
         maxBilling: 10000,
         maxWhatsAppConnections: 5,
         maxWhatsAppNotifications: 1000,
-        maxGateways: 10,
+        maxGateways: 10, // Assumindo limite alto ou ilimitado dentro do razoável, se precisar ajusto
         hasAnalytics: true,
         hasBotGram: true,
-        hasPlansAndPricing: 10,
+        hasPlansAndPricing: 1000, // Ilimitado na prática
         description: 'Para quem quer jogar no nível alto e dominar o mercado',
         features: [
             '10.000 Clientes',
