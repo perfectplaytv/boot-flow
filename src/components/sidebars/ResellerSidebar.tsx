@@ -1,15 +1,22 @@
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { 
-  Users, 
-  Tv, 
-  Radio, 
-  ShoppingCart, 
-  BarChart3, 
-  Settings, 
+import {
+  Users,
+  Tv,
+  Radio,
+  ShoppingCart,
+  BarChart3,
+  Settings,
   Zap,
   Home,
   LogOut,
-  MessageSquare
+  MessageSquare,
+  CreditCard,
+  Bell,
+  Palette,
+  Bot,
+  Gamepad2,
+  PieChart,
+  Headphones
 } from "lucide-react";
 import {
   Sidebar,
@@ -33,23 +40,43 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useUser } from "@/contexts/UserContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { AvatarSelectionModal } from "@/components/modals/AvatarSelectionModal";
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 
-const menuItems = [
-  { title: "Dashboard", url: "/reseller", icon: Home },
-  { title: "Clientes", url: "/reseller/clients", icon: Users },
-  { title: "Revendas", url: "/reseller/resellers", icon: Users },
-  { title: "Cobranças", url: "/reseller/billing", icon: BarChart3 },
-  { title: "Notificações", url: "/reseller/notifications", icon: MessageSquare },
-  { title: "WhatsApp", url: "/reseller/whatsapp", icon: MessageSquare },
-  { title: "Gateways", url: "/reseller/gateways", icon: BarChart3 },
-  { title: "Customizar Marca", url: "/reseller/branding", icon: BarChart3 },
-  { title: "E-commerce", url: "/reseller/shop", icon: ShoppingCart },
-  { title: "IA + Voz", url: "/reseller/ai", icon: BarChart3 },
-  { title: "Gamificação", url: "/reseller/games", icon: BarChart3 },
-  { title: "Análises", url: "/reseller/reports", icon: BarChart3 },
-  { title: "Configurações", url: "/reseller/settings", icon: Settings },
+// Definição de níveis de plano (menor = mais básico)
+const PLAN_LEVELS: Record<string, number> = {
+  'Essencial': 1,
+  'Profissional': 2,
+  'Business': 3,
+  'Elite': 4
+};
+
+// MenuItem com nível mínimo de plano requerido
+interface MenuItem {
+  title: string;
+  url: string;
+  icon: React.ElementType;
+  minPlan: number; // 1=Essencial, 2=Profissional, 3=Business, 4=Elite
+}
+
+const allMenuItems: MenuItem[] = [
+  { title: "Dashboard", url: "/reseller", icon: Home, minPlan: 1 },
+  { title: "Meus Clientes", url: "/reseller/clientes", icon: Users, minPlan: 1 },
+  { title: "Cobranças", url: "/reseller/cobrancas", icon: CreditCard, minPlan: 1 },
+  { title: "Planos", url: "/reseller/planos", icon: BarChart3, minPlan: 2 },
+  { title: "Notificações", url: "/reseller/notificacoes", icon: Bell, minPlan: 2 },
+  { title: "Configurações", url: "/reseller/configuracoes", icon: Settings, minPlan: 1 },
+  { title: "Suporte", url: "/reseller/suporte", icon: Headphones, minPlan: 1 },
+  // Recursos avançados (Business+)
+  { title: "WhatsApp", url: "/reseller/whatsapp", icon: MessageSquare, minPlan: 3 },
+  { title: "Gateways", url: "/reseller/gateways", icon: BarChart3, minPlan: 3 },
+  { title: "E-commerce", url: "/reseller/shop", icon: ShoppingCart, minPlan: 3 },
+  // Recursos Elite
+  { title: "IA + Voz", url: "/reseller/ai", icon: Bot, minPlan: 4 },
+  { title: "Gamificação", url: "/reseller/gamificacao", icon: Gamepad2, minPlan: 4 },
+  { title: "Análises", url: "/reseller/analises", icon: PieChart, minPlan: 4 },
+  { title: "Customizar Marca", url: "/reseller/branding", icon: Palette, minPlan: 4 },
 ];
 
 export function ResellerSidebar() {
@@ -59,7 +86,17 @@ export function ResellerSidebar() {
   const collapsed = state === "collapsed";
   const navigate = useNavigate();
   const { userName, userEmail, avatar } = useUser();
+  const { user } = useAuth();
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
+
+  // Obter nível do plano do usuário
+  const userPlanName = user?.plan_name || 'Essencial';
+  const userPlanLevel = PLAN_LEVELS[userPlanName] || 1;
+
+  // Filtrar menu items baseado no plano
+  const menuItems = useMemo(() => {
+    return allMenuItems.filter(item => item.minPlan <= userPlanLevel);
+  }, [userPlanLevel]);
 
   const handleProfileClick = () => {
     navigate('/profile');
@@ -77,7 +114,12 @@ export function ResellerSidebar() {
                 <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
                   <Zap className="w-5 h-5 text-white" />
                 </div>
-                {!collapsed && <span className="text-xl font-bold">Revenda</span>}
+                {!collapsed && (
+                  <div className="flex flex-col">
+                    <span className="text-xl font-bold">Revenda</span>
+                    <span className="text-xs text-gray-400">{userPlanName}</span>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -88,8 +130,8 @@ export function ResellerSidebar() {
                   {menuItems.map((item) => (
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton asChild>
-                        <NavLink 
-                          to={item.url} 
+                        <NavLink
+                          to={item.url}
                           className={({ isActive }) =>
                             isActive ? "bg-primary text-primary-foreground" : "hover:bg-accent"
                           }
