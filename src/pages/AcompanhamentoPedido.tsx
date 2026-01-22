@@ -52,12 +52,17 @@ export default function AcompanhamentoPedido() {
         }
 
         try {
-            const response = await fetch(`/api/subscriptions?id=${subscriptionId}`);
+            // Use public endpoint that doesn't require auth
+            const response = await fetch(`/api/payment-status?id=${subscriptionId}`);
             if (!response.ok) {
                 throw new Error("Pedido não encontrado");
             }
-            const data = await response.json() as Subscription;
-            setSubscription(data);
+            const result = await response.json();
+            if (result.success && result.data) {
+                setSubscription(result.data as Subscription);
+            } else {
+                throw new Error(result.error || "Pedido não encontrado");
+            }
 
         } catch (err) {
             setError(err instanceof Error ? err.message : "Erro ao carregar pedido");
