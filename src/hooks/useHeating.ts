@@ -282,46 +282,50 @@ export function useHeating() {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }, []);
 
-    // Call backend process endpoint periodically
-    useEffect(() => {
-        const processViaBackend = async () => {
-            if (sendingRef.current) return;
-            sendingRef.current = true;
+    // ========== MANUAL & AUTO PROCESS ==========
 
-            try {
-                const runningCampaigns = campaigns.filter(c => c.status === 'running');
-                if (runningCampaigns.length === 0) {
-                    sendingRef.current = false;
-                    return;
+    const forceProcess = useCallback(async (manual = false) => {
+        if (sendingRef.current) return;
+
+        // Se for manual, não checar campanhas rodando localmente antes de tentar,
+        // pois o estado local pode estar desatualizado
+        if (!manual) {
+            const runningCampaigns = campaigns.filter(c => c.status === 'running');
+            if (runningCampaigns.length === 0) return;
+        }
+
+        sendingRef.current = true;
+        if (manual) toast.info("Forçando execução do aquecimento...");
+
+        try {
+            const res = await fetch(`${API_BASE}/process`, { method: 'POST' });
+            const data: ProcessResponse = await res.json();
+
+            if (data.success && data.results) {
+                const sentCount = data.results.filter(r => r.status === 'sent').length;
+                if (sentCount > 0) {
+                    console.log(`[Heating] Processed: ${sentCount} messages sent`);
+                    if (manual) toast.success(`${sentCount} mensagens enviadas!`);
+                    await loadFromAPI();
+                } else if (manual) {
+                    toast.info("Processo rodou, mas nenhuma mensagem estava na fila.");
                 }
-
-                // Call backend process
-                const res = await fetch(`${API_BASE}/process`, { method: 'POST' });
-                const data: ProcessResponse = await res.json();
-
-                if (data.success && data.results) {
-                    const sentCount = data.results.filter(r => r.status === 'sent').length;
-                    if (sentCount > 0) {
-                        console.log(`[Heating] Backend processed: ${sentCount} messages sent`);
-                        // Reload data to get updated stats
-                        await loadFromAPI();
-                    }
-                }
-            } catch (e) {
-                console.error('[Heating] Backend process error:', e);
-            } finally {
-                sendingRef.current = false;
+            } else if (manual) {
+                toast.warning("Processo rodou, mas retorno foi vazio.");
             }
-        };
-
-        // Run every 30 seconds
-        const interval = setInterval(processViaBackend, 30000);
-
-        // Run immediately
-        processViaBackend();
-
-        return () => clearInterval(interval);
+        } catch (e) {
+            console.error('[Heating] Process error:', e);
+            if (manual) toast.error("Erro ao executar processo.");
+        } finally {
+            sendingRef.current = false;
+        }
     }, [campaigns, loadFromAPI]);
+
+    // Automatic polling
+    useEffect(() => {
+        const interval = setInterval(() => forceProcess(false), 30000);
+        return () => clearInterval(interval);
+    }, [forceProcess]);
 
     // ========== GROUP OPERATIONS ==========
 
@@ -689,5 +693,6 @@ export function useHeating() {
         // Actions
         sendMessage,
         loadFromAPI,
+        forceProcess,
     };
 }

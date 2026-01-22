@@ -58,6 +58,7 @@ export function AquecerContasTab() {
         stopCampaign,
         duplicateCampaign,
         clearLogs,
+        forceProcess,
     } = useHeating();
 
     // Sub-tab state
@@ -331,6 +332,15 @@ export function AquecerContasTab() {
                         >
                             <Plus className="w-4 h-4" />
                             Nova Campanha
+                        </Button>
+                        <Button
+                            size="sm"
+                            className="gap-1 bg-blue-600 hover:bg-blue-700 ml-2"
+                            onClick={() => forceProcess(true)}
+                            title="Forçar execução manual do cron de envio (útil se o cron travar)"
+                        >
+                            <Zap className="w-4 h-4" />
+                            Forçar Execução
                         </Button>
                     </div>
 
