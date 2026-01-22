@@ -65,20 +65,39 @@ function StatCard({
     );
 }
 
+import { useOutletContext } from "react-router-dom";
+// ... imports existentes ...
+
+// Interface do contexto do layout
+interface ResellerContextType {
+    currentPlan: string;
+    theme: {
+        color: string;
+        lightColor: string;
+        borderColor: string;
+        gradient: string;
+    };
+}
+
 export default function ResellerDashboard() {
     const { user } = useAuth();
     const navigate = useNavigate();
 
-    // Obter informações do plano do usuário
-    const userPlan = user?.plan_name || 'Essencial';
+    // Obter dados atualizados do contexto do Layout
+    const context = useOutletContext<ResellerContextType>();
+
+    // Fallback seguro caso o contexto não esteja disponível (ex: teste isolado)
+    const userPlan = context?.currentPlan || user?.plan_name || 'Essencial';
+    const theme = context?.theme;
+
     const maxClients = user?.max_clients || 5;
 
-    // Cores do badge conforme o plano
+    // Cores do badge sincronizadas com o layout
     const planBadgeColors: Record<string, string> = {
-        'Essencial': 'bg-gray-500/20 text-gray-400 border-gray-500/50',
-        'Profissional': 'bg-purple-500/20 text-purple-400 border-purple-500/50',
-        'Business': 'bg-blue-500/20 text-blue-400 border-blue-500/50',
-        'Elite': 'bg-amber-500/20 text-amber-400 border-amber-500/50',
+        'Essencial': 'bg-blue-500/20 text-blue-500 border-blue-500/50',
+        'Profissional': 'bg-green-500/20 text-green-500 border-green-500/50',
+        'Business': 'bg-orange-500/20 text-orange-500 border-orange-500/50',
+        'Elite': 'bg-purple-500/20 text-purple-500 border-purple-500/50',
     };
 
     // Placeholder data - will be replaced with real API calls
@@ -102,16 +121,16 @@ export default function ResellerDashboard() {
                         <h1 className="text-2xl font-bold">
                             Bem-vindo, {user?.name?.split(" ")[0] || "Revendedor"}! 👋
                         </h1>
-                        <Badge className={`${planBadgeColors[userPlan] || planBadgeColors['Essencial']} border`}>
+                        <Badge className={`${planBadgeColors[userPlan] || planBadgeColors['Essencial']} border px-3 py-1 text-sm shadow-sm`}>
                             {userPlan}
                         </Badge>
                     </div>
                     <p className="text-muted-foreground">
-                        Gerencie seus clientes e acompanhe suas vendas. <span className="text-xs text-gray-500">• Limite: {maxClients} clientes</span>
+                        Gerencie seus clientes e acompanhe suas vendas. <span className="text-xs text-muted-foreground/80">• Limite: {maxClients} clientes</span>
                     </p>
                 </div>
                 <Button
-                    className="bg-green-600 hover:bg-green-700"
+                    className={`hover:opacity-90 transition-opacity ${theme?.gradient ? `bg-gradient-to-r ${theme.gradient} text-white border-0` : "bg-primary"}`}
                     onClick={() => navigate("/reseller/clientes")}
                 >
                     <Plus className="w-4 h-4 mr-2" />

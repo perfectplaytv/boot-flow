@@ -74,9 +74,17 @@ export default function ResellerLayout() {
     const location = useLocation();
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
+    // Interface para resposta da API
+    interface PlanApiResponse {
+        plan_name: string;
+        max_clients?: number;
+        features?: string[];
+        [key: string]: any;
+    }
+
     // Estado do plano atual (sincronizado)
     const [currentPlan, setCurrentPlan] = useState<string>(user?.plan_name || 'Essencial');
-    const [currentPlanDetails, setCurrentPlanDetails] = useState<any>(null);
+    const [currentPlanDetails, setCurrentPlanDetails] = useState<PlanApiResponse | null>(null);
 
     // Função para buscar o plano atualizado
     const fetchCurrentPlan = useCallback(async () => {
@@ -88,7 +96,7 @@ export default function ResellerLayout() {
             });
 
             if (response.ok) {
-                const data = await response.json();
+                const data = await response.json() as PlanApiResponse;
                 if (data.plan_name && data.plan_name !== currentPlan) {
                     console.log(`🔄 Plano atualizado detectado: ${data.plan_name}`);
                     setCurrentPlan(data.plan_name);
