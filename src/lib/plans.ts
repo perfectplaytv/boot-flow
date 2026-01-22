@@ -4,6 +4,15 @@ export interface PlanConfig {
     price: string;
     priceValue: number;
     maxClients: number;
+    maxResellers: number;
+    maxApps: number;
+    maxBilling: number;
+    maxWhatsAppConnections: number;
+    maxWhatsAppNotifications: number;
+    maxGateways: number;
+    hasAnalytics: boolean;
+    hasBotGram: boolean;
+    hasPlansAndPricing: number;
     features: string[];
     description: string;
 }
@@ -14,22 +23,29 @@ export const PLANS: Record<string, PlanConfig> = {
         price: 'R$ 0',
         priceValue: 0,
         maxClients: 5,
+        maxResellers: 5,
+        maxApps: 5,
+        maxBilling: 5,
+        maxWhatsAppConnections: 1,
+        maxWhatsAppNotifications: 5,
+        maxGateways: 4,
+        hasAnalytics: false,
+        hasBotGram: false,
+        hasPlansAndPricing: 0,
         description: 'Para quem está começando e quer organizar o jogo',
         features: [
-            '5 clientes',
-            'Gestor Bot',
-            'Link WhatsApp',
-            'WhatsAPI própria (envios ilimitados)',
-            'Campanhas WhatsApp',
-            'Envio de e-mail',
-            'Emite cobranças',
-            'Link de pagamento',
-            'Financeiro completo',
-            'Faturas de clientes',
-            'Área do cliente',
-            'Exportar dados financeiros',
-            'Integração Mercado Pago',
-            'Envio de produtos digitais'
+            '5 Clientes',
+            '5 Revendas',
+            '5 Aplicativos',
+            'Lista de Servidores (5)',
+            'Lista de Aplicativos (5)',
+            '5 Cobranças',
+            '1 Conexão WhatsApp Business',
+            '5 Notificações WhatsApp',
+            '4 Gateways de Pagamentos',
+            'Perfil',
+            'Faturamento',
+            'Segurança'
         ]
     },
     'Profissional': {
@@ -37,9 +53,28 @@ export const PLANS: Record<string, PlanConfig> = {
         price: 'R$ 29,90',
         priceValue: 29.90,
         maxClients: 50,
+        maxResellers: 50,
+        maxApps: 15,
+        maxBilling: 50,
+        maxWhatsAppConnections: 1,
+        maxWhatsAppNotifications: 25,
+        maxGateways: 4,
+        hasAnalytics: false,
+        hasBotGram: false,
+        hasPlansAndPricing: 0,
         description: 'Para quem já tem fluxo e precisa escalar com estrutura',
         features: [
-            '50 clientes',
+            '50 Clientes',
+            '50 Revendas',
+            '15 Aplicativos',
+            'Lista de Servidores (15)',
+            'Lista de Aplicativos (15)',
+            '50 Cobranças',
+            '1 Conexão WhatsApp Business',
+            '25 Notificações WhatsApp',
+            '4 Gateways de Pagamentos',
+            'Perfil + Notificações + Integrações',
+            'Faturamento + Segurança',
             'Tudo do Essencial',
             'Prioridade no suporte'
         ]
@@ -49,9 +84,30 @@ export const PLANS: Record<string, PlanConfig> = {
         price: 'R$ 39,90',
         priceValue: 39.90,
         maxClients: 100,
+        maxResellers: 100,
+        maxApps: 100,
+        maxBilling: 100,
+        maxWhatsAppConnections: 2,
+        maxWhatsAppNotifications: 100,
+        maxGateways: 5,
+        hasAnalytics: true,
+        hasBotGram: false,
+        hasPlansAndPricing: 3,
         description: 'Para quem está crescendo firme e quer automação séria',
         features: [
-            '100 clientes',
+            '100 Clientes',
+            '100 Revendas',
+            '100 Aplicativos',
+            'Lista de Servidores (100)',
+            'Lista de Aplicativos (100)',
+            '3 Planos e Preços',
+            '100 Cobranças',
+            '2 Conexões WhatsApp Business',
+            '100 Notificações WhatsApp',
+            '5 Gateways de Pagamentos',
+            'Painel de Análises completo',
+            'Perfil + Notificações + Integrações',
+            'Faturamento + Segurança',
             'Tudo do Profissional',
             'Recursos avançados de automação'
         ]
@@ -60,14 +116,26 @@ export const PLANS: Record<string, PlanConfig> = {
         name: 'Elite',
         price: 'R$ 59,90',
         priceValue: 59.90,
-        maxClients: 1000,
+        maxClients: 10000,
+        maxResellers: 10000,
+        maxApps: 1000,
+        maxBilling: 10000,
+        maxWhatsAppConnections: 5,
+        maxWhatsAppNotifications: 1000,
+        maxGateways: 10,
+        hasAnalytics: true,
+        hasBotGram: true,
+        hasPlansAndPricing: 10,
         description: 'Para quem quer jogar no nível alto e dominar o mercado',
         features: [
-            '1.000 clientes',
+            '10.000 Clientes',
+            '10.000 Revendas',
+            '1.000 Aplicativos',
+            'Lista de Servidores (1.000)',
+            'Lista de Aplicativos (1.000)',
+            'Painel BotGram',
             'Tudo do Business',
-            'Suporte VIP',
-            'Migração assistida',
-            'Auditoria rápida do funil'
+            'Suporte VIP'
         ]
     }
 };
