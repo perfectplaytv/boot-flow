@@ -3042,12 +3042,8 @@ const AdminDashboard = () => {
             {currentPage === "notificacoes" && <Notifications />}
             {currentPage === "plans" && <AdminPlans />}
             {currentPage === "profile" && <Profile />}
+            {currentPage === "resellers-plans" && <AdminResellersPlans />}
           </div>
-            )}
-
-          {/* Renderização de páginas adicionais */}
-          {currentPage === "plans" && <AdminResellersPlans />}
-          {currentPage === "telegram" && <AdminTelegram />}
 
       </div>
     </main>
