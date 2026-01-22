@@ -108,21 +108,65 @@ export default function ResellerClientes() {
         toast.success("Cliente adicionado com sucesso!");
     };
 
-    const handleExtractM3U = () => {
+    const handleExtractM3U = async () => {
         if (!newCliente.m3uUrl) {
             toast.error("Insira uma URL M3U válida");
             return;
         }
-        toast.info("Simulando extração de dados...");
-        setTimeout(() => {
+
+        const toastId = toast.loading("Extraindo dados da lista...");
+
+        try {
+            // Extrair credenciais da URL
+            const urlObj = new URL(newCliente.m3uUrl);
+            const username = urlObj.searchParams.get("username") || "";
+            const password = urlObj.searchParams.get("password") || "";
+            const baseUrl = `${urlObj.protocol}//${urlObj.host}`;
+
+            if (!username || !password) {
+                throw new Error("Credenciais não encontradas na URL (username/password).");
+            }
+
+            // Construir URLs da API
+            const apiUrl = `${baseUrl}/player_api.php?username=${username}&password=${password}`;
+            const proxyUrl = `/api/proxy?url=${encodeURIComponent(apiUrl)}`;
+
+            const response = await fetch(proxyUrl);
+            if (!response.ok) throw new Error(`Erro ao acessar: ${response.status}`);
+
+            const data = await response.json();
+
+            if (!data.user_info) {
+                throw new Error("Dados inválidos retornados pelo servidor.");
+            }
+
+            // Formatar data de expiração (timestamp -> YYYY-MM-DD)
+            const expDate = data.user_info.exp_date
+                ? new Date(parseInt(data.user_info.exp_date) * 1000).toISOString().split("T")[0]
+                : "";
+
+            // Atualizar formulário com dados reais
             setNewCliente(prev => ({
                 ...prev,
-                nome: "Cliente M3U Importado",
-                email: "cliente_m3u@email.com",
-                senha: Math.random().toString(36).slice(-8)
+                nome: data.user_info.username,
+                email: `${data.user_info.username}@iptv.com`, // Email placeholder
+                senha: password, // Usa a senha real do M3U
+                plano: data.user_info.is_trial === "1" ? "Trial" : "Premium",
+                status: data.user_info.status === "Active" ? "Ativo" : "Inativo",
+                dataExpiracao: expDate,
+                dispositivos: parseInt(data.user_info.max_connections) || 1,
+                servidor: baseUrl,
+                observacoes: `Importado via M3U em ${new Date().toLocaleDateString()}`
             }));
+
+            toast.dismiss(toastId);
             toast.success("Dados extraídos com sucesso!");
-        }, 1000);
+
+        } catch (error) {
+            console.error("Erro M3U:", error);
+            toast.dismiss(toastId);
+            toast.error(error instanceof Error ? error.message : "Erro ao extrair dados");
+        }
     };
 
     const getStatusBadge = (status: string) => {
