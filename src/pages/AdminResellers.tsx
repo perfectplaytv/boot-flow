@@ -13,6 +13,15 @@ import { useRevendas } from '@/hooks/useRevendas';
 import { useAuth } from '@/contexts/AuthContext';
 import { RLSErrorBannerResellers } from '@/components/RLSErrorBannerResellers';
 
+// Interface para planos do banco de dados
+interface Plan {
+  id: number;
+  name: string;
+  price: string;
+  clients_limit: string;
+  active: boolean;
+}
+
 interface Reseller {
   id: string | number;
   username: string;
@@ -72,6 +81,10 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
   const [addResellerSuccess, setAddResellerSuccess] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
+  // Estado para planos do banco de dados
+  const [availablePlans, setAvailablePlans] = useState<Plan[]>([]);
+  const [loadingPlans, setLoadingPlans] = useState(false);
+
   // Estados para pedidos de assinatura pendentes
   interface PendingSubscription {
     id: number;
@@ -86,6 +99,28 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
   const [pendingSubscriptions, setPendingSubscriptions] = useState<PendingSubscription[]>([]);
   const [loadingSubscriptions, setLoadingSubscriptions] = useState(false);
   const [approvingId, setApprovingId] = useState<number | null>(null);
+
+  // Buscar planos disponíveis do banco de dados
+  const fetchAvailablePlans = async () => {
+    setLoadingPlans(true);
+    try {
+      const response = await fetch('/api/plans');
+      if (response.ok) {
+        const data = await response.json() as Plan[];
+        // Filtrar apenas planos ativos
+        setAvailablePlans(data.filter(p => p.active));
+      }
+    } catch (err) {
+      console.error('Erro ao buscar planos:', err);
+    } finally {
+      setLoadingPlans(false);
+    }
+  };
+
+  // Buscar planos ao montar o componente
+  useEffect(() => {
+    fetchAvailablePlans();
+  }, []);
 
   // Buscar pedidos pendentes
   const fetchPendingSubscriptions = async () => {
@@ -1645,14 +1680,14 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
         </DialogContent>
       </Dialog>
 
-      {/* Modal de Edição */}
+      {/* Modal de Edição - Compacto */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="bg-[#1f2937] text-white max-w-2xl">
-          <DialogHeader>
+        <DialogContent className="bg-[#1f2937] text-white max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader className="pb-2">
             <DialogTitle>Editar Revendedor</DialogTitle>
           </DialogHeader>
           {editingReseller && (
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="edit-username" className="text-sm font-medium text-white">Usuário</Label>
@@ -1729,40 +1764,58 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
                 />
               </div>
 
-              {/* Configuração do Plano */}
-              <div className="mt-4 pt-4 border-t border-gray-700">
-                <h3 className="text-lg font-bold text-purple-400 mb-3">📋 Plano do Revendedor</h3>
-                <div className="grid grid-cols-2 gap-4 bg-purple-900/20 p-4 rounded-lg border border-purple-700/40">
+              {/* Configuração do Plano - Compacto */}
+              <div className="mt-3 pt-3 border-t border-gray-700">
+                <h3 className="text-sm font-bold text-purple-400 mb-2">📋 Plano do Revendedor</h3>
+                <div className="grid grid-cols-2 gap-3 bg-purple-900/20 p-3 rounded-lg border border-purple-700/40">
                   <div>
-                    <Label htmlFor="edit-plan" className="text-sm font-medium text-gray-400">Plano</Label>
+                    <Label htmlFor="edit-plan" className="text-xs font-medium text-gray-400">Plano</Label>
                     <Select
-                      value={editingReseller.plan_name || 'Essencial'}
-                      onValueChange={(value) => setEditingReseller({ ...editingReseller, plan_name: value })}
+                      value={editingReseller.plan_name || (availablePlans.length > 0 ? availablePlans[0].name : 'Essencial')}
+                      onValueChange={(value) => {
+                        const selectedPlan = availablePlans.find(p => p.name === value);
+                        setEditingReseller({
+                          ...editingReseller,
+                          plan_name: value,
+                          plan_price: selectedPlan?.price || editingReseller.plan_price,
+                          max_clients: selectedPlan ? parseInt(selectedPlan.clients_limit) || 5 : editingReseller.max_clients
+                        });
+                      }}
                     >
-                      <SelectTrigger id="edit-plan" className="bg-[#23272f] border-gray-600 text-white mt-1">
-                        <SelectValue />
+                      <SelectTrigger id="edit-plan" className="bg-[#23272f] border-gray-600 text-white mt-1 h-9">
+                        <SelectValue placeholder={loadingPlans ? "Carregando..." : "Selecionar plano"} />
                       </SelectTrigger>
                       <SelectContent className="bg-[#23272f] border-gray-600">
-                        <SelectItem value="Essencial">Essencial</SelectItem>
-                        <SelectItem value="Business">Business</SelectItem>
-                        <SelectItem value="Elite">Elite</SelectItem>
-                        <SelectItem value="Enterprise">Enterprise</SelectItem>
+                        {availablePlans.length > 0 ? (
+                          availablePlans.map((plan) => (
+                            <SelectItem key={plan.id} value={plan.name}>
+                              {plan.name} - {plan.price}
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <>
+                            <SelectItem value="Essencial">Essencial</SelectItem>
+                            <SelectItem value="Business">Business</SelectItem>
+                            <SelectItem value="Elite">Elite</SelectItem>
+                            <SelectItem value="Enterprise">Enterprise</SelectItem>
+                          </>
+                        )}
                       </SelectContent>
                     </Select>
                   </div>
                   <div>
-                    <Label htmlFor="edit-max-clients" className="text-sm font-medium text-gray-400">Limite de Clientes</Label>
+                    <Label htmlFor="edit-max-clients" className="text-xs font-medium text-gray-400">Limite de Clientes</Label>
                     <Input
                       id="edit-max-clients"
                       type="number"
                       value={editingReseller.max_clients || 5}
                       onChange={(e) => setEditingReseller({ ...editingReseller, max_clients: parseInt(e.target.value) || 5 })}
-                      className="bg-[#23272f] border-gray-600 text-white mt-1"
+                      className="bg-[#23272f] border-gray-600 text-white mt-1 h-9"
                       min={1}
                     />
                   </div>
                 </div>
-                <p className="text-xs text-gray-400 mt-2">⚠️ Alterar o plano refletirá imediatamente no painel do revendedor.</p>
+                <p className="text-xs text-gray-400 mt-1">⚠️ Alterar o plano refletirá imediatamente no painel do revendedor.</p>
               </div>
             </div>
           )}
