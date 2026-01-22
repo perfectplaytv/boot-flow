@@ -324,24 +324,26 @@ export function AquecerContasTab() {
                             <Megaphone className="w-5 h-5 text-orange-400" />
                             Campanhas de Aquecimento
                         </h3>
-                        <Button
-                            size="sm"
-                            className="gap-1 bg-orange-600 hover:bg-orange-700"
-                            onClick={() => setShowAddCampaignModal(true)}
-                            disabled={groups.length === 0 || bots.length === 0}
-                        >
-                            <Plus className="w-4 h-4" />
-                            Nova Campanha
-                        </Button>
-                        <Button
-                            size="sm"
-                            className="gap-1 bg-blue-600 hover:bg-blue-700 ml-2"
-                            onClick={() => forceProcess(true)}
-                            title="Forçar execução manual do cron de envio (útil se o cron travar)"
-                        >
-                            <Zap className="w-4 h-4" />
-                            Forçar Execução
-                        </Button>
+                        <div className="flex gap-2">
+                            <Button
+                                size="sm"
+                                className="gap-1 bg-orange-600 hover:bg-orange-700"
+                                onClick={() => setShowAddCampaignModal(true)}
+                                disabled={groups.length === 0 || bots.length === 0}
+                            >
+                                <Plus className="w-4 h-4" />
+                                Nova Campanha
+                            </Button>
+                            <Button
+                                size="sm"
+                                className="gap-1 bg-blue-600 hover:bg-blue-700"
+                                onClick={() => forceProcess(true)}
+                                title="Forçar execução manual do cron de envio (útil se o cron travar)"
+                            >
+                                <Zap className="w-4 h-4" />
+                                Forçar Execução
+                            </Button>
+                        </div>
                     </div>
 
                     {groups.length === 0 || bots.length === 0 ? (
