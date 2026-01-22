@@ -60,7 +60,7 @@ export default function Pagamento() {
             if (window.MercadoPago) {
                 try {
                     // Use your Mercado Pago PUBLIC KEY here
-                    const mp = new window.MercadoPago('APP_USR-71c07c3d-7481-4ff9-8f23-cf2fa3203c2b', {
+                    const mp = new window.MercadoPago('APP_USR-f8e6aa57-0d13-4f96-ba20-db1288f28953', {
                         locale: 'pt-BR'
                     });
                     const id = mp.getDeviceId();
