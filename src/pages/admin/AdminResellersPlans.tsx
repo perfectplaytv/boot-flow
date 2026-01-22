@@ -1,11 +1,23 @@
 
-import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Loader2, Check, X, Shield, TrendingUp, Users } from "lucide-react";
 import { useRevendas } from '@/hooks/useRevendas';
+
+interface Revenda {
+    id: number | string;
+    username?: string;
+    personal_name?: string;
+    email?: string;
+    permission?: string;
+    status?: string;
+    credits?: number;
+    telegram?: string;
+    whatsapp?: string;
+    plan_name?: string;
+}
 
 export default function AdminResellersPlans() {
     const { revendas, loading } = useRevendas();
@@ -16,17 +28,19 @@ export default function AdminResellersPlans() {
         </div>
     );
 
-    // Cálculos de resumo
-    const totalResellers = revendas?.length || 0;
-    const activeResellers = revendas?.filter((r: any) =>
-        r.status === 'active' || r.status === 'ativo' || r.status === 'Ativo'
-    ).length || 0;
-    const eliteResellers = revendas?.filter((r: any) =>
-        r.plan_name === 'Elite' || r.permission === 'admin'
-    ).length || 0;
+    const revendasList = (revendas || []) as Revenda[];
 
-    // Calcular receita estimada baseada nos créditos
-    const totalCredits = revendas?.reduce((acc: number, r: any) => acc + (r.credits || 0), 0) || 0;
+    // Cálculos de resumo
+    const totalResellers = revendasList.length;
+    const activeResellers = revendasList.filter((r) =>
+        r.status === 'active' || r.status === 'ativo' || r.status === 'Ativo'
+    ).length;
+    const eliteResellers = revendasList.filter((r) =>
+        r.plan_name === 'Elite' || r.permission === 'admin'
+    ).length;
+
+    // Calcular total de créditos
+    const totalCredits = revendasList.reduce((acc, r) => acc + (r.credits || 0), 0);
 
     return (
         <div className="space-y-6 pt-4">
@@ -76,7 +90,7 @@ export default function AdminResellersPlans() {
                     <CardTitle>Visão Geral de Revendas</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    {revendas && revendas.length > 0 ? (
+                    {revendasList.length > 0 ? (
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -90,7 +104,7 @@ export default function AdminResellersPlans() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {revendas.map((row: any) => (
+                                {revendasList.map((row) => (
                                     <TableRow key={row.id}>
                                         <TableCell>
                                             <div className="font-medium">{row.username || row.personal_name || 'Sem nome'}</div>
