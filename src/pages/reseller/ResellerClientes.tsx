@@ -28,12 +28,12 @@ import {
     Mail,
     Phone,
     Calendar,
-    Edit,
-    Trash2,
     UserPlus,
+    Upload,
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Textarea } from "@/components/ui/textarea";
 
 interface Cliente {
     id: number;
@@ -41,20 +41,35 @@ interface Cliente {
     email: string;
     telefone: string;
     plano: string;
-    status: "ativo" | "inativo" | "pendente";
+    status: "ativo" | "inativo" | "pendente" | "suspenso";
     dataExpiracao: string;
     criadoEm: string;
+    servidor?: string;
 }
 
 export default function ResellerClientes() {
     const [clientes, setClientes] = useState<Cliente[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
+    // Estado completo para novo cliente
     const [newCliente, setNewCliente] = useState({
         nome: "",
         email: "",
         telefone: "",
-        plano: "básico",
+        plano: "",
+        status: "Ativo",
+        dataExpiracao: "",
+        servidor: "",
+        dispositivos: 1,
+        creditos: 0,
+        senha: "",
+        bouquets: "",
+        nomeReal: "",
+        telegram: "",
+        observacoes: "",
+        notas: "",
+        m3uUrl: ""
     });
 
     const filteredClientes = clientes.filter(
@@ -64,8 +79,8 @@ export default function ResellerClientes() {
     );
 
     const handleAddCliente = () => {
-        if (!newCliente.nome || !newCliente.email) {
-            toast.error("Nome e email são obrigatórios");
+        if (!newCliente.nome || !newCliente.email || !newCliente.plano || !newCliente.servidor || !newCliente.dataExpiracao) {
+            toast.error("Preencha todos os campos obrigatórios (*)");
             return;
         }
 
@@ -75,25 +90,51 @@ export default function ResellerClientes() {
             email: newCliente.email,
             telefone: newCliente.telefone,
             plano: newCliente.plano,
-            status: "pendente",
-            dataExpiracao: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+            status: newCliente.status.toLowerCase() as any,
+            dataExpiracao: newCliente.dataExpiracao,
             criadoEm: new Date().toISOString(),
+            servidor: newCliente.servidor
         };
 
         setClientes([...clientes, novoCliente]);
-        setNewCliente({ nome: "", email: "", telefone: "", plano: "básico" });
+        // Reset form
+        setNewCliente({
+            nome: "", email: "", telefone: "", plano: "", status: "Ativo",
+            dataExpiracao: "", servidor: "", dispositivos: 1, creditos: 0,
+            senha: "", bouquets: "", nomeReal: "", telegram: "", observacoes: "",
+            notas: "", m3uUrl: ""
+        });
         setIsAddModalOpen(false);
         toast.success("Cliente adicionado com sucesso!");
     };
 
+    const handleExtractM3U = () => {
+        if (!newCliente.m3uUrl) {
+            toast.error("Insira uma URL M3U válida");
+            return;
+        }
+        toast.info("Simulando extração de dados...");
+        setTimeout(() => {
+            setNewCliente(prev => ({
+                ...prev,
+                nome: "Cliente M3U Importado",
+                email: "cliente_m3u@email.com",
+                senha: Math.random().toString(36).slice(-8)
+            }));
+            toast.success("Dados extraídos com sucesso!");
+        }, 1000);
+    };
+
     const getStatusBadge = (status: string) => {
-        switch (status) {
+        switch (status.toLowerCase()) {
             case "ativo":
                 return <Badge className="bg-green-500/20 text-green-500 hover:bg-green-500/30">Ativo</Badge>;
             case "inativo":
                 return <Badge className="bg-red-500/20 text-red-500 hover:bg-red-500/30">Inativo</Badge>;
             case "pendente":
                 return <Badge className="bg-yellow-500/20 text-yellow-500 hover:bg-yellow-500/30">Pendente</Badge>;
+            case "suspenso":
+                return <Badge className="bg-orange-500/20 text-orange-500 hover:bg-orange-500/30">Suspenso</Badge>;
             default:
                 return <Badge variant="outline">{status}</Badge>;
         }
@@ -119,48 +160,205 @@ export default function ResellerClientes() {
                             Novo Cliente
                         </Button>
                     </DialogTrigger>
-                    <DialogContent>
+                    <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                         <DialogHeader>
-                            <DialogTitle>Adicionar Novo Cliente</DialogTitle>
+                            <DialogTitle className="text-2xl font-bold">Adicionar um Cliente</DialogTitle>
                             <DialogDescription>
-                                Preencha os dados do cliente para cadastrá-lo
+                                Preencha os dados completos do cliente
                             </DialogDescription>
                         </DialogHeader>
-                        <div className="space-y-4 py-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="nome">Nome Completo *</Label>
-                                <Input
-                                    id="nome"
-                                    placeholder="João da Silva"
-                                    value={newCliente.nome}
-                                    onChange={(e) => setNewCliente({ ...newCliente, nome: e.target.value })}
-                                />
+
+                        <div className="flex items-center gap-2 mb-4">
+                            <span className="text-green-500 text-xs font-medium">• Campos obrigatórios marcados com *</span>
+                            <span className="text-blue-500 text-xs font-medium">• Dados serão sincronizados automaticamente</span>
+                        </div>
+
+                        {/* Extração M3U */}
+                        <div className="bg-blue-900/10 border border-blue-500/20 rounded-lg p-4 mb-6">
+                            <div className="flex items-center justify-between mb-2">
+                                <span className="text-blue-500 font-medium flex items-center gap-2">
+                                    <Upload className="w-4 h-4" />
+                                    Extração M3U
+                                </span>
+                                <Button
+                                    size="sm"
+                                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                                    onClick={handleExtractM3U}
+                                >
+                                    Extrair
+                                </Button>
                             </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="email">E-mail *</Label>
-                                <Input
-                                    id="email"
-                                    type="email"
-                                    placeholder="joao@email.com"
-                                    value={newCliente.email}
-                                    onChange={(e) => setNewCliente({ ...newCliente, email: e.target.value })}
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="telefone">Telefone/WhatsApp</Label>
-                                <Input
-                                    id="telefone"
-                                    placeholder="(11) 99999-9999"
-                                    value={newCliente.telefone}
-                                    onChange={(e) => setNewCliente({ ...newCliente, telefone: e.target.value })}
-                                />
+                            <p className="text-xs text-blue-400 mb-2">Serve para importar dados automaticamente a partir de uma URL.</p>
+                            <Input
+                                className="bg-background border-blue-500/20"
+                                placeholder="Insira a URL do M3U para extrair automaticamente os dados do cliente..."
+                                value={newCliente.m3uUrl}
+                                onChange={(e) => setNewCliente({ ...newCliente, m3uUrl: e.target.value })}
+                            />
+                        </div>
+
+                        {/* Informações Básicas */}
+                        <div className="bg-card border rounded-lg p-4 mb-6">
+                            <span className="block font-semibold mb-4">Informações Básicas</span>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="col-span-1">
+                                    <Label className="block mb-1 font-medium">Servidor *</Label>
+                                    <Input
+                                        placeholder="Digite o nome do servidor"
+                                        value={newCliente.servidor}
+                                        onChange={(e) => setNewCliente({ ...newCliente, servidor: e.target.value })}
+                                    />
+                                </div>
+                                <div className="col-span-1">
+                                    <Label className="block mb-1 font-medium">Plano *</Label>
+                                    <select
+                                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                        value={newCliente.plano}
+                                        onChange={(e) => setNewCliente({ ...newCliente, plano: e.target.value })}
+                                    >
+                                        <option value="">Selecione um plano</option>
+                                        <option value="Mensal">Mensal</option>
+                                        <option value="Bimestral">Bimestral</option>
+                                        <option value="Trimestral">Trimestral</option>
+                                        <option value="Semestral">Semestral</option>
+                                        <option value="Anual">Anual</option>
+                                    </select>
+                                </div>
+                                <div className="col-span-1">
+                                    <Label className="block mb-1 font-medium">Nome *</Label>
+                                    <Input
+                                        placeholder="Nome completo do cliente"
+                                        value={newCliente.nome}
+                                        onChange={(e) => setNewCliente({ ...newCliente, nome: e.target.value })}
+                                    />
+                                </div>
+                                <div className="col-span-1">
+                                    <Label className="block mb-1 font-medium">Email *</Label>
+                                    <Input
+                                        placeholder="email@exemplo.com"
+                                        value={newCliente.email}
+                                        onChange={(e) => setNewCliente({ ...newCliente, email: e.target.value })}
+                                    />
+                                </div>
+                                <div className="col-span-1">
+                                    <Label className="block mb-1 font-medium">Status *</Label>
+                                    <select
+                                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                        value={newCliente.status}
+                                        onChange={(e) => setNewCliente({ ...newCliente, status: e.target.value })}
+                                    >
+                                        <option value="Ativo">Ativo</option>
+                                        <option value="Inativo">Inativo</option>
+                                        <option value="Suspenso">Suspenso</option>
+                                        <option value="Pendente">Pendente</option>
+                                    </select>
+                                </div>
+                                <div className="col-span-1">
+                                    <Label className="block mb-1 font-medium">Data de Expiração *</Label>
+                                    <Input
+                                        type="date"
+                                        value={newCliente.dataExpiracao}
+                                        onChange={(e) => setNewCliente({ ...newCliente, dataExpiracao: e.target.value })}
+                                    />
+                                </div>
                             </div>
                         </div>
-                        <DialogFooter>
+
+                        {/* Configuração de Serviço */}
+                        <div className="bg-card border rounded-lg p-4 mb-6">
+                            <span className="block font-semibold mb-4">Configuração de Serviço</span>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="col-span-1">
+                                    <Label className="block mb-1 font-medium">Dispositivos</Label>
+                                    <Input
+                                        type="number"
+                                        placeholder="0"
+                                        value={newCliente.dispositivos}
+                                        onChange={(e) => setNewCliente({ ...newCliente, dispositivos: parseInt(e.target.value) || 0 })}
+                                    />
+                                </div>
+                                <div className="col-span-1">
+                                    <Label className="block mb-1 font-medium">Créditos</Label>
+                                    <Input
+                                        type="number"
+                                        placeholder="0"
+                                        value={newCliente.creditos}
+                                        onChange={(e) => setNewCliente({ ...newCliente, creditos: parseInt(e.target.value) || 0 })}
+                                    />
+                                </div>
+                                <div className="col-span-1">
+                                    <Label className="block mb-1 font-medium">Senha</Label>
+                                    <Input
+                                        placeholder="Senha do cliente"
+                                        value={newCliente.senha}
+                                        onChange={(e) => setNewCliente({ ...newCliente, senha: e.target.value })}
+                                    />
+                                </div>
+                                <div className="col-span-1">
+                                    <Label className="block mb-1 font-medium">Bouquets</Label>
+                                    <Input
+                                        placeholder="Bouquets disponíveis"
+                                        value={newCliente.bouquets}
+                                        onChange={(e) => setNewCliente({ ...newCliente, bouquets: e.target.value })}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Informações Adicionais */}
+                        <div className="bg-card border rounded-lg p-4 mb-6">
+                            <span className="block font-semibold mb-4">Informações Adicionais</span>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="col-span-1">
+                                    <Label className="block mb-1 font-medium">Nome Real</Label>
+                                    <Input
+                                        placeholder="Nome real do cliente"
+                                        value={newCliente.nomeReal}
+                                        onChange={(e) => setNewCliente({ ...newCliente, nomeReal: e.target.value })}
+                                    />
+                                </div>
+                                <div className="col-span-1">
+                                    <Label className="block mb-1 font-medium">WhatsApp</Label>
+                                    <Input
+                                        placeholder="+55 (11) 99999-9999"
+                                        value={newCliente.telefone}
+                                        onChange={(e) => setNewCliente({ ...newCliente, telefone: e.target.value })}
+                                    />
+                                </div>
+                                <div className="col-span-1">
+                                    <Label className="block mb-1 font-medium">Telegram</Label>
+                                    <Input
+                                        placeholder="@username"
+                                        value={newCliente.telegram}
+                                        onChange={(e) => setNewCliente({ ...newCliente, telegram: e.target.value })}
+                                    />
+                                </div>
+                                <div className="col-span-1">
+                                    <Label className="block mb-1 font-medium">Observações</Label>
+                                    <Input
+                                        placeholder="Observações sobre o cliente"
+                                        value={newCliente.observacoes}
+                                        onChange={(e) => setNewCliente({ ...newCliente, observacoes: e.target.value })}
+                                    />
+                                </div>
+                                <div className="col-span-2">
+                                    <Label className="block mb-1 font-medium">Notas</Label>
+                                    <Textarea
+                                        placeholder="Notas adicionais sobre o cliente..."
+                                        className="resize-none"
+                                        rows={3}
+                                        value={newCliente.notas}
+                                        onChange={(e) => setNewCliente({ ...newCliente, notas: e.target.value })}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <DialogFooter className="gap-2">
                             <Button variant="outline" onClick={() => setIsAddModalOpen(false)}>
                                 Cancelar
                             </Button>
-                            <Button className="bg-green-600 hover:bg-green-700" onClick={handleAddCliente}>
+                            <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white" onClick={handleAddCliente}>
                                 Adicionar Cliente
                             </Button>
                         </DialogFooter>
@@ -235,8 +433,8 @@ export default function ResellerClientes() {
                                 <TableHeader>
                                     <TableRow>
                                         <TableHead>Nome</TableHead>
-                                        <TableHead>E-mail</TableHead>
-                                        <TableHead>Telefone</TableHead>
+                                        <TableHead>Plano/Servidor</TableHead>
+                                        <TableHead>E-mail/Telefone</TableHead>
                                         <TableHead>Status</TableHead>
                                         <TableHead>Expira em</TableHead>
                                         <TableHead className="w-12"></TableHead>
@@ -247,15 +445,23 @@ export default function ResellerClientes() {
                                         <TableRow key={cliente.id}>
                                             <TableCell className="font-medium">{cliente.nome}</TableCell>
                                             <TableCell>
-                                                <div className="flex items-center gap-2">
-                                                    <Mail className="w-3 h-3 text-muted-foreground" />
-                                                    {cliente.email}
+                                                <div className="flex flex-col">
+                                                    <span className="text-sm font-medium">{cliente.plano}</span>
+                                                    <span className="text-xs text-muted-foreground">{cliente.servidor || 'Padrão'}</span>
                                                 </div>
                                             </TableCell>
                                             <TableCell>
-                                                <div className="flex items-center gap-2">
-                                                    <Phone className="w-3 h-3 text-muted-foreground" />
-                                                    {cliente.telefone || "-"}
+                                                <div className="flex flex-col gap-1">
+                                                    <div className="flex items-center gap-1 text-xs">
+                                                        <Mail className="w-3 h-3 text-muted-foreground" />
+                                                        {cliente.email}
+                                                    </div>
+                                                    {cliente.telefone && (
+                                                        <div className="flex items-center gap-1 text-xs">
+                                                            <Phone className="w-3 h-3 text-muted-foreground" />
+                                                            {cliente.telefone}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </TableCell>
                                             <TableCell>{getStatusBadge(cliente.status)}</TableCell>
