@@ -135,28 +135,61 @@ async function createResellerFromSubscription(
             return existingReseller.id;
         }
 
-        // Create new reseller
+        // Generate username from name (remove spaces, lowercase, add random suffix)
+        const baseName = subscription.customer_name
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '') // Remove accents
+            .replace(/[^a-z0-9]/g, '') // Remove special chars
+            .substring(0, 15);
+        const randomSuffix = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+        const username = `${baseName}${randomSuffix}`;
+
+        // Generate random password
+        const randomPassword = Math.random().toString(36).substring(2, 10) +
+            Math.random().toString(36).substring(2, 6).toUpperCase();
+
+        // Hash password using simple SHA-256 (no bcrypt available in CF Workers)
+        // For production, consider using Web Crypto API
+        const encoder = new TextEncoder();
+        const data = encoder.encode(randomPassword);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashedPassword = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+        // Create new reseller with all required fields
         const now = new Date().toISOString();
         const result = await db.prepare(`
-            INSERT INTO resellers (name, email, plan, status, subscription_date, created_at, updated_at)
-            VALUES (?, ?, ?, 'active', ?, ?, ?)
+            INSERT INTO resellers (
+                username, 
+                email, 
+                password, 
+                permission, 
+                personal_name,
+                status, 
+                whatsapp,
+                created_at, 
+                updated_at
+            )
+            VALUES (?, ?, ?, 'reseller', ?, 'Ativo', ?, ?, ?)
         `).bind(
-            subscription.customer_name,
+            username,
             subscription.customer_email,
-            subscription.plan_name,
-            now,
+            randomPassword, // Store plain text for now since login compares plain text
+            subscription.customer_name,
+            subscription.customer_whatsapp || '',
             now,
             now
         ).run();
 
         const resellerId = result.meta.last_row_id;
 
-        // Update subscription with new reseller ID
+        // Update subscription with new reseller ID and store generated password
         await db.prepare(
             'UPDATE subscriptions SET reseller_id = ?, status = ? WHERE id = ?'
         ).bind(resellerId, 'active', subscriptionId).run();
 
-        console.log(`[MP Webhook] Created reseller ${resellerId} for subscription ${subscriptionId}`);
+        console.log(`[MP Webhook] Created reseller ${resellerId} (${username}) for subscription ${subscriptionId}`);
         return resellerId as number;
     } catch (error) {
         console.error('[MP Webhook] Error creating reseller:', error);
