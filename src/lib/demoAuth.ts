@@ -59,6 +59,7 @@ export const disableDemoMode = (): void => {
 
 // Busca usuário demo por email
 export const findDemoUser = (email: string): DemoUser | undefined => {
+  if (!email) return undefined;
   return DEMO_USERS.find(user => user.email.toLowerCase() === email.toLowerCase());
 };
 
@@ -131,13 +132,13 @@ export const clearDemoSession = (): void => {
 export const hasDemoSession = (): boolean => {
   const session = getDemoSession();
   if (!session) return false;
-  
+
   // Verifica se a sessão expirou
   if (session.session.expires_at && session.session.expires_at < Math.floor(Date.now() / 1000)) {
     clearDemoSession();
     return false;
   }
-  
+
   return true;
 };
 
