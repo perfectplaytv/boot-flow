@@ -83,10 +83,14 @@ export default function AcompanhamentoPedido() {
 
         setLoggingIn(true);
         try {
+            // Primeiro, limpar qualquer sessão existente
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('auth_user');
+
             // Tenta logar com email e senha gerada
             await signIn(subscription.customer_email, credentials.password);
             toast.success("Login efetuado com sucesso!");
-            navigate('/dashboard/revendas');
+            // Não precisa navegar - signIn já redireciona baseado na role
         } catch (error) {
             console.error("Erro no auto-login:", error);
             toast.error("Erro ao realizar login automático. Tente manualmente.");
