@@ -1,4 +1,5 @@
 
+// Last update: 2026-01-22 02:45 - Plan sync fix
 import { getDb } from '../../../db';
 import { resellers } from '../../../db/schema';
 import { eq } from 'drizzle-orm';
