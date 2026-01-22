@@ -86,12 +86,51 @@ export function ResellerSidebar() {
   const collapsed = state === "collapsed";
   const navigate = useNavigate();
   const { userName, userEmail, avatar } = useUser();
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
 
+  // Estado para plano atualizado do banco de dados
+  const [currentPlan, setCurrentPlan] = useState<string>(user?.plan_name || 'Essencial');
+  const [maxClients, setMaxClients] = useState<number>(user?.max_clients || 5);
+
+  // Buscar plano atualizado do banco de dados
+  const fetchCurrentPlan = async () => {
+    if (!token) return;
+
+    try {
+      const response = await fetch('/api/resellers/me', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json() as { plan_name?: string; max_clients?: number };
+        if (data.plan_name) {
+          setCurrentPlan(data.plan_name);
+        }
+        if (data.max_clients !== undefined) {
+          setMaxClients(data.max_clients);
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao buscar plano:', error);
+    }
+  };
+
+  // Buscar plano ao montar e quando a rota mudar
+  useEffect(() => {
+    fetchCurrentPlan();
+  }, [token, location.pathname]);
+
+  // Polling a cada 30 segundos para manter o plano atualizado
+  useEffect(() => {
+    const interval = setInterval(fetchCurrentPlan, 30000);
+    return () => clearInterval(interval);
+  }, [token]);
+
   // Obter nível do plano do usuário
-  const userPlanName = user?.plan_name || 'Essencial';
-  const userPlanLevel = PLAN_LEVELS[userPlanName] || 1;
+  const userPlanLevel = PLAN_LEVELS[currentPlan] || 1;
 
   // Filtrar menu items baseado no plano
   const menuItems = useMemo(() => {
@@ -117,7 +156,7 @@ export function ResellerSidebar() {
                 {!collapsed && (
                   <div className="flex flex-col">
                     <span className="text-xl font-bold">Revenda</span>
-                    <span className="text-xs text-gray-400">{userPlanName}</span>
+                    <span className="text-xs text-gray-400">{currentPlan}</span>
                   </div>
                 )}
               </div>
