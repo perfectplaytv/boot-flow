@@ -53,6 +53,9 @@ import Statistics from "./pages/Statistics";
 import Ecommerce from "./pages/Ecommerce";
 import Channels from "./pages/Channels";
 import VoiceCampaigns from "./pages/VoiceCampaigns";
+import AdminPlanos from '@/pages/admin/AdminPlanos';
+import AdminResellersPlans from '@/pages/admin/AdminResellersPlans';
+import AdminTelegram from '@/pages/AdminTelegram';
 import AIConfiguration from "./pages/AIConfiguration";
 import AdminResellers from "./pages/AdminResellers";
 import { WhatsAppStatusContext } from './pages/AdminWhatsApp';
@@ -96,7 +99,6 @@ const App = () => {
                   <Route path="/login" element={<Login />} />
                   <Route path="/cadastro" element={<Signup />} />
                   <Route path="/forgot-password" element={<ForgotPassword />} />
-                  <Route path="/forgot-password" element={<ForgotPassword />} />
                   <Route path="/termos" element={<Terms />} />
                   <Route path="/privacidade" element={<Privacy />} />
                   <Route path="/ajuda" element={<HelpCenter />} />
@@ -122,8 +124,9 @@ const App = () => {
                   }>
                     <Route index element={<ResellerDashboardIndex />} />
                     <Route path="clientes" element={<ResellerClientes />} />
-                    <Route path="cobrancas" element={<ResellerCobrancas />} />
-                    <Route path="planos" element={<ResellerPlanos />} />
+                    <Route path="bootgram" element={<AdminTelegram />} />
+                    <Route path="plans" element={<AdminResellersPlans />} />
+                    <Route path="planos" element={<AdminPlanos />} />
                     <Route path="notificacoes" element={<ResellerNotificacoes />} />
                     <Route path="configuracoes" element={<ResellerConfiguracoes />} />
                     <Route path="suporte" element={<ResellerSuporte />} />
