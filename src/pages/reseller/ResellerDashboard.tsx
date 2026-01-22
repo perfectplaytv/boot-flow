@@ -69,6 +69,18 @@ export default function ResellerDashboard() {
     const { user } = useAuth();
     const navigate = useNavigate();
 
+    // Obter informações do plano do usuário
+    const userPlan = user?.plan_name || 'Essencial';
+    const maxClients = user?.max_clients || 5;
+
+    // Cores do badge conforme o plano
+    const planBadgeColors: Record<string, string> = {
+        'Essencial': 'bg-gray-500/20 text-gray-400 border-gray-500/50',
+        'Profissional': 'bg-purple-500/20 text-purple-400 border-purple-500/50',
+        'Business': 'bg-blue-500/20 text-blue-400 border-blue-500/50',
+        'Elite': 'bg-amber-500/20 text-amber-400 border-amber-500/50',
+    };
+
     // Placeholder data - will be replaced with real API calls
     const stats = {
         totalClientes: 0,
@@ -83,14 +95,19 @@ export default function ResellerDashboard() {
 
     return (
         <div className="space-y-6">
-            {/* Welcome Header */}
+            {/* Welcome Header with Plan Badge */}
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold">
-                        Bem-vindo, {user?.name?.split(" ")[0] || "Revendedor"}! 👋
-                    </h1>
+                    <div className="flex items-center gap-3 mb-1">
+                        <h1 className="text-2xl font-bold">
+                            Bem-vindo, {user?.name?.split(" ")[0] || "Revendedor"}! 👋
+                        </h1>
+                        <Badge className={`${planBadgeColors[userPlan] || planBadgeColors['Essencial']} border`}>
+                            {userPlan}
+                        </Badge>
+                    </div>
                     <p className="text-muted-foreground">
-                        Gerencie seus clientes e acompanhe suas vendas.
+                        Gerencie seus clientes e acompanhe suas vendas. <span className="text-xs text-gray-500">• Limite: {maxClients} clientes</span>
                     </p>
                 </div>
                 <Button

@@ -9,6 +9,10 @@ export interface User {
   email: string;
   name?: string;
   role: 'admin' | 'reseller' | 'client';
+  // Campos do plano (para revendedores)
+  plan_name?: string;
+  plan_price?: string;
+  max_clients?: number;
 }
 
 interface AuthResponse {
