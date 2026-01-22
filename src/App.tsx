@@ -123,6 +123,7 @@ const App = () => {
                     </ProtectedRoute>
                   }>
                     <Route index element={<ResellerDashboardIndex />} />
+                    <Route path="clientes" element={<ResellerClientes />} />
                     <Route path="cobrancas" element={<ResellerCobrancas />} />
                     <Route path="notificacoes" element={<ResellerNotificacoes />} />
                     <Route path="configuracoes" element={<ResellerConfiguracoes />} />
