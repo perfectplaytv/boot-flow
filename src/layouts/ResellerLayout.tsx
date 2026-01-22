@@ -17,6 +17,7 @@ import {
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
+import { ThemeInjector } from "@/components/ThemeInjector";
 // Menu items for reseller panel
 const menuItems = [
     { icon: LayoutDashboard, label: "Dashboard", path: "/reseller" },
@@ -48,6 +49,7 @@ export default function ResellerLayout() {
 
     return (
         <div className="min-h-screen bg-background">
+            <ThemeInjector />
             {/* Mobile Header */}
             <header className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-card border-b border-border h-16 flex items-center px-4">
                 <Button
