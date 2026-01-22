@@ -90,7 +90,7 @@ export default function ResellerClientes() {
             email: newCliente.email,
             telefone: newCliente.telefone,
             plano: newCliente.plano,
-            status: newCliente.status.toLowerCase() as any,
+            status: newCliente.status.toLowerCase() as "ativo" | "inativo" | "pendente" | "suspenso",
             dataExpiracao: newCliente.dataExpiracao,
             criadoEm: new Date().toISOString(),
             servidor: newCliente.servidor
