@@ -416,7 +416,8 @@ export function useHeating() {
         try {
             toast.loading("Verificando status do grupo...");
             const res = await fetch(`${API_BASE}/check-group?id=${groupId}`);
-            const data = await res.json();
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const data: any = await res.json();
 
             toast.dismiss();
 
