@@ -1,6 +1,7 @@
 ﻿import { useState, useCallback, useEffect, useRef } from "react";
 import { AquecerContasTab } from "@/components/telegram/AquecerContasTab";
 import { useProxies } from "@/hooks/useProxies";
+import { useTelegramAccounts } from "@/hooks/useTelegramAccounts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -200,6 +201,17 @@ export default function AdminTelegram() {
         removeOfflineProxies: removeOfflineProxiesD1,
         loadProxies: reloadProxies,
     } = useProxies();
+
+    // Telegram Accounts/Bots Management - loads from D1 database
+    const {
+        bots: telegramBots,
+        stats: botsStats,
+        isLoading: botsLoading,
+        isVerifying: isVerifyingBots,
+        verifyBot: verifySingleBot,
+        verifyAllBots: verifyAllBotsFunc,
+        getStatusInfo: getBotStatusInfo,
+    } = useTelegramAccounts();
 
     const [members, setMembers] = useState<TelegramMember[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -3086,11 +3098,20 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
                                             <Button
                                                 size="sm"
                                                 className="bg-blue-600 hover:bg-blue-700"
-                                                onClick={handleVerifyAllAccounts}
-                                                disabled={isVerifyingAccounts || sessions.length === 0}
+                                                onClick={async () => {
+                                                    // Verify sessions first if any
+                                                    if (sessions.length > 0) {
+                                                        await handleVerifyAllAccounts();
+                                                    }
+                                                    // Then verify bots
+                                                    if (telegramBots.length > 0) {
+                                                        await verifyAllBotsFunc();
+                                                    }
+                                                }}
+                                                disabled={isVerifyingAccounts || isVerifyingBots || (sessions.length === 0 && telegramBots.length === 0)}
                                             >
-                                                <RefreshCw className={`w-4 h-4 mr-1 ${isVerifyingAccounts ? 'animate-spin' : ''}`} />
-                                                Verificar contas ({sessions.length})
+                                                <RefreshCw className={`w-4 h-4 mr-1 ${isVerifyingAccounts || isVerifyingBots ? 'animate-spin' : ''}`} />
+                                                Verificar contas ({sessions.length + telegramBots.length})
                                             </Button>
                                         </div>
                                     </div>
@@ -3216,6 +3237,79 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
                                             <Users className="w-12 h-12 mx-auto mb-3 opacity-50" />
                                             <p>Nenhuma conta conectada</p>
                                             <p className="text-xs">Clique em "Adicionar" para conectar sua primeira conta</p>
+                                        </div>
+                                    )}
+
+                                    {/* Bots Section - Show bots from heating system */}
+                                    {telegramBots.length > 0 && (
+                                        <div className="space-y-3">
+                                            <div className="flex items-center justify-between">
+                                                <h4 className="text-sm font-medium flex items-center gap-2">
+                                                    <Bot className="w-4 h-4" />
+                                                    Bots do Telegram ({telegramBots.length})
+                                                </h4>
+                                                <div className="flex gap-2 text-xs">
+                                                    <span className="text-green-400">{botsStats.active} ativos</span>
+                                                    {botsStats.restricted > 0 && (
+                                                        <span className="text-yellow-400">{botsStats.restricted} restritos</span>
+                                                    )}
+                                                    {botsStats.error > 0 && (
+                                                        <span className="text-red-400">{botsStats.error} com erro</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className="rounded-md border overflow-hidden">
+                                                <Table>
+                                                    <TableHeader>
+                                                        <TableRow className="bg-muted/50">
+                                                            <TableHead className="w-12">#</TableHead>
+                                                            <TableHead>Nome</TableHead>
+                                                            <TableHead>Username</TableHead>
+                                                            <TableHead>Status</TableHead>
+                                                            <TableHead>Última Verificação</TableHead>
+                                                            <TableHead className="w-20">Ações</TableHead>
+                                                        </TableRow>
+                                                    </TableHeader>
+                                                    <TableBody>
+                                                        {telegramBots.map((bot, index) => {
+                                                            const statusInfo = getBotStatusInfo(bot.status);
+                                                            return (
+                                                                <TableRow key={bot.id}>
+                                                                    <TableCell className="font-mono text-xs">{index + 1}</TableCell>
+                                                                    <TableCell className="font-medium">{bot.name}</TableCell>
+                                                                    <TableCell className="text-muted-foreground">
+                                                                        {bot.username ? `@${bot.username}` : '-'}
+                                                                    </TableCell>
+                                                                    <TableCell>
+                                                                        <Badge className={statusInfo.bgColor}>
+                                                                            {statusInfo.icon} {statusInfo.label}
+                                                                        </Badge>
+                                                                    </TableCell>
+                                                                    <TableCell className="text-xs text-muted-foreground">
+                                                                        {bot.last_validated_at
+                                                                            ? new Date(bot.last_validated_at).toLocaleString('pt-BR')
+                                                                            : 'Nunca verificado'
+                                                                        }
+                                                                    </TableCell>
+                                                                    <TableCell>
+                                                                        <div className="flex gap-1">
+                                                                            <Button
+                                                                                size="icon"
+                                                                                variant="ghost"
+                                                                                className="h-7 w-7"
+                                                                                onClick={() => verifySingleBot(bot.id)}
+                                                                                title="Verificar"
+                                                                            >
+                                                                                <RefreshCw className="w-4 h-4 text-blue-400" />
+                                                                            </Button>
+                                                                        </div>
+                                                                    </TableCell>
+                                                                </TableRow>
+                                                            );
+                                                        })}
+                                                    </TableBody>
+                                                </Table>
+                                            </div>
                                         </div>
                                     )}
 
