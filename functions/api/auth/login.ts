@@ -92,15 +92,28 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
             is_super_admin: isSuperAdmin
         });
 
+        // Preparar dados do usuário para resposta
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const userData: any = {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: role,
+            is_super_admin: isSuperAdmin
+        };
+
+        // Incluir campos de plano para revendedores
+        if (isReseller) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const resellerData = user as any;
+            userData.plan_name = resellerData.plan_name || 'Essencial';
+            userData.plan_price = resellerData.plan_price || 'R$ 0';
+            userData.max_clients = resellerData.max_clients || 5;
+        }
+
         return new Response(JSON.stringify({
             token,
-            user: {
-                id: user.id,
-                email: user.email,
-                name: user.name,
-                role: role,
-                is_super_admin: isSuperAdmin
-            }
+            user: userData
         }), {
             headers: { 'Content-Type': 'application/json' }
         });

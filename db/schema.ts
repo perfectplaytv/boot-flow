@@ -46,6 +46,11 @@ export const resellers = sqliteTable('resellers', {
     whatsapp: text('whatsapp'),
     observations: text('observations'),
     owner_uid: text('owner_uid'),
+    // Campos do plano
+    plan_name: text('plan_name').default('Essencial'),
+    plan_price: text('plan_price').default('R$ 0'),
+    max_clients: integer('max_clients').default(5),
+    subscription_date: text('subscription_date'),
     created_at: text('created_at').default(sql`CURRENT_TIMESTAMP`),
     updated_at: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
 });
