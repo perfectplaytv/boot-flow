@@ -79,7 +79,6 @@ export default function ResellerLayout() {
         plan_name: string;
         max_clients?: number;
         features?: string[];
-        [key: string]: any;
     }
 
     // Estado do plano atual (sincronizado)
