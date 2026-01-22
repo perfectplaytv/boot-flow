@@ -62,13 +62,19 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         let type = 'user'; // 'user' (admin/client) ou 'reseller'
 
         if (isReseller) {
-            // Se veio da tabela resellers, usa o campo permission ou define como reseller
+            // Revendedores NUNCA são admin a menos que explicitamente configurado
             type = 'reseller';
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            role = (user as any).permission === 'admin' ? 'admin' : ((user as any).permission || 'reseller');
+            const permission = (user as any).permission;
+            // Apenas 'admin' explícito no campo permission permite acesso admin
+            // Default é SEMPRE 'reseller' para segurança
+            role = permission === 'admin' ? 'admin' : 'reseller';
         } else {
             type = 'user';
-            if (user.plan === 'admin' || user.email === 'pontonois@gmail.com') {
+            // Super admin é apenas o email específico
+            if (user.email === 'pontonois@gmail.com') {
+                role = 'admin';
+            } else if (user.plan === 'admin') {
                 role = 'admin';
             } else if (user.plan === 'revenda') {
                 role = 'reseller';
