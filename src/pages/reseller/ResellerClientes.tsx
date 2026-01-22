@@ -134,7 +134,8 @@ export default function ResellerClientes() {
             const response = await fetch(proxyUrl);
             if (!response.ok) throw new Error(`Erro ao acessar: ${response.status}`);
 
-            const data = await response.json();
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const data: any = await response.json();
 
             if (!data.user_info) {
                 throw new Error("Dados inválidos retornados pelo servidor.");
