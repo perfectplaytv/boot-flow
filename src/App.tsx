@@ -53,7 +53,6 @@ import Statistics from "./pages/Statistics";
 import Ecommerce from "./pages/Ecommerce";
 import Channels from "./pages/Channels";
 import VoiceCampaigns from "./pages/VoiceCampaigns";
-import AdminPlanos from '@/pages/admin/AdminPlanos';
 import AdminResellersPlans from '@/pages/admin/AdminResellersPlans';
 import AdminTelegram from '@/pages/AdminTelegram';
 import AIConfiguration from "./pages/AIConfiguration";
