@@ -59,6 +59,16 @@ import { WhatsAppStatusContext } from './pages/AdminWhatsApp';
 
 const queryClient = new QueryClient();
 
+// Reseller Pages
+import ResellerLayout from './layouts/ResellerLayout';
+import ResellerDashboardIndex from './pages/reseller/ResellerDashboard';
+import ResellerClientes from './pages/reseller/ResellerClientes';
+import ResellerCobrancas from './pages/reseller/ResellerCobrancas';
+import ResellerPlanos from './pages/reseller/ResellerPlanos';
+import ResellerNotificacoes from './pages/reseller/ResellerNotificacoes';
+import ResellerConfiguracoes from './pages/reseller/ResellerConfiguracoes';
+import ResellerSuporte from './pages/reseller/ResellerSuporte';
+
 // Componente para fornecer navegação ao AuthProvider
 const AuthProviderWithNavigation = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
