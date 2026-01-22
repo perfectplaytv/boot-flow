@@ -65,6 +65,7 @@ import Notifications from "../Notifications";
 import Profile from "../Profile";
 import AdminTelegram from "../AdminTelegram";
 import AdminPlans from "../AdminPlans";
+import AdminResellersPlans from "@/pages/admin/AdminResellersPlans";
 import AdminAplicativos from "../AdminAplicativos";
 
 // Wrapper para AdminResellers que aceita callback quando um revendedor é criado
@@ -3042,25 +3043,32 @@ const AdminDashboard = () => {
             {currentPage === "plans" && <AdminPlans />}
             {currentPage === "profile" && <Profile />}
           </div>
-        </main>
+            )}
 
-        {/* Modals */}
-        <AIModalManager
-          activeModal={activeModal}
-          onClose={handleModalClose}
-          onAddReseller={handleAddReseller}
-        />
+          {/* Renderização de páginas adicionais */}
+          {currentPage === "plans" && <AdminResellersPlans />}
+          {currentPage === "telegram" && <AdminTelegram />}
 
-        {/* Modal Customizar Marca */}
-        <Dialog open={brandingModal} onOpenChange={setBrandingModal}>
-          <DialogContent className="max-w-4xl bg-[#232a36] border border-purple-700 text-white p-0">
-            <div className="overflow-y-auto max-h-[80vh]">
-              <AdminBranding />
-            </div>
-          </DialogContent>
-        </Dialog>
+      </div>
+    </main>
 
-        {/* Modais dos cards Kanban */}
+        {/* Modals */ }
+  <AIModalManager
+    activeModal={activeModal}
+    onClose={handleModalClose}
+    onAddReseller={handleAddReseller}
+  />
+
+  {/* Modal Customizar Marca */ }
+  <Dialog open={brandingModal} onOpenChange={setBrandingModal}>
+    <DialogContent className="max-w-4xl bg-[#232a36] border border-purple-700 text-white p-0">
+      <div className="overflow-y-auto max-h-[80vh]">
+        <AdminBranding />
+      </div>
+    </DialogContent>
+  </Dialog>
+
+  {/* Modais dos cards Kanban */ }
         <Dialog open={activeModal === 'iptv_management'} onOpenChange={handleModalClose}>
           <DialogContent className="max-w-2xl bg-[#232a36] text-white">
             <DialogHeader>
@@ -3116,7 +3124,7 @@ const AdminDashboard = () => {
           </DialogContent>
         </Dialog>
 
-        {/* Modais para cada card */}
+  {/* Modais para cada card */ }
         <Dialog open={activeModal === 'iptv'} onOpenChange={() => setActiveModal(null)}>
           <DialogContent className="bg-[#1f2937] text-white max-w-2xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col items-center justify-center max-h-[80vh] overflow-y-auto scrollbar-hide">
             <DialogHeader className="sr-only">
@@ -3881,8 +3889,8 @@ const AdminDashboard = () => {
             </div>
           </DialogContent>
         </Dialog>
-      </div>
-    </SidebarProvider>
+      </div >
+    </SidebarProvider >
   );
 };
 
