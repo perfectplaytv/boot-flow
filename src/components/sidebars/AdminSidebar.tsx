@@ -20,7 +20,8 @@ import {
   DollarSign,
   Bell,
   CreditCard,
-  AppWindow
+  AppWindow,
+  Shield
 } from "lucide-react";
 import {
   Sidebar,
@@ -58,6 +59,7 @@ const menuItems = [
   { title: "Dashboard", page: "dashboard", icon: Home },
   { title: "Clientes", page: "users", icon: Users },
   { title: "Revendas", page: "resellers", icon: Building2 },
+  { title: "Revendas & Planos", page: "resellers-plans", icon: Shield },
   { title: "Aplicativos", page: "aplicativos", icon: AppWindow },
   { title: "BootGram", page: "telegram", icon: UserPlus },
   { title: "Planos e Preços", page: "plans", icon: CreditCard },
