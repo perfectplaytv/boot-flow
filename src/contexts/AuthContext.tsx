@@ -104,9 +104,9 @@ export const AuthProvider = ({ children, navigate }: AuthProviderProps) => {
         };
 
         setUser(userData);
-        setToken(demoSession.session.access_token);
+        setToken(demoSession.access_token);
 
-        localStorage.setItem('auth_token', demoSession.session.access_token);
+        localStorage.setItem('auth_token', demoSession.access_token);
         localStorage.setItem('auth_user', JSON.stringify(userData));
 
         toast.success(`Login Demo: Bem-vindo ${demoUser.full_name}!`);
