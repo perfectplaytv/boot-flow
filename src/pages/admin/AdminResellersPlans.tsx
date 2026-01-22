@@ -4,45 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, Check, X, Shield, Zap, TrendingUp, Users } from "lucide-react";
-import { toast } from 'sonner';
-
-interface ResellerPlanData {
-    id: number;
-    name: string;
-    email: string;
-    plan_name: string;
-    status: string;
-    max_clients: number;
-    usage: {
-        clients: number;
-        apps: number;
-        charges: number;
-    };
-    feature_botgram: number; // SQLite boolean 0 or 1
-    feature_analytics: number;
-    feature_automation: number;
-    support_level: string;
-}
+import { Loader2, Check, X, Shield, TrendingUp, Users } from "lucide-react";
+import { useRevendas } from '@/hooks/useRevendas';
 
 export default function AdminResellersPlans() {
-    const [loading, setLoading] = useState(true);
-    const [data, setData] = useState<ResellerPlanData[]>([]);
-
-    useEffect(() => {
-        // Fetch dados do endpoint criado
-        fetch('/api/admin/resellers-plans')
-            .then(res => res.json())
-            .then((res: any) => {
-                if (res.success) {
-                    setData(res.data);
-                } else {
-                    toast.error('Erro ao carregar planos: ' + res.error);
-                }
-            })
-            .catch((e) => toast.error('Erro de conexão: ' + e.message))
-            .finally(() => setLoading(false));
-    }, []);
+    const { revendas, loading } = useRevendas();
 
     if (loading) return (
         <div className="flex justify-center items-center h-[50vh]">
@@ -51,9 +17,16 @@ export default function AdminResellersPlans() {
     );
 
     // Cálculos de resumo
-    const totalResellers = data.length;
-    const activeResellers = data.filter(r => r.status === 'active' || r.status === 'ativo').length;
-    const eliteResellers = data.filter(r => r.plan_name === 'Elite').length;
+    const totalResellers = revendas?.length || 0;
+    const activeResellers = revendas?.filter((r: any) =>
+        r.status === 'active' || r.status === 'ativo' || r.status === 'Ativo'
+    ).length || 0;
+    const eliteResellers = revendas?.filter((r: any) =>
+        r.plan_name === 'Elite' || r.permission === 'admin'
+    ).length || 0;
+
+    // Calcular receita estimada baseada nos créditos
+    const totalCredits = revendas?.reduce((acc: number, r: any) => acc + (r.credits || 0), 0) || 0;
 
     return (
         <div className="space-y-6 pt-4">
@@ -73,110 +46,116 @@ export default function AdminResellersPlans() {
                     <CardContent>
                         <div className="text-2xl font-bold">{activeResellers}</div>
                         <p className="text-xs text-muted-foreground">
-                            {((activeResellers / totalResellers) * 100).toFixed(0)}% da base
+                            {totalResellers > 0 ? ((activeResellers / totalResellers) * 100).toFixed(0) : 0}% da base
                         </p>
                     </CardContent>
                 </Card>
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Assinantes Elite</CardTitle>
+                        <CardTitle className="text-sm font-medium">Administradores</CardTitle>
                         <Shield className="h-4 w-4 text-yellow-500" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{eliteResellers}</div>
                     </CardContent>
                 </Card>
-                {/* Placeholder Cards */}
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Receita Estimada</CardTitle>
+                        <CardTitle className="text-sm font-medium">Total de Créditos</CardTitle>
                         <TrendingUp className="h-4 w-4 text-green-500" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">R$ --</div>
-                        <p className="text-xs text-muted-foreground">Mensal</p>
+                        <div className="text-2xl font-bold">{totalCredits.toLocaleString()}</div>
+                        <p className="text-xs text-muted-foreground">Créditos em circulação</p>
                     </CardContent>
                 </Card>
             </div>
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Visão Geral de Assinaturas e Uso</CardTitle>
+                    <CardTitle>Visão Geral de Revendas</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Revenda</TableHead>
-                                <TableHead>Plano</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead className="w-[200px]">Uso (Clientes)</TableHead>
-                                <TableHead className="text-center">BotGram</TableHead>
-                                <TableHead className="text-center">Analytics</TableHead>
-                                <TableHead className="text-center">Suporte</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {data.map((row) => (
-                                <TableRow key={row.id}>
-                                    <TableCell>
-                                        <div className="font-medium">{row.name}</div>
-                                        <div className="text-xs text-muted-foreground">{row.email}</div>
-                                    </TableCell>
-                                    <TableCell>
-                                        <Badge variant={
-                                            row.plan_name === 'Elite' ? 'default' :
-                                                row.plan_name === 'Business' ? 'secondary' : 'outline'
-                                        }>
-                                            {row.plan_name || 'Essencial'}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell>
-                                        <Badge className={`
-                                            ${row.status === 'active' || row.status === 'ativo' ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-500'}
-                                        `}>
-                                            {row.status || 'Active'}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell>
-                                        <div className="space-y-1">
-                                            <div className="flex items-center justify-between text-xs">
-                                                <span>{row.usage.clients} / {row.max_clients || '∞'}</span>
-                                                <span className="text-muted-foreground">
-                                                    {row.max_clients ? Math.round((row.usage.clients / row.max_clients) * 100) : 0}%
-                                                </span>
-                                            </div>
-                                            <Progress
-                                                value={row.max_clients ? (row.usage.clients / row.max_clients) * 100 : 0}
-                                                className="h-2"
-                                            />
-                                        </div>
-                                    </TableCell>
-                                    <TableCell className="text-center">
-                                        {row.feature_botgram ? (
-                                            <Check className="mx-auto text-green-500 w-4 h-4" />
-                                        ) : (
-                                            <X className="mx-auto text-muted-foreground w-4 h-4 opacity-30" />
-                                        )}
-                                    </TableCell>
-                                    <TableCell className="text-center">
-                                        {row.feature_analytics ? (
-                                            <Check className="mx-auto text-green-500 w-4 h-4" />
-                                        ) : (
-                                            <X className="mx-auto text-muted-foreground w-4 h-4 opacity-30" />
-                                        )}
-                                    </TableCell>
-                                    <TableCell className="text-center">
-                                        <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${row.support_level === 'vip' ? 'bg-yellow-100 text-yellow-700' :
-                                                row.support_level === 'priority' ? 'bg-blue-100 text-blue-700' : 'text-muted-foreground'
-                                            }`}>
-                                            {row.support_level?.toUpperCase() || 'STD'}
-                                        </span>
-                                    </TableCell>
+                    {revendas && revendas.length > 0 ? (
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Revenda</TableHead>
+                                    <TableHead>Permissão</TableHead>
+                                    <TableHead>Status</TableHead>
+                                    <TableHead>Créditos</TableHead>
+                                    <TableHead className="text-center">Email</TableHead>
+                                    <TableHead className="text-center">Telegram</TableHead>
+                                    <TableHead className="text-center">WhatsApp</TableHead>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                            </TableHeader>
+                            <TableBody>
+                                {revendas.map((row: any) => (
+                                    <TableRow key={row.id}>
+                                        <TableCell>
+                                            <div className="font-medium">{row.username || row.personal_name || 'Sem nome'}</div>
+                                            <div className="text-xs text-muted-foreground">{row.email || '--'}</div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Badge variant={
+                                                row.permission === 'admin' ? 'default' :
+                                                    row.permission === 'reseller' ? 'secondary' : 'outline'
+                                            }>
+                                                {row.permission || 'Reseller'}
+                                            </Badge>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Badge className={`
+                                                ${row.status === 'active' || row.status === 'ativo' || row.status === 'Ativo'
+                                                    ? 'bg-green-500 hover:bg-green-600'
+                                                    : 'bg-gray-500'}
+                                            `}>
+                                                {row.status || 'Ativo'}
+                                            </Badge>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="space-y-1">
+                                                <div className="flex items-center justify-between text-xs">
+                                                    <span className="font-medium">{row.credits || 0} créditos</span>
+                                                </div>
+                                                <Progress
+                                                    value={Math.min((row.credits || 0) / 100 * 100, 100)}
+                                                    className="h-2"
+                                                />
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="text-center">
+                                            {row.email ? (
+                                                <Check className="mx-auto text-green-500 w-4 h-4" />
+                                            ) : (
+                                                <X className="mx-auto text-muted-foreground w-4 h-4 opacity-30" />
+                                            )}
+                                        </TableCell>
+                                        <TableCell className="text-center">
+                                            {row.telegram ? (
+                                                <Check className="mx-auto text-green-500 w-4 h-4" />
+                                            ) : (
+                                                <X className="mx-auto text-muted-foreground w-4 h-4 opacity-30" />
+                                            )}
+                                        </TableCell>
+                                        <TableCell className="text-center">
+                                            {row.whatsapp ? (
+                                                <Check className="mx-auto text-green-500 w-4 h-4" />
+                                            ) : (
+                                                <X className="mx-auto text-muted-foreground w-4 h-4 opacity-30" />
+                                            )}
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    ) : (
+                        <div className="text-center py-8 text-muted-foreground">
+                            <Users className="mx-auto h-12 w-12 mb-4 opacity-50" />
+                            <p>Nenhuma revenda cadastrada ainda.</p>
+                            <p className="text-sm">Adicione revendas na seção "Revendas" do menu.</p>
+                        </div>
+                    )}
                 </CardContent>
             </Card>
         </div>
