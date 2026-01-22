@@ -123,10 +123,7 @@ const App = () => {
                     </ProtectedRoute>
                   }>
                     <Route index element={<ResellerDashboardIndex />} />
-                    <Route path="clientes" element={<ResellerClientes />} />
-                    <Route path="bootgram" element={<AdminTelegram />} />
-                    <Route path="plans" element={<AdminResellersPlans />} />
-                    <Route path="planos" element={<AdminPlanos />} />
+                    <Route path="cobrancas" element={<ResellerCobrancas />} />
                     <Route path="notificacoes" element={<ResellerNotificacoes />} />
                     <Route path="configuracoes" element={<ResellerConfiguracoes />} />
                     <Route path="suporte" element={<ResellerSuporte />} />
@@ -142,7 +139,23 @@ const App = () => {
                   </Route>
                   {/* Página de acesso negado */}
                   <Route path="/unauthorized" element={<Unauthorized />} />
-                  <Route path="/admin/revendedores" element={<AdminResellers />} />
+
+                  {/* Rotas Admin */}
+                  <Route path="/admin/revendedores" element={
+                    <ProtectedRoute requiredRole="admin">
+                      <AdminResellers />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/admin/plans" element={
+                    <ProtectedRoute requiredRole="admin">
+                      <AdminResellersPlans />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/admin/bootgram" element={
+                    <ProtectedRoute requiredRole="admin">
+                      <AdminTelegram />
+                    </ProtectedRoute>
+                  } />
 
                   {/* Dashboard Cliente */}
                   <Route path="/dashboard/client" element={<ClientDashboard />} />
