@@ -108,9 +108,35 @@ const App = () => {
                   <Route path="/empresa/blog" element={<Blog />} />
 
                   {/* Dashboard Admin - Acesso direto */}
-                  <Route path="/admin" element={<AdminDashboard />} />
-                  {/* Dashboard Revendas (acessível para qualquer usuário após pagamento) */}
-                  <Route path="/dashboard/revendas" element={<ResellerDashboard />} />
+                  <Route path="/admin" element={
+                    <ProtectedRoute requiredRole="admin">
+                      <AdminDashboard />
+                    </ProtectedRoute>
+                  } />
+
+                  {/* Nova Dashboard Revendedor - Layout Separado */}
+                  <Route path="/reseller" element={
+                    <ProtectedRoute requiredRole="reseller">
+                      <ResellerLayout />
+                    </ProtectedRoute>
+                  }>
+                    <Route index element={<ResellerDashboardIndex />} />
+                    <Route path="clientes" element={<ResellerClientes />} />
+                    <Route path="cobrancas" element={<ResellerCobrancas />} />
+                    <Route path="planos" element={<ResellerPlanos />} />
+                    <Route path="notificacoes" element={<ResellerNotificacoes />} />
+                    <Route path="configuracoes" element={<ResellerConfiguracoes />} />
+                    <Route path="suporte" element={<ResellerSuporte />} />
+                  </Route>
+
+                  {/* Mantendo rota antiga para compatibilidade temporária (redirecionar depois) */}
+                  <Route path="/dashboard/revendas" element={
+                    <ProtectedRoute requiredRole="reseller">
+                      <ResellerLayout />
+                    </ProtectedRoute>
+                  }>
+                    <Route index element={<ResellerDashboardIndex />} />
+                  </Route>
                   {/* Página de acesso negado */}
                   <Route path="/unauthorized" element={<Unauthorized />} />
                   <Route path="/admin/revendedores" element={<AdminResellers />} />
