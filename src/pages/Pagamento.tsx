@@ -59,13 +59,15 @@ export default function Pagamento() {
         const initMercadoPago = () => {
             if (window.MercadoPago) {
                 try {
-                    // Use your Mercado Pago PUBLIC KEY here
-                    const mp = new window.MercadoPago('APP_USR-f8e6aa57-0d13-4f96-ba20-db1288f28953', {
+                    // Initialize Mercado Pago SDK - this automatically sets up device tracking
+                    new window.MercadoPago('APP_USR-f8e6aa57-0d13-4f96-ba20-db1288f28953', {
                         locale: 'pt-BR'
                     });
-                    const id = mp.getDeviceId();
-                    setDeviceId(id);
-                    console.log('[MP] Device ID obtained:', id);
+                    // The SDK V2 handles device ID automatically via cookies/localStorage
+                    // We generate a session fingerprint as identifier
+                    const fingerprint = `${navigator.userAgent}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                    setDeviceId(fingerprint);
+                    console.log('[MP] SDK initialized');
                 } catch (error) {
                     console.error('[MP] Error initializing SDK:', error);
                 }
