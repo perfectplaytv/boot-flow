@@ -4,10 +4,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
 
 interface ProtectedRouteProps {
-  allowedRoles: Array<'admin' | 'reseller' | 'client'>;
+  allowedRoles?: Array<'admin' | 'reseller' | 'client'>;
+  requiredRole?: 'admin' | 'reseller' | 'client';
+  children?: React.ReactNode;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles }) => {
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles, requiredRole, children }) => {
   const { userRole, loading, isAuthenticated } = useAuth();
   const location = useLocation();
 
@@ -21,14 +23,20 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles }) => {
   }
 
   if (!isAuthenticated) {
-    // Salva a rota que o usuário tentou acessar para redirecioná-lo após o login
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Verifica se a role do usuário está na lista de roles permitidas
-  const isAuthorized = userRole && allowedRoles.includes(userRole);
+  // Combine allowedRoles if requiredRole is provided
+  const roles = allowedRoles || (requiredRole ? [requiredRole] : []);
 
-  return isAuthorized ? <Outlet /> : <Navigate to="/unauthorized" replace />;
+  // If no roles specified, just check authentication (already done)
+  const isAuthorized = roles.length === 0 || (userRole && roles.includes(userRole));
+
+  if (!isAuthorized) {
+    return <Navigate to="/unauthorized" replace />;
+  }
+
+  return children ? <>{children}</> : <Outlet />;
 };
 
 export default ProtectedRoute;

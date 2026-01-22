@@ -65,7 +65,7 @@ export const AuthProvider = ({ children, navigate }: AuthProviderProps) => {
   const redirectBasedOnRole = useCallback((role: string) => {
     switch (role) {
       case 'admin': safeNavigate('/admin'); break;
-      case 'reseller': safeNavigate('/dashboard/revendas'); break;
+      case 'reseller': safeNavigate('/reseller'); break;
       case 'client': safeNavigate('/dashboard/client'); break;
       default: safeNavigate('/'); break;
     }
