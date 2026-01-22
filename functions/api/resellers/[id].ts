@@ -58,6 +58,11 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
         if (body.whatsapp !== undefined) updates.whatsapp = body.whatsapp;
         if (body.observations !== undefined) updates.observations = body.observations;
 
+        // Campos do plano
+        if (body.plan_name !== undefined) updates.plan_name = body.plan_name;
+        if (body.plan_price !== undefined) updates.plan_price = body.plan_price;
+        if (body.max_clients !== undefined) updates.max_clients = body.max_clients;
+
         // Se tiver senha, hashear
         if (body.password && body.password.trim() !== '') {
             updates.password = await bcrypt.hash(body.password, 10);

@@ -497,6 +497,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
         whatsapp: editingReseller.whatsapp,
         observations: editingReseller.observations,
         plan_name: editingReseller.plan_name,
+        plan_price: editingReseller.plan_price,
         max_clients: editingReseller.max_clients
       });
 
