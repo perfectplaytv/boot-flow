@@ -33,6 +33,7 @@ import {
     X,
     Loader2,
     Zap,
+    Shield,
 } from "lucide-react";
 
 type SubTab = 'groups' | 'bots' | 'campaigns' | 'logs';
@@ -59,6 +60,7 @@ export function AquecerContasTab() {
         duplicateCampaign,
         clearLogs,
         forceProcess,
+        checkGroupStatus,
     } = useHeating();
 
     // Sub-tab state
@@ -498,6 +500,15 @@ export function AquecerContasTab() {
                                                     ) : (
                                                         <Send className="w-4 h-4" />
                                                     )}
+                                                </Button>
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    className="h-8"
+                                                    onClick={() => checkGroupStatus(group.id)}
+                                                    title="Verificar status do grupo (Banido/Bloqueado)"
+                                                >
+                                                    <Shield className="w-4 h-4" />
                                                 </Button>
                                                 <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-red-400" onClick={() => deleteGroup(group.id)}>
                                                     <Trash2 className="w-4 h-4" />

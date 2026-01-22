@@ -412,6 +412,44 @@ export function useHeating() {
         }
     }, [groups, updateGroup]);
 
+    const checkGroupStatus = useCallback(async (groupId: number): Promise<void> => {
+        try {
+            toast.loading("Verificando status do grupo...");
+            const res = await fetch(`${API_BASE}/check-group?id=${groupId}`);
+            const data = await res.json();
+
+            toast.dismiss();
+
+            if (data.success) {
+                const { status, details, bot_used, chat_info } = data.data;
+
+                // Update local state is handled by reloading from API or updating manually if needed
+                // But loadFromAPI is safer to sync everything
+                await loadFromAPI();
+
+                if (status === 'active') {
+                    toast.success(`Grupo Ativo! (${details})`);
+                } else if (status === 'blocked' || status === 'kicked') {
+                    toast.error(`Grupo Bloqueado/Banido: ${details}`);
+                } else if (status === 'not_found') {
+                    toast.error(`Grupo não encontrado: ${details}`);
+                } else {
+                    toast.warning(`Status: ${status} - ${details}`);
+                }
+
+                if (chat_info) {
+                    console.log("[Heating] Chat Info:", chat_info);
+                }
+
+            } else {
+                throw new Error(data.error || "Erro desconhecido");
+            }
+        } catch (e) {
+            toast.dismiss();
+            toast.error(`Erro ao verificar: ${e instanceof Error ? e.message : 'Desconhecido'}`);
+        }
+    }, [loadFromAPI]);
+
     // ========== BOT OPERATIONS ==========
 
     const validateBotToken = useCallback(async (token: string): Promise<TelegramBotInfo | null> => {
@@ -668,6 +706,7 @@ export function useHeating() {
         updateGroup,
         deleteGroup,
         testGroup,
+        checkGroupStatus,
 
         // Bot operations
         addBot,
