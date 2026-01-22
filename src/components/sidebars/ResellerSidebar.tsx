@@ -94,7 +94,7 @@ export function ResellerSidebar() {
   const [maxClients, setMaxClients] = useState<number>(user?.max_clients || 5);
 
   // Buscar plano atualizado do banco de dados
-  const fetchCurrentPlan = async () => {
+  const fetchCurrentPlan = useCallback(async () => {
     if (!token) return;
 
     try {
@@ -116,18 +116,18 @@ export function ResellerSidebar() {
     } catch (error) {
       console.error('Erro ao buscar plano:', error);
     }
-  };
+  }, [token]);
 
   // Buscar plano ao montar e quando a rota mudar
   useEffect(() => {
     fetchCurrentPlan();
-  }, [token, location.pathname]);
+  }, [fetchCurrentPlan, location.pathname]);
 
   // Polling a cada 30 segundos para manter o plano atualizado
   useEffect(() => {
     const interval = setInterval(fetchCurrentPlan, 30000);
     return () => clearInterval(interval);
-  }, [token]);
+  }, [fetchCurrentPlan]);
 
   // Obter nível do plano do usuário
   const userPlanLevel = PLAN_LEVELS[currentPlan] || 1;
