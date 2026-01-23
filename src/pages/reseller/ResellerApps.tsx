@@ -11,14 +11,25 @@ import {
     DialogTrigger,
     DialogFooter
 } from "@/components/ui/dialog";
+import { useOutletContext } from "react-router-dom";
+import { cn } from "@/lib/utils";
+
+interface Theme {
+    color: string;
+    lightColor: string;
+    borderColor: string;
+    gradient: string;
+}
 
 export default function ResellerApps() {
+    const { theme } = useOutletContext<{ theme: Theme }>();
+
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold flex items-center gap-2">
-                        <Smartphone className="w-6 h-6 text-primary" />
+                    <h1 className={cn("text-2xl font-bold flex items-center gap-2", theme.color)}>
+                        <Smartphone className="w-6 h-6" />
                         Meus Aplicativos
                     </h1>
                     <p className="text-muted-foreground">
@@ -28,7 +39,7 @@ export default function ResellerApps() {
 
                 <Dialog>
                     <DialogTrigger asChild>
-                        <Button className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-md">
+                        <Button className={cn("text-white shadow-md", theme.gradient)}>
                             <Plus className="w-4 h-4 mr-2" />
                             Solicitar Aplicativo
                         </Button>
@@ -49,7 +60,7 @@ export default function ResellerApps() {
                             </ul>
                         </div>
                         <DialogFooter>
-                            <Button className="w-full bg-green-600 hover:bg-green-700 text-white" onClick={() => window.open('https://wa.me/5511999999999', '_blank')}>
+                            <Button className={cn("w-full text-white", theme.gradient)} onClick={() => window.open('https://wa.me/5511999999999', '_blank')}>
                                 <MessageCircle className="w-4 h-4 mr-2" />
                                 Falar no WhatsApp
                             </Button>
@@ -58,7 +69,7 @@ export default function ResellerApps() {
                 </Dialog>
             </div>
 
-            <Card>
+            <Card className={cn("border shadow-sm", theme.borderColor)}>
                 <CardHeader>
                     <CardTitle>Aplicativos Disponíveis</CardTitle>
                     <CardDescription>
@@ -70,11 +81,11 @@ export default function ResellerApps() {
                         {/* Empty State / Add New */}
                         <Dialog>
                             <DialogTrigger asChild>
-                                <div className="border border-dashed border-muted-foreground/30 rounded-lg flex flex-col items-center justify-center p-8 text-center text-muted-foreground cursor-pointer hover:border-emerald-500 hover:bg-emerald-500/5 hover:text-emerald-500 transition-all group">
-                                    <div className="p-3 rounded-full bg-muted group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/30 transition-colors mb-3">
-                                        <Plus className="w-6 h-6" />
+                                <div className={cn("border border-dashed border-muted-foreground/30 rounded-lg flex flex-col items-center justify-center p-8 text-center text-muted-foreground cursor-pointer transition-all group hover:bg-muted/30", theme.borderColor.replace('border-', 'hover:border-'))}>
+                                    <div className={cn("p-3 rounded-full transition-colors mb-3 group-hover:bg-opacity-80", theme.lightColor)}>
+                                        <Plus className={cn("w-6 h-6", theme.color)} />
                                     </div>
-                                    <h3 className="font-semibold">Solicitar Novo App</h3>
+                                    <h3 className={cn("font-semibold", theme.color)}>Solicitar Novo App</h3>
                                     <p className="text-xs mt-1">Configurar APK Android</p>
                                 </div>
                             </DialogTrigger>
@@ -85,7 +96,7 @@ export default function ResellerApps() {
                                         Entre em contato com o suporte para configurar seu novo app.
                                     </DialogDescription>
                                 </DialogHeader>
-                                <Button className="w-full bg-green-600 hover:bg-green-700 text-white" onClick={() => window.open('https://wa.me/5511999999999', '_blank')}>
+                                <Button className={cn("w-full text-white", theme.gradient)} onClick={() => window.open('https://wa.me/5511999999999', '_blank')}>
                                     <MessageCircle className="w-4 h-4 mr-2" />
                                     Solicitar via WhatsApp
                                 </Button>

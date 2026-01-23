@@ -3,8 +3,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Button } from "@/components/ui/button";
 import { MessageCircle, QrCode, RefreshCw, CheckCircle2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useOutletContext } from "react-router-dom";
+import { cn } from "@/lib/utils";
+
+interface Theme {
+    color: string;
+    lightColor: string;
+    borderColor: string;
+    gradient: string;
+}
 
 export default function ResellerWhatsApp() {
+    const { theme } = useOutletContext<{ theme: Theme }>();
     const [status, setStatus] = useState<'disconnected' | 'connecting' | 'connected'>('disconnected');
     const [qrCode, setQrCode] = useState<string | null>(null);
 
@@ -32,8 +42,8 @@ export default function ResellerWhatsApp() {
     return (
         <div className="space-y-6">
             <div>
-                <h1 className="text-2xl font-bold flex items-center gap-2">
-                    <MessageCircle className="w-6 h-6 text-green-500" />
+                <h1 className={cn("text-2xl font-bold flex items-center gap-2", theme.color)}>
+                    <MessageCircle className="w-6 h-6" />
                     Conexão WhatsApp
                 </h1>
                 <p className="text-muted-foreground">
@@ -42,7 +52,7 @@ export default function ResellerWhatsApp() {
             </div>
 
             <div className="grid gap-6 md:grid-cols-2">
-                <Card className="border-2 border-muted">
+                <Card className={cn("border-2", theme.borderColor)}>
                     <CardHeader>
                         <CardTitle>Status da Conexão</CardTitle>
                         <CardDescription>
@@ -52,7 +62,7 @@ export default function ResellerWhatsApp() {
                     <CardContent className="flex flex-col items-center justify-center py-6 min-h-[300px]">
                         {status === 'disconnected' && (
                             <div className="flex flex-col items-center animate-in fade-in zoom-in duration-300">
-                                <div className="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center mb-4">
+                                <div className="w-20 h-20 rounded-full bg-red-100/50 flex items-center justify-center mb-4">
                                     <MessageCircle className="w-10 h-10 text-red-500" />
                                 </div>
                                 <h3 className="font-bold text-xl text-red-500">Desconectado</h3>
@@ -64,7 +74,7 @@ export default function ResellerWhatsApp() {
 
                         {status === 'connecting' && !qrCode && (
                             <div className="flex flex-col items-center animate-pulse">
-                                <Loader2 className="w-16 h-16 text-primary animate-spin mb-4" />
+                                <Loader2 className={cn("w-16 h-16 animate-spin mb-4", theme.color)} />
                                 <h3 className="font-bold text-lg">Iniciando Sessão...</h3>
                                 <p className="text-sm text-muted-foreground">Aguarde enquanto geramos o QR Code</p>
                             </div>
@@ -72,10 +82,10 @@ export default function ResellerWhatsApp() {
 
                         {status === 'connecting' && qrCode && (
                             <div className="flex flex-col items-center animate-in fade-in zoom-in duration-300">
-                                <div className="bg-white p-2 rounded-lg mb-4 border-2 border-primary/20">
+                                <div className={cn("bg-white p-2 rounded-lg mb-4 border-2", theme.borderColor)}>
                                     <img src={qrCode} alt="QR Code" className="w-48 h-48" />
                                 </div>
-                                <h3 className="font-bold text-lg text-primary">Escaneie o QR Code</h3>
+                                <h3 className={cn("font-bold text-lg", theme.color)}>Escaneie o QR Code</h3>
                                 <p className="text-sm text-muted-foreground text-center max-w-xs">
                                     Abra o WhatsApp no seu celular &gt; Configurações &gt; Aparelhos Conectados &gt; Conectar Aparelho
                                 </p>
@@ -84,10 +94,10 @@ export default function ResellerWhatsApp() {
 
                         {status === 'connected' && (
                             <div className="flex flex-col items-center animate-in fade-in zoom-in duration-500">
-                                <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mb-4">
-                                    <CheckCircle2 className="w-10 h-10 text-green-600" />
+                                <div className="w-20 h-20 rounded-full bg-emerald-100/50 flex items-center justify-center mb-4">
+                                    <CheckCircle2 className="w-10 h-10 text-emerald-600" />
                                 </div>
-                                <h3 className="font-bold text-xl text-green-600">Conectado</h3>
+                                <h3 className="font-bold text-xl text-emerald-600">Conectado</h3>
                                 <p className="text-sm text-muted-foreground mt-2">
                                     Seu WhatsApp está pronto para enviar mensagens.
                                 </p>
@@ -101,7 +111,7 @@ export default function ResellerWhatsApp() {
                         {status === 'disconnected' && (
                             <Button
                                 size="lg"
-                                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-md transition-all hover:scale-[1.02]"
+                                className={cn("w-full text-white shadow-md transition-all hover:scale-[1.02]", theme.gradient)}
                                 onClick={handleConnect}
                             >
                                 <QrCode className="w-5 h-5 mr-2" />
@@ -124,7 +134,7 @@ export default function ResellerWhatsApp() {
                 </Card>
 
                 <div className="space-y-6">
-                    <Card>
+                    <Card className={cn("border shadow-sm", theme.borderColor)}>
                         <CardHeader>
                             <CardTitle>Configurações de Envio</CardTitle>
                             <CardDescription>
@@ -132,22 +142,22 @@ export default function ResellerWhatsApp() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <div className="bg-muted/50 p-4 rounded-lg text-sm border-l-4 border-primary">
+                            <div className={cn("p-4 rounded-lg text-sm border-l-4", theme.lightColor, theme.borderColor.replace('border-', 'border-l-'))}>
                                 <p className="font-medium mb-2 flex items-center gap-2">
-                                    <MessageCircle className="w-4 h-4" />
+                                    <MessageCircle className={cn("w-4 h-4", theme.color)} />
                                     Limites do Plano Atual
                                 </p>
                                 <ul className="space-y-2 text-muted-foreground">
                                     <li className="flex items-center gap-2">
-                                        <CheckCircle2 className="w-3 h-3 text-green-500" />
+                                        <CheckCircle2 className={cn("w-3 h-3", theme.color)} />
                                         1 Conexão simultânea
                                     </li>
                                     <li className="flex items-center gap-2">
-                                        <CheckCircle2 className="w-3 h-3 text-green-500" />
+                                        <CheckCircle2 className={cn("w-3 h-3", theme.color)} />
                                         5 Notificações diárias
                                     </li>
                                     <li className="flex items-center gap-2">
-                                        <CheckCircle2 className="w-3 h-3 text-green-500" />
+                                        <CheckCircle2 className={cn("w-3 h-3", theme.color)} />
                                         Mensagens de texto apenas
                                     </li>
                                 </ul>
@@ -155,9 +165,9 @@ export default function ResellerWhatsApp() {
                         </CardContent>
                     </Card>
 
-                    <Card className="bg-primary/5 border-primary/20">
+                    <Card className={cn("border", theme.lightColor, theme.borderColor)}>
                         <CardHeader>
-                            <CardTitle className="text-primary">Dica Importante</CardTitle>
+                            <CardTitle className={cn(theme.color)}>Dica Importante</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <p className="text-sm text-muted-foreground">
