@@ -15,8 +15,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+import { useOutletContext } from "react-router-dom";
+import { cn } from "@/lib/utils";
+
+interface Theme {
+    color: string;
+    lightColor: string;
+    borderColor: string;
+    gradient: string;
+}
 
 export default function ResellerGateways() {
+    const { theme } = useOutletContext<{ theme: Theme }>();
     const [mpConfigured, setMpConfigured] = useState(false);
     const [isMpDialogOpen, setIsMpDialogOpen] = useState(false);
 
@@ -33,8 +43,8 @@ export default function ResellerGateways() {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold flex items-center gap-2">
-                        <Wallet className="w-6 h-6 text-primary" />
+                    <h1 className={cn("text-2xl font-bold flex items-center gap-2", theme.color)}>
+                        <Wallet className="w-6 h-6" />
                         Gateways de Pagamento
                     </h1>
                     <p className="text-muted-foreground">
@@ -42,7 +52,7 @@ export default function ResellerGateways() {
                     </p>
                 </div>
                 <Button
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-md"
+                    className={cn("text-white shadow-md", theme.gradient)}
                     onClick={() => toast.info("Novos gateways em breve!", { description: "Estamos integrando com Asaas e Stripe." })}
                 >
                     <Plus className="w-4 h-4 mr-2" />
@@ -52,7 +62,7 @@ export default function ResellerGateways() {
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {/* Mercado Pago */}
-                <Card className={`flex flex-col justify-between transition-all ${mpConfigured ? 'border-green-500/50 bg-green-500/5' : ''}`}>
+                <Card className={cn("flex flex-col justify-between transition-all border shadow-sm", mpConfigured ? theme.borderColor : "", mpConfigured ? theme.lightColor.replace("bg-", "bg-opacity-50 ") : "")}>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <CreditCard className="w-5 h-5 text-blue-500" />
@@ -64,8 +74,8 @@ export default function ResellerGateways() {
                     </CardHeader>
                     <CardContent>
                         <div className="flex items-center gap-2 mb-4">
-                            <div className={`w-3 h-3 rounded-full ${mpConfigured ? 'bg-green-500' : 'bg-yellow-500'}`} />
-                            <span className={`text-sm font-medium ${mpConfigured ? 'text-green-500' : 'text-yellow-500'}`}>
+                            <div className={cn("w-3 h-3 rounded-full", mpConfigured ? "bg-green-500" : "bg-yellow-500")} />
+                            <span className={cn("text-sm font-medium", mpConfigured ? "text-green-500" : "text-yellow-500")}>
                                 {mpConfigured ? 'Ativo e Operando' : 'Não Configurado'}
                             </span>
                         </div>
@@ -123,7 +133,7 @@ export default function ResellerGateways() {
                 </Card>
 
                 {/* Efi Bank */}
-                <Card className="flex flex-col justify-between opacity-75 grayscale hover:grayscale-0 transition-all">
+                <Card className="flex flex-col justify-between opacity-75 grayscale hover:grayscale-0 transition-all border shadow-sm">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <CreditCard className="w-5 h-5 text-orange-500" />
@@ -145,7 +155,7 @@ export default function ResellerGateways() {
                 </Card>
 
                 {/* Stripe (Placeholder) */}
-                <Card className="flex flex-col justify-between opacity-50 border-dashed">
+                <Card className="flex flex-col justify-between opacity-50 border-dashed border shadow-sm">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <CreditCard className="w-5 h-5" />

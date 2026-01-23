@@ -13,8 +13,18 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useOutletContext } from "react-router-dom";
+import { cn } from "@/lib/utils";
+
+interface Theme {
+    color: string;
+    lightColor: string;
+    borderColor: string;
+    gradient: string;
+}
 
 export default function ResellerSuporte() {
+    const { theme } = useOutletContext<{ theme: Theme }>();
     const [message, setMessage] = useState("");
     const [subject, setSubject] = useState("");
 
@@ -36,8 +46,8 @@ export default function ResellerSuporte() {
         <div className="space-y-6">
             {/* Header */}
             <div>
-                <h1 className="text-2xl font-bold flex items-center gap-2">
-                    <HelpCircle className="w-6 h-6 text-green-500" />
+                <h1 className={cn("text-2xl font-bold flex items-center gap-2", theme.color)}>
+                    <HelpCircle className="w-6 h-6" />
                     Central de Suporte
                 </h1>
                 <p className="text-muted-foreground">
@@ -47,7 +57,7 @@ export default function ResellerSuporte() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Quick Contact */}
-                <Card>
+                <Card className={cn("border shadow-sm", theme.borderColor)}>
                     <CardHeader>
                         <CardTitle>Contato Rápido</CardTitle>
                         <CardDescription>
@@ -56,7 +66,7 @@ export default function ResellerSuporte() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <Button
-                            className="w-full justify-start gap-3 h-16 bg-green-600 hover:bg-green-700"
+                            className={cn("w-full justify-start gap-3 h-16 text-white", theme.gradient)}
                             onClick={whatsappSupport}
                         >
                             <MessageCircle className="w-6 h-6" />
@@ -69,7 +79,7 @@ export default function ResellerSuporte() {
 
                         <Button
                             variant="outline"
-                            className="w-full justify-start gap-3 h-16"
+                            className={cn("w-full justify-start gap-3 h-16", theme.borderColor)}
                             onClick={() => window.open("mailto:suporte@bootflow.com.br", "_blank")}
                         >
                             <Mail className="w-6 h-6" />
@@ -83,7 +93,7 @@ export default function ResellerSuporte() {
                 </Card>
 
                 {/* Send Message */}
-                <Card>
+                <Card className={cn("border shadow-sm", theme.borderColor)}>
                     <CardHeader>
                         <CardTitle>Enviar Mensagem</CardTitle>
                         <CardDescription>
@@ -111,7 +121,7 @@ export default function ResellerSuporte() {
                             />
                         </div>
                         <Button
-                            className="w-full bg-green-600 hover:bg-green-700"
+                            className={cn("w-full text-white", theme.gradient)}
                             onClick={handleSendMessage}
                         >
                             <Send className="w-4 h-4 mr-2" />
@@ -122,7 +132,7 @@ export default function ResellerSuporte() {
             </div>
 
             {/* FAQ Section */}
-            <Card>
+            <Card className={cn("border shadow-sm", theme.borderColor)}>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <FileText className="w-5 h-5" />
@@ -130,20 +140,20 @@ export default function ResellerSuporte() {
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    <div className="p-4 rounded-lg bg-muted/50">
-                        <h4 className="font-semibold mb-2">Como adicionar um novo cliente?</h4>
+                    <div className={cn("p-4 rounded-lg border", theme.lightColor, theme.borderColor)}>
+                        <h4 className={cn("font-semibold mb-2", theme.color)}>Como adicionar um novo cliente?</h4>
                         <p className="text-sm text-muted-foreground">
                             Vá em "Meus Clientes" e clique no botão "Novo Cliente". Preencha os dados e pronto!
                         </p>
                     </div>
-                    <div className="p-4 rounded-lg bg-muted/50">
-                        <h4 className="font-semibold mb-2">Como gerar cobranças?</h4>
+                    <div className={cn("p-4 rounded-lg border", theme.lightColor, theme.borderColor)}>
+                        <h4 className={cn("font-semibold mb-2", theme.color)}>Como gerar cobranças?</h4>
                         <p className="text-sm text-muted-foreground">
                             Na página de Cobranças, você pode criar cobranças individuais ou recorrentes para seus clientes.
                         </p>
                     </div>
-                    <div className="p-4 rounded-lg bg-muted/50">
-                        <h4 className="font-semibold mb-2">Como funciona o pagamento?</h4>
+                    <div className={cn("p-4 rounded-lg border", theme.lightColor, theme.borderColor)}>
+                        <h4 className={cn("font-semibold mb-2", theme.color)}>Como funciona o pagamento?</h4>
                         <p className="text-sm text-muted-foreground">
                             Os pagamentos são processados via PIX e você recebe automaticamente sua comissão.
                         </p>
