@@ -127,6 +127,15 @@ const App = () => {
                     <Route path="notificacoes" element={<ResellerNotificacoes />} />
                     <Route path="configuracoes" element={<ResellerConfiguracoes />} />
                     <Route path="suporte" element={<ResellerSuporte />} />
+
+                    {/* Rotas Novas Adicionadas para evitar 404 */}
+                    <Route path="revendas" element={<ResellerConfiguracoes />} /> {/* Placeholder temporário */}
+                    <Route path="apps" element={<ResellerConfiguracoes />} /> {/* Placeholder temporário */}
+                    <Route path="whatsapp" element={<ResellerConfiguracoes />} /> {/* Placeholder temporário */}
+                    <Route path="gateways" element={<ResellerConfiguracoes />} /> {/* Placeholder temporário */}
+                    <Route path="planos" element={<ResellerPlanos />} />
+                    <Route path="analises" element={<ResellerConfiguracoes />} /> {/* Placeholder temporário */}
+                    <Route path="botgram" element={<ResellerConfiguracoes />} /> {/* Placeholder temporário */}
                   </Route>
 
                   {/* Mantendo rota antiga para compatibilidade temporária (redirecionar depois) */}
