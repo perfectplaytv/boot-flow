@@ -70,6 +70,10 @@ import ResellerPlanos from './pages/reseller/ResellerPlanos';
 import ResellerNotificacoes from './pages/reseller/ResellerNotificacoes';
 import ResellerConfiguracoes from './pages/reseller/ResellerConfiguracoes';
 import ResellerSuporte from './pages/reseller/ResellerSuporte';
+import ResellerRevendas from './pages/reseller/ResellerRevendas';
+import ResellerApps from './pages/reseller/ResellerApps';
+import ResellerWhatsApp from './pages/reseller/ResellerWhatsApp';
+import ResellerGateways from './pages/reseller/ResellerGateways';
 
 // Componente para fornecer navegação ao AuthProvider
 const AuthProviderWithNavigation = ({ children }: { children: React.ReactNode }) => {
@@ -128,11 +132,11 @@ const App = () => {
                     <Route path="configuracoes" element={<ResellerConfiguracoes />} />
                     <Route path="suporte" element={<ResellerSuporte />} />
 
-                    {/* Rotas Novas Adicionadas para evitar 404 */}
-                    <Route path="revendas" element={<ResellerConfiguracoes />} /> {/* Placeholder temporário */}
-                    <Route path="apps" element={<ResellerConfiguracoes />} /> {/* Placeholder temporário */}
-                    <Route path="whatsapp" element={<ResellerConfiguracoes />} /> {/* Placeholder temporário */}
-                    <Route path="gateways" element={<ResellerConfiguracoes />} /> {/* Placeholder temporário */}
+                    {/* Rotas Novas Adicionadas */}
+                    <Route path="revendas" element={<ResellerRevendas />} />
+                    <Route path="apps" element={<ResellerApps />} />
+                    <Route path="whatsapp" element={<ResellerWhatsApp />} />
+                    <Route path="gateways" element={<ResellerGateways />} />
                     <Route path="planos" element={<ResellerPlanos />} />
                     <Route path="analises" element={<ResellerConfiguracoes />} /> {/* Placeholder temporário */}
                     <Route path="botgram" element={<ResellerConfiguracoes />} /> {/* Placeholder temporário */}
