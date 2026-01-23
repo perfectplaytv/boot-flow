@@ -89,7 +89,7 @@ export default function ResellerGateways() {
                     <div className="p-6 pt-0 mt-auto">
                         <Dialog open={isMpDialogOpen} onOpenChange={setIsMpDialogOpen}>
                             <DialogTrigger asChild>
-                                <Button variant={mpConfigured ? "outline" : "default"} className={mpConfigured ? "w-full" : "w-full bg-blue-600 hover:bg-blue-700 text-white"}>
+                                <Button variant={mpConfigured ? "outline" : "default"} className={cn("w-full shadow-sm transition-all", mpConfigured ? "" : (theme.gradient.includes('from') ? `bg-gradient-to-r ${theme.gradient}` : "bg-primary text-white"))}>
                                     {mpConfigured ? 'Editar Configuração' : 'Configurar Agora'}
                                 </Button>
                             </DialogTrigger>
@@ -122,7 +122,7 @@ export default function ResellerGateways() {
                                     </div>
 
                                     <DialogFooter>
-                                        <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                                        <Button type="submit" className={cn("w-full text-white transition-all", theme.gradient.includes('from') ? `bg-gradient-to-r ${theme.gradient}` : "bg-primary")}>
                                             Salvar Credenciais
                                         </Button>
                                     </DialogFooter>

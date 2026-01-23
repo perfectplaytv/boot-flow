@@ -113,7 +113,7 @@ export default function ResellerBotGram() {
                     </CardContent>
                     <CardFooter>
                         <Button
-                            className={cn("w-full text-white transition-all", theme.gradient)}
+                            className={cn("w-full text-white transition-all", theme.gradient.includes('from') ? `bg-gradient-to-r ${theme.gradient}` : "bg-primary")}
                             onClick={handleSaveConfig}
                             disabled={isConfiguring || isActive}
                         >

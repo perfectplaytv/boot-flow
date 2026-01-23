@@ -39,7 +39,7 @@ export default function ResellerApps() {
 
                 <Dialog>
                     <DialogTrigger asChild>
-                        <Button className={cn("text-white shadow-md", theme.gradient)}>
+                        <Button className={cn("text-white shadow-md transition-all", theme.gradient.includes('from') ? `bg-gradient-to-r ${theme.gradient}` : "bg-primary")}>
                             <Plus className="w-4 h-4 mr-2" />
                             Solicitar Aplicativo
                         </Button>
@@ -60,7 +60,7 @@ export default function ResellerApps() {
                             </ul>
                         </div>
                         <DialogFooter>
-                            <Button className={cn("w-full text-white", theme.gradient)} onClick={() => window.open('https://wa.me/5511999999999', '_blank')}>
+                            <Button className={cn("w-full text-white transition-all", theme.gradient.includes('from') ? `bg-gradient-to-r ${theme.gradient}` : "bg-primary")} onClick={() => window.open('https://wa.me/5511999999999', '_blank')}>
                                 <MessageCircle className="w-4 h-4 mr-2" />
                                 Falar no WhatsApp
                             </Button>

@@ -121,7 +121,7 @@ export default function ResellerSuporte() {
                             />
                         </div>
                         <Button
-                            className={cn("w-full text-white", theme.gradient)}
+                            className={cn("w-full text-white", theme.gradient.includes('from') ? `bg-gradient-to-r ${theme.gradient}` : "bg-primary")}
                             onClick={handleSendMessage}
                         >
                             <Send className="w-4 h-4 mr-2" />

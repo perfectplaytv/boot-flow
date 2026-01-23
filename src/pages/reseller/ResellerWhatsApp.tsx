@@ -111,7 +111,7 @@ export default function ResellerWhatsApp() {
                         {status === 'disconnected' && (
                             <Button
                                 size="lg"
-                                className={cn("w-full text-white shadow-md transition-all hover:scale-[1.02]", theme.gradient)}
+                                className={cn("w-full text-white shadow-md transition-all hover:scale-[1.02]", theme.gradient.includes('from') ? `bg-gradient-to-r ${theme.gradient}` : "bg-primary")}
                                 onClick={handleConnect}
                             >
                                 <QrCode className="w-5 h-5 mr-2" />

@@ -123,7 +123,7 @@ export default function ResellerConfiguracoes() {
                             </div>
                         </CardContent>
                         <CardFooter>
-                            <Button className={cn("text-white", theme.gradient)} onClick={handleSaveProfile} disabled={loading}>
+                            <Button className={cn("text-white", theme.gradient.includes('from') ? `bg-gradient-to-r ${theme.gradient}` : "bg-primary")} onClick={handleSaveProfile} disabled={loading}>
                                 {loading ? "Salvando..." : <><Save className="w-4 h-4 mr-2" /> Salvar Alterações</>}
                             </Button>
                         </CardFooter>
