@@ -210,7 +210,7 @@ export default function ResellerClientes() {
                 </div>
                 <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
                     <DialogTrigger asChild>
-                        <Button className={cn("text-white shadow-md transition-all duration-200", theme.gradient)}>
+                        <Button className={cn("text-white shadow-md transition-all duration-200", theme.gradient.includes('from') ? `bg-gradient-to-r ${theme.gradient}` : "bg-primary")}>
                             <UserPlus className="w-4 h-4 mr-2" />
                             Novo Cliente
                         </Button>
@@ -237,7 +237,7 @@ export default function ResellerClientes() {
                                 </span>
                                 <Button
                                     size="sm"
-                                    className={cn("text-white", theme.gradient)}
+                                    className={cn("text-white", theme.gradient.includes('from') ? `bg-gradient-to-r ${theme.gradient}` : "bg-primary")}
                                     onClick={handleExtractM3U}
                                 >
                                     Extrair

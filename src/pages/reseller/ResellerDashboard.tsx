@@ -130,7 +130,7 @@ export default function ResellerDashboard() {
                     </p>
                 </div>
                 <Button
-                    className={cn("text-white shadow-md transition-all hover:scale-105", theme?.gradient || "bg-primary")}
+                    className={cn("text-white shadow-md transition-all hover:scale-105", theme?.gradient?.includes('from') ? `bg-gradient-to-r ${theme.gradient}` : "bg-primary")}
                     onClick={() => navigate("/reseller/clientes")}
                 >
                     <Plus className="w-4 h-4 mr-2" />
@@ -276,7 +276,7 @@ export default function ResellerDashboard() {
                             </p>
                         </div>
                         <Button
-                            className={cn("text-white shadow-sm", theme?.gradient)}
+                            className={cn("text-white shadow-sm", theme?.gradient?.includes('from') ? `bg-gradient-to-r ${theme.gradient}` : "bg-primary")}
                             onClick={() => navigate("/reseller/suporte")}
                         >
                             Falar com Suporte
