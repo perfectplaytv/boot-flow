@@ -36,6 +36,18 @@ interface Theme {
     gradient: string;
 }
 
+interface Member {
+    id: number;
+    username: string;
+    name: string;
+    phone: string;
+}
+
+interface Group {
+    id: string;
+    name: string;
+}
+
 export default function ResellerBotGram() {
     // Theme Context for Reseller styling
     const { theme } = useOutletContext<{ theme: Theme }>();
@@ -80,10 +92,10 @@ export default function ResellerBotGram() {
     // Extraction Tab States
     const [extractLink, setExtractLink] = useState("");
     const [isExtracting, setIsExtracting] = useState(false);
-    const [members, setMembers] = useState<any[]>([]);
+    const [members, setMembers] = useState<Member[]>([]);
 
     // Groups Tab States
-    const [groups, setGroups] = useState<any[]>([]);
+    const [groups, setGroups] = useState<Group[]>([]);
     const [showAddGroup, setShowAddGroup] = useState(false);
 
     // Private Message Tab States
@@ -614,7 +626,7 @@ export default function ResellerBotGram() {
 }
 
 // Simple Icon Component for Placeholder
-function ActivityLogIcon(props: any) {
+function ActivityLogIcon(props: React.SVGProps<SVGSVGElement>) {
     return (
         <svg
             {...props}
