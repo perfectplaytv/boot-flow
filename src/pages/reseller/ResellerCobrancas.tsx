@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CreditCard, Clock, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 export default function ResellerCobrancas() {
     return (
@@ -15,7 +16,12 @@ export default function ResellerCobrancas() {
                         Gerencie as cobranças dos seus clientes
                     </p>
                 </div>
-                <Button className="bg-green-600 hover:bg-green-700">
+                <Button
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-md"
+                    onClick={() => toast.info("Módulo em desenvolvimento", {
+                        description: "Em breve você poderá gerar cobranças automáticas via PIX e Cartão."
+                    })}
+                >
                     <Plus className="w-4 h-4 mr-2" />
                     Nova Cobrança
                 </Button>
@@ -30,7 +36,7 @@ export default function ResellerCobrancas() {
                 </CardHeader>
                 <CardContent>
                     <div className="text-center py-12">
-                        <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
+                        <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mx-auto mb-4 animate-pulse">
                             <Clock className="w-10 h-10 text-muted-foreground" />
                         </div>
                         <h3 className="text-lg font-semibold mb-2">Em breve!</h3>

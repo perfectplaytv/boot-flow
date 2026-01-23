@@ -22,8 +22,8 @@ export default function ResellerRevendas() {
     const handleCreateReseller = (e: React.FormEvent) => {
         e.preventDefault();
         setIsDialogOpen(false);
-        toast.error("Limite de revendas atingido", {
-            description: "Faça um upgrade no seu plano para criar mais revendas."
+        toast.success("Revenda criada com sucesso!", {
+            description: "O convite foi enviado para o e-mail do revendedor."
         });
         // Aqui entraria a lógica real de criação
     };

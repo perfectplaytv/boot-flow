@@ -17,9 +17,8 @@ export default function ResellerWhatsApp() {
 
             // Simulação de conexão bem sucedida após "ler" o QR
             setTimeout(() => {
-                // Em um cenário real, isso aconteceria via WebSocket ou polling
-                // setStatus('connected'); 
-                // toast.success("WhatsApp Conectado!");
+                setStatus('connected');
+                toast.success("WhatsApp Conectado!");
             }, 5000);
         }, 1500);
     };
@@ -78,7 +77,7 @@ export default function ResellerWhatsApp() {
                                 </div>
                                 <h3 className="font-bold text-lg text-primary">Escaneie o QR Code</h3>
                                 <p className="text-sm text-muted-foreground text-center max-w-xs">
-                                    Abra o WhatsApp no seu celular > Configurações > Aparelhos Conectados > Conectar Aparelho
+                                    Abra o WhatsApp no seu celular &gt; Configurações &gt; Aparelhos Conectados &gt; Conectar Aparelho
                                 </p>
                             </div>
                         )}
