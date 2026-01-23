@@ -34,6 +34,15 @@ import {
 import { useState } from "react";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
+import { useOutletContext } from "react-router-dom";
+import { cn } from "@/lib/utils";
+
+interface Theme {
+    color: string;
+    lightColor: string;
+    borderColor: string;
+    gradient: string;
+}
 
 interface Cliente {
     id: number;
@@ -48,6 +57,7 @@ interface Cliente {
 }
 
 export default function ResellerClientes() {
+    const { theme } = useOutletContext<{ theme: Theme }>();
     const [clientes, setClientes] = useState<Cliente[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -173,13 +183,13 @@ export default function ResellerClientes() {
     const getStatusBadge = (status: string) => {
         switch (status.toLowerCase()) {
             case "ativo":
-                return <Badge className="bg-green-500/20 text-green-500 hover:bg-green-500/30">Ativo</Badge>;
+                return <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 hover:bg-emerald-500/20">Ativo</Badge>;
             case "inativo":
-                return <Badge className="bg-red-500/20 text-red-500 hover:bg-red-500/30">Inativo</Badge>;
+                return <Badge className="bg-red-500/10 text-red-500 border-red-500/20 hover:bg-red-500/20">Inativo</Badge>;
             case "pendente":
-                return <Badge className="bg-yellow-500/20 text-yellow-500 hover:bg-yellow-500/30">Pendente</Badge>;
+                return <Badge className="bg-yellow-500/10 text-yellow-500 border-yellow-500/20 hover:bg-yellow-500/20">Pendente</Badge>;
             case "suspenso":
-                return <Badge className="bg-orange-500/20 text-orange-500 hover:bg-orange-500/30">Suspenso</Badge>;
+                return <Badge className="bg-orange-500/10 text-orange-500 border-orange-500/20 hover:bg-orange-500/20">Suspenso</Badge>;
             default:
                 return <Badge variant="outline">{status}</Badge>;
         }
@@ -190,8 +200,8 @@ export default function ResellerClientes() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold flex items-center gap-2">
-                        <Users className="w-6 h-6 text-green-500" />
+                    <h1 className={cn("text-2xl font-bold flex items-center gap-2", theme.color)}>
+                        <Users className="w-6 h-6" />
                         Meus Clientes
                     </h1>
                     <p className="text-muted-foreground">
@@ -200,42 +210,42 @@ export default function ResellerClientes() {
                 </div>
                 <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
                     <DialogTrigger asChild>
-                        <Button className="bg-green-600 hover:bg-green-700">
+                        <Button className={cn("text-white shadow-md transition-all duration-200", theme.gradient)}>
                             <UserPlus className="w-4 h-4 mr-2" />
                             Novo Cliente
                         </Button>
                     </DialogTrigger>
                     <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                         <DialogHeader>
-                            <DialogTitle className="text-2xl font-bold">Adicionar um Cliente</DialogTitle>
+                            <DialogTitle className={cn("text-2xl font-bold", theme.color)}>Adicionar um Cliente</DialogTitle>
                             <DialogDescription>
                                 Preencha os dados completos do cliente
                             </DialogDescription>
                         </DialogHeader>
 
                         <div className="flex items-center gap-2 mb-4">
-                            <span className="text-green-500 text-xs font-medium">• Campos obrigatórios marcados com *</span>
-                            <span className="text-blue-500 text-xs font-medium">• Dados serão sincronizados automaticamente</span>
+                            <span className={cn("text-xs font-medium", theme.color)}>• Campos obrigatórios marcados com *</span>
+                            <span className="text-muted-foreground text-xs font-medium">• Dados serão sincronizados automaticamente</span>
                         </div>
 
                         {/* Extração M3U */}
-                        <div className="bg-blue-900/10 border border-blue-500/20 rounded-lg p-4 mb-6">
+                        <div className={cn("bg-muted/30 border rounded-lg p-4 mb-6", theme.borderColor)}>
                             <div className="flex items-center justify-between mb-2">
-                                <span className="text-blue-500 font-medium flex items-center gap-2">
+                                <span className={cn("font-medium flex items-center gap-2", theme.color)}>
                                     <Upload className="w-4 h-4" />
                                     Extração M3U
                                 </span>
                                 <Button
                                     size="sm"
-                                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                                    className={cn("text-white", theme.gradient)}
                                     onClick={handleExtractM3U}
                                 >
                                     Extrair
                                 </Button>
                             </div>
-                            <p className="text-xs text-blue-400 mb-2">Serve para importar dados automaticamente a partir de uma URL.</p>
+                            <p className="text-xs text-muted-foreground mb-2">Serve para importar dados automaticamente a partir de uma URL.</p>
                             <Input
-                                className="bg-background border-blue-500/20"
+                                className={cn("bg-background", theme.borderColor)}
                                 placeholder="Insira a URL do M3U para extrair automaticamente os dados do cliente..."
                                 value={newCliente.m3uUrl}
                                 onChange={(e) => setNewCliente({ ...newCliente, m3uUrl: e.target.value })}
@@ -403,7 +413,7 @@ export default function ResellerClientes() {
                             <Button variant="outline" onClick={() => setIsAddModalOpen(false)}>
                                 Cancelar
                             </Button>
-                            <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white" onClick={handleAddCliente}>
+                            <Button className={cn("text-white", theme.gradient)} onClick={handleAddCliente}>
                                 Adicionar Cliente
                             </Button>
                         </DialogFooter>
@@ -424,18 +434,18 @@ export default function ResellerClientes() {
                         />
                     </div>
                 </div>
-                <Card className="p-4 flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
-                        <Users className="w-5 h-5 text-green-500" />
+                <Card className={cn("p-4 flex items-center gap-4 border shadow-sm", theme.borderColor)}>
+                    <div className={cn("w-10 h-10 rounded-full flex items-center justify-center", theme.lightColor)}>
+                        <Users className={cn("w-5 h-5", theme.color)} />
                     </div>
                     <div>
                         <p className="text-2xl font-bold">{clientes.length}</p>
                         <p className="text-xs text-muted-foreground">Total</p>
                     </div>
                 </Card>
-                <Card className="p-4 flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
-                        <Users className="w-5 h-5 text-green-500" />
+                <Card className={cn("p-4 flex items-center gap-4 border shadow-sm", theme.borderColor)}>
+                    <div className={cn("w-10 h-10 rounded-full flex items-center justify-center", theme.lightColor)}>
+                        <Users className={cn("w-5 h-5", theme.color)} />
                     </div>
                     <div>
                         <p className="text-2xl font-bold">{clientes.filter(c => c.status === 'ativo').length}</p>
@@ -445,7 +455,7 @@ export default function ResellerClientes() {
             </div>
 
             {/* Clients Table */}
-            <Card>
+            <Card className={cn("border shadow-sm", theme.borderColor)}>
                 <CardHeader>
                     <CardTitle>Lista de Clientes</CardTitle>
                     <CardDescription>
@@ -465,7 +475,7 @@ export default function ResellerClientes() {
                                 Comece adicionando seu primeiro cliente
                             </p>
                             <Button
-                                className="bg-green-600 hover:bg-green-700"
+                                className={cn("text-white", theme.gradient)}
                                 onClick={() => setIsAddModalOpen(true)}
                             >
                                 <Plus className="w-4 h-4 mr-2" />
