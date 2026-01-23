@@ -413,7 +413,7 @@ export default function ResellerClientes() {
                             <Button variant="outline" onClick={() => setIsAddModalOpen(false)}>
                                 Cancelar
                             </Button>
-                            <Button className={cn("text-white", theme.gradient)} onClick={handleAddCliente}>
+                            <Button className={cn("text-white", theme.gradient.includes('from') ? `bg-gradient-to-r ${theme.gradient}` : "bg-primary")} onClick={handleAddCliente}>
                                 Adicionar Cliente
                             </Button>
                         </DialogFooter>
@@ -475,7 +475,7 @@ export default function ResellerClientes() {
                                 Comece adicionando seu primeiro cliente
                             </p>
                             <Button
-                                className={cn("text-white", theme.gradient)}
+                                className={cn("text-white", theme.gradient.includes('from') ? `bg-gradient-to-r ${theme.gradient}` : "bg-primary")}
                                 onClick={() => setIsAddModalOpen(true)}
                             >
                                 <Plus className="w-4 h-4 mr-2" />

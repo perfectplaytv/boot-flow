@@ -99,18 +99,15 @@ export default function ResellerDashboard() {
         'Elite': 'bg-purple-500/10 text-purple-500 border-purple-500/20',
     };
 
-    // Placeholder data - will be replaced with real API calls
+    // Placeholder data - initialized to zero/empty
     const stats = {
-        totalClientes: 42,
-        clientesAtivos: 38,
-        cobrancasPendentes: 3,
-        receitaMensal: "R$ 1.250,00",
+        totalClientes: 0,
+        clientesAtivos: 0,
+        cobrancasPendentes: 0,
+        receitaMensal: "R$ 0,00",
     };
 
-    const recentActivities = [
-        { id: 1, action: "Novo cliente cadastrado", time: "Há 2 horas", user: "João Silva" },
-        { id: 2, action: "Pagamento recebido", time: "Há 4 horas", user: "Maria Oliveira" },
-    ];
+    const recentActivities: any[] = [];
 
     return (
         <div className="space-y-6">
