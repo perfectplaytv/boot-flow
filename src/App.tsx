@@ -73,9 +73,14 @@ import ResellerSuporte from './pages/reseller/ResellerSuporte';
 import ResellerRevendas from './pages/reseller/ResellerRevendas';
 import ResellerApps from './pages/reseller/ResellerApps';
 import ResellerWhatsApp from './pages/reseller/ResellerWhatsApp';
-import ResellerGateways from './pages/reseller/ResellerGateways';
+import ResellerAnalises from './pages/reseller/ResellerAnalises';
+import ResellerBotGram from './pages/reseller/ResellerBotGram';
 
-// Componente para fornecer navegação ao AuthProvider
+// ... (existing imports, but since I can't inject imports in the middle easily without context, I'll rely on the fact that I can match the surrounding block or just replace the specific route block if I can include imports elsewhere. 
+// Actually, 'replace_file_content' is for contiguous blocks. I need to add imports at top and change routes in the middle.
+// I should use `multi_replace_file_content` for this to be clean, or just two `replace_file_content` calls. 
+// Let's use `multi_replace_file_content`.
+
 const AuthProviderWithNavigation = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
   return <AuthProvider navigate={navigate}>{children}</AuthProvider>;
@@ -138,8 +143,8 @@ const App = () => {
                     <Route path="whatsapp" element={<ResellerWhatsApp />} />
                     <Route path="gateways" element={<ResellerGateways />} />
                     <Route path="planos" element={<ResellerPlanos />} />
-                    <Route path="analises" element={<ResellerConfiguracoes />} /> {/* Placeholder temporário */}
-                    <Route path="botgram" element={<ResellerConfiguracoes />} /> {/* Placeholder temporário */}
+                    <Route path="analises" element={<ResellerAnalises />} />
+                    <Route path="botgram" element={<ResellerBotGram />} />
                   </Route>
 
                   {/* Mantendo rota antiga para compatibilidade temporária (redirecionar depois) */}

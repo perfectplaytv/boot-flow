@@ -7,13 +7,23 @@ import { Button } from "@/components/ui/button";
 import { Settings, User as UserIcon, CreditCard, Shield, Save } from "lucide-react";
 import { useAuth, User } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { useOutletContext } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 interface ResellerUser extends User {
     plan_name?: string;
     plan_price?: string;
 }
 
+interface Theme {
+    color: string;
+    lightColor: string;
+    borderColor: string;
+    gradient: string;
+}
+
 export default function ResellerConfiguracoes() {
+    const { theme } = useOutletContext<{ theme: Theme }>();
     const { user } = useAuth();
     const [loading, setLoading] = useState(false);
 
@@ -36,8 +46,8 @@ export default function ResellerConfiguracoes() {
     return (
         <div className="space-y-6">
             <div>
-                <h1 className="text-2xl font-bold flex items-center gap-2">
-                    <Settings className="w-6 h-6 text-primary" />
+                <h1 className={cn("text-2xl font-bold flex items-center gap-2", theme.color)}>
+                    <Settings className="w-6 h-6" />
                     Configurações da Conta
                 </h1>
                 <p className="text-muted-foreground">
@@ -63,7 +73,7 @@ export default function ResellerConfiguracoes() {
 
                 {/* ABA PERFIL */}
                 <TabsContent value="perfil" className="space-y-4 mt-6">
-                    <Card>
+                    <Card className={cn("border shadow-sm", theme.borderColor)}>
                         <CardHeader>
                             <CardTitle>Informações Pessoais</CardTitle>
                             <CardDescription>
@@ -78,6 +88,7 @@ export default function ResellerConfiguracoes() {
                                         id="name"
                                         value={profile.name}
                                         onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+                                        className={cn("focus-visible:ring-1", theme.borderColor)}
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -96,6 +107,7 @@ export default function ResellerConfiguracoes() {
                                         placeholder="(00) 00000-0000"
                                         value={profile.whatsapp}
                                         onChange={(e) => setProfile({ ...profile, whatsapp: e.target.value })}
+                                        className={cn("focus-visible:ring-1", theme.borderColor)}
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -105,12 +117,13 @@ export default function ResellerConfiguracoes() {
                                         placeholder="@seuusuario"
                                         value={profile.telegram}
                                         onChange={(e) => setProfile({ ...profile, telegram: e.target.value })}
+                                        className={cn("focus-visible:ring-1", theme.borderColor)}
                                     />
                                 </div>
                             </div>
                         </CardContent>
                         <CardFooter>
-                            <Button onClick={handleSaveProfile} disabled={loading}>
+                            <Button className={cn("text-white", theme.gradient)} onClick={handleSaveProfile} disabled={loading}>
                                 {loading ? "Salvando..." : <><Save className="w-4 h-4 mr-2" /> Salvar Alterações</>}
                             </Button>
                         </CardFooter>
@@ -119,7 +132,7 @@ export default function ResellerConfiguracoes() {
 
                 {/* ABA FATURAMENTO */}
                 <TabsContent value="faturamento" className="space-y-4 mt-6">
-                    <Card>
+                    <Card className={cn("border shadow-sm", theme.borderColor)}>
                         <CardHeader>
                             <CardTitle>Seu Plano Atual</CardTitle>
                             <CardDescription>
@@ -127,22 +140,22 @@ export default function ResellerConfiguracoes() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <div className="bg-primary/10 border border-primary/20 rounded-lg p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+                            <div className={cn("border rounded-lg p-6 flex flex-col md:flex-row items-center justify-between gap-4", theme.lightColor, theme.borderColor)}>
                                 <div>
-                                    <h3 className="text-lg font-bold text-primary mb-1">Plano {(user as ResellerUser)?.plan_name || 'Essencial'}</h3>
+                                    <h3 className={cn("text-lg font-bold mb-1", theme.color)}>Plano {(user as ResellerUser)?.plan_name || 'Essencial'}</h3>
                                     <p className="text-sm text-muted-foreground">
                                         Renova em: 01/02/2026
                                     </p>
                                 </div>
                                 <div className="text-right">
                                     <div className="text-2xl font-bold">{(user as ResellerUser)?.plan_price || 'R$ 0,00'}<span className="text-sm font-normal text-muted-foreground">/mês</span></div>
-                                    <Button variant="outline" size="sm" className="mt-2">Alterar Plano</Button>
+                                    <Button variant="outline" size="sm" className={cn("mt-2 border", theme.borderColor)}>Alterar Plano</Button>
                                 </div>
                             </div>
                         </CardContent>
                     </Card>
 
-                    <Card>
+                    <Card className={cn("border shadow-sm", theme.borderColor)}>
                         <CardHeader>
                             <CardTitle>Histórico de Pagamentos</CardTitle>
                             <CardDescription>
@@ -159,7 +172,7 @@ export default function ResellerConfiguracoes() {
 
                 {/* ABA SEGURANÇA */}
                 <TabsContent value="seguranca" className="space-y-4 mt-6">
-                    <Card>
+                    <Card className={cn("border shadow-sm", theme.borderColor)}>
                         <CardHeader>
                             <CardTitle>Alterar Senha</CardTitle>
                             <CardDescription>
@@ -169,19 +182,19 @@ export default function ResellerConfiguracoes() {
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor="current-pass">Senha Atual</Label>
-                                <Input id="current-pass" type="password" />
+                                <Input id="current-pass" type="password" className={cn("focus-visible:ring-1", theme.borderColor)} />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="new-pass">Nova Senha</Label>
-                                <Input id="new-pass" type="password" />
+                                <Input id="new-pass" type="password" className={cn("focus-visible:ring-1", theme.borderColor)} />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="confirm-pass">Confirmar Nova Senha</Label>
-                                <Input id="confirm-pass" type="password" />
+                                <Input id="confirm-pass" type="password" className={cn("focus-visible:ring-1", theme.borderColor)} />
                             </div>
                         </CardContent>
                         <CardFooter>
-                            <Button>Atualizar Senha</Button>
+                            <Button className={cn("text-white", theme.gradient)}>Atualizar Senha</Button>
                         </CardFooter>
                     </Card>
                 </TabsContent>
