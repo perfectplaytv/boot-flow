@@ -21,13 +21,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 
 // Hooks
-import { useProxies } from "@/hooks/useProxies";
-import { useTelegramAccounts } from "@/hooks/useTelegramAccounts";
-import { useHeating } from "@/hooks/useHeating";
+// Hooks
 import { useClientes } from "@/hooks/useClientes";
 
 // Components
-import { AquecerContasTab } from "@/components/telegram/AquecerContasTab";
+import { ResellerAquecerTab } from "@/pages/reseller/components/ResellerAquecerTab";
 
 interface Theme {
     color: string;
@@ -59,31 +57,33 @@ export default function ResellerBotGram() {
     // INTEGRATED HOOKS FROM ADMIN TELEGRAM
     // ==========================================
 
+    // ==========================================
+    // LOCAL STATES (ISOLATED FROM ADMIN)
+    // ==========================================
+
     const { addCliente } = useClientes();
 
-    // Proxies Hook
-    const {
-        proxies,
-        activeProxy,
-        stats: proxyStats,
-        isLoading: proxiesLoading,
-        addProxy,
-        deleteProxy,
-        testAllProxies,
-        removeOfflineProxies,
-    } = useProxies();
+    // Local Proxies State
+    const [proxies, setProxies] = useState<any[]>([]);
 
-    // Telegram Accounts Hook
-    const {
-        bots: telegramBots,
-        stats: botsStats,
-        isLoading: botsLoading,
-        verifyAllBots,
-        getStatusInfo: getBotStatusInfo,
-    } = useTelegramAccounts();
+    // Local Bots State
+    const [telegramBots, setTelegramBots] = useState<any[]>([]);
 
-    // Heating Hook
-    const heating = useHeating();
+    // Local Heating Stats (Synced with ResellerAquecerTab if needed, or just zeroed)
+    const [heatingStats] = useState({ activeBots: 0, campaigns: 0 });
+
+    const proxyStats = { online: proxies.filter(p => p.status === 'online').length };
+
+    // Handlers for Local State
+    const addProxy = (data: any) => {
+        const newProxy = {
+            id: Date.now(),
+            ...data,
+            status: 'online' // Simulating online status for added proxies
+        };
+        setProxies([...proxies, newProxy]);
+        toast.success("Proxy adicionado com sucesso!");
+    };
 
     // ==========================================
     // LOCAL STATES FOR UI LOGIC
@@ -181,13 +181,13 @@ export default function ResellerBotGram() {
                 </Card>
                 <Card className={cn("border-l-4", "border-l-orange-500")}>
                     <CardContent className="pt-6">
-                        <div className="text-2xl font-bold text-orange-500">{heating.stats.activeBots}</div>
+                        <div className="text-2xl font-bold text-orange-500">{heatingStats.activeBots}</div>
                         <p className="text-xs text-muted-foreground">Bots Aquecendo</p>
                     </CardContent>
                 </Card>
                 <Card className={cn("border-l-4", "border-l-purple-500")}>
                     <CardContent className="pt-6">
-                        <div className="text-2xl font-bold text-purple-500">{heating.campaigns.length}</div>
+                        <div className="text-2xl font-bold text-purple-500">{heatingStats.campaigns}</div>
                         <p className="text-xs text-muted-foreground">Campanhas Ativas</p>
                     </CardContent>
                 </Card>
@@ -401,7 +401,7 @@ export default function ResellerBotGram() {
                 <TabsContent value="heating">
                     {/* Reuse the complex component but wrap it in reseller styling context if needed */}
                     <div className="telegram-admin-wrapper">
-                        <AquecerContasTab />
+                        <ResellerAquecerTab />
                     </div>
                 </TabsContent>
 
