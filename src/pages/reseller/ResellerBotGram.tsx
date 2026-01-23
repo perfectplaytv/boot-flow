@@ -90,8 +90,8 @@ export default function ResellerBotGram() {
     const proxyStats = { online: proxies.filter(p => p.status === 'online').length };
 
     // Handlers for Local State
-    const addProxy = (data: any) => {
-        const newProxy = {
+    const addProxy = (data: Omit<ResellerProxy, 'id' | 'status'>) => {
+        const newProxy: ResellerProxy = {
             id: Date.now(),
             ...data,
             status: 'online' // Simulating online status for added proxies
