@@ -36,12 +36,56 @@ import {
 
 type SubTab = 'groups' | 'bots' | 'campaigns' | 'logs';
 
+interface LocalGroup {
+    id: number;
+    name: string;
+    chat_id: string;
+    test_status: string;
+}
+
+interface LocalBot {
+    id: number;
+    name: string;
+    username: string;
+    token: string;
+    status: string;
+    messages_sent_today: number;
+}
+
+interface LocalCampaign {
+    id: number;
+    name: string;
+    group_name: string;
+    status: string;
+    bots: LocalBot[];
+    messages: string[];
+    total_messages_sent: number;
+    total_errors: number;
+    group_id: number;
+    bot_ids: number[];
+    send_mode: string;
+    interval_min: number;
+    interval_max: number;
+    window_start: string;
+    window_end: string;
+    max_messages_per_bot_per_day: number;
+}
+
+interface LocalLog {
+    id: number;
+    status: string;
+    bot_name: string;
+    message_preview: string;
+    sent_at: string;
+    error_message?: string;
+}
+
 export function ResellerAquecerTab() {
     // Local State (Replacing useHeating hook)
-    const [groups, setGroups] = useState<any[]>([]);
-    const [bots, setBots] = useState<any[]>([]);
-    const [campaigns, setCampaigns] = useState<any[]>([]);
-    const [logs, setLogs] = useState<any[]>([]);
+    const [groups, setGroups] = useState<LocalGroup[]>([]);
+    const [bots, setBots] = useState<LocalBot[]>([]);
+    const [campaigns, setCampaigns] = useState<LocalCampaign[]>([]);
+    const [logs, setLogs] = useState<LocalLog[]>([]);
     const [stats, setStats] = useState({
         totalGroups: 0,
         totalBots: 0,
@@ -62,7 +106,7 @@ export function ResellerAquecerTab() {
     const [showAddBotModal, setShowAddBotModal] = useState(false);
     const [showAddCampaignModal, setShowAddCampaignModal] = useState(false);
     const [showCampaignDetailsModal, setShowCampaignDetailsModal] = useState(false);
-    const [selectedCampaign, setSelectedCampaign] = useState<any | null>(null);
+    const [selectedCampaign, setSelectedCampaign] = useState<LocalCampaign | null>(null);
 
     // Form states
     const [newGroup, setNewGroup] = useState({

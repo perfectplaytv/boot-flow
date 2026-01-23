@@ -46,6 +46,21 @@ interface Group {
     name: string;
 }
 
+interface ResellerProxy {
+    id: number;
+    host: string;
+    port: number;
+    type: string;
+    status: string;
+}
+
+interface ResellerBot {
+    id: number;
+    name: string;
+    username: string;
+    status: string;
+}
+
 export default function ResellerBotGram() {
     // Theme Context for Reseller styling
     const { theme } = useOutletContext<{ theme: Theme }>();
@@ -64,10 +79,10 @@ export default function ResellerBotGram() {
     const { addCliente } = useClientes();
 
     // Local Proxies State
-    const [proxies, setProxies] = useState<any[]>([]);
+    const [proxies, setProxies] = useState<ResellerProxy[]>([]);
 
     // Local Bots State
-    const [telegramBots, setTelegramBots] = useState<any[]>([]);
+    const [telegramBots, setTelegramBots] = useState<ResellerBot[]>([]);
 
     // Local Heating Stats (Synced with ResellerAquecerTab if needed, or just zeroed)
     const [heatingStats] = useState({ activeBots: 0, campaigns: 0 });
