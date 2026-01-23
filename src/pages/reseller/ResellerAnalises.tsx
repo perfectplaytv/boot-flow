@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, type HTMLAttributes } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { BarChart3, TrendingUp, Users, DollarSign, Eye, Download, Calendar, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { BarChart3, TrendingUp, Users, DollarSign, Eye, Download, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { useOutletContext } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
@@ -167,7 +167,7 @@ export default function ResellerAnalises() {
                                     <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
                                         <WidthBar
                                             width={`${(plan.users / 100) * 100}%`}
-                                            className={cn("h-full rounded-full transition-all duration-500", theme.gradient.replace('text-', 'bg-').replace('from-', 'bg-gradient-to-r from-'))}
+                                            className={cn("h-full rounded-full transition-all duration-500", theme.gradient)}
                                         />
                                     </div>
                                 </div>

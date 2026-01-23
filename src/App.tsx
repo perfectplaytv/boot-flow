@@ -75,11 +75,7 @@ import ResellerApps from './pages/reseller/ResellerApps';
 import ResellerWhatsApp from './pages/reseller/ResellerWhatsApp';
 import ResellerAnalises from './pages/reseller/ResellerAnalises';
 import ResellerBotGram from './pages/reseller/ResellerBotGram';
-
-// ... (existing imports, but since I can't inject imports in the middle easily without context, I'll rely on the fact that I can match the surrounding block or just replace the specific route block if I can include imports elsewhere. 
-// Actually, 'replace_file_content' is for contiguous blocks. I need to add imports at top and change routes in the middle.
-// I should use `multi_replace_file_content` for this to be clean, or just two `replace_file_content` calls. 
-// Let's use `multi_replace_file_content`.
+import ResellerGateways from './pages/reseller/ResellerGateways';
 
 const AuthProviderWithNavigation = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
