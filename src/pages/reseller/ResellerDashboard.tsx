@@ -78,6 +78,13 @@ interface ResellerContextType {
     };
 }
 
+interface Activity {
+    id: number;
+    action: string;
+    time: string;
+    user: string;
+}
+
 export default function ResellerDashboard() {
     const { user } = useAuth();
     const navigate = useNavigate();
@@ -107,7 +114,7 @@ export default function ResellerDashboard() {
         receitaMensal: "R$ 0,00",
     };
 
-    const recentActivities: any[] = [];
+    const recentActivities: Activity[] = [];
 
     return (
         <div className="space-y-6">
