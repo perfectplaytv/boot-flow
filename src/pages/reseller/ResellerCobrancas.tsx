@@ -32,7 +32,7 @@ export default function ResellerCobrancas() {
                     </p>
                 </div>
                 <Button
-                    className={cn("text-white shadow-md transition-all duration-200", theme.gradient)}
+                    className={cn("text-white shadow-md transition-all duration-200", theme.gradient.includes('from') ? `bg-gradient-to-r ${theme.gradient}` : "bg-primary")}
                     onClick={() => toast.info("Funcionalidade em desenvolvimento", {
                         description: "O sistema de geração de cobranças será liberado em breve."
                     })}

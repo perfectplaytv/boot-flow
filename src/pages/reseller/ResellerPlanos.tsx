@@ -48,7 +48,7 @@ export default function ResellerPlanos() {
                     </p>
                 </div>
                 <Button
-                    className={cn("text-white shadow-md", theme.gradient)}
+                    className={cn("text-white shadow-md transition-all", theme.gradient.includes('from') ? `bg-gradient-to-r ${theme.gradient}` : "bg-primary")}
                     onClick={() => toast.success("Novo plano", { description: "Modal de criação de plano será aberto." })}
                 >
                     <Plus className="w-4 h-4 mr-2" />
