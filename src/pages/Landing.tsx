@@ -488,59 +488,7 @@ const Landing = () => {
     }
   ];
 
-  // --- LÓGICA DINÂMICA (D1 Database) ---
-  interface PlanFeature {
-    text: string;
-    icon?: React.ComponentType<{ className?: string }> | string;
-  }
 
-  interface DynamicPlan {
-    name: string;
-    price: string;
-    period: string;
-    description: string;
-    clients: string;
-    features: PlanFeature[];
-    popular: boolean;
-    highlight: string;
-  }
-
-  const [dynamicPlans, setDynamicPlans] = useState<DynamicPlan[]>([]);
-
-  // Mapa de ícones
-  const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-    Users, Bot, Link, MessageSquare, Zap, Mail, FileText, CreditCard, DollarSign,
-    Download, ShoppingCart, ArrowRightCircle, Check, Headphones, BarChart, Crown,
-    Phone, Star, Shield, TrendingUp, Play, ArrowRight, ArrowUp, Sparkles, PhoneCall,
-    Clock, BarChart3, AlertCircle, Info, Calendar
-  };
-
-  useEffect(() => {
-    const fetchPlans = async () => {
-      try {
-        const res = await fetch('/api/plans');
-        if (res.ok) {
-          const data = await res.json();
-          if (Array.isArray(data) && data.length > 0) {
-            const processed = data.map((p: DynamicPlan) => ({
-              ...p,
-              features: Array.isArray(p.features) ? p.features.map((f: PlanFeature) => ({
-                text: f.text,
-                icon: (typeof f.icon === 'string' ? iconMap[f.icon] : f.icon) || Check
-              })) : []
-            }));
-            setDynamicPlans(processed);
-          }
-        }
-      } catch {
-        // Silently fail to static plans
-      }
-    };
-    fetchPlans();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const plansToDisplay = dynamicPlans.length > 0 ? dynamicPlans : plans;
 
   const stats = [
     { icon: Users, value: "10.000+", label: "Clientes Ativos" },
@@ -881,7 +829,7 @@ const Landing = () => {
 
           {/* Pricing Cards */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-            {plansToDisplay.map((plan, index) => {
+            {plans.map((plan, index) => {
               const IconComponent = plan.features[0]?.icon || Check;
               const isPopular = plan.popular;
               const isFree = plan.price === "R$ 0";
