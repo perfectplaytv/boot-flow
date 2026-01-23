@@ -69,11 +69,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         // Forçar hierarquia
         const newSubReseller = {
             username: body.username,
-            password: body.password, // Em produção, ideal usar hash. Aqui seguindo padrão do projeto atual se for plain (assumindo plain ou hash no frontend/backend?) 
-            // O projeto parece usar plain ou hash no login. Vou salvar como veio, mas ideal é hash.
-            // Verificando outros arquivos, parece que o login compara direto ou tem hash. 
-            // Vou assumir que o sistema trata isso. 
-
+            password: body.password,
             permission: 'subreseller', // Força subreseller
             master_reseller: masterReseller.username, // Vincula ao mestre
             credits: body.credits || 0,
@@ -103,5 +99,41 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     } catch (error) {
         console.error("Create Sub-Reseller Error:", error);
         return new Response(JSON.stringify({ error: 'Erro interno ao criar revenda: ' + (error as Error).message }), { status: 500 });
+    }
+}
+
+export const onRequestGet: PagesFunction<Env> = async (context) => {
+    const db = getDb(context.env.DB);
+
+    try {
+        const authHeader = context.request.headers.get('Authorization');
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return new Response(JSON.stringify({ error: 'Token não fornecido' }), { status: 401 });
+        }
+
+        const token = authHeader.replace('Bearer ', '');
+        const payload = await verifyToken(token);
+
+        if (!payload || !payload.id) {
+            return new Response(JSON.stringify({ error: 'Token inválido' }), { status: 401 });
+        }
+
+        // Buscar o revendedor atual para pegar o username
+        const currentReseller = await db.select().from(resellers).where(eq(resellers.id, Number(payload.id))).get();
+
+        if (!currentReseller) {
+            return new Response(JSON.stringify({ error: 'Revendedor não encontrado' }), { status: 404 });
+        }
+
+        // Buscar revendas onde master_reseller == currentReseller.username
+        const mySubResellers = await db.select().from(resellers).where(eq(resellers.master_reseller, currentReseller.username)).all();
+
+        return new Response(JSON.stringify(mySubResellers), {
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+    } catch (error) {
+        console.error("List Sub-Resellers Error:", error);
+        return new Response(JSON.stringify({ error: 'Erro ao buscar sub-revendas' }), { status: 500 });
     }
 }
