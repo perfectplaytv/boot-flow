@@ -184,13 +184,13 @@ export default function ResellerLayout() {
             {/* Sidebar */}
             <aside
                 className={cn(
-                    "fixed top-0 left-0 z-40 h-full w-64 bg-card border-r transition-transform duration-300 lg:translate-x-0",
+                    "fixed top-0 left-0 z-40 h-full w-64 bg-card border-r transition-transform duration-300 lg:translate-x-0 scrollbar-hide overflow-y-auto",
                     sidebarOpen ? "translate-x-0" : "-translate-x-full",
                     theme.borderColor
                 )}
             >
                 {/* Logo */}
-                <div className={cn("h-16 flex items-center px-4 border-b", theme.borderColor)}>
+                <div className={cn("h-16 flex items-center px-4 border-b flex-shrink-0", theme.borderColor)}>
                     <div className={`w-10 h-10 bg-gradient-to-br ${theme.gradient} rounded-xl flex items-center justify-center shadow-lg shadow-${theme.color.split('-')[1]}-500/20`}>
                         <Package className="w-5 h-5 text-white" />
                     </div>
@@ -205,7 +205,7 @@ export default function ResellerLayout() {
                 </div>
 
                 {/* User Info */}
-                <div className={cn("p-4 border-b", theme.borderColor)}>
+                <div className={cn("p-4 border-b flex-shrink-0", theme.borderColor)}>
                     <div className="flex items-center gap-3">
                         <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${theme.gradient} flex items-center justify-center text-white font-bold ring-2 ring-background shadow-md`}>
                             {user?.name?.charAt(0) || user?.email?.charAt(0) || "R"}
@@ -218,7 +218,7 @@ export default function ResellerLayout() {
                 </div>
 
                 {/* Navigation */}
-                <nav className="p-4 space-y-1">
+                <nav className="p-4 space-y-1 overflow-y-auto scrollbar-hide flex-1">
                     {filteredMenuItems.map((item) => {
                         const active = isActive(item.path);
                         return (
@@ -226,7 +226,7 @@ export default function ResellerLayout() {
                                 key={item.path}
                                 variant="ghost"
                                 className={cn(
-                                    "w-full justify-start gap-3 h-11 transition-all duration-200",
+                                    "w-full justify-start gap-3 h-11 transition-all duration-200 flex-shrink-0",
                                     active
                                         ? cn(theme.lightColor, theme.color, "font-semibold shadow-sm")
                                         : "hover:bg-muted text-muted-foreground hover:text-foreground"
@@ -236,7 +236,7 @@ export default function ResellerLayout() {
                                     setSidebarOpen(false);
                                 }}
                             >
-                                <item.icon className={cn("w-5 h-5", active ? theme.color : "text-muted-foreground")} />
+                                <item.icon className={cn("w-5 h-5 flex-shrink-0", active ? theme.color : "text-muted-foreground")} />
                                 {item.label}
                             </Button>
                         );
@@ -244,7 +244,7 @@ export default function ResellerLayout() {
                 </nav>
 
                 {/* Logout Button */}
-                <div className="absolute bottom-4 left-4 right-4">
+                <div className="p-4 mt-auto border-t border-gray-800/50 flex-shrink-0">
                     <Button
                         variant="ghost"
                         className="w-full justify-start gap-3 text-red-500 hover:text-red-600 hover:bg-red-500/10"
