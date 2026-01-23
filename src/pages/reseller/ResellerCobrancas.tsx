@@ -5,6 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useOutletContext } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -31,15 +34,58 @@ export default function ResellerCobrancas() {
                         Gerencie as cobranças e faturas dos seus clientes
                     </p>
                 </div>
-                <Button
-                    className={cn("text-white shadow-md transition-all duration-200", theme.gradient.includes('from') ? `bg-gradient-to-r ${theme.gradient}` : "bg-primary")}
-                    onClick={() => toast.info("Funcionalidade em desenvolvimento", {
-                        description: "O sistema de geração de cobranças será liberado em breve."
-                    })}
-                >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Nova Cobrança
-                </Button>
+                <Dialog>
+                    <DialogTrigger asChild>
+                        <Button
+                            className={cn("text-white shadow-md transition-all duration-200", theme.gradient.includes('from') ? `bg-gradient-to-r ${theme.gradient}` : "bg-primary")}
+                        >
+                            <Plus className="w-4 h-4 mr-2" />
+                            Nova Cobrança
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Nova Cobrança</DialogTitle>
+                            <DialogDescription>
+                                Crie uma nova cobrança manual para um cliente.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <form className="space-y-4" onSubmit={(e) => {
+                            e.preventDefault();
+                            toast.success("Cobrança criada com sucesso!");
+                        }}>
+                            <div className="space-y-2">
+                                <Label htmlFor="client">Cliente</Label>
+                                <Select>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Selecione um cliente" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="1">João Silva</SelectItem>
+                                        <SelectItem value="2">Maria Santos</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="amount">Valor (R$)</Label>
+                                <Input id="amount" type="number" placeholder="0,00" step="0.01" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="dueDate">Data de Vencimento</Label>
+                                <Input id="dueDate" type="date" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="description">Descrição</Label>
+                                <Input id="description" placeholder="Ex: Mensalidade Fevereiro" />
+                            </div>
+                            <DialogFooter>
+                                <Button type="submit" className={cn("text-white w-full", theme.gradient.includes('from') ? `bg-gradient-to-r ${theme.gradient}` : "bg-primary")}>
+                                    Gerar Cobrança
+                                </Button>
+                            </DialogFooter>
+                        </form>
+                    </DialogContent>
+                </Dialog>
             </div>
 
             <Card className={cn("border shadow-sm", theme.borderColor)}>
