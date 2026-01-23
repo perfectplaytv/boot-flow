@@ -29,6 +29,7 @@ export default function ResellerGateways() {
     const { theme } = useOutletContext<{ theme: Theme }>();
     const [mpConfigured, setMpConfigured] = useState(false);
     const [isMpDialogOpen, setIsMpDialogOpen] = useState(false);
+    const [isAddGatewayOpen, setIsAddGatewayOpen] = useState(false);
 
     const handleSaveMp = (e: React.FormEvent) => {
         e.preventDefault();
@@ -51,13 +52,48 @@ export default function ResellerGateways() {
                         Configure os métodos de pagamento para seus clientes.
                     </p>
                 </div>
-                <Button
-                    className={cn("text-white shadow-md", theme.gradient)}
-                    onClick={() => toast.info("Novos gateways em breve!", { description: "Estamos integrando com Asaas e Stripe." })}
-                >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Adicionar Gateway
-                </Button>
+                <Dialog open={isAddGatewayOpen} onOpenChange={setIsAddGatewayOpen}>
+                    <DialogTrigger asChild>
+                        <Button
+                            className={cn("text-white shadow-md transition-all hover:scale-105", theme.gradient.includes('from') ? `bg-gradient-to-r ${theme.gradient}` : "bg-primary")}
+                        >
+                            <Plus className="w-4 h-4 mr-2" />
+                            Adicionar Gateway
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Adicionar Novo Gateway</DialogTitle>
+                            <DialogDescription>
+                                Escolha um gateway para integrar à sua conta ou solicite uma nova integração.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="grid gap-4 py-4">
+                            {[
+                                { name: "Asaas", status: "Em Breve", icon: "🏦" },
+                                { name: "PicPay", status: "Em Breve", icon: "📱" },
+                                { name: "PayPal", status: "Em Breve", icon: "💳" },
+                                { name: "Binance Pay", status: "Em Breve", icon: "🪙" },
+                            ].map((gateway) => (
+                                <div key={gateway.name} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-xl">{gateway.icon}</span>
+                                        <span className="font-medium">{gateway.name}</span>
+                                    </div>
+                                    <span className="text-xs bg-muted px-2 py-1 rounded-full text-muted-foreground">{gateway.status}</span>
+                                </div>
+                            ))}
+                            <div className="pt-2">
+                                <Button variant="outline" className="w-full" onClick={() => {
+                                    toast.success("Solicitação enviada!", { description: "Nossa equipe analisará seu pedido." });
+                                    setIsAddGatewayOpen(false);
+                                }}>
+                                    Solicitar Outro Gateway
+                                </Button>
+                            </div>
+                        </div>
+                    </DialogContent>
+                </Dialog>
             </div>
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
