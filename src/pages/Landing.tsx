@@ -414,9 +414,7 @@ const Landing = () => {
         { text: "1 Conexão WhatsApp Business", icon: MessageSquare },
         { text: "5 Notificações WhatsApp", icon: Zap },
         { text: "4 Gateways de Pagamentos", icon: CreditCard },
-        { text: "Perfil", icon: Users },
-        { text: "Faturamento", icon: DollarSign },
-        { text: "Segurança", icon: Shield }
+        { text: "Configurações (Perfil, Fatur., Seg.)", icon: Shield }
       ],
       popular: false,
       highlight: "Entrada perfeita para testar e já faturar. Zero desculpa."
@@ -437,8 +435,7 @@ const Landing = () => {
         { text: "1 Conexão WhatsApp Business", icon: MessageSquare },
         { text: "25 Notificações WhatsApp", icon: Zap },
         { text: "4 Gateways de Pagamentos", icon: CreditCard },
-        { text: "Perfil + Notificações + Integrações", icon: Users },
-        { text: "Faturamento + Segurança", icon: Shield },
+        { text: "Configurações Completas", icon: Shield },
         { text: "Tudo do Essencial", icon: Check },
         { text: "Prioridade no suporte", icon: Headphones }
       ],
@@ -463,10 +460,9 @@ const Landing = () => {
         { text: "100 Notificações WhatsApp", icon: Zap },
         { text: "5 Gateways de Pagamentos", icon: CreditCard },
         { text: "Painel de Análises completo", icon: BarChart },
-        { text: "Perfil + Notificações + Integrações", icon: Users },
-        { text: "Faturamento + Segurança", icon: Shield },
+        { text: "Configurações Completas", icon: Shield },
         { text: "Tudo do Profissional", icon: Check },
-        { text: "Recursos avançados de automação", icon: TrendingUp }
+        { text: "Recursos avançados", icon: TrendingUp }
       ],
       popular: false,
       highlight: "Aqui você começa a rodar como empresa de verdade."
