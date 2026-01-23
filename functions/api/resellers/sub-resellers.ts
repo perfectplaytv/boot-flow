@@ -8,6 +8,16 @@ interface Env {
     DB: D1Database;
 }
 
+interface CreateSubResellerRequest {
+    username?: string;
+    password?: string;
+    credits?: number;
+    observations?: string;
+    personal_name?: string;
+    email?: string;
+    whatsapp?: string;
+}
+
 export const onRequestPost: PagesFunction<Env> = async (context) => {
     const db = getDb(context.env.DB);
 
@@ -52,7 +62,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         }
 
         // Ler dados do corpo
-        const body = await context.request.json() as any;
+        const body = await context.request.json() as CreateSubResellerRequest;
 
         // Validação básica
         if (!body.username || !body.password) {

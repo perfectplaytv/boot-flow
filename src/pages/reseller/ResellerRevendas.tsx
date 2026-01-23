@@ -31,10 +31,18 @@ interface Reseller {
     observations?: string;
     status: string;
     created_at?: string;
+    search_term?: string;
+}
+
+interface Theme {
+    color: string;
+    lightColor: string;
+    borderColor: string;
+    gradient: string;
 }
 
 export default function ResellerRevendas() {
-    const { theme, currentPlan } = useOutletContext<{ theme: any, currentPlan: string }>();
+    const { theme, currentPlan } = useOutletContext<{ theme: Theme, currentPlan: string }>();
 
     // States
     const [revendas, setRevendas] = useState<Reseller[]>([]);
@@ -84,7 +92,7 @@ export default function ResellerRevendas() {
                 setRevendas(Array.isArray(data) ? data : []);
                 setError(null);
             } else {
-                const err = await response.json() as any;
+                const err = await response.json() as { error: string };
                 throw new Error(err.error || "Erro ao buscar revendas");
             }
         } catch (err) {
@@ -141,7 +149,7 @@ export default function ResellerRevendas() {
                     observations: ""
                 });
             } else {
-                const data = await response.json() as any;
+                const data = await response.json() as { error: string };
                 setFormError(data.error || "Erro ao criar revenda");
                 toast.error(data.error || "Erro ao criar revenda");
             }
