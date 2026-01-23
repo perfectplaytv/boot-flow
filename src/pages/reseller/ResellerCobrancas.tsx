@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CreditCard, Plus, Search, Filter, MoreVertical, FileText, CheckCircle, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -19,8 +20,17 @@ interface Theme {
     gradient: string;
 }
 
+interface Invoice {
+    id: string;
+    client: string;
+    amount: number;
+    status: 'paid' | 'pending' | 'overdue' | 'canceled';
+    dueDate: string;
+}
+
 export default function ResellerCobrancas() {
     const { theme } = useOutletContext<{ theme: Theme }>();
+    const [invoices, setInvoices] = useState<Invoice[]>([]);
 
     return (
         <div className="space-y-6">
@@ -113,88 +123,87 @@ export default function ResellerCobrancas() {
                 </CardHeader>
                 <CardContent>
                     <div className="rounded-md border">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>ID</TableHead>
-                                    <TableHead>Cliente</TableHead>
-                                    <TableHead>Valor</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Vencimento</TableHead>
-                                    <TableHead className="text-right">Ações</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                <TableRow>
-                                    <TableCell className="font-medium">#INV-001</TableCell>
-                                    <TableCell>João Silva</TableCell>
-                                    <TableCell>R$ 49,90</TableCell>
-                                    <TableCell>
-                                        <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20">
-                                            Pago
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell>20/01/2024</TableCell>
-                                    <TableCell className="text-right">
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="icon">
-                                                    <MoreVertical className="w-4 h-4" />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end">
-                                                <DropdownMenuLabel>Ações</DropdownMenuLabel>
-                                                <DropdownMenuItem>
-                                                    <FileText className="w-4 h-4 mr-2" />
-                                                    Ver Detalhes
-                                                </DropdownMenuItem>
-                                                <DropdownMenuSeparator />
-                                                <DropdownMenuItem className="text-red-500">
-                                                    <XCircle className="w-4 h-4 mr-2" />
-                                                    Cancelar
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    </TableCell>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell className="font-medium">#INV-002</TableCell>
-                                    <TableCell>Maria Santos</TableCell>
-                                    <TableCell>R$ 89,90</TableCell>
-                                    <TableCell>
-                                        <Badge variant="outline" className="bg-yellow-500/10 text-yellow-500 border-yellow-500/20">
-                                            Pendente
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell>25/01/2024</TableCell>
-                                    <TableCell className="text-right">
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="icon">
-                                                    <MoreVertical className="w-4 h-4" />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end">
-                                                <DropdownMenuLabel>Ações</DropdownMenuLabel>
-                                                <DropdownMenuItem>
-                                                    <FileText className="w-4 h-4 mr-2" />
-                                                    Ver Detalhes
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem>
-                                                    <CheckCircle className="w-4 h-4 mr-2" />
-                                                    Marcar como Pago
-                                                </DropdownMenuItem>
-                                                <DropdownMenuSeparator />
-                                                <DropdownMenuItem className="text-red-500">
-                                                    <XCircle className="w-4 h-4 mr-2" />
-                                                    Cancelar
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    </TableCell>
-                                </TableRow>
-                            </TableBody>
-                        </Table>
+                        {invoices.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center py-12 text-center space-y-4">
+                                <div className="p-4 rounded-full bg-muted/50">
+                                    <FileText className="w-12 h-12 text-muted-foreground opacity-50" />
+                                </div>
+                                <div className="space-y-2">
+                                    <h3 className="text-lg font-semibold">Nenhuma cobrança encontrada</h3>
+                                    <p className="text-muted-foreground text-sm max-w-sm mx-auto">
+                                        Suas cobranças e faturas aparecerão aqui. Crie uma nova cobrança para começar.
+                                    </p>
+                                </div>
+                            </div>
+                        ) : (
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>ID</TableHead>
+                                        <TableHead>Cliente</TableHead>
+                                        <TableHead>Valor</TableHead>
+                                        <TableHead>Status</TableHead>
+                                        <TableHead>Vencimento</TableHead>
+                                        <TableHead className="text-right">Ações</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {invoices.map((invoice) => (
+                                        <TableRow key={invoice.id}>
+                                            <TableCell className="font-medium">{invoice.id}</TableCell>
+                                            <TableCell>{invoice.client}</TableCell>
+                                            <TableCell>
+                                                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(invoice.amount)}
+                                            </TableCell>
+                                            <TableCell>
+                                                <Badge
+                                                    variant="outline"
+                                                    className={cn(
+                                                        invoice.status === 'paid' && "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
+                                                        invoice.status === 'pending' && "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
+                                                        invoice.status === 'overdue' && "bg-red-500/10 text-red-500 border-red-500/20",
+                                                        invoice.status === 'canceled' && "bg-gray-500/10 text-gray-500 border-gray-500/20"
+                                                    )}
+                                                >
+                                                    {invoice.status === 'paid' && 'Pago'}
+                                                    {invoice.status === 'pending' && 'Pendente'}
+                                                    {invoice.status === 'overdue' && 'Vencido'}
+                                                    {invoice.status === 'canceled' && 'Cancelado'}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell>{invoice.dueDate}</TableCell>
+                                            <TableCell className="text-right">
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button variant="ghost" size="icon">
+                                                            <MoreVertical className="w-4 h-4" />
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end">
+                                                        <DropdownMenuLabel>Ações</DropdownMenuLabel>
+                                                        <DropdownMenuItem>
+                                                            <FileText className="w-4 h-4 mr-2" />
+                                                            Ver Detalhes
+                                                        </DropdownMenuItem>
+                                                        {invoice.status === 'pending' && (
+                                                            <DropdownMenuItem>
+                                                                <CheckCircle className="w-4 h-4 mr-2" />
+                                                                Marcar como Pago
+                                                            </DropdownMenuItem>
+                                                        )}
+                                                        <DropdownMenuSeparator />
+                                                        <DropdownMenuItem className="text-red-500">
+                                                            <XCircle className="w-4 h-4 mr-2" />
+                                                            Cancelar
+                                                        </DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        )}
                     </div>
                 </CardContent>
             </Card>
