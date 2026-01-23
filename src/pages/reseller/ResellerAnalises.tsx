@@ -26,6 +26,17 @@ function WidthBar({ width, className, ...rest }: WidthBarProps) {
     return <div ref={ref} className={className} {...rest} />;
 }
 
+interface TopPlan {
+    name: string;
+    users: number;
+    growth: number;
+}
+
+interface RevenueData {
+    month: string;
+    value: number;
+}
+
 export default function ResellerAnalises() {
     const { theme } = useOutletContext<{ theme: Theme }>();
     const [timeRange, setTimeRange] = useState("7d");
@@ -41,8 +52,8 @@ export default function ResellerAnalises() {
         conversionRate: 0
     };
 
-    const topPlans: any[] = [];
-    const monthlyRevenue: any[] = [];
+    const topPlans: TopPlan[] = [];
+    const monthlyRevenue: RevenueData[] = [];
 
     return (
         <div className="space-y-6">
