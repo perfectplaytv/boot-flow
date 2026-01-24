@@ -2460,76 +2460,73 @@ export default function AdminUsers() {
             </>
           )}
         </div>
-      </DialogContent >
-      </Dialog >
+      </DialogContent>
+    </Dialog >
 
     {/* Modal de Confirmação de Exclusão */ }
-    < AlertDialog
-  open = { isDeleteDialogOpen }
-  onOpenChange = { setIsDeleteDialogOpen }
-    >
-    <AlertDialogContent className="bg-[#1f2937] text-white border border-gray-700">
-      <AlertDialogHeader>
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center">
-            <Trash2 className="w-6 h-6 text-white" />
+    < AlertDialog open = { isDeleteDialogOpen } onOpenChange = { setIsDeleteDialogOpen } >
+      <AlertDialogContent className="bg-[#1f2937] text-white border border-gray-700">
+        <AlertDialogHeader>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center">
+              <Trash2 className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <AlertDialogTitle className="text-xl font-bold text-white">
+                Confirmar Exclusão
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-gray-400">
+                Esta ação não pode ser desfeita. O usuário será
+                permanentemente removido do sistema.
+              </AlertDialogDescription>
+            </div>
           </div>
-          <div>
-            <AlertDialogTitle className="text-xl font-bold text-white">
-              Confirmar Exclusão
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-400">
-              Esta ação não pode ser desfeita. O usuário será
-              permanentemente removido do sistema.
-            </AlertDialogDescription>
-          </div>
-        </div>
-      </AlertDialogHeader>
+        </AlertDialogHeader>
 
-      {deletingUser && (
-        <div className="bg-[#23272f] rounded-lg p-4 mb-4">
-          <h3 className="text-lg font-semibold text-white mb-2">
-            Usuário a ser excluído:
-          </h3>
-          <div className="space-y-2">
-            <p className="text-white">
-              <span className="text-gray-400">Nome:</span>{" "}
-              {deletingUser.name}
-            </p>
-            <p className="text-white">
-              <span className="text-gray-400">Email:</span>{" "}
-              {deletingUser.email}
-            </p>
-            <p className="text-white">
-              <span className="text-gray-400">Plano:</span>{" "}
-              {deletingUser.plan}
-            </p>
-            {deletingUser.price && (
+        {deletingUser && (
+          <div className="bg-[#23272f] rounded-lg p-4 mb-4">
+            <h3 className="text-lg font-semibold text-white mb-2">
+              Usuário a ser excluído:
+            </h3>
+            <div className="space-y-2">
               <p className="text-white">
-                <span className="text-gray-400">Preço:</span>{" "}
-                R$ {deletingUser.price}
+                <span className="text-gray-400">Nome:</span>{" "}
+                {deletingUser.name}
               </p>
-            )}
-            <p className="text-white">
-              <span className="text-gray-400">Status:</span>{" "}
-              {deletingUser.status}
-            </p>
+              <p className="text-white">
+                <span className="text-gray-400">Email:</span>{" "}
+                {deletingUser.email}
+              </p>
+              <p className="text-white">
+                <span className="text-gray-400">Plano:</span>{" "}
+                {deletingUser.plan}
+              </p>
+              {deletingUser.price && (
+                <p className="text-white">
+                  <span className="text-gray-400">Preço:</span>{" "}
+                  R$ {deletingUser.price}
+                </p>
+              )}
+              <p className="text-white">
+                <span className="text-gray-400">Status:</span>{" "}
+                {deletingUser.status}
+              </p>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      <AlertDialogFooter>
-        <AlertDialogCancel className="bg-gray-700 text-white border border-gray-600 hover:bg-gray-600">
-          Cancelar
-        </AlertDialogCancel>
-        <AlertDialogAction
-          onClick={handleDeleteUser}
-          className="bg-red-600 hover:bg-red-700 text-white"
-        >
-          Excluir Usuário
-        </AlertDialogAction>
-      </AlertDialogFooter>
-    </AlertDialogContent>
+        <AlertDialogFooter>
+          <AlertDialogCancel className="bg-gray-700 text-white border border-gray-600 hover:bg-gray-600">
+            Cancelar
+          </AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleDeleteUser}
+            className="bg-red-600 hover:bg-red-700 text-white"
+          >
+            Excluir Usuário
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
       </AlertDialog >
 
     {/* Modal de Confirmação de Exclusão em Lote */ }
