@@ -29,7 +29,6 @@ import {
     Phone,
     Calendar,
     UserPlus,
-    UserPlus,
     Upload,
     Edit,
     Eye,
@@ -200,15 +199,15 @@ export default function ResellerClientes() {
             // Actually, let's update `fetchClientes` mapping to include everything first (in thought). 
             // Since I cannot change previous turns easily, I'll update `Cliente` interface here or cast.
 
-            dispositivos: (cliente as any).dispositivos || 1,
-            creditos: (cliente as any).creditos || 0,
-            senha: (cliente as any).senha || "",
-            bouquets: (cliente as any).bouquets || "",
-            nomeReal: (cliente as any).nomeReal || "",
-            telegram: (cliente as any).telegram || "",
-            observacoes: (cliente as any).observacoes || "",
-            notas: (cliente as any).notas || "",
-            m3uUrl: (cliente as any).m3uUrl || ""
+            dispositivos: cliente.dispositivos || 1,
+            creditos: cliente.creditos || 0,
+            senha: cliente.senha || "",
+            bouquets: cliente.bouquets || "",
+            nomeReal: cliente.nomeReal || "",
+            telegram: cliente.telegram || "",
+            observacoes: cliente.observacoes || "",
+            notas: cliente.notas || "",
+            m3uUrl: cliente.m3uUrl || ""
         });
         setIsAddModalOpen(true);
     };
@@ -222,18 +221,18 @@ export default function ResellerClientes() {
             email: cliente.email,
             telefone: cliente.telefone,
             plano: cliente.plano,
-            status: cliente.status as any,
+            status: cliente.status === "ativo" ? "Ativo" : cliente.status === "inativo" ? "Inativo" : "Suspenso",
             dataExpiracao: cliente.dataExpiracao,
             servidor: cliente.servidor || "",
-            dispositivos: (cliente as any).dispositivos || 1,
-            creditos: (cliente as any).creditos || 0,
-            senha: (cliente as any).senha || "",
-            bouquets: (cliente as any).bouquets || "",
-            nomeReal: (cliente as any).nomeReal || "",
-            telegram: (cliente as any).telegram || "",
-            observacoes: (cliente as any).observacoes || "",
-            notas: (cliente as any).notas || "",
-            m3uUrl: (cliente as any).m3uUrl || ""
+            dispositivos: cliente.dispositivos || 1,
+            creditos: cliente.creditos || 0,
+            senha: cliente.senha || "",
+            bouquets: cliente.bouquets || "",
+            nomeReal: cliente.nomeReal || "",
+            telegram: cliente.telegram || "",
+            observacoes: cliente.observacoes || "",
+            notas: cliente.notas || "",
+            m3uUrl: cliente.m3uUrl || ""
         });
         setIsViewModalOpen(true);
     };
@@ -255,7 +254,7 @@ export default function ResellerClientes() {
             });
 
             if (!response.ok) {
-                const data = await response.json() as any;
+                const data = await response.json() as { error?: string };
                 throw new Error(data.error || "Erro ao excluir");
             }
 
