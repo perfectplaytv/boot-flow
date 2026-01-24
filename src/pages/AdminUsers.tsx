@@ -2167,9 +2167,23 @@ export default function AdminUsers() {
                       placeholder="Bouquets extraídos automaticamente"
                       className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                     />
-                    <div className="bg-green-900/40 border border-green-700 text-green-400 text-xs rounded mt-2 p-2">
-                      Bouquets extraídos automaticamente da conta IPTV
-                    </div>
+                  </div>
+                  {/* Extração M3U (Manual) */}
+                  <div className="col-span-2">
+                    <label className="block text-gray-300 mb-1 font-medium">
+                      Extração M3U
+                    </label>
+                    <input
+                      value={editingUser.m3u_url || ""}
+                      onChange={(e) =>
+                        setEditingUser({
+                          ...editingUser,
+                          m3u_url: e.target.value,
+                        })
+                      }
+                      placeholder="URL M3U"
+                      className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+                    />
                   </div>
                   {/* Nome */}
                   <div className="col-span-1">
