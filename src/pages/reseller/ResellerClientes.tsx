@@ -59,6 +59,16 @@ interface Cliente {
     dataExpiracao: string;
     criadoEm: string;
     servidor?: string;
+    // Optional fields for detailed view/edit
+    dispositivos?: number;
+    creditos?: number;
+    senha?: string;
+    bouquets?: string;
+    nomeReal?: string;
+    telegram?: string;
+    observacoes?: string;
+    notas?: string;
+    m3uUrl?: string;
 }
 
 export default function ResellerClientes() {
@@ -715,79 +725,80 @@ export default function ResellerClientes() {
                                                     {new Date(cliente.dataExpiracao).toLocaleDateString("pt-BR")}
                                                 </div>
                                             </TableCell>
-                                            <div className="flex items-center gap-1">
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-500 hover:bg-blue-50" onClick={() => handleEditCliente(cliente)} title="Editar">
-                                                    <Edit className="w-4 h-4" />
-                                                </Button>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:bg-gray-50" onClick={() => handleViewCliente(cliente)} title="Visualizar">
-                                                    <Eye className="w-4 h-4" />
-                                                </Button>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:bg-red-50" onClick={() => handleDeleteCliente(cliente.id)} title="Excluir">
-                                                    <Trash2 className="w-4 h-4" />
-                                                </Button>
-                                            </div>
-                                        </TableCell>
+                                            <TableCell>
+                                                <div className="flex items-center gap-1">
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-500 hover:bg-blue-50" onClick={() => handleEditCliente(cliente)} title="Editar">
+                                                        <Edit className="w-4 h-4" />
+                                                    </Button>
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:bg-gray-50" onClick={() => handleViewCliente(cliente)} title="Visualizar">
+                                                        <Eye className="w-4 h-4" />
+                                                    </Button>
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:bg-red-50" onClick={() => handleDeleteCliente(cliente.id)} title="Excluir">
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </Button>
+                                                </div>
+                                            </TableCell>
                                         </TableRow>
                                     ))}
-                            </TableBody>
-                        </Table>
+                                </TableBody>
+                            </Table>
                         </div>
                     )}
-            </CardContent>
-        </Card>
+                </CardContent>
+            </Card>
 
-            {/* View Modal */ }
-    <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
-        <DialogContent className="max-w-2xl">
-            <DialogHeader>
-                <DialogTitle>Detalhes do Cliente</DialogTitle>
-            </DialogHeader>
-            <div className="grid grid-cols-2 gap-4 py-4">
-                <div className="space-y-1">
-                    <span className="text-sm font-medium text-muted-foreground">Nome</span>
-                    <p className="font-medium">{newCliente.nome}</p>
-                </div>
-                <div className="space-y-1">
-                    <span className="text-sm font-medium text-muted-foreground">Email</span>
-                    <p>{newCliente.email}</p>
-                </div>
-                <div className="space-y-1">
-                    <span className="text-sm font-medium text-muted-foreground">Telefone/WhatsApp</span>
-                    <p>{newCliente.telefone}</p>
-                </div>
-                <div className="space-y-1">
-                    <span className="text-sm font-medium text-muted-foreground">Status</span>
-                    <p><Badge>{newCliente.status}</Badge></p>
-                </div>
-                <div className="space-y-1">
-                    <span className="text-sm font-medium text-muted-foreground">Plano</span>
-                    <p>{newCliente.plano}</p>
-                </div>
-                <div className="space-y-1">
-                    <span className="text-sm font-medium text-muted-foreground">Servidor</span>
-                    <p>{newCliente.servidor}</p>
-                </div>
-                <div className="space-y-1">
-                    <span className="text-sm font-medium text-muted-foreground">Data Expiração</span>
-                    <p>{newCliente.dataExpiracao ? new Date(newCliente.dataExpiracao).toLocaleDateString() : '-'}</p>
-                </div>
-                <div className="space-y-1">
-                    <span className="text-sm font-medium text-muted-foreground">Senha</span>
-                    <p className="font-mono text-sm">{newCliente.senha || '-'}</p>
-                </div>
-                <div className="col-span-2 space-y-1">
-                    <span className="text-sm font-medium text-muted-foreground">M3U URL</span>
-                    <p className="text-xs break-all bg-muted p-2 rounded">{newCliente.m3uUrl || '-'}</p>
-                </div>
-                {newCliente.notas && (
-                    <div className="col-span-2 space-y-1">
-                        <span className="text-sm font-medium text-muted-foreground">Notas</span>
-                        <p className="text-sm bg-muted/50 p-2 rounded">{newCliente.notas}</p>
+            {/* View Modal */}
+            <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
+                <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                        <DialogTitle>Detalhes do Cliente</DialogTitle>
+                    </DialogHeader>
+                    <div className="grid grid-cols-2 gap-4 py-4">
+                        <div className="space-y-1">
+                            <span className="text-sm font-medium text-muted-foreground">Nome</span>
+                            <p className="font-medium">{newCliente.nome}</p>
+                        </div>
+                        <div className="space-y-1">
+                            <span className="text-sm font-medium text-muted-foreground">Email</span>
+                            <p>{newCliente.email}</p>
+                        </div>
+                        <div className="space-y-1">
+                            <span className="text-sm font-medium text-muted-foreground">Telefone/WhatsApp</span>
+                            <p>{newCliente.telefone}</p>
+                        </div>
+                        <div className="space-y-1">
+                            <span className="text-sm font-medium text-muted-foreground">Status</span>
+                            <p><Badge>{newCliente.status}</Badge></p>
+                        </div>
+                        <div className="space-y-1">
+                            <span className="text-sm font-medium text-muted-foreground">Plano</span>
+                            <p>{newCliente.plano}</p>
+                        </div>
+                        <div className="space-y-1">
+                            <span className="text-sm font-medium text-muted-foreground">Servidor</span>
+                            <p>{newCliente.servidor}</p>
+                        </div>
+                        <div className="space-y-1">
+                            <span className="text-sm font-medium text-muted-foreground">Data Expiração</span>
+                            <p>{newCliente.dataExpiracao ? new Date(newCliente.dataExpiracao).toLocaleDateString() : '-'}</p>
+                        </div>
+                        <div className="space-y-1">
+                            <span className="text-sm font-medium text-muted-foreground">Senha</span>
+                            <p className="font-mono text-sm">{newCliente.senha || '-'}</p>
+                        </div>
+                        <div className="col-span-2 space-y-1">
+                            <span className="text-sm font-medium text-muted-foreground">M3U URL</span>
+                            <p className="text-xs break-all bg-muted p-2 rounded">{newCliente.m3uUrl || '-'}</p>
+                        </div>
+                        {newCliente.notas && (
+                            <div className="col-span-2 space-y-1">
+                                <span className="text-sm font-medium text-muted-foreground">Notas</span>
+                                <p className="text-sm bg-muted/50 p-2 rounded">{newCliente.notas}</p>
+                            </div>
+                        )}
                     </div>
-                )}
-            </div>
-        </DialogContent>
-    </Dialog>
+                </DialogContent>
+            </Dialog>
         </div >
     );
 }
