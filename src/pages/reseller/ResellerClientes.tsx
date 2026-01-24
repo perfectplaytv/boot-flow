@@ -29,7 +29,12 @@ import {
     Phone,
     Calendar,
     UserPlus,
+    UserPlus,
     Upload,
+    Edit,
+    Eye,
+    Trash2,
+    X,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
@@ -62,6 +67,9 @@ export default function ResellerClientes() {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [selectedClientId, setSelectedClientId] = useState<number | null>(null);
 
     // Estado completo para novo cliente
     const [newCliente, setNewCliente] = useState({
@@ -115,7 +123,17 @@ export default function ResellerClientes() {
                     status: item.status?.toLowerCase() || "ativo",
                     dataExpiracao: item.expiration_date,
                     criadoEm: item.created_at,
-                    servidor: item.server
+                    servidor: item.server,
+                    // Additional fields mapping for edit/view
+                    dispositivos: item.devices,
+                    creditos: item.credits,
+                    senha: item.password,
+                    bouquets: item.bouquets,
+                    nomeReal: item.real_name,
+                    telegram: item.telegram,
+                    observacoes: item.observations,
+                    notas: item.notes,
+                    m3uUrl: item.m3u_url
                 }));
                 setClientes(mappedClientes);
             }
@@ -131,7 +149,116 @@ export default function ResellerClientes() {
         fetchClientes();
     }, []);
 
-    const handleAddCliente = async () => {
+    const openAddModal = () => {
+        setIsEditMode(false);
+        setNewCliente({
+            nome: "", email: "", telefone: "", plano: "", status: "Ativo",
+            dataExpiracao: "", servidor: "", dispositivos: 1, creditos: 0,
+            senha: "", bouquets: "", nomeReal: "", telegram: "", observacoes: "",
+            notas: "", m3uUrl: ""
+        });
+        setIsAddModalOpen(true);
+    };
+
+    const handleEditCliente = (cliente: Cliente) => {
+        setIsEditMode(true);
+        setSelectedClientId(cliente.id);
+        // Find full client data if needed, or mapping from `cliente`
+        // Since `cliente` in table might lack full details if we didn't map them all, 
+        // ideally we should have full data. 
+        // Assuming `cliente` has enough or we fetch. 
+        // For now, mapping what we have + potentially missing fields (will be empty/default).
+        // A better approach is to store full data in `clientes` state. 
+
+        // Populate form
+        // We need to match the `newCliente` structure.
+        setNewCliente({
+            nome: cliente.nome,
+            email: cliente.email,
+            telefone: cliente.telefone,
+            plano: cliente.plano,
+            status: cliente.status === "ativo" ? "Ativo" : cliente.status === "inativo" ? "Inativo" : "Suspenso", // Simple mapping
+            dataExpiracao: cliente.dataExpiracao,
+            servidor: cliente.servidor || "",
+            // Fields potentially missing in the table view interface `Cliente` need to be typed properly or fetched
+            // Checking `Cliente` interface: it misses some fields like `dispositivos`, `creditos`...
+            // We should update `Cliente` interface to include optional fields or user `any` cast for now if data is actually there.
+            // In `fetchClientes`, we mapped only some fields. 
+            // TO FIX: Update `fetchClientes` to map all fields to state, or refetch for edit. 
+            // For simplicity/speed + ensuring data is there, let's assume `fetchClientes` stores everything or we update it.
+            // Let's rely on the fact we are improving the interface in next steps or just casting.
+            // Actually, let's update `fetchClientes` mapping to include everything first (in thought). 
+            // Since I cannot change previous turns easily, I'll update `Cliente` interface here or cast.
+
+            dispositivos: (cliente as any).dispositivos || 1,
+            creditos: (cliente as any).creditos || 0,
+            senha: (cliente as any).senha || "",
+            bouquets: (cliente as any).bouquets || "",
+            nomeReal: (cliente as any).nomeReal || "",
+            telegram: (cliente as any).telegram || "",
+            observacoes: (cliente as any).observacoes || "",
+            notas: (cliente as any).notas || "",
+            m3uUrl: (cliente as any).m3uUrl || ""
+        });
+        setIsAddModalOpen(true);
+    };
+
+    const handleViewCliente = (cliente: Cliente) => {
+        // Populate selected client for view
+        // Using `newCliente` state for viewing is a cheap way, or separate state.
+        // Let's use separate simple state or just reuse `newCliente` but readonly.
+        setNewCliente({
+            nome: cliente.nome,
+            email: cliente.email,
+            telefone: cliente.telefone,
+            plano: cliente.plano,
+            status: cliente.status as any,
+            dataExpiracao: cliente.dataExpiracao,
+            servidor: cliente.servidor || "",
+            dispositivos: (cliente as any).dispositivos || 1,
+            creditos: (cliente as any).creditos || 0,
+            senha: (cliente as any).senha || "",
+            bouquets: (cliente as any).bouquets || "",
+            nomeReal: (cliente as any).nomeReal || "",
+            telegram: (cliente as any).telegram || "",
+            observacoes: (cliente as any).observacoes || "",
+            notas: (cliente as any).notas || "",
+            m3uUrl: (cliente as any).m3uUrl || ""
+        });
+        setIsViewModalOpen(true);
+    };
+
+    const handleDeleteCliente = async (id: number) => {
+        if (!confirm("Tem certeza que deseja excluir este cliente?")) return;
+
+        const token = localStorage.getItem('auth_token');
+        if (!token) return;
+
+        const toastId = toast.loading("Excluindo cliente...");
+
+        try {
+            const response = await fetch(`/api/resellers/clients/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                const data = await response.json() as any;
+                throw new Error(data.error || "Erro ao excluir");
+            }
+
+            toast.dismiss(toastId);
+            toast.success("Cliente excluído com sucesso!");
+            fetchClientes();
+        } catch (error) {
+            toast.dismiss(toastId);
+            toast.error(error instanceof Error ? error.message : "Erro ao excluir");
+        }
+    };
+
+    const handleSaveCliente = async () => {
         if (!newCliente.nome || !newCliente.email || !newCliente.plano || !newCliente.servidor || !newCliente.dataExpiracao) {
             toast.error("Preencha todos os campos obrigatórios (*)");
             return;
@@ -143,11 +270,14 @@ export default function ResellerClientes() {
             return;
         }
 
-        const toastId = toast.loading("Adicionando cliente...");
+        const toastId = toast.loading(isEditMode ? "Atualizando cliente..." : "Adicionando cliente...");
 
         try {
-            const response = await fetch('/api/resellers/clients', {
-                method: 'POST',
+            const url = isEditMode ? `/api/resellers/clients/${selectedClientId}` : '/api/resellers/clients';
+            const method = isEditMode ? 'PUT' : 'POST';
+
+            const response = await fetch(url, {
+                method: method,
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
@@ -159,22 +289,13 @@ export default function ResellerClientes() {
             const data = await response.json() as any;
 
             if (!response.ok) {
-                throw new Error(data.error || "Erro ao adicionar cliente");
+                throw new Error(data.error || "Erro ao salvar cliente");
             }
 
             toast.dismiss(toastId);
-            toast.success("Cliente adicionado com sucesso!");
+            toast.success(isEditMode ? "Cliente atualizado!" : "Cliente adicionado!");
 
-            // Refresh list
             fetchClientes();
-
-            // Reset form
-            setNewCliente({
-                nome: "", email: "", telefone: "", plano: "", status: "Ativo",
-                dataExpiracao: "", servidor: "", dispositivos: 1, creditos: 0,
-                senha: "", bouquets: "", nomeReal: "", telegram: "", observacoes: "",
-                notas: "", m3uUrl: ""
-            });
             setIsAddModalOpen(false);
 
         } catch (error) {
@@ -276,16 +397,18 @@ export default function ResellerClientes() {
                 </div>
                 <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
                     <DialogTrigger asChild>
-                        <Button className={cn("text-white shadow-md transition-all duration-200", theme.gradient.includes('from') ? `bg-gradient-to-r ${theme.gradient}` : "bg-primary")}>
+                        <Button className={cn("text-white shadow-md transition-all duration-200", theme.gradient.includes('from') ? `bg-gradient-to-r ${theme.gradient}` : "bg-primary")} onClick={openAddModal}>
                             <UserPlus className="w-4 h-4 mr-2" />
                             Novo Cliente
                         </Button>
                     </DialogTrigger>
                     <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                         <DialogHeader>
-                            <DialogTitle className={cn("text-2xl font-bold", theme.color)}>Adicionar um Cliente</DialogTitle>
+                            <DialogTitle className={cn("text-2xl font-bold", theme.color)}>
+                                {isEditMode ? "Editar Cliente" : "Adicionar um Cliente"}
+                            </DialogTitle>
                             <DialogDescription>
-                                Preencha os dados completos do cliente
+                                {isEditMode ? "Atualize os dados do cliente" : "Preencha os dados completos do cliente"}
                             </DialogDescription>
                         </DialogHeader>
 
@@ -479,8 +602,8 @@ export default function ResellerClientes() {
                             <Button variant="outline" onClick={() => setIsAddModalOpen(false)}>
                                 Cancelar
                             </Button>
-                            <Button className={cn("text-white", theme.gradient.includes('from') ? `bg-gradient-to-r ${theme.gradient}` : "bg-primary")} onClick={handleAddCliente}>
-                                Adicionar Cliente
+                            <Button className={cn("text-white", theme.gradient.includes('from') ? `bg-gradient-to-r ${theme.gradient}` : "bg-primary")} onClick={handleSaveCliente}>
+                                {isEditMode ? "Salvar Alterações" : "Adicionar Cliente"}
                             </Button>
                         </DialogFooter>
                     </DialogContent>
@@ -542,7 +665,7 @@ export default function ResellerClientes() {
                             </p>
                             <Button
                                 className={cn("text-white", theme.gradient.includes('from') ? `bg-gradient-to-r ${theme.gradient}` : "bg-primary")}
-                                onClick={() => setIsAddModalOpen(true)}
+                                onClick={openAddModal}
                             >
                                 <Plus className="w-4 h-4 mr-2" />
                                 Adicionar Cliente
@@ -592,19 +715,79 @@ export default function ResellerClientes() {
                                                     {new Date(cliente.dataExpiracao).toLocaleDateString("pt-BR")}
                                                 </div>
                                             </TableCell>
-                                            <TableCell>
-                                                <Button variant="ghost" size="icon">
-                                                    <MoreVertical className="w-4 h-4" />
+                                            <div className="flex items-center gap-1">
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-500 hover:bg-blue-50" onClick={() => handleEditCliente(cliente)} title="Editar">
+                                                    <Edit className="w-4 h-4" />
                                                 </Button>
-                                            </TableCell>
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:bg-gray-50" onClick={() => handleViewCliente(cliente)} title="Visualizar">
+                                                    <Eye className="w-4 h-4" />
+                                                </Button>
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:bg-red-50" onClick={() => handleDeleteCliente(cliente.id)} title="Excluir">
+                                                    <Trash2 className="w-4 h-4" />
+                                                </Button>
+                                            </div>
+                                        </TableCell>
                                         </TableRow>
                                     ))}
-                                </TableBody>
-                            </Table>
+                            </TableBody>
+                        </Table>
                         </div>
                     )}
-                </CardContent>
-            </Card>
-        </div>
+            </CardContent>
+        </Card>
+
+            {/* View Modal */ }
+    <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
+        <DialogContent className="max-w-2xl">
+            <DialogHeader>
+                <DialogTitle>Detalhes do Cliente</DialogTitle>
+            </DialogHeader>
+            <div className="grid grid-cols-2 gap-4 py-4">
+                <div className="space-y-1">
+                    <span className="text-sm font-medium text-muted-foreground">Nome</span>
+                    <p className="font-medium">{newCliente.nome}</p>
+                </div>
+                <div className="space-y-1">
+                    <span className="text-sm font-medium text-muted-foreground">Email</span>
+                    <p>{newCliente.email}</p>
+                </div>
+                <div className="space-y-1">
+                    <span className="text-sm font-medium text-muted-foreground">Telefone/WhatsApp</span>
+                    <p>{newCliente.telefone}</p>
+                </div>
+                <div className="space-y-1">
+                    <span className="text-sm font-medium text-muted-foreground">Status</span>
+                    <p><Badge>{newCliente.status}</Badge></p>
+                </div>
+                <div className="space-y-1">
+                    <span className="text-sm font-medium text-muted-foreground">Plano</span>
+                    <p>{newCliente.plano}</p>
+                </div>
+                <div className="space-y-1">
+                    <span className="text-sm font-medium text-muted-foreground">Servidor</span>
+                    <p>{newCliente.servidor}</p>
+                </div>
+                <div className="space-y-1">
+                    <span className="text-sm font-medium text-muted-foreground">Data Expiração</span>
+                    <p>{newCliente.dataExpiracao ? new Date(newCliente.dataExpiracao).toLocaleDateString() : '-'}</p>
+                </div>
+                <div className="space-y-1">
+                    <span className="text-sm font-medium text-muted-foreground">Senha</span>
+                    <p className="font-mono text-sm">{newCliente.senha || '-'}</p>
+                </div>
+                <div className="col-span-2 space-y-1">
+                    <span className="text-sm font-medium text-muted-foreground">M3U URL</span>
+                    <p className="text-xs break-all bg-muted p-2 rounded">{newCliente.m3uUrl || '-'}</p>
+                </div>
+                {newCliente.notas && (
+                    <div className="col-span-2 space-y-1">
+                        <span className="text-sm font-medium text-muted-foreground">Notas</span>
+                        <p className="text-sm bg-muted/50 p-2 rounded">{newCliente.notas}</p>
+                    </div>
+                )}
+            </div>
+        </DialogContent>
+    </Dialog>
+        </div >
     );
 }
