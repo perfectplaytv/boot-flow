@@ -101,7 +101,9 @@ export default function ResellerClientes() {
             });
 
             if (response.ok) {
-                const data = await response.json();
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const data: any[] = await response.json();
+
                 // Map backend data to frontend interface
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const mappedClientes: Cliente[] = data.map((item: any) => ({
@@ -153,7 +155,8 @@ export default function ResellerClientes() {
                 body: JSON.stringify(newCliente)
             });
 
-            const data = await response.json();
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const data = await response.json() as any;
 
             if (!response.ok) {
                 throw new Error(data.error || "Erro ao adicionar cliente");

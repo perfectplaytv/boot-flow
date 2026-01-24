@@ -15,6 +15,25 @@ interface TokenPayload {
     is_super_admin?: boolean;
 }
 
+interface ClientBody {
+    nome: string;
+    email: string;
+    plano: string;
+    servidor?: string;
+    status?: string;
+    dataExpiracao: string;
+    telefone?: string;
+    telegram?: string;
+    senha?: string;
+    dispositivos?: number;
+    creditos?: number;
+    bouquets?: string;
+    nomeReal?: string;
+    observacoes?: string;
+    notas?: string;
+    m3uUrl?: string;
+}
+
 export const onRequestGet: PagesFunction<Env> = async (context) => {
     try {
         const authHeader = context.request.headers.get('Authorization');
@@ -38,8 +57,9 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
             headers: { 'Content-Type': 'application/json' }
         });
 
-    } catch (e: any) {
-        return new Response(JSON.stringify({ error: e.message || 'Erro ao buscar clientes' }), { status: 500 });
+    } catch (e: unknown) {
+        const message = e instanceof Error ? e.message : 'Erro desconhecido ao buscar clientes';
+        return new Response(JSON.stringify({ error: message }), { status: 500 });
     }
 }
 
@@ -52,7 +72,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         if (!token) return new Response(JSON.stringify({ error: 'Token inválido' }), { status: 401 });
 
         const db = getDb(context.env.DB);
-        const body = await context.request.json() as any;
+        const body = await context.request.json() as ClientBody;
 
         const ownerId = `${token.type}:${token.id}`;
 
@@ -87,7 +107,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
             status: 201
         });
 
-    } catch (e: any) {
-        return new Response(JSON.stringify({ error: e.message || 'Erro ao criar cliente' }), { status: 500 });
+    } catch (e: unknown) {
+        const message = e instanceof Error ? e.message : 'Erro desconhecido ao criar cliente';
+        return new Response(JSON.stringify({ error: message }), { status: 500 });
     }
 }
