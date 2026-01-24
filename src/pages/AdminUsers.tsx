@@ -1850,21 +1850,21 @@ export default function AdminUsers() {
                     </div>
                   )}
                 </div>
+                </div>
               </div>
-              </div>
-            )}
-          </div>
+            )
+          }
+        </div>
 
-          <DialogFooter className="mt-6">
-            <Button
-              variant="outline"
-              onClick={() => setIsViewDialogOpen(false)}
-              className="bg-gray-700 text-white"
-            >
-              Fechar
-            </Button>
-          </DialogFooter>
-        </div >
+        <DialogFooter className="mt-6">
+          <Button
+            variant="outline"
+            onClick={() => setIsViewDialogOpen(false)}
+            className="bg-gray-700 text-white"
+          >
+            Fechar
+          </Button>
+        </DialogFooter>
       </DialogContent >
     </Dialog >
 
