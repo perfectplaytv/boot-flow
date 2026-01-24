@@ -2527,164 +2527,159 @@ export default function AdminUsers() {
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
-      </AlertDialog >
+    </AlertDialog >
 
     {/* Modal de Confirmação de Exclusão em Lote */ }
-    < AlertDialog
-  open = { isBulkDeleteDialogOpen }
-  onOpenChange = { setIsBulkDeleteDialogOpen }
-    >
-    <AlertDialogContent className="bg-[#1f2937] text-white border border-gray-700">
-      <AlertDialogHeader>
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center">
-            <Trash2 className="w-6 h-6 text-white" />
+    < AlertDialog open = { isBulkDeleteDialogOpen } onOpenChange = { setIsBulkDeleteDialogOpen } >
+      <AlertDialogContent className="bg-[#1f2937] text-white border border-gray-700">
+        <AlertDialogHeader>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center">
+              <Trash2 className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <AlertDialogTitle className="text-xl font-bold text-white">
+                Excluir {selectedUserIds.size} Usuário(s)
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-gray-400">
+                Esta ação não pode ser desfeita. Todos os usuários selecionados serão permanentemente removidos.
+              </AlertDialogDescription>
+            </div>
           </div>
-          <div>
-            <AlertDialogTitle className="text-xl font-bold text-white">
-              Excluir {selectedUserIds.size} Usuário(s)
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-400">
-              Esta ação não pode ser desfeita. Todos os usuários selecionados serão permanentemente removidos.
-            </AlertDialogDescription>
-          </div>
+        </AlertDialogHeader>
+
+        <div className="bg-[#23272f] rounded-lg p-4 mb-4">
+          <p className="text-yellow-400 text-sm">
+            ⚠️ Você está prestes a excluir <strong>{selectedUserIds.size}</strong> usuário(s).
+          </p>
         </div>
-      </AlertDialogHeader>
 
-      <div className="bg-[#23272f] rounded-lg p-4 mb-4">
-        <p className="text-yellow-400 text-sm">
-          ⚠️ Você está prestes a excluir <strong>{selectedUserIds.size}</strong> usuário(s).
-        </p>
-      </div>
-
-      <AlertDialogFooter>
-        <AlertDialogCancel className="bg-gray-700 text-white border border-gray-600 hover:bg-gray-600">
-          Cancelar
-        </AlertDialogCancel>
-        <AlertDialogAction
-          onClick={handleBulkDelete}
-          disabled={isBulkDeleting}
-          className="bg-red-600 hover:bg-red-700 text-white"
-        >
-          {isBulkDeleting ? "Excluindo..." : `Excluir ${selectedUserIds.size} Usuário(s)`}
-        </AlertDialogAction>
-      </AlertDialogFooter>
-    </AlertDialogContent>
-      </AlertDialog >
+        <AlertDialogFooter>
+          <AlertDialogCancel className="bg-gray-700 text-white border border-gray-600 hover:bg-gray-600">
+            Cancelar
+          </AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleBulkDelete}
+            disabled={isBulkDeleting}
+            className="bg-red-600 hover:bg-red-700 text-white"
+          >
+            {isBulkDeleting ? "Excluindo..." : `Excluir ${selectedUserIds.size} Usuário(s)`}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog >
 
     {/* Modal de Confirmação de Pagamento */ }
-    < AlertDialog
-  open = { isPagoDialogOpen }
-  onOpenChange = { setIsPagoDialogOpen }
-    >
-    <AlertDialogContent className="bg-[#1f2937] text-white border border-gray-700">
-      <AlertDialogHeader>
-        <div className="flex items-center gap-3 mb-4">
-          <div className={`w - 12 h - 12 rounded - full flex items - center justify - center ${pagoUser?.pago ? "bg-yellow-600" : "bg-green-600"
-            } `}>
-            <DollarSign className="w-6 h-6 text-white" />
-          </div>
-          <div>
-            <AlertDialogTitle className="text-xl font-bold text-white">
-              {pagoUser?.pago ? "Desmarcar Pagamento" : "Confirmar Pagamento"}
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-400">
-              {pagoUser?.pago
-                ? "Deseja realmente desmarcar o pagamento deste cliente? A receita será atualizada no dashboard."
-                : "Confirme se este cliente realizou o pagamento. O valor será adicionado à receita total no dashboard."
-              }
-            </AlertDialogDescription>
-          </div>
-        </div>
-      </AlertDialogHeader>
-
-      {pagoUser && (
-        <div className="space-y-4">
-          <div className="bg-[#23272f] rounded-lg p-4">
-            <h3 className="text-lg font-semibold text-white mb-3">
-              Informações do Cliente:
-            </h3>
-            <div className="space-y-2">
-              <p className="text-white">
-                <span className="text-gray-400">Nome:</span>{" "}
-                <span className="font-medium">{pagoUser.name}</span>
-              </p>
-              <p className="text-white">
-                <span className="text-gray-400">Email:</span>{" "}
-                {pagoUser.email}
-              </p>
-              {pagoUser.plan && (
-                <p className="text-white">
-                  <span className="text-gray-400">Plano:</span>{" "}
-                  <span className="font-medium">{pagoUser.plan}</span>
-                </p>
-              )}
-              <p className="text-white">
-                <span className="text-gray-400">Status atual:</span>{" "}
-                <span className={pagoUser.pago ? "text-green-400 font-semibold" : "text-gray-400"}>
-                  {pagoUser.pago ? "✓ Pago" : "✗ Não Pago"}
-                </span>
-              </p>
-            </div>
-          </div>
-
-          {pagoUser.price && (
-            <div className={`rounded - lg p - 4 border - 2 ${pagoUser.pago
-              ? "bg-yellow-900/20 border-yellow-600/50"
-              : "bg-green-900/20 border-green-600/50"
+    < AlertDialog open = { isPagoDialogOpen } onOpenChange = { setIsPagoDialogOpen } >
+      <AlertDialogContent className="bg-[#1f2937] text-white border border-gray-700">
+        <AlertDialogHeader>
+          <div className="flex items-center gap-3 mb-4">
+            <div className={`w - 12 h - 12 rounded - full flex items - center justify - center ${pagoUser?.pago ? "bg-yellow-600" : "bg-green-600"
               } `}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-400 text-sm">
-                    {pagoUser.pago ? "Valor que será removido:" : "Valor que será adicionado:"}
-                  </p>
-                  <p className="text-2xl font-bold text-white mt-1">
-                    <span className={pagoUser.pago ? "text-yellow-400" : "text-green-400"}>
-                      {pagoUser.pago ? "-" : "+"} R$ {pagoUser.price}
-                    </span>
-                  </p>
-                </div>
-                <div className={`w - 12 h - 12 rounded - full flex items - center justify - center ${pagoUser.pago ? "bg-yellow-600/20" : "bg-green-600/20"
-                  } `}>
-                  <DollarSign className={`w - 6 h - 6 ${pagoUser.pago ? "text-yellow-400" : "text-green-400"
-                    } `} />
-                </div>
-              </div>
-              <p className="text-xs text-gray-400 mt-2">
-                {pagoUser.pago
-                  ? "Este valor será subtraído da Receita Total no Dashboard."
-                  : "Este valor será adicionado à Receita Total no Dashboard."
-                }
-              </p>
+              <DollarSign className="w-6 h-6 text-white" />
             </div>
-          )}
-        </div>
-      )}
+            <div>
+              <AlertDialogTitle className="text-xl font-bold text-white">
+                {pagoUser?.pago ? "Desmarcar Pagamento" : "Confirmar Pagamento"}
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-gray-400">
+                {pagoUser?.pago
+                  ? "Deseja realmente desmarcar o pagamento deste cliente? A receita será atualizada no dashboard."
+                  : "Confirme se este cliente realizou o pagamento. O valor será adicionado à receita total no dashboard."
+                }
+              </AlertDialogDescription>
+            </div>
+          </div>
+        </AlertDialogHeader>
 
-      <AlertDialogFooter>
-        <AlertDialogCancel
-          className="bg-gray-700 text-white border border-gray-600 hover:bg-gray-600"
-          onClick={() => {
-            setIsPagoDialogOpen(false);
-            setPagoUser(null);
-          }}
-        >
-          Cancelar
-        </AlertDialogCancel>
-        <AlertDialogAction
-          onClick={confirmTogglePago}
-          className={`${pagoUser?.pago
-            ? "bg-yellow-600 hover:bg-yellow-700"
-            : "bg-green-600 hover:bg-green-700"
-            } text - white`}
-        >
-          {pagoUser?.pago ? "Desmarcar Pagamento" : "Confirmar Pagamento"}
-        </AlertDialogAction>
-      </AlertDialogFooter>
-    </AlertDialogContent>
-      </AlertDialog >
-    </div >
-  );
+        {pagoUser && (
+          <div className="space-y-4">
+            <div className="bg-[#23272f] rounded-lg p-4">
+              <h3 className="text-lg font-semibold text-white mb-3">
+                Informações do Cliente:
+              </h3>
+              <div className="space-y-2">
+                <p className="text-white">
+                  <span className="text-gray-400">Nome:</span>{" "}
+                  <span className="font-medium">{pagoUser.name}</span>
+                </p>
+                <p className="text-white">
+                  <span className="text-gray-400">Email:</span>{" "}
+                  {pagoUser.email}
+                </p>
+                {pagoUser.plan && (
+                  <p className="text-white">
+                    <span className="text-gray-400">Plano:</span>{" "}
+                    <span className="font-medium">{pagoUser.plan}</span>
+                  </p>
+                )}
+                <p className="text-white">
+                  <span className="text-gray-400">Status atual:</span>{" "}
+                  <span className={pagoUser.pago ? "text-green-400 font-semibold" : "text-gray-400"}>
+                    {pagoUser.pago ? "✓ Pago" : "✗ Não Pago"}
+                  </span>
+                </p>
+              </div>
+            </div>
+
+            {pagoUser.price && (
+              <div className={`rounded - lg p - 4 border - 2 ${pagoUser.pago
+                ? "bg-yellow-900/20 border-yellow-600/50"
+                : "bg-green-900/20 border-green-600/50"
+                } `}>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-gray-400 text-sm">
+                      {pagoUser.pago ? "Valor que será removido:" : "Valor que será adicionado:"}
+                    </p>
+                    <p className="text-2xl font-bold text-white mt-1">
+                      <span className={pagoUser.pago ? "text-yellow-400" : "text-green-400"}>
+                        {pagoUser.pago ? "-" : "+"} R$ {pagoUser.price}
+                      </span>
+                    </p>
+                  </div>
+                  <div className={`w - 12 h - 12 rounded - full flex items - center justify - center ${pagoUser.pago ? "bg-yellow-600/20" : "bg-green-600/20"
+                    } `}>
+                    <DollarSign className={`w - 6 h - 6 ${pagoUser.pago ? "text-yellow-400" : "text-green-400"
+                      } `} />
+                  </div>
+                </div>
+                <p className="text-xs text-gray-400 mt-2">
+                  {pagoUser.pago
+                    ? "Este valor será subtraído da Receita Total no Dashboard."
+                    : "Este valor será adicionado à Receita Total no Dashboard."
+                  }
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        <AlertDialogFooter>
+          <AlertDialogCancel
+            className="bg-gray-700 text-white border border-gray-600 hover:bg-gray-600"
+            onClick={() => {
+              setIsPagoDialogOpen(false);
+              setPagoUser(null);
+            }}
+          >
+            Cancelar
+          </AlertDialogCancel>
+          <AlertDialogAction
+            onClick={confirmTogglePago}
+            className={`${pagoUser?.pago
+              ? "bg-yellow-600 hover:bg-yellow-700"
+              : "bg-green-600 hover:bg-green-700"
+              } text - white`}
+          >
+            {pagoUser?.pago ? "Desmarcar Pagamento" : "Confirmar Pagamento"}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+      </AlertDialogContent >
+    </AlertDialog >
+  </div >
+);
 }
 
 function VencimentoDatePicker() {
