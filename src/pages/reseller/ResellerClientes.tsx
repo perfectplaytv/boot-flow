@@ -31,7 +31,7 @@ import {
     UserPlus,
     Upload,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 import { useOutletContext } from "react-router-dom";
@@ -59,6 +59,7 @@ interface Cliente {
 export default function ResellerClientes() {
     const { theme } = useOutletContext<{ theme: Theme }>();
     const [clientes, setClientes] = useState<Cliente[]>([]);
+    const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
@@ -88,34 +89,96 @@ export default function ResellerClientes() {
             c.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const handleAddCliente = () => {
+    const fetchClientes = async () => {
+        try {
+            const token = localStorage.getItem('auth_token');
+            if (!token) return;
+
+            const response = await fetch('/api/resellers/clients', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                // Map backend data to frontend interface
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const mappedClientes: Cliente[] = data.map((item: any) => ({
+                    id: item.id,
+                    nome: item.name,
+                    email: item.email,
+                    telefone: item.whatsapp || item.phone || "",
+                    plano: item.plan,
+                    status: item.status?.toLowerCase() || "ativo",
+                    dataExpiracao: item.expiration_date,
+                    criadoEm: item.created_at,
+                    servidor: item.server
+                }));
+                setClientes(mappedClientes);
+            }
+        } catch (error) {
+            console.error("Erro ao buscar clientes:", error);
+            toast.error("Erro ao carregar lista de clientes");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchClientes();
+    }, []);
+
+    const handleAddCliente = async () => {
         if (!newCliente.nome || !newCliente.email || !newCliente.plano || !newCliente.servidor || !newCliente.dataExpiracao) {
             toast.error("Preencha todos os campos obrigatórios (*)");
             return;
         }
 
-        const novoCliente: Cliente = {
-            id: Date.now(),
-            nome: newCliente.nome,
-            email: newCliente.email,
-            telefone: newCliente.telefone,
-            plano: newCliente.plano,
-            status: newCliente.status.toLowerCase() as "ativo" | "inativo" | "pendente" | "suspenso",
-            dataExpiracao: newCliente.dataExpiracao,
-            criadoEm: new Date().toISOString(),
-            servidor: newCliente.servidor
-        };
+        const token = localStorage.getItem('auth_token');
+        if (!token) {
+            toast.error("Sessão expirada. Faça login novamente.");
+            return;
+        }
 
-        setClientes([...clientes, novoCliente]);
-        // Reset form
-        setNewCliente({
-            nome: "", email: "", telefone: "", plano: "", status: "Ativo",
-            dataExpiracao: "", servidor: "", dispositivos: 1, creditos: 0,
-            senha: "", bouquets: "", nomeReal: "", telegram: "", observacoes: "",
-            notas: "", m3uUrl: ""
-        });
-        setIsAddModalOpen(false);
-        toast.success("Cliente adicionado com sucesso!");
+        const toastId = toast.loading("Adicionando cliente...");
+
+        try {
+            const response = await fetch('/api/resellers/clients', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(newCliente)
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || "Erro ao adicionar cliente");
+            }
+
+            toast.dismiss(toastId);
+            toast.success("Cliente adicionado com sucesso!");
+
+            // Refresh list
+            fetchClientes();
+
+            // Reset form
+            setNewCliente({
+                nome: "", email: "", telefone: "", plano: "", status: "Ativo",
+                dataExpiracao: "", servidor: "", dispositivos: 1, creditos: 0,
+                senha: "", bouquets: "", nomeReal: "", telegram: "", observacoes: "",
+                notas: "", m3uUrl: ""
+            });
+            setIsAddModalOpen(false);
+
+        } catch (error) {
+            toast.dismiss(toastId);
+            console.error(error);
+            toast.error(error instanceof Error ? error.message : "Erro ao salvar cliente");
+        }
     };
 
     const handleExtractM3U = async () => {
