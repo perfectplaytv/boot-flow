@@ -79,6 +79,7 @@ export const servers = sqliteTable('servers', {
     cpu: integer('cpu').default(0),
     memoria: integer('memoria').default(0),
     disco: integer('disco').default(0),
+    owner_uid: text('owner_uid'), // Dono do servidor
     ultima_atualizacao: text('ultima_atualizacao').default(sql`CURRENT_TIMESTAMP`),
     created_at: text('created_at').default(sql`CURRENT_TIMESTAMP`),
     updated_at: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
@@ -93,6 +94,7 @@ export const applications = sqliteTable('applications', {
     tipo: text('tipo').notNull(),
     status: text('status').notNull().default('inativo'),
     usuarios: integer('usuarios').default(0),
+    owner_uid: text('owner_uid'), // Dono do aplicativo
     ultima_atualizacao: text('ultima_atualizacao').default(sql`CURRENT_TIMESTAMP`),
     created_at: text('created_at').default(sql`CURRENT_TIMESTAMP`),
     updated_at: text('updated_at').default(sql`CURRENT_TIMESTAMP`),

@@ -1,7 +1,15 @@
 
 import { getDb } from '../../../db';
 import { servers } from '../../../db/schema';
+import { eq } from 'drizzle-orm';
 import { verifyToken } from '../../utils/auth';
+
+interface TokenPayload {
+    id: number;
+    email: string;
+    role: string;
+    type: string;
+}
 
 interface Env {
     DB: D1Database;
@@ -11,12 +19,14 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     const authHeader = context.request.headers.get('Authorization');
     if (!authHeader) return new Response(JSON.stringify({ error: 'Token não fornecido' }), { status: 401 });
 
-    const token = await verifyToken(authHeader.split(' ')[1]);
+    const token = await verifyToken(authHeader.split(' ')[1]) as unknown as TokenPayload;
     if (!token) return new Response(JSON.stringify({ error: 'Token inválido' }), { status: 401 });
 
     const db = getDb(context.env.DB);
+    const ownerId = `${token.type}:${token.id}`;
+
     try {
-        const result = await db.select().from(servers).orderBy(servers.nome).all();
+        const result = await db.select().from(servers).where(eq(servers.owner_uid, ownerId)).orderBy(servers.nome).all();
         return new Response(JSON.stringify(result), {
             headers: { 'Content-Type': 'application/json' }
         });
@@ -30,10 +40,12 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     const authHeader = context.request.headers.get('Authorization');
     if (!authHeader) return new Response(JSON.stringify({ error: 'Token não fornecido' }), { status: 401 });
 
-    const token = await verifyToken(authHeader.split(' ')[1]);
+    const token = await verifyToken(authHeader.split(' ')[1]) as unknown as TokenPayload;
     if (!token) return new Response(JSON.stringify({ error: 'Token inválido' }), { status: 401 });
 
     const db = getDb(context.env.DB);
+    const ownerId = `${token.type}:${token.id}`;
+
     try {
         const body = await context.request.json() as {
             nome: string;
@@ -56,7 +68,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
             status: body.status || 'offline',
             cpu: 0,
             memoria: 0,
-            disco: 0
+            disco: 0,
+            owner_uid: ownerId
         }).returning();
 
         return new Response(JSON.stringify(result[0]), {
