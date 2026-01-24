@@ -133,7 +133,7 @@ export default function AdminUsers() {
     m3u_url: "", // Campo URL M3U
   });
 
-  // Estados para a extração M3U
+  // Estados para a extração M3U (renomeado input label para Extração M3U)
   const [m3uUrl, setM3uUrl] = useState("");
   const [isExtracting, setIsExtracting] = useState(false);
   const [extractionResult, setExtractionResult] = useState<{ success: boolean; message: string; data: unknown } | null>(null);
@@ -1206,6 +1206,20 @@ export default function AdminUsers() {
                           }
                         />
                       </div>
+                      {/* Extração M3U */}
+                      <div className="col-span-1">
+                        <label className="block text-gray-300 mb-1 font-medium">
+                          Extração M3U
+                        </label>
+                        <Input
+                          placeholder="Cole a URL M3U aqui"
+                          className="bg-background border border-input text-foreground"
+                          value={newUser.m3u_url}
+                          onChange={(e) =>
+                            setNewUser({ ...newUser, m3u_url: e.target.value })
+                          }
+                        />
+                      </div>
                     </div>
                   </div>
                   {/* Informações Adicionais */}
@@ -1690,943 +1704,975 @@ export default function AdminUsers() {
                         )}
                       </Badge>
                     </div>
+                  </div>
+                </div>
+
+                {viewingUser.m3u_url && (
+                  <div className="bg-[#23272f] rounded-lg p-4 mt-4">
+                    <h3 className="text-lg font-semibold text-white mb-2">Extração M3U</h3>
+                    <div className="flex items-center gap-2 p-2 bg-[#1f2937] rounded border border-gray-700">
+                      <code className="text-xs text-green-400 flex-1 break-all line-clamp-2">
+                        {viewingUser.m3u_url}
+                      </code>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-8 w-8 text-gray-400 hover:text-white"
+                        onClick={() => {
+                          navigator.clipboard.writeText(viewingUser.m3u_url || "");
+                          alert("URL copiada!");
+                        }}
+                        title="Copiar URL"
+                      >
+                        <Copy className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+                <div>
+                  <Label className="text-gray-400 text-sm">
+                    Data de Criação
+                  </Label>
+                  <p className="text-white font-medium flex items-center gap-2">
+                    <Calendar className="w-4 h-4" />
+                    {viewingUser.createdAt}
+                  </p>
+                </div>
+                {viewingUser.renewalDate && (
+                  <div>
+                    <Label className="text-gray-400 text-sm">
+                      Data de Renovação
+                    </Label>
+                    <p className="text-white font-medium">
+                      {viewingUser.renewalDate}
+                    </p>
+                  </div>
+                )}
+              </div>
+    </div>
+
+          {/* Contatos */}
+          {
+            (viewingUser.phone ||
+              viewingUser.telegram ||
+              viewingUser.whatsapp) && (
+              <div className="bg-[#23272f] rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-white mb-4">
+                  Contatos
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {viewingUser.phone && (
                     <div>
                       <Label className="text-gray-400 text-sm">
-                        Data de Criação
+                        Telefone
                       </Label>
-                      <p className="text-white font-medium flex items-center gap-2">
-                        <Calendar className="w-4 h-4" />
-                        {viewingUser.createdAt}
+                      <p className="text-white font-medium">
+                        {viewingUser.phone}
                       </p>
                     </div>
-                    {viewingUser.renewalDate && (
-                      <div>
-                        <Label className="text-gray-400 text-sm">
-                          Data de Renovação
-                        </Label>
-                        <p className="text-white font-medium">
-                          {viewingUser.renewalDate}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Contatos */}
-                {(viewingUser.phone ||
-                  viewingUser.telegram ||
-                  viewingUser.whatsapp) && (
-                    <div className="bg-[#23272f] rounded-lg p-4">
-                      <h3 className="text-lg font-semibold text-white mb-4">
-                        Contatos
-                      </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {viewingUser.phone && (
-                          <div>
-                            <Label className="text-gray-400 text-sm">
-                              Telefone
-                            </Label>
-                            <p className="text-white font-medium">
-                              {viewingUser.phone}
-                            </p>
-                          </div>
-                        )}
-                        {viewingUser.telegram && (
-                          <div>
-                            <Label className="text-gray-400 text-sm">
-                              Telegram
-                            </Label>
-                            <p className="text-white font-medium">
-                              {viewingUser.telegram}
-                            </p>
-                          </div>
-                        )}
-                        {viewingUser.whatsapp && (
-                          <div>
-                            <Label className="text-gray-400 text-sm">
-                              WhatsApp
-                            </Label>
-                            <p className="text-white font-medium">
-                              {viewingUser.whatsapp}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
                   )}
-
-                {/* Observações */}
-                {(viewingUser.notes || viewingUser.observations) && (
-                  <div className="bg-[#23272f] rounded-lg p-4">
-                    <h3 className="text-lg font-semibold text-white mb-4">
-                      Observações
-                    </h3>
-                    <p className="text-gray-300">
-                      {viewingUser.observations || viewingUser.notes}
-                    </p>
-                  </div>
-                )}
-
-                {/* Dados Extras */}
-                {(viewingUser.password ||
-                  viewingUser.expirationDate ||
-                  viewingUser.bouquets) && (
-                    <div className="bg-[#23272f] rounded-lg p-4">
-                      <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                        <Activity className="w-5 h-5 text-purple-400" />
-                        Dados Extras
-                      </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {viewingUser.password && (
-                          <div>
-                            <Label className="text-gray-400 text-sm">Senha</Label>
-                            <p className="text-white font-medium">
-                              {viewingUser.password}
-                            </p>
-                          </div>
-                        )}
-                        {viewingUser.expirationDate && (
-                          <div>
-                            <Label className="text-gray-400 text-sm">
-                              Data de Vencimento
-                            </Label>
-                            <p className="text-white font-medium">
-                              {viewingUser.expirationDate}
-                            </p>
-                          </div>
-                        )}
-                        {viewingUser.bouquets && (
-                          <div>
-                            <Label className="text-gray-400 text-sm">
-                              Bouquets
-                            </Label>
-                            <p className="text-white font-medium">
-                              {viewingUser.bouquets}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-              </div>
-            )}
-
-            <DialogFooter className="mt-6">
-              <Button
-                variant="outline"
-                onClick={() => setIsViewDialogOpen(false)}
-                className="bg-gray-700 text-white"
-              >
-                Fechar
-              </Button>
-            </DialogFooter>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Modal de Edição */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="bg-[#1f2937] text-white max-w-4xl w-full p-0 rounded-xl shadow-xl border border-gray-700">
-          <div className="p-6 max-h-[90vh] overflow-y-auto scrollbar-hide">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <Users className="w-6 h-6 text-yellow-500" />
-                <span className="text-lg font-semibold text-white">
-                  Editar Cliente
-                </span>
-                <span className="ml-2 px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-400 text-xs font-semibold">
-                  Editar
-                </span>
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  className="bg-[#1f2937] text-white border border-gray-700 px-3 py-1 rounded text-sm"
-                >
-                  Importar
-                </Button>
-                <Button
-                  variant="outline"
-                  className="bg-[#1f2937] text-white border border-gray-700 px-3 py-1 rounded text-sm"
-                >
-                  Modelo
-                </Button>
-              </div>
-            </div>
-            <p className="text-gray-400 text-sm mb-2">
-              Modifique os dados do cliente para atualizar suas informações na
-              base de dados
-            </p>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-green-400 text-xs font-medium">
-                • Campos obrigatórios marcados com *
-              </span>
-              <span className="text-blue-400 text-xs font-medium">
-                • Dados serão sincronizados automaticamente
-              </span>
-            </div>
-
-            {editingUser && (
-              <>
-                {/* Extração M3U */}
-                <div className="bg-blue-900/30 border border-blue-800 rounded-lg p-4 mb-4">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-blue-300 font-medium">
-                      Extração M3U
-                    </span>
-                    <div className="flex gap-2">
-                      <button
-                        className="inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-10 bg-blue-600 text-white hover:bg-blue-700 px-4 py-1 rounded text-sm"
-                        type="button"
-                        onClick={extractM3UData}
-                        disabled={isExtracting}
-                      >
-                        {isExtracting ? (
-                          <>
-                            <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
-                            Extraindo...
-                          </>
-                        ) : "Extrair"}
-                      </button>
-                    </div>
-                  </div>
-                  <p className="text-xs text-blue-300 mb-2">
-                    Serve para importar dados automaticamente a partir de uma
-                    URL.
-                  </p>
-                  <input
-                    className="flex h-10 w-full rounded-md px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-[#1f2937] border border-blue-800 text-white mb-2"
-                    placeholder="Insira a URL do M3U para extrair automaticamente os dados do cliente..."
-                    value={m3uUrl}
-                    onChange={e => setM3uUrl(e.target.value)}
-                  />
-
-                  {/* Status de extração */}
-                  {extractionError && (
-                    <div
-                      className={`border text - xs rounded p - 2 mb - 2 ${extractionError.includes("Testando proxy")
-                        ? "bg-blue-900/40 border-blue-700 text-blue-300"
-                        : "bg-red-900/40 border-red-700 text-red-300"
-                        } `}
-                    >
-                      {extractionError.includes("Testando proxy") ? "🔄" : "❌"}{" "}
-                      {extractionError}
-                    </div>
-                  )}
-
-                  {/* Resultado da extração */}
-                  {extractionResult && !extractionError && (
-                    <div className="bg-green-900/40 border border-green-700 text-green-300 text-xs rounded p-2 mb-2">
-                      ✅ {extractionResult.message}
-                    </div>
-                  )}
-
-                  {/* Dados extraídos aplicados ao formulário */}
-                  {extractionResult && extractionResult.success && (
-                    <div className="bg-green-900/40 border border-green-700 text-green-300 text-xs rounded p-2">
-                      <div className="font-medium mb-1">
-                        ✅ Dados aplicados ao formulário:
-                      </div>
-                      <div className="space-y-1">
-                        <div>• Nome: {editingUser.name || "Não extraído"}</div>
-                        <div>
-                          • Email: {editingUser.email || "Não extraído"}
-                        </div>
-                        <div>
-                          • Senha: {editingUser.password || "Não extraída"}
-                        </div>
-                        <div>• Plano: {editingUser.plan || "Não extraído"}</div>
-                        <div>
-                          • Status: {editingUser.status || "Não extraído"}
-                        </div>
-                        <div>
-                          • Telegram: {editingUser.telegram || "Não extraído"}
-                        </div>
-                        <div>
-                          • Vencimento:{" "}
-                          {editingUser.expirationDate || "Não definido"}
-                        </div>
-                        <div>
-                          • Bouquets: {editingUser.bouquets || "Não extraídos"}
-                        </div>
-                        <div>
-                          • Observações: {editingUser.observations || "Nenhuma"}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Informações Básicas */}
-                <div className="bg-[#1f2937] border border-gray-700 rounded-lg p-4 mb-4">
-                  <span className="block text-white font-semibold mb-2">
-                    Informações Básicas
-                  </span>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Servidor */}
-                    <div className="col-span-1">
-                      <label className="block text-gray-300 mb-1 font-medium">
-                        Servidor *
-                      </label>
-                      <Input
-                        type="text"
-                        value={editingUser.server || ""}
-                        onChange={(e) => setEditingUser({ ...editingUser, server: e.target.value })}
-                        placeholder="Digite o nome do servidor"
-                        className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                      />
-                    </div>
-                    {/* Plano */}
-                    <div className="col-span-1">
-                      <label htmlFor="edit-plan" className="block text-gray-300 mb-1 font-medium">
-                        Plano *
-                      </label>
-                      <select
-                        id="edit-plan"
-                        aria-label="Plano"
-                        className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                        value={editingUser.plan}
-                        onChange={(e) =>
-                          setEditingUser({
-                            ...editingUser,
-                            plan: e.target.value,
-                            price: "", // Resetar preço quando plano mudar
-                          })
-                        }
-                      >
-                        <option value="">Selecione um plano</option>
-                        <option value="Mensal">Mensal</option>
-                        <option value="Bimestral">Bimestral</option>
-                        <option value="Trimestral">Trimestral</option>
-                        <option value="Semestral">Semestral</option>
-                        <option value="Anual">Anual</option>
-                      </select>
-                    </div>
-                    {/* Preço */}
-                    {editingUser.plan && (
-                      <div className="col-span-1">
-                        <label htmlFor="edit-price" className="block text-gray-300 mb-1 font-medium">
-                          Preço *
-                        </label>
-                        <select
-                          id="edit-price"
-                          aria-label="Preço"
-                          className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                          value={editingUser.price}
-                          onChange={(e) =>
-                            setEditingUser({
-                              ...editingUser,
-                              price: e.target.value,
-                            })
-                          }
-                        >
-                          <option value="">Selecione um preço</option>
-                          {getPlanPrices(editingUser.plan).map((price) => (
-                            <option key={price} value={price}>
-                              R$ {price}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    )}
-                    {/* Usuário */}
-                    <div className="col-span-1">
-                      <label className="block text-gray-300 mb-1 font-medium">
-                        Usuário *
-                      </label>
-                      <div className="relative flex items-center">
-                        <input
-                          value={editingUser.name}
-                          disabled
-                          placeholder="Usuário extraído automaticamente"
-                          className="w-full bg-[#23272f] border border-gray-700 text-gray-400 rounded px-3 py-2 pr-8 cursor-not-allowed"
-                        />
-                        <span className="absolute right-2 text-gray-500">
-                          <svg
-                            width="16"
-                            height="16"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            viewBox="0 0 24 24"
-                          >
-                            <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
-                            <polyline points="7 9 12 4 17 9" />
-                            <line x1="12" x2="12" y1="4" y2="16" />
-                          </svg>
-                        </span>
-                      </div>
-                      <div className="bg-blue-900/40 border border-blue-700 text-blue-300 text-xs rounded mt-2 p-2">
-                        Usuário extraído automaticamente da URL M3U
-                      </div>
-                    </div>
-                    {/* Senha */}
-                    <div className="col-span-1">
-                      <label className="block text-gray-300 mb-1 font-medium">
-                        Senha
-                      </label>
-                      <div className="relative flex items-center">
-                        <input
-                          type="text"
-                          value={editingUser.password || ""}
-                          onChange={(e) =>
-                            setEditingUser({
-                              ...editingUser,
-                              password: e.target.value,
-                            })
-                          }
-                          placeholder="Senha"
-                          className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 pr-8"
-                        />
-                        <span className="absolute right-2 text-gray-500 cursor-pointer">
-                          <svg
-                            width="16"
-                            height="16"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            viewBox="0 0 24 24"
-                          >
-                            <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
-                            <polyline points="7 9 12 4 17 9" />
-                            <line x1="12" x2="12" y1="4" y2="16" />
-                          </svg>
-                        </span>
-                      </div>
-                      <div className="bg-blue-900/40 border border-blue-700 text-blue-300 text-xs rounded mt-2 p-2 space-y-1">
-                        <div>Senha extraída automaticamente da URL M3U</div>
-                      </div>
-                    </div>
-                    {/* Vencimento */}
-                    <div className="col-span-2">
-                      <label className="block text-gray-300 mb-1 font-medium">
-                        Vencimento (Opcional)
-                      </label>
-                      <VencimentoDatePickerEdit
-                        editingUser={editingUser}
-                        setEditingUser={setEditingUser}
-                      />
-                    </div>
-                    {/* Bouquets */}
-                    <div className="col-span-2">
-                      <label className="block text-gray-300 mb-1 font-medium">
-                        Bouquets
-                      </label>
-                      <input
-                        value={editingUser.bouquets || ""}
-                        onChange={(e) =>
-                          setEditingUser({
-                            ...editingUser,
-                            bouquets: e.target.value,
-                          })
-                        }
-                        placeholder="Bouquets extraídos automaticamente"
-                        className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                      />
-                      <div className="bg-green-900/40 border border-green-700 text-green-400 text-xs rounded mt-2 p-2">
-                        Bouquets extraídos automaticamente da conta IPTV
-                      </div>
-                    </div>
-                    {/* Nome */}
-                    <div className="col-span-1">
-                      <label className="block text-gray-300 mb-1 font-medium">
-                        Nome *
-                      </label>
-                      <input
-                        value={editingUser.realName || ""}
-                        onChange={async (e) => {
-                          const newName = e.target.value;
-                          setEditingUser({ ...editingUser, realName: newName });
-                          if (editingUser && editingUser.id) {
-                            // Salvar em tempo real no banco
-                            await updateUser(editingUser.id, {
-                              real_name: newName,
-                            });
-                          }
-                        }}
-                        placeholder="Digite o nome completo"
-                        className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                        required
-                      />
-                    </div>
-                    {/* E-mail */}
-                    <div className="col-span-1">
-                      <label className="block text-gray-300 mb-1 font-medium">
-                        E-mail
-                      </label>
-                      <input
-                        value={editingUser.email}
-                        onChange={(e) =>
-                          setEditingUser({
-                            ...editingUser,
-                            email: e.target.value,
-                          })
-                        }
-                        placeholder="Opcional"
-                        className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                      />
-                    </div>
-                    {/* Telegram */}
-                    <div className="col-span-1">
-                      <label className="block text-gray-300 mb-1 font-medium">
+                  {viewingUser.telegram && (
+                    <div>
+                      <Label className="text-gray-400 text-sm">
                         Telegram
-                      </label>
-                      <input
-                        value={editingUser.telegram || ""}
-                        onChange={(e) =>
-                          setEditingUser({
-                            ...editingUser,
-                            telegram: e.target.value,
-                          })
-                        }
-                        placeholder="Opcional"
-                        className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                      />
+                      </Label>
+                      <p className="text-white font-medium">
+                        {viewingUser.telegram}
+                      </p>
                     </div>
-                    {/* WhatsApp */}
-                    <div className="col-span-1">
-                      <label className="block text-gray-300 mb-1 font-medium">
-                        WhatsApp
-                      </label>
-                      <input
-                        value={editingUser.whatsapp || ""}
-                        onChange={(e) =>
-                          setEditingUser({
-                            ...editingUser,
-                            whatsapp: e.target.value,
-                          })
-                        }
-                        placeholder="Opcional"
-                        className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                      />
-                      <span className="text-xs text-gray-400 mt-1 block">
-                        Incluindo o código do país - com ou sem espaço e traços
-                        - ex. 55 11 99999 3333
-                      </span>
-                    </div>
-                    {/* Observações */}
-                    <div className="col-span-2">
-                      <label className="block text-gray-300 mb-1 font-medium">
-                        Observações
-                      </label>
-                      <textarea
-                        value={
-                          editingUser.observations || editingUser.notes || ""
-                        }
-                        onChange={(e) =>
-                          setEditingUser({
-                            ...editingUser,
-                            observations: e.target.value,
-                          })
-                        }
-                        placeholder="Opcional"
-                        className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 min-h-[60px]"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Configuração de Serviço */}
-                <div className="bg-[#1f2937] border border-gray-700 rounded-lg p-4 mb-4">
-                  <span className="block text-purple-400 font-semibold mb-2">
-                    Configuração de Serviço
-                  </span>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
-                    {/* Classe de Serviço */}
-                    <div>
-                      <label htmlFor="edit-classe-servico" className="block text-gray-300 mb-1 font-medium">
-                        Classe de Serviço
-                      </label>
-                      <select id="edit-classe-servico" aria-label="Classe de Serviço" className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2">
-                        <option value="">Selecione</option>
-                        <option value="basico">Básico</option>
-                        <option value="premium">Premium</option>
-                      </select>
-                    </div>
-                    {/* Plano */}
-                    <div>
-                      <label htmlFor="edit-small-plan" className="block text-gray-300 mb-1 font-medium">
-                        Plano
-                      </label>
-                      <select id="edit-small-plan" aria-label="Plano" className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2">
-                        <option value="mensal">Mensal</option>
-                        <option value="anual">Anual</option>
-                      </select>
-                    </div>
-                    {/* Status */}
-                    <div>
-                      <label htmlFor="edit-small-status" className="block text-gray-300 mb-1 font-medium">
-                        Status
-                      </label>
-                      <select
-                        id="edit-small-status"
-                        aria-label="Status"
-                        value={editingUser.status}
-                        onChange={(e) =>
-                          setEditingUser({
-                            ...editingUser,
-                            status: e.target.value,
-                          })
-                        }
-                        className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                      >
-                        <option value="Ativo">Ativo</option>
-                        <option value="Inativo">Inativo</option>
-                        <option value="Pendente">Pendente</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
-                    {/* Status de Pagamento */}
-                    <div className="flex items-center gap-3 p-3 bg-[#23272f] border border-gray-700 rounded">
-                      <label className="flex items-center gap-2 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={editingUser.pago || false}
-                          onChange={(e) =>
-                            setEditingUser({
-                              ...editingUser,
-                              pago: e.target.checked,
-                            })
-                          }
-                          className="w-4 h-4 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2"
-                        />
-                        <span className="text-gray-300 font-medium">
-                          Cliente Pago
-                        </span>
-                        {editingUser.pago && (
-                          <CheckCircle className="w-4 h-4 text-green-500" />
-                        )}
-                      </label>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
-                    {/* Data de Renovação */}
-                    <div>
-                      <label className="block text-gray-300 mb-1 font-medium">
-                        Data de Renovação
-                      </label>
-                      <RenovacaoDatePicker />
-                    </div>
-                    {/* Número de Dispositivos */}
-                    <div>
-                      <label htmlFor="edit-devices" className="block text-gray-300 mb-1 font-medium">
-                        Número de Dispositivos
-                      </label>
-                      <input
-                        id="edit-devices"
-                        type="number"
-                        min={1}
-                        value={editingUser.devices || 0}
-                        onChange={(e) =>
-                          setEditingUser({
-                            ...editingUser,
-                            devices: parseInt(e.target.value) || 0,
-                          })
-                        }
-                        className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                      />
-                    </div>
-                    {/* Créditos */}
-                    <div>
-                      <label htmlFor="edit-credits" className="block text-gray-300 mb-1 font-medium">
-                        Créditos
-                      </label>
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          className="bg-[#23272f] text-white px-2 py-1 rounded border border-gray-700"
-                        >
-                          -
-                        </button>
-                        <input
-                          id="edit-credits"
-                          type="number"
-                          min={0}
-                          value={editingUser.credits || 0}
-                          onChange={(e) =>
-                            setEditingUser({
-                              ...editingUser,
-                              credits: parseInt(e.target.value) || 0,
-                            })
-                          }
-                          className="w-16 bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                        />
-                        <button
-                          type="button"
-                          className="bg-[#23272f] text-white px-2 py-1 rounded border border-gray-700"
-                        >
-                          +
-                        </button>
-                        <span className="text-xs text-gray-400 ml-2">
-                          valor
-                          <br />
-                          entre 0<br />e 500€
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Informações Adicionais */}
-                <div className="bg-[#1f2937] border border-gray-700 rounded-lg p-4 mb-4">
-                  <span className="block text-white font-semibold mb-2">
-                    Informações Adicionais
-                  </span>
-                  <label htmlFor="notifications-whatsapp" className="flex items-center gap-2 mb-2 cursor-pointer">
-                    <input id="notifications-whatsapp" type="checkbox" className="accent-purple-600" aria-label="Notificações via WhatsApp" />
-                    <span className="text-gray-300">Notificações via WhatsApp</span>
-                  </label>
-                  <div>
-                    <label htmlFor="edit-anotacoes" className="block text-gray-300 mb-1 font-medium">Anotações</label>
-                    <textarea id="edit-anotacoes" placeholder="Anotações..." className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 min-h-[60px]" />
-                  </div>
-                </div>
-
-                <div className="flex justify-end gap-2 mt-6">
-                  <Button
-                    variant="outline"
-                    onClick={() => setIsEditDialogOpen(false)}
-                    className="bg-gray-700 text-white px-6 py-2 rounded font-semibold"
-                  >
-                    Cancelar
-                  </Button>
-                  <Button
-                    onClick={handleEditUser}
-                    disabled={!editingUser || (!editingUser.realName?.trim() && !editingUser.name?.trim())}
-                    className="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-2 rounded font-semibold disabled:bg-gray-600 disabled:cursor-not-allowed"
-                  >
-                    Salvar Alterações
-                  </Button>
-                </div>
-              </>
-            )}
-          </div>
-        </DialogContent >
-      </Dialog >
-
-      {/* Modal de Confirmação de Exclusão */}
-      < AlertDialog
-        open={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
-      >
-        <AlertDialogContent className="bg-[#1f2937] text-white border border-gray-700">
-          <AlertDialogHeader>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center">
-                <Trash2 className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <AlertDialogTitle className="text-xl font-bold text-white">
-                  Confirmar Exclusão
-                </AlertDialogTitle>
-                <AlertDialogDescription className="text-gray-400">
-                  Esta ação não pode ser desfeita. O usuário será
-                  permanentemente removido do sistema.
-                </AlertDialogDescription>
-              </div>
-            </div>
-          </AlertDialogHeader>
-
-          {deletingUser && (
-            <div className="bg-[#23272f] rounded-lg p-4 mb-4">
-              <h3 className="text-lg font-semibold text-white mb-2">
-                Usuário a ser excluído:
-              </h3>
-              <div className="space-y-2">
-                <p className="text-white">
-                  <span className="text-gray-400">Nome:</span>{" "}
-                  {deletingUser.name}
-                </p>
-                <p className="text-white">
-                  <span className="text-gray-400">Email:</span>{" "}
-                  {deletingUser.email}
-                </p>
-                <p className="text-white">
-                  <span className="text-gray-400">Plano:</span>{" "}
-                  {deletingUser.plan}
-                </p>
-                {deletingUser.price && (
-                  <p className="text-white">
-                    <span className="text-gray-400">Preço:</span>{" "}
-                    R$ {deletingUser.price}
-                  </p>
-                )}
-                <p className="text-white">
-                  <span className="text-gray-400">Status:</span>{" "}
-                  {deletingUser.status}
-                </p>
-              </div>
-            </div>
-          )}
-
-          <AlertDialogFooter>
-            <AlertDialogCancel className="bg-gray-700 text-white border border-gray-600 hover:bg-gray-600">
-              Cancelar
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteUser}
-              className="bg-red-600 hover:bg-red-700 text-white"
-            >
-              Excluir Usuário
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog >
-
-      {/* Modal de Confirmação de Exclusão em Lote */}
-      <AlertDialog
-        open={isBulkDeleteDialogOpen}
-        onOpenChange={setIsBulkDeleteDialogOpen}
-      >
-        <AlertDialogContent className="bg-[#1f2937] text-white border border-gray-700">
-          <AlertDialogHeader>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center">
-                <Trash2 className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <AlertDialogTitle className="text-xl font-bold text-white">
-                  Excluir {selectedUserIds.size} Usuário(s)
-                </AlertDialogTitle>
-                <AlertDialogDescription className="text-gray-400">
-                  Esta ação não pode ser desfeita. Todos os usuários selecionados serão permanentemente removidos.
-                </AlertDialogDescription>
-              </div>
-            </div>
-          </AlertDialogHeader>
-
-          <div className="bg-[#23272f] rounded-lg p-4 mb-4">
-            <p className="text-yellow-400 text-sm">
-              ⚠️ Você está prestes a excluir <strong>{selectedUserIds.size}</strong> usuário(s).
-            </p>
-          </div>
-
-          <AlertDialogFooter>
-            <AlertDialogCancel className="bg-gray-700 text-white border border-gray-600 hover:bg-gray-600">
-              Cancelar
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleBulkDelete}
-              disabled={isBulkDeleting}
-              className="bg-red-600 hover:bg-red-700 text-white"
-            >
-              {isBulkDeleting ? "Excluindo..." : `Excluir ${selectedUserIds.size} Usuário(s)`}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Modal de Confirmação de Pagamento */}
-      < AlertDialog
-        open={isPagoDialogOpen}
-        onOpenChange={setIsPagoDialogOpen}
-      >
-        <AlertDialogContent className="bg-[#1f2937] text-white border border-gray-700">
-          <AlertDialogHeader>
-            <div className="flex items-center gap-3 mb-4">
-              <div className={`w - 12 h - 12 rounded - full flex items - center justify - center ${pagoUser?.pago ? "bg-yellow-600" : "bg-green-600"
-                } `}>
-                <DollarSign className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <AlertDialogTitle className="text-xl font-bold text-white">
-                  {pagoUser?.pago ? "Desmarcar Pagamento" : "Confirmar Pagamento"}
-                </AlertDialogTitle>
-                <AlertDialogDescription className="text-gray-400">
-                  {pagoUser?.pago
-                    ? "Deseja realmente desmarcar o pagamento deste cliente? A receita será atualizada no dashboard."
-                    : "Confirme se este cliente realizou o pagamento. O valor será adicionado à receita total no dashboard."
-                  }
-                </AlertDialogDescription>
-              </div>
-            </div>
-          </AlertDialogHeader>
-
-          {pagoUser && (
-            <div className="space-y-4">
-              <div className="bg-[#23272f] rounded-lg p-4">
-                <h3 className="text-lg font-semibold text-white mb-3">
-                  Informações do Cliente:
-                </h3>
-                <div className="space-y-2">
-                  <p className="text-white">
-                    <span className="text-gray-400">Nome:</span>{" "}
-                    <span className="font-medium">{pagoUser.name}</span>
-                  </p>
-                  <p className="text-white">
-                    <span className="text-gray-400">Email:</span>{" "}
-                    {pagoUser.email}
-                  </p>
-                  {pagoUser.plan && (
-                    <p className="text-white">
-                      <span className="text-gray-400">Plano:</span>{" "}
-                      <span className="font-medium">{pagoUser.plan}</span>
-                    </p>
                   )}
-                  <p className="text-white">
-                    <span className="text-gray-400">Status atual:</span>{" "}
-                    <span className={pagoUser.pago ? "text-green-400 font-semibold" : "text-gray-400"}>
-                      {pagoUser.pago ? "✓ Pago" : "✗ Não Pago"}
-                    </span>
-                  </p>
+                  {viewingUser.whatsapp && (
+                    <div>
+                      <Label className="text-gray-400 text-sm">
+                        WhatsApp
+                      </Label>
+                      <p className="text-white font-medium">
+                        {viewingUser.whatsapp}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
+            )
+          }
 
-              {pagoUser.price && (
-                <div className={`rounded - lg p - 4 border - 2 ${pagoUser.pago
-                  ? "bg-yellow-900/20 border-yellow-600/50"
-                  : "bg-green-900/20 border-green-600/50"
-                  } `}>
-                  <div className="flex items-center justify-between">
+          {/* Observações */}
+          {
+            (viewingUser.notes || viewingUser.observations) && (
+              <div className="bg-[#23272f] rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-white mb-4">
+                  Observações
+                </h3>
+                <p className="text-gray-300">
+                  {viewingUser.observations || viewingUser.notes}
+                </p>
+              </div>
+            )
+          }
+
+          {/* Dados Extras */}
+          {
+            (viewingUser.password ||
+              viewingUser.expirationDate ||
+              viewingUser.bouquets) && (
+              <div className="bg-[#23272f] rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                  <Activity className="w-5 h-5 text-purple-400" />
+                  Dados Extras
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {viewingUser.password && (
                     <div>
-                      <p className="text-gray-400 text-sm">
-                        {pagoUser.pago ? "Valor que será removido:" : "Valor que será adicionado:"}
-                      </p>
-                      <p className="text-2xl font-bold text-white mt-1">
-                        <span className={pagoUser.pago ? "text-yellow-400" : "text-green-400"}>
-                          {pagoUser.pago ? "-" : "+"} R$ {pagoUser.price}
-                        </span>
+                      <Label className="text-gray-400 text-sm">Senha</Label>
+                      <p className="text-white font-medium">
+                        {viewingUser.password}
                       </p>
                     </div>
-                    <div className={`w - 12 h - 12 rounded - full flex items - center justify - center ${pagoUser.pago ? "bg-yellow-600/20" : "bg-green-600/20"
-                      } `}>
-                      <DollarSign className={`w - 6 h - 6 ${pagoUser.pago ? "text-yellow-400" : "text-green-400"
-                        } `} />
+                  )}
+                  {viewingUser.expirationDate && (
+                    <div>
+                      <Label className="text-gray-400 text-sm">
+                        Data de Vencimento
+                      </Label>
+                      <p className="text-white font-medium">
+                        {viewingUser.expirationDate}
+                      </p>
+                    </div>
+                  )}
+                  {viewingUser.bouquets && (
+                    <div>
+                      <Label className="text-gray-400 text-sm">
+                        Bouquets
+                      </Label>
+                      <p className="text-white font-medium">
+                        {viewingUser.bouquets}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+              </div>
+            )}
+    </div>
+  )
+}
+
+<DialogFooter className="mt-6">
+  <Button
+    variant="outline"
+    onClick={() => setIsViewDialogOpen(false)}
+    className="bg-gray-700 text-white"
+  >
+    Fechar
+  </Button>
+</DialogFooter>
+      </div >
+    </DialogContent >
+  </Dialog >
+
+  {/* Modal de Edição */ }
+  < Dialog open = { isEditDialogOpen } onOpenChange = { setIsEditDialogOpen } >
+    <DialogContent className="bg-[#1f2937] text-white max-w-4xl w-full p-0 rounded-xl shadow-xl border border-gray-700">
+      <div className="p-6 max-h-[90vh] overflow-y-auto scrollbar-hide">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <Users className="w-6 h-6 text-yellow-500" />
+            <span className="text-lg font-semibold text-white">
+              Editar Cliente
+            </span>
+            <span className="ml-2 px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-400 text-xs font-semibold">
+              Editar
+            </span>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              className="bg-[#1f2937] text-white border border-gray-700 px-3 py-1 rounded text-sm"
+            >
+              Importar
+            </Button>
+            <Button
+              variant="outline"
+              className="bg-[#1f2937] text-white border border-gray-700 px-3 py-1 rounded text-sm"
+            >
+              Modelo
+            </Button>
+          </div>
+        </div>
+        <p className="text-gray-400 text-sm mb-2">
+          Modifique os dados do cliente para atualizar suas informações na
+          base de dados
+        </p>
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-green-400 text-xs font-medium">
+            • Campos obrigatórios marcados com *
+          </span>
+          <span className="text-blue-400 text-xs font-medium">
+            • Dados serão sincronizados automaticamente
+          </span>
+        </div>
+
+        {editingUser && (
+          <>
+            {/* Extração M3U */}
+            <div className="bg-blue-900/30 border border-blue-800 rounded-lg p-4 mb-4">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-blue-300 font-medium">
+                  Extração M3U
+                </span>
+                <div className="flex gap-2">
+                  <button
+                    className="inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-10 bg-blue-600 text-white hover:bg-blue-700 px-4 py-1 rounded text-sm"
+                    type="button"
+                    onClick={extractM3UData}
+                    disabled={isExtracting}
+                  >
+                    {isExtracting ? (
+                      <>
+                        <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
+                        Extraindo...
+                      </>
+                    ) : "Extrair"}
+                  </button>
+                </div>
+              </div>
+              <p className="text-xs text-blue-300 mb-2">
+                Serve para importar dados automaticamente a partir de uma
+                URL.
+              </p>
+              <input
+                className="flex h-10 w-full rounded-md px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-[#1f2937] border border-blue-800 text-white mb-2"
+                placeholder="Insira a URL do M3U para extrair automaticamente os dados do cliente..."
+                value={m3uUrl}
+                onChange={e => setM3uUrl(e.target.value)}
+              />
+
+              {/* Status de extração */}
+              {extractionError && (
+                <div
+                  className={`border text - xs rounded p - 2 mb - 2 ${extractionError.includes("Testando proxy")
+                    ? "bg-blue-900/40 border-blue-700 text-blue-300"
+                    : "bg-red-900/40 border-red-700 text-red-300"
+                    } `}
+                >
+                  {extractionError.includes("Testando proxy") ? "🔄" : "❌"}{" "}
+                  {extractionError}
+                </div>
+              )}
+
+              {/* Resultado da extração */}
+              {extractionResult && !extractionError && (
+                <div className="bg-green-900/40 border border-green-700 text-green-300 text-xs rounded p-2 mb-2">
+                  ✅ {extractionResult.message}
+                </div>
+              )}
+
+              {/* Dados extraídos aplicados ao formulário */}
+              {extractionResult && extractionResult.success && (
+                <div className="bg-green-900/40 border border-green-700 text-green-300 text-xs rounded p-2">
+                  <div className="font-medium mb-1">
+                    ✅ Dados aplicados ao formulário:
+                  </div>
+                  <div className="space-y-1">
+                    <div>• Nome: {editingUser.name || "Não extraído"}</div>
+                    <div>
+                      • Email: {editingUser.email || "Não extraído"}
+                    </div>
+                    <div>
+                      • Senha: {editingUser.password || "Não extraída"}
+                    </div>
+                    <div>• Plano: {editingUser.plan || "Não extraído"}</div>
+                    <div>
+                      • Status: {editingUser.status || "Não extraído"}
+                    </div>
+                    <div>
+                      • Telegram: {editingUser.telegram || "Não extraído"}
+                    </div>
+                    <div>
+                      • Vencimento:{" "}
+                      {editingUser.expirationDate || "Não definido"}
+                    </div>
+                    <div>
+                      • Bouquets: {editingUser.bouquets || "Não extraídos"}
+                    </div>
+                    <div>
+                      • Observações: {editingUser.observations || "Nenhuma"}
                     </div>
                   </div>
-                  <p className="text-xs text-gray-400 mt-2">
-                    {pagoUser.pago
-                      ? "Este valor será subtraído da Receita Total no Dashboard."
-                      : "Este valor será adicionado à Receita Total no Dashboard."
-                    }
-                  </p>
                 </div>
               )}
             </div>
-          )}
 
-          <AlertDialogFooter>
-            <AlertDialogCancel
-              className="bg-gray-700 text-white border border-gray-600 hover:bg-gray-600"
-              onClick={() => {
-                setIsPagoDialogOpen(false);
-                setPagoUser(null);
-              }}
-            >
-              Cancelar
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmTogglePago}
-              className={`${pagoUser?.pago
-                ? "bg-yellow-600 hover:bg-yellow-700"
-                : "bg-green-600 hover:bg-green-700"
-                } text - white`}
-            >
-              {pagoUser?.pago ? "Desmarcar Pagamento" : "Confirmar Pagamento"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
+            {/* Informações Básicas */}
+            <div className="bg-[#1f2937] border border-gray-700 rounded-lg p-4 mb-4">
+              <span className="block text-white font-semibold mb-2">
+                Informações Básicas
+              </span>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Servidor */}
+                <div className="col-span-1">
+                  <label className="block text-gray-300 mb-1 font-medium">
+                    Servidor *
+                  </label>
+                  <Input
+                    type="text"
+                    value={editingUser.server || ""}
+                    onChange={(e) => setEditingUser({ ...editingUser, server: e.target.value })}
+                    placeholder="Digite o nome do servidor"
+                    className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+                  />
+                </div>
+                {/* Plano */}
+                <div className="col-span-1">
+                  <label htmlFor="edit-plan" className="block text-gray-300 mb-1 font-medium">
+                    Plano *
+                  </label>
+                  <select
+                    id="edit-plan"
+                    aria-label="Plano"
+                    className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+                    value={editingUser.plan}
+                    onChange={(e) =>
+                      setEditingUser({
+                        ...editingUser,
+                        plan: e.target.value,
+                        price: "", // Resetar preço quando plano mudar
+                      })
+                    }
+                  >
+                    <option value="">Selecione um plano</option>
+                    <option value="Mensal">Mensal</option>
+                    <option value="Bimestral">Bimestral</option>
+                    <option value="Trimestral">Trimestral</option>
+                    <option value="Semestral">Semestral</option>
+                    <option value="Anual">Anual</option>
+                  </select>
+                </div>
+                {/* Preço */}
+                {editingUser.plan && (
+                  <div className="col-span-1">
+                    <label htmlFor="edit-price" className="block text-gray-300 mb-1 font-medium">
+                      Preço *
+                    </label>
+                    <select
+                      id="edit-price"
+                      aria-label="Preço"
+                      className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+                      value={editingUser.price}
+                      onChange={(e) =>
+                        setEditingUser({
+                          ...editingUser,
+                          price: e.target.value,
+                        })
+                      }
+                    >
+                      <option value="">Selecione um preço</option>
+                      {getPlanPrices(editingUser.plan).map((price) => (
+                        <option key={price} value={price}>
+                          R$ {price}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                {/* Usuário */}
+                <div className="col-span-1">
+                  <label className="block text-gray-300 mb-1 font-medium">
+                    Usuário *
+                  </label>
+                  <div className="relative flex items-center">
+                    <input
+                      value={editingUser.name}
+                      disabled
+                      placeholder="Usuário extraído automaticamente"
+                      className="w-full bg-[#23272f] border border-gray-700 text-gray-400 rounded px-3 py-2 pr-8 cursor-not-allowed"
+                    />
+                    <span className="absolute right-2 text-gray-500">
+                      <svg
+                        width="16"
+                        height="16"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+                        <polyline points="7 9 12 4 17 9" />
+                        <line x1="12" x2="12" y1="4" y2="16" />
+                      </svg>
+                    </span>
+                  </div>
+                  <div className="bg-blue-900/40 border border-blue-700 text-blue-300 text-xs rounded mt-2 p-2">
+                    Usuário extraído automaticamente da URL M3U
+                  </div>
+                </div>
+                {/* Senha */}
+                <div className="col-span-1">
+                  <label className="block text-gray-300 mb-1 font-medium">
+                    Senha
+                  </label>
+                  <div className="relative flex items-center">
+                    <input
+                      type="text"
+                      value={editingUser.password || ""}
+                      onChange={(e) =>
+                        setEditingUser({
+                          ...editingUser,
+                          password: e.target.value,
+                        })
+                      }
+                      placeholder="Senha"
+                      className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 pr-8"
+                    />
+                    <span className="absolute right-2 text-gray-500 cursor-pointer">
+                      <svg
+                        width="16"
+                        height="16"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+                        <polyline points="7 9 12 4 17 9" />
+                        <line x1="12" x2="12" y1="4" y2="16" />
+                      </svg>
+                    </span>
+                  </div>
+                  <div className="bg-blue-900/40 border border-blue-700 text-blue-300 text-xs rounded mt-2 p-2 space-y-1">
+                    <div>Senha extraída automaticamente da URL M3U</div>
+                  </div>
+                </div>
+                {/* Vencimento */}
+                <div className="col-span-2">
+                  <label className="block text-gray-300 mb-1 font-medium">
+                    Vencimento (Opcional)
+                  </label>
+                  <VencimentoDatePickerEdit
+                    editingUser={editingUser}
+                    setEditingUser={setEditingUser}
+                  />
+                </div>
+                {/* Bouquets */}
+                <div className="col-span-2">
+                  <label className="block text-gray-300 mb-1 font-medium">
+                    Bouquets
+                  </label>
+                  <input
+                    value={editingUser.bouquets || ""}
+                    onChange={(e) =>
+                      setEditingUser({
+                        ...editingUser,
+                        bouquets: e.target.value,
+                      })
+                    }
+                    placeholder="Bouquets extraídos automaticamente"
+                    className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+                  />
+                  <div className="bg-green-900/40 border border-green-700 text-green-400 text-xs rounded mt-2 p-2">
+                    Bouquets extraídos automaticamente da conta IPTV
+                  </div>
+                </div>
+                {/* Nome */}
+                <div className="col-span-1">
+                  <label className="block text-gray-300 mb-1 font-medium">
+                    Nome *
+                  </label>
+                  <input
+                    value={editingUser.realName || ""}
+                    onChange={async (e) => {
+                      const newName = e.target.value;
+                      setEditingUser({ ...editingUser, realName: newName });
+                      if (editingUser && editingUser.id) {
+                        // Salvar em tempo real no banco
+                        await updateUser(editingUser.id, {
+                          real_name: newName,
+                        });
+                      }
+                    }}
+                    placeholder="Digite o nome completo"
+                    className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+                    required
+                  />
+                </div>
+                {/* E-mail */}
+                <div className="col-span-1">
+                  <label className="block text-gray-300 mb-1 font-medium">
+                    E-mail
+                  </label>
+                  <input
+                    value={editingUser.email}
+                    onChange={(e) =>
+                      setEditingUser({
+                        ...editingUser,
+                        email: e.target.value,
+                      })
+                    }
+                    placeholder="Opcional"
+                    className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+                  />
+                </div>
+                {/* Telegram */}
+                <div className="col-span-1">
+                  <label className="block text-gray-300 mb-1 font-medium">
+                    Telegram
+                  </label>
+                  <input
+                    value={editingUser.telegram || ""}
+                    onChange={(e) =>
+                      setEditingUser({
+                        ...editingUser,
+                        telegram: e.target.value,
+                      })
+                    }
+                    placeholder="Opcional"
+                    className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+                  />
+                </div>
+                {/* WhatsApp */}
+                <div className="col-span-1">
+                  <label className="block text-gray-300 mb-1 font-medium">
+                    WhatsApp
+                  </label>
+                  <input
+                    value={editingUser.whatsapp || ""}
+                    onChange={(e) =>
+                      setEditingUser({
+                        ...editingUser,
+                        whatsapp: e.target.value,
+                      })
+                    }
+                    placeholder="Opcional"
+                    className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+                  />
+                  <span className="text-xs text-gray-400 mt-1 block">
+                    Incluindo o código do país - com ou sem espaço e traços
+                    - ex. 55 11 99999 3333
+                  </span>
+                </div>
+                {/* Observações */}
+                <div className="col-span-2">
+                  <label className="block text-gray-300 mb-1 font-medium">
+                    Observações
+                  </label>
+                  <textarea
+                    value={
+                      editingUser.observations || editingUser.notes || ""
+                    }
+                    onChange={(e) =>
+                      setEditingUser({
+                        ...editingUser,
+                        observations: e.target.value,
+                      })
+                    }
+                    placeholder="Opcional"
+                    className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 min-h-[60px]"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Configuração de Serviço */}
+            <div className="bg-[#1f2937] border border-gray-700 rounded-lg p-4 mb-4">
+              <span className="block text-purple-400 font-semibold mb-2">
+                Configuração de Serviço
+              </span>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+                {/* Classe de Serviço */}
+                <div>
+                  <label htmlFor="edit-classe-servico" className="block text-gray-300 mb-1 font-medium">
+                    Classe de Serviço
+                  </label>
+                  <select id="edit-classe-servico" aria-label="Classe de Serviço" className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2">
+                    <option value="">Selecione</option>
+                    <option value="basico">Básico</option>
+                    <option value="premium">Premium</option>
+                  </select>
+                </div>
+                {/* Plano */}
+                <div>
+                  <label htmlFor="edit-small-plan" className="block text-gray-300 mb-1 font-medium">
+                    Plano
+                  </label>
+                  <select id="edit-small-plan" aria-label="Plano" className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2">
+                    <option value="mensal">Mensal</option>
+                    <option value="anual">Anual</option>
+                  </select>
+                </div>
+                {/* Status */}
+                <div>
+                  <label htmlFor="edit-small-status" className="block text-gray-300 mb-1 font-medium">
+                    Status
+                  </label>
+                  <select
+                    id="edit-small-status"
+                    aria-label="Status"
+                    value={editingUser.status}
+                    onChange={(e) =>
+                      setEditingUser({
+                        ...editingUser,
+                        status: e.target.value,
+                      })
+                    }
+                    className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+                  >
+                    <option value="Ativo">Ativo</option>
+                    <option value="Inativo">Inativo</option>
+                    <option value="Pendente">Pendente</option>
+                  </select>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+                {/* Status de Pagamento */}
+                <div className="flex items-center gap-3 p-3 bg-[#23272f] border border-gray-700 rounded">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={editingUser.pago || false}
+                      onChange={(e) =>
+                        setEditingUser({
+                          ...editingUser,
+                          pago: e.target.checked,
+                        })
+                      }
+                      className="w-4 h-4 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2"
+                    />
+                    <span className="text-gray-300 font-medium">
+                      Cliente Pago
+                    </span>
+                    {editingUser.pago && (
+                      <CheckCircle className="w-4 h-4 text-green-500" />
+                    )}
+                  </label>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+                {/* Data de Renovação */}
+                <div>
+                  <label className="block text-gray-300 mb-1 font-medium">
+                    Data de Renovação
+                  </label>
+                  <RenovacaoDatePicker />
+                </div>
+                {/* Número de Dispositivos */}
+                <div>
+                  <label htmlFor="edit-devices" className="block text-gray-300 mb-1 font-medium">
+                    Número de Dispositivos
+                  </label>
+                  <input
+                    id="edit-devices"
+                    type="number"
+                    min={1}
+                    value={editingUser.devices || 0}
+                    onChange={(e) =>
+                      setEditingUser({
+                        ...editingUser,
+                        devices: parseInt(e.target.value) || 0,
+                      })
+                    }
+                    className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+                  />
+                </div>
+                {/* Créditos */}
+                <div>
+                  <label htmlFor="edit-credits" className="block text-gray-300 mb-1 font-medium">
+                    Créditos
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      className="bg-[#23272f] text-white px-2 py-1 rounded border border-gray-700"
+                    >
+                      -
+                    </button>
+                    <input
+                      id="edit-credits"
+                      type="number"
+                      min={0}
+                      value={editingUser.credits || 0}
+                      onChange={(e) =>
+                        setEditingUser({
+                          ...editingUser,
+                          credits: parseInt(e.target.value) || 0,
+                        })
+                      }
+                      className="w-16 bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+                    />
+                    <button
+                      type="button"
+                      className="bg-[#23272f] text-white px-2 py-1 rounded border border-gray-700"
+                    >
+                      +
+                    </button>
+                    <span className="text-xs text-gray-400 ml-2">
+                      valor
+                      <br />
+                      entre 0<br />e 500€
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Informações Adicionais */}
+            <div className="bg-[#1f2937] border border-gray-700 rounded-lg p-4 mb-4">
+              <span className="block text-white font-semibold mb-2">
+                Informações Adicionais
+              </span>
+              <label htmlFor="notifications-whatsapp" className="flex items-center gap-2 mb-2 cursor-pointer">
+                <input id="notifications-whatsapp" type="checkbox" className="accent-purple-600" aria-label="Notificações via WhatsApp" />
+                <span className="text-gray-300">Notificações via WhatsApp</span>
+              </label>
+              <div>
+                <label htmlFor="edit-anotacoes" className="block text-gray-300 mb-1 font-medium">Anotações</label>
+                <textarea id="edit-anotacoes" placeholder="Anotações..." className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 min-h-[60px]" />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 mt-6">
+              <Button
+                variant="outline"
+                onClick={() => setIsEditDialogOpen(false)}
+                className="bg-gray-700 text-white px-6 py-2 rounded font-semibold"
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={handleEditUser}
+                disabled={!editingUser || (!editingUser.realName?.trim() && !editingUser.name?.trim())}
+                className="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-2 rounded font-semibold disabled:bg-gray-600 disabled:cursor-not-allowed"
+              >
+                Salvar Alterações
+              </Button>
+            </div>
+          </>
+        )}
+      </div>
+    </DialogContent >
+      </Dialog >
+
+  {/* Modal de Confirmação de Exclusão */ }
+  < AlertDialog
+open = { isDeleteDialogOpen }
+onOpenChange = { setIsDeleteDialogOpen }
+  >
+  <AlertDialogContent className="bg-[#1f2937] text-white border border-gray-700">
+    <AlertDialogHeader>
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center">
+          <Trash2 className="w-6 h-6 text-white" />
+        </div>
+        <div>
+          <AlertDialogTitle className="text-xl font-bold text-white">
+            Confirmar Exclusão
+          </AlertDialogTitle>
+          <AlertDialogDescription className="text-gray-400">
+            Esta ação não pode ser desfeita. O usuário será
+            permanentemente removido do sistema.
+          </AlertDialogDescription>
+        </div>
+      </div>
+    </AlertDialogHeader>
+
+    {deletingUser && (
+      <div className="bg-[#23272f] rounded-lg p-4 mb-4">
+        <h3 className="text-lg font-semibold text-white mb-2">
+          Usuário a ser excluído:
+        </h3>
+        <div className="space-y-2">
+          <p className="text-white">
+            <span className="text-gray-400">Nome:</span>{" "}
+            {deletingUser.name}
+          </p>
+          <p className="text-white">
+            <span className="text-gray-400">Email:</span>{" "}
+            {deletingUser.email}
+          </p>
+          <p className="text-white">
+            <span className="text-gray-400">Plano:</span>{" "}
+            {deletingUser.plan}
+          </p>
+          {deletingUser.price && (
+            <p className="text-white">
+              <span className="text-gray-400">Preço:</span>{" "}
+              R$ {deletingUser.price}
+            </p>
+          )}
+          <p className="text-white">
+            <span className="text-gray-400">Status:</span>{" "}
+            {deletingUser.status}
+          </p>
+        </div>
+      </div>
+    )}
+
+    <AlertDialogFooter>
+      <AlertDialogCancel className="bg-gray-700 text-white border border-gray-600 hover:bg-gray-600">
+        Cancelar
+      </AlertDialogCancel>
+      <AlertDialogAction
+        onClick={handleDeleteUser}
+        className="bg-red-600 hover:bg-red-700 text-white"
+      >
+        Excluir Usuário
+      </AlertDialogAction>
+    </AlertDialogFooter>
+  </AlertDialogContent>
+      </AlertDialog >
+
+  {/* Modal de Confirmação de Exclusão em Lote */ }
+  < AlertDialog
+open = { isBulkDeleteDialogOpen }
+onOpenChange = { setIsBulkDeleteDialogOpen }
+  >
+  <AlertDialogContent className="bg-[#1f2937] text-white border border-gray-700">
+    <AlertDialogHeader>
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center">
+          <Trash2 className="w-6 h-6 text-white" />
+        </div>
+        <div>
+          <AlertDialogTitle className="text-xl font-bold text-white">
+            Excluir {selectedUserIds.size} Usuário(s)
+          </AlertDialogTitle>
+          <AlertDialogDescription className="text-gray-400">
+            Esta ação não pode ser desfeita. Todos os usuários selecionados serão permanentemente removidos.
+          </AlertDialogDescription>
+        </div>
+      </div>
+    </AlertDialogHeader>
+
+    <div className="bg-[#23272f] rounded-lg p-4 mb-4">
+      <p className="text-yellow-400 text-sm">
+        ⚠️ Você está prestes a excluir <strong>{selectedUserIds.size}</strong> usuário(s).
+      </p>
+    </div>
+
+    <AlertDialogFooter>
+      <AlertDialogCancel className="bg-gray-700 text-white border border-gray-600 hover:bg-gray-600">
+        Cancelar
+      </AlertDialogCancel>
+      <AlertDialogAction
+        onClick={handleBulkDelete}
+        disabled={isBulkDeleting}
+        className="bg-red-600 hover:bg-red-700 text-white"
+      >
+        {isBulkDeleting ? "Excluindo..." : `Excluir ${selectedUserIds.size} Usuário(s)`}
+      </AlertDialogAction>
+    </AlertDialogFooter>
+  </AlertDialogContent>
+      </AlertDialog >
+
+  {/* Modal de Confirmação de Pagamento */ }
+  < AlertDialog
+open = { isPagoDialogOpen }
+onOpenChange = { setIsPagoDialogOpen }
+  >
+  <AlertDialogContent className="bg-[#1f2937] text-white border border-gray-700">
+    <AlertDialogHeader>
+      <div className="flex items-center gap-3 mb-4">
+        <div className={`w - 12 h - 12 rounded - full flex items - center justify - center ${pagoUser?.pago ? "bg-yellow-600" : "bg-green-600"
+          } `}>
+          <DollarSign className="w-6 h-6 text-white" />
+        </div>
+        <div>
+          <AlertDialogTitle className="text-xl font-bold text-white">
+            {pagoUser?.pago ? "Desmarcar Pagamento" : "Confirmar Pagamento"}
+          </AlertDialogTitle>
+          <AlertDialogDescription className="text-gray-400">
+            {pagoUser?.pago
+              ? "Deseja realmente desmarcar o pagamento deste cliente? A receita será atualizada no dashboard."
+              : "Confirme se este cliente realizou o pagamento. O valor será adicionado à receita total no dashboard."
+            }
+          </AlertDialogDescription>
+        </div>
+      </div>
+    </AlertDialogHeader>
+
+    {pagoUser && (
+      <div className="space-y-4">
+        <div className="bg-[#23272f] rounded-lg p-4">
+          <h3 className="text-lg font-semibold text-white mb-3">
+            Informações do Cliente:
+          </h3>
+          <div className="space-y-2">
+            <p className="text-white">
+              <span className="text-gray-400">Nome:</span>{" "}
+              <span className="font-medium">{pagoUser.name}</span>
+            </p>
+            <p className="text-white">
+              <span className="text-gray-400">Email:</span>{" "}
+              {pagoUser.email}
+            </p>
+            {pagoUser.plan && (
+              <p className="text-white">
+                <span className="text-gray-400">Plano:</span>{" "}
+                <span className="font-medium">{pagoUser.plan}</span>
+              </p>
+            )}
+            <p className="text-white">
+              <span className="text-gray-400">Status atual:</span>{" "}
+              <span className={pagoUser.pago ? "text-green-400 font-semibold" : "text-gray-400"}>
+                {pagoUser.pago ? "✓ Pago" : "✗ Não Pago"}
+              </span>
+            </p>
+          </div>
+        </div>
+
+        {pagoUser.price && (
+          <div className={`rounded - lg p - 4 border - 2 ${pagoUser.pago
+            ? "bg-yellow-900/20 border-yellow-600/50"
+            : "bg-green-900/20 border-green-600/50"
+            } `}>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-400 text-sm">
+                  {pagoUser.pago ? "Valor que será removido:" : "Valor que será adicionado:"}
+                </p>
+                <p className="text-2xl font-bold text-white mt-1">
+                  <span className={pagoUser.pago ? "text-yellow-400" : "text-green-400"}>
+                    {pagoUser.pago ? "-" : "+"} R$ {pagoUser.price}
+                  </span>
+                </p>
+              </div>
+              <div className={`w - 12 h - 12 rounded - full flex items - center justify - center ${pagoUser.pago ? "bg-yellow-600/20" : "bg-green-600/20"
+                } `}>
+                <DollarSign className={`w - 6 h - 6 ${pagoUser.pago ? "text-yellow-400" : "text-green-400"
+                  } `} />
+              </div>
+            </div>
+            <p className="text-xs text-gray-400 mt-2">
+              {pagoUser.pago
+                ? "Este valor será subtraído da Receita Total no Dashboard."
+                : "Este valor será adicionado à Receita Total no Dashboard."
+              }
+            </p>
+          </div>
+        )}
+      </div>
+    )}
+
+    <AlertDialogFooter>
+      <AlertDialogCancel
+        className="bg-gray-700 text-white border border-gray-600 hover:bg-gray-600"
+        onClick={() => {
+          setIsPagoDialogOpen(false);
+          setPagoUser(null);
+        }}
+      >
+        Cancelar
+      </AlertDialogCancel>
+      <AlertDialogAction
+        onClick={confirmTogglePago}
+        className={`${pagoUser?.pago
+          ? "bg-yellow-600 hover:bg-yellow-700"
+          : "bg-green-600 hover:bg-green-700"
+          } text - white`}
+      >
+        {pagoUser?.pago ? "Desmarcar Pagamento" : "Confirmar Pagamento"}
+      </AlertDialogAction>
+    </AlertDialogFooter>
+  </AlertDialogContent>
       </AlertDialog >
     </div >
   );
