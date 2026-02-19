@@ -1312,6 +1312,8 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
 
     // States para Logs
     const [systemLogs, setSystemLogs] = useState<SystemLog[]>([]);
+    const systemLogsRef = useRef(systemLogs);
+    useEffect(() => { systemLogsRef.current = systemLogs; }, [systemLogs]);
     const [logFilter, setLogFilter] = useState<'all' | 'info' | 'success' | 'warning' | 'error'>('all');
 
     // States para Stealth Mode Global
@@ -1355,7 +1357,7 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
         setFillJobs(jobs);
     };
 
-    const addSystemLog = (type: SystemLog['type'], category: SystemLog['category'], message: string, details?: string) => {
+    const addSystemLog = useCallback((type: SystemLog['type'], category: SystemLog['category'], message: string, details?: string) => {
         const log: SystemLog = {
             id: Date.now(),
             time: new Date().toISOString(),
@@ -1364,10 +1366,12 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
             message,
             details
         };
-        const updated = [log, ...systemLogs].slice(0, 500); // Keep last 500 logs
-        localStorage.setItem('system_logs', JSON.stringify(updated));
-        setSystemLogs(updated);
-    };
+        setSystemLogs(prev => {
+            const updated = [log, ...prev].slice(0, 500);
+            localStorage.setItem('system_logs', JSON.stringify(updated));
+            return updated;
+        });
+    }, []);
 
     // ========== Account Functions ==========
 
@@ -1577,11 +1581,36 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
         toast.success('Job removido!');
     };
 
+    const fillJobsRef = useRef(fillJobs);
+    const groupsRef = useRef(telegramGroups);
+    const accountsRef = useRef(tgAccounts);
+
+    useEffect(() => { fillJobsRef.current = fillJobs; }, [fillJobs]);
+    useEffect(() => { groupsRef.current = telegramGroups; }, [telegramGroups]);
+    useEffect(() => { accountsRef.current = tgAccounts; }, [tgAccounts]);
+
     // Processamento de Jobs REAL (Conectado ao Backend)
-    // Processamento de Jobs REAL (Conectado ao Backend)
+    // Helper: update jobs state safely (uses functional update to avoid stale closures)
+    const updateJobsState = useCallback((updater: (prev: FillGroupJob[]) => FillGroupJob[]) => {
+        setFillJobs(prev => {
+            const updated = updater(prev);
+            localStorage.setItem('fill_group_jobs', JSON.stringify(updated));
+            fillJobsRef.current = updated;
+            return updated;
+        });
+    }, []);
+
     useEffect(() => {
+        // Track extraction attempts per job to avoid infinite retry spam
+        const extractionAttempts: Record<number, number> = {};
+        const MAX_EXTRACTION_RETRIES = 5;
+
         const interval = setInterval(async () => {
-            const activeJobs = fillJobs.filter(j => j.status === 'rodando');
+            const currentJobs = fillJobsRef.current;
+            const groups = groupsRef.current;
+            const accounts = accountsRef.current;
+
+            const activeJobs = currentJobs.filter(j => j.status === 'rodando');
             if (activeJobs.length === 0) return;
 
             for (const job of activeJobs) {
@@ -1598,19 +1627,57 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
                 if (!j.membersToProcess || j.membersToProcess.length === 0) {
                     // Só extrai se ainda não começou ou se precisa (e não terminou)
                     if (job.addedCount === 0 && job.analyzedCount === 0) {
+                        // Check extraction retry limit
+                        const attempts = extractionAttempts[job.id] || 0;
+                        if (attempts >= MAX_EXTRACTION_RETRIES) {
+                            addSystemLog('error', 'job', `Job ${job.name} pausado após ${MAX_EXTRACTION_RETRIES} tentativas de extração`, 'Verifique a API e tente novamente');
+                            toast.error(`Job "${job.name}" pausado: falha na extração após ${MAX_EXTRACTION_RETRIES} tentativas`);
+                            updateJobsState(prev => prev.map(curr =>
+                                curr.id === job.id ? {
+                                    ...curr,
+                                    status: 'erro' as const,
+                                    logs: [...curr.logs, { time: new Date().toISOString(), type: 'error' as const, message: `Pausado após ${MAX_EXTRACTION_RETRIES} tentativas de extração falhadas` }]
+                                } : curr
+                            ));
+                            delete extractionAttempts[job.id];
+                            continue;
+                        }
+
                         try {
-                            const sourceGroup = telegramGroups.find(g => g.id === job.sourceGroupId);
+                            const sourceGroup = groups.find(g => g.id === job.sourceGroupId);
                             // Pega a primeira conta associada ao job
-                            const account = tgAccounts.find(a => job.accountIds.includes(a.id));
+                            const account = accounts.find(a => job.accountIds.includes(a.id));
 
                             if (!sourceGroup || !account) {
-                                addSystemLog('error', 'job', `Job ${job.name} pausado`, 'Grupo origem ou conta indisponível');
-                                toggleJobStatus(job.id); // Pausa
+                                const reason = !sourceGroup ? 'Grupo de origem não encontrado' : 'Conta não encontrada';
+                                addSystemLog('error', 'job', `Job ${job.name} pausado`, reason);
+                                toast.error(`Job "${job.name}" pausado: ${reason}`);
+                                updateJobsState(prev => prev.map(curr =>
+                                    curr.id === job.id ? {
+                                        ...curr,
+                                        status: 'pausado' as const,
+                                        logs: [...curr.logs, { time: new Date().toISOString(), type: 'error' as const, message: reason }]
+                                    } : curr
+                                ));
                                 continue;
                             }
 
-                            addSystemLog('info', 'job', `Iniciando extração: ${sourceGroup.name}`, 'Aguarde...');
+                            addSystemLog('info', 'job', `Iniciando extração: ${sourceGroup.name}`, `Tentativa ${attempts + 1}/${MAX_EXTRACTION_RETRIES}`);
 
+                            // Verifica se TELEGRAM_API_URL está configurado
+                            if (!TELEGRAM_API_URL) {
+                                const errMsg = 'VITE_TELEGRAM_API_URL não configurado no .env';
+                                addSystemLog('error', 'job', errMsg);
+                                toast.error(errMsg);
+                                updateJobsState(prev => prev.map(curr =>
+                                    curr.id === job.id ? {
+                                        ...curr,
+                                        status: 'erro' as const,
+                                        logs: [...curr.logs, { time: new Date().toISOString(), type: 'error' as const, message: errMsg }]
+                                    } : curr
+                                ));
+                                continue;
+                            }
 
                             // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             const groupLink = sourceGroup.link || (sourceGroup as any).username || `t.me/${sourceGroup.name}`;
@@ -1625,46 +1692,91 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
                                 })
                             });
 
-                            if (!response.ok) throw new Error('Falha API Extração');
+                            if (!response.ok) {
+                                const errorText = await response.text().catch(() => response.statusText);
+                                throw new Error(`API retornou ${response.status}: ${errorText}`);
+                            }
 
                             // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             const data = await response.json() as any;
-                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                            const memberList = data.members.map((m: any) => m.username || m.id);
 
-                            // Atualiza o Job com a lista de membros
-                            const updatedJobs = fillJobs.map(curr => {
+                            if (!data.members || !Array.isArray(data.members) || data.members.length === 0) {
+                                throw new Error(data.detail || data.message || 'Nenhum membro retornado pela API');
+                            }
+
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            const memberList = data.members.map((m: any) => m.username || m.id).filter(Boolean);
+
+                            if (memberList.length === 0) {
+                                throw new Error('Membros retornados não possuem username ou ID válido');
+                            }
+
+                            // Atualiza o Job com a lista de membros (functional update)
+                            updateJobsState(prev => prev.map(curr => {
                                 if (curr.id === job.id) {
                                     return {
                                         ...curr,
                                         membersToProcess: memberList,
                                         analyzedCount: memberList.length,
-                                        lastAction: new Date().toISOString()
-                                    };
+                                        lastAction: new Date().toISOString(),
+                                        logs: [...curr.logs, { time: new Date().toISOString(), type: 'success' as const, message: `Extração concluída: ${memberList.length} membros` }]
+                                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                    } as any;
                                 }
                                 return curr;
-                            });
+                            }));
 
-                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                            setFillJobs(updatedJobs as any);
-                            saveJobsToStorage(updatedJobs);
+                            // Reset extraction attempts on success
+                            delete extractionAttempts[job.id];
 
                             addSystemLog('success', 'job', `Extração concluída: ${memberList.length} membros`, `Iniciando adições...`);
+                            toast.success(`Job "${job.name}": ${memberList.length} membros extraídos!`);
                             continue;
 
                         } catch (e) {
-                            console.error(e);
-                            addSystemLog('error', 'job', `Erro na extração: ${e}`, 'Job pausado');
-                            toggleJobStatus(job.id); // Pausa
+                            extractionAttempts[job.id] = (extractionAttempts[job.id] || 0) + 1;
+                            const errorMsg = e instanceof Error ? e.message : String(e);
+                            console.error(`[Job ${job.name}] Erro na extração (tentativa ${extractionAttempts[job.id]}):`, errorMsg);
+                            addSystemLog('error', 'job', `Erro na extração (tentativa ${extractionAttempts[job.id]}/${MAX_EXTRACTION_RETRIES})`, errorMsg);
+                            toast.error(`Job "${job.name}": Erro na extração - ${errorMsg}`);
+                            // Marca lastAction para tentar novamente depois do delay
+                            updateJobsState(prev => prev.map(curr => {
+                                if (curr.id === job.id) {
+                                    return {
+                                        ...curr,
+                                        lastAction: new Date().toISOString(),
+                                        logs: [...curr.logs, { time: new Date().toISOString(), type: 'error' as const, message: `Erro extração: ${errorMsg}` }]
+                                    };
+                                }
+                                return curr;
+                            }));
                             continue;
                         }
                     } else if (job.addedCount >= job.targetCount) {
-                        // Já acabou
+                        // Já atingiu a meta
+                        addSystemLog('success', 'job', `Job ${job.name} finalizado!`, `Meta de ${job.targetCount} atingida: ${job.addedCount} adicionados`);
+                        toast.success(`🎉 Job "${job.name}" finalizado! ${job.addedCount} membros adicionados!`);
+                        updateJobsState(prev => prev.map(curr =>
+                            curr.id === job.id ? {
+                                ...curr,
+                                status: 'finalizado' as const,
+                                finishedAt: new Date().toISOString(),
+                                logs: [...curr.logs, { time: new Date().toISOString(), type: 'success' as const, message: `Finalizado! ${job.addedCount} membros adicionados` }]
+                            } : curr
+                        ));
                         continue;
                     }
                     // Se added > 0 e lista vazia, assumimos que acabou a lista disponivel
                     addSystemLog('success', 'job', `Job ${job.name} finalizado`, 'Todos membros processados');
-                    toggleJobStatus(job.id); // Ou marcar como finalizado
+                    toast.success(`Job "${job.name}" finalizado: todos membros processados`);
+                    updateJobsState(prev => prev.map(curr =>
+                        curr.id === job.id ? {
+                            ...curr,
+                            status: 'finalizado' as const,
+                            finishedAt: new Date().toISOString(),
+                            logs: [...curr.logs, { time: new Date().toISOString(), type: 'success' as const, message: 'Todos membros processados' }]
+                        } : curr
+                    ));
                     continue;
                 }
 
@@ -1673,15 +1785,24 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
                     const nextMember = j.membersToProcess[0];
                     if (!nextMember) continue;
 
-                    const destGroup = telegramGroups.find(g => g.id === job.destinationGroupId);
+                    const destGroup = groups.find(g => g.id === job.destinationGroupId);
 
                     const accountId = job.accountIds[job.addedCount % job.accountIds.length];
-                    const account = tgAccounts.find(a => a.id === accountId);
+                    const account = accounts.find(a => a.id === accountId);
 
                     if (!destGroup || !account) {
-                        toggleJobStatus(job.id); continue;
+                        const reason = !destGroup ? 'Grupo destino não encontrado' : 'Conta não encontrada';
+                        addSystemLog('error', 'job', `Job ${job.name} pausado`, reason);
+                        toast.error(`Job "${job.name}" pausado: ${reason}`);
+                        updateJobsState(prev => prev.map(curr =>
+                            curr.id === job.id ? {
+                                ...curr,
+                                status: 'pausado' as const,
+                                logs: [...curr.logs, { time: new Date().toISOString(), type: 'error' as const, message: reason }]
+                            } : curr
+                        ));
+                        continue;
                     }
-
 
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const destLink = destGroup.link || (destGroup as any).username;
@@ -1700,53 +1821,65 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const resData = await response.json() as any;
 
-                    let newStatus = job.status;
-                    let newAdded = job.addedCount;
-                    let newFailed = job.failedCount;
-
                     if (resData.success) {
-                        newAdded++;
                         addSystemLog('success', 'job', `Membro adicionado: ${nextMember} em ${destGroup.name}`);
+                        updateJobsState(prev => prev.map(curr => {
+                            if (curr.id === job.id) {
+                                const newAdded = curr.addedCount + 1;
+                                return {
+                                    ...curr,
+                                    addedCount: newAdded,
+                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                    membersToProcess: ((curr as any).membersToProcess || []).slice(1),
+                                    lastAction: new Date().toISOString(),
+                                    // Auto-finish if target reached
+                                    status: newAdded >= curr.targetCount ? 'finalizado' as const : curr.status,
+                                    finishedAt: newAdded >= curr.targetCount ? new Date().toISOString() : curr.finishedAt,
+                                    logs: [...curr.logs, { time: new Date().toISOString(), type: 'success' as const, message: `Adicionado: ${nextMember} (${newAdded}/${curr.targetCount})` }]
+                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                } as any;
+                            }
+                            return curr;
+                        }));
                     } else {
-                        newFailed++;
                         addSystemLog('warning', 'job', `Falha ao adicionar ${nextMember}`, resData.message || resData.error);
-                        if (resData.error === 'FLOOD_WAIT') {
-                            // Pausar job?
-                            addSystemLog('warning', 'job', `FLOOD WAIT detectado. Pausando Job.`);
-                            newStatus = 'pausado';
-                        }
+                        updateJobsState(prev => prev.map(curr => {
+                            if (curr.id === job.id) {
+                                return {
+                                    ...curr,
+                                    failedCount: curr.failedCount + 1,
+                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                    membersToProcess: ((curr as any).membersToProcess || []).slice(1),
+                                    lastAction: new Date().toISOString(),
+                                    logs: [...curr.logs, { time: new Date().toISOString(), type: 'warning' as const, message: `Falha: ${nextMember} - ${resData.message || resData.error || 'Erro desconhecido'}` }]
+                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                } as any;
+                            }
+                            return curr;
+                        }));
                     }
 
-                    // Atualizar Job
-                    const updatedJobs = fillJobs.map(curr => {
+                } catch (error) {
+                    const errorMsg = error instanceof Error ? error.message : String(error);
+                    console.error(`[Job ${job.name}] Erro de conexão:`, errorMsg);
+                    addSystemLog('error', 'job', `Erro de conexão ao adicionar`, errorMsg);
+                    // Update last action to prevent infinite loop causing rapid fires
+                    updateJobsState(prev => prev.map(curr => {
                         if (curr.id === job.id) {
                             return {
                                 ...curr,
-                                status: newStatus,
-                                addedCount: newAdded,
-                                failedCount: newFailed,
-                                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                                membersToProcess: (curr as any).membersToProcess.slice(1),
-                                lastAction: new Date().toISOString()
+                                lastAction: new Date().toISOString(),
+                                logs: [...curr.logs, { time: new Date().toISOString(), type: 'error' as const, message: `Erro de conexão: ${errorMsg}` }]
                             };
                         }
                         return curr;
-                    });
-
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    setFillJobs(updatedJobs as any);
-                    saveJobsToStorage(updatedJobs);
-
-                } catch (error) {
-                    console.error(error);
-                    addSystemLog('error', 'job', `Erro de conexão ao adicionar`, String(error));
+                    }));
                 }
             }
         }, 5000);
 
         return () => clearInterval(interval);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [fillJobs, telegramGroups, tgAccounts]);
+    }, [addSystemLog, updateJobsState]);
 
     // ========== Stats ==========
 
@@ -3420,6 +3553,460 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
                             </Card>
                         </div>
                     )}
+
+                    {/* Moved Sections: Saved Audiences, Bulk Send and Results */}
+                    <div className="mt-8 space-y-6">
+                        {/* Saved Audiences Section */}
+                        <Card className="border-dashed">
+                            <CardHeader>
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <CardTitle className="flex items-center gap-2">
+                                            <FolderOpen className="w-5 h-5" />
+                                            Públicos Salvos
+                                            {savedAudiences.length > 0 && (
+                                                <Badge variant="secondary">{savedAudiences.length}</Badge>
+                                            )}
+                                        </CardTitle>
+                                        <CardDescription>
+                                            Reutilize extrações salvas anteriormente
+                                        </CardDescription>
+                                    </div>
+                                    {members.length > 0 && (
+                                        <div className="flex gap-2">
+                                            <Input
+                                                placeholder="Nome do público..."
+                                                value={audienceName}
+                                                onChange={(e) => setAudienceName(e.target.value)}
+                                                className="w-48"
+                                            />
+                                            <Button onClick={handleSaveAudience} variant="outline" className="gap-2">
+                                                <Save className="w-4 h-4" />
+                                                Salvar
+                                            </Button>
+                                        </div>
+                                    )}
+                                </div>
+                            </CardHeader>
+                            {savedAudiences.length > 0 && (
+                                <CardContent>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        {savedAudiences.map((audience) => (
+                                            <div key={audience.id} className="border rounded-lg p-4 space-y-3 bg-muted/30">
+                                                <div className="flex items-center justify-between">
+                                                    <h4 className="font-medium text-sm">{audience.name}</h4>
+                                                    <Badge variant="outline">{audience.totalMembers}</Badge>
+                                                </div>
+                                                <div className="text-xs text-muted-foreground space-y-1">
+                                                    <p>📅 {new Date(audience.createdAt).toLocaleDateString('pt-BR')}</p>
+                                                    <p>📂 {audience.source}</p>
+                                                    <p>✓ {audience.withUsername} com username | 📞 {audience.withPhone} com telefone</p>
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <Button
+                                                        size="sm"
+                                                        variant="outline"
+                                                        onClick={() => handleLoadAudience(audience)}
+                                                        className="flex-1"
+                                                    >
+                                                        <Download className="w-3 h-3 mr-1" />
+                                                        Carregar
+                                                    </Button>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="ghost"
+                                                        className="text-red-500"
+                                                        onClick={() => handleDeleteAudience(audience.id)}
+                                                    >
+                                                        <Trash2 className="w-3 h-3" />
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </CardContent>
+                            )}
+                        </Card>
+
+                        {/* Phase 2: Bulk Send Section */}
+                        {members.length > 0 && selectedCount > 0 && (
+                            <Card className="border-blue-800/50 bg-blue-950/10">
+                                <CardHeader>
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <CardTitle className="flex items-center gap-2">
+                                                <Send className="w-5 h-5" />
+                                                Envio no Privado
+                                                <Badge className="bg-blue-600">{selectedCount} selecionados</Badge>
+                                            </CardTitle>
+                                            <CardDescription>
+                                                Envie mensagens privadas para os membros selecionados
+                                            </CardDescription>
+                                        </div>
+                                        <Button
+                                            variant={showBulkSend ? "secondary" : "default"}
+                                            onClick={() => setShowBulkSend(!showBulkSend)}
+                                        >
+                                            {showBulkSend ? "Fechar" : "Configurar Envio"}
+                                        </Button>
+                                    </div>
+                                </CardHeader>
+
+                                {showBulkSend && (
+                                    <CardContent className="space-y-6">
+                                        {/* Message Variations */}
+                                        <div className="space-y-3">
+                                            <div className="flex items-center justify-between">
+                                                <Label className="text-base font-medium">Variações de Mensagem (Anti-Bloqueio)</Label>
+                                                <Button size="sm" variant="outline" onClick={addMessageVariation}>
+                                                    + Adicionar Variação
+                                                </Button>
+                                            </div>
+                                            <p className="text-xs text-muted-foreground">
+                                                Variáveis disponíveis: {"{nome}"}, {"{sobrenome}"}, {"{username}"}, {"{id}"}
+                                            </p>
+                                            {bulkSendConfig.messages.map((msg, index) => (
+                                                <div key={index} className="flex gap-2">
+                                                    <textarea
+                                                        className="flex-1 min-h-[80px] rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                                        placeholder={`Mensagem ${index + 1}...`}
+                                                        value={msg}
+                                                        onChange={(e) => updateMessageVariation(index, e.target.value)}
+                                                    />
+                                                    {bulkSendConfig.messages.length > 1 && (
+                                                        <Button
+                                                            size="icon"
+                                                            variant="ghost"
+                                                            className="text-red-500"
+                                                            onClick={() => removeMessageVariation(index)}
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {/* Send Configuration */}
+                                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-4 border-t">
+                                            <div className="space-y-2">
+                                                <Label>Intervalo Mín (seg)</Label>
+                                                <Input
+                                                    type="number"
+                                                    value={bulkSendConfig.intervalMin}
+                                                    onChange={(e) => setBulkSendConfig(prev => ({ ...prev, intervalMin: parseInt(e.target.value) || 30 }))}
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label>Intervalo Máx (seg)</Label>
+                                                <Input
+                                                    type="number"
+                                                    value={bulkSendConfig.intervalMax}
+                                                    onChange={(e) => setBulkSendConfig(prev => ({ ...prev, intervalMax: parseInt(e.target.value) || 60 }))}
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label>Limite Diário/Conta</Label>
+                                                <Input
+                                                    type="number"
+                                                    value={bulkSendConfig.dailyLimit}
+                                                    onChange={(e) => setBulkSendConfig(prev => ({ ...prev, dailyLimit: parseInt(e.target.value) || 50 }))}
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label>Contas</Label>
+                                                <Select
+                                                    value={bulkSendConfig.useAllAccounts ? "all" : "selected"}
+                                                    onValueChange={(v) => setBulkSendConfig(prev => ({ ...prev, useAllAccounts: v === "all" }))}
+                                                >
+                                                    <SelectTrigger>
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="all">Usar Todas ({sessions.filter(s => !s.is_restricted).length})</SelectItem>
+                                                        <SelectItem value="selected">Apenas Selecionada</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                        </div>
+
+                                        {/* Send Progress */}
+                                        {isSending && (
+                                            <div className="bg-muted/30 rounded-lg p-4 space-y-3">
+                                                <div className="flex items-center justify-between">
+                                                    <span className="font-medium">Enviando...</span>
+                                                    <Button size="sm" variant="destructive" onClick={handleStopSending}>
+                                                        Parar
+                                                    </Button>
+                                                </div>
+                                                <div className="w-full bg-gray-700 rounded-full h-3">
+                                                    <div
+                                                        className="bg-blue-500 h-3 rounded-full transition-all duration-300"
+                                                        style={{ width: `${(sendProgress.current / sendProgress.total) * 100}%` }}
+                                                    />
+                                                </div>
+                                                <div className="flex justify-between text-sm text-muted-foreground">
+                                                    <span>{sendProgress.current} / {sendProgress.total}</span>
+                                                    <span className="text-green-400">✓ {sendProgress.success}</span>
+                                                    <span className="text-red-400">✗ {sendProgress.failed}</span>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Send Logs */}
+                                        {sendLogs.length > 0 && (
+                                            <div className="max-h-[200px] overflow-auto bg-gray-900 rounded-lg p-3 font-mono text-xs">
+                                                {sendLogs.slice(-20).map((log, i) => (
+                                                    <div key={i} className={`py-1 ${log.status === 'success' ? 'text-green-400' : 'text-red-400'}`}>
+                                                        [{log.time}] {log.user}: {log.status === 'success' ? '✓ Enviado' : `✗ ${log.message}`}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+
+                                        {/* Send Button */}
+                                        <div className="flex justify-end gap-3 pt-4 border-t">
+                                            <Button variant="outline" onClick={() => setShowBulkSend(false)}>
+                                                Cancelar
+                                            </Button>
+                                            <Button
+                                                onClick={handleBulkSend}
+                                                disabled={isSending || selectedCount === 0}
+                                                className="gap-2"
+                                            >
+                                                {isSending ? (
+                                                    <>
+                                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                                        Enviando...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Send className="w-4 h-4" />
+                                                        Iniciar Envio ({selectedCount})
+                                                    </>
+                                                )}
+                                            </Button>
+                                        </div>
+                                    </CardContent>
+                                )}
+                            </Card>
+                        )}
+
+                        {/* Import Config - Moved Inside automatic tab */}
+                        {members.length > 0 && (
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Configurações de Importação</CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-6">
+                                    {/* Member Statistics */}
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                        <div className="bg-blue-950/30 border border-blue-800/50 rounded-lg p-4 text-center">
+                                            <p className="text-2xl font-bold text-blue-400">{members.length}</p>
+                                            <p className="text-xs text-muted-foreground">Total Extraídos</p>
+                                        </div>
+                                        <div className="bg-green-950/30 border border-green-800/50 rounded-lg p-4 text-center">
+                                            <p className="text-2xl font-bold text-green-400">{members.filter(m => m.username).length}</p>
+                                            <p className="text-xs text-muted-foreground">Com Username ✓</p>
+                                        </div>
+                                        <div className="bg-yellow-950/30 border border-yellow-800/50 rounded-lg p-4 text-center">
+                                            <p className="text-2xl font-bold text-yellow-400">{members.filter(m => !m.username).length}</p>
+                                            <p className="text-xs text-muted-foreground">Sem Username</p>
+                                        </div>
+                                        <div className="bg-purple-950/30 border border-purple-800/50 rounded-lg p-4 text-center">
+                                            <p className="text-2xl font-bold text-purple-400">{members.filter(m => m.phone).length}</p>
+                                            <p className="text-xs text-muted-foreground">Com Telefone</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="border-t pt-4">
+                                        <h4 className="text-sm font-medium mb-4">Configurações Padrão</h4>
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            <div className="space-y-2">
+                                                <Label>Plano Padrão</Label>
+                                                <Select
+                                                    value={importConfig.defaultPlan}
+                                                    onValueChange={(v) => setImportConfig(prev => ({ ...prev, defaultPlan: v }))}
+                                                >
+                                                    <SelectTrigger>
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="Mensal">Mensal</SelectItem>
+                                                        <SelectItem value="Trimestral">Trimestral</SelectItem>
+                                                        <SelectItem value="Semestral">Semestral</SelectItem>
+                                                        <SelectItem value="Anual">Anual</SelectItem>
+                                                        <SelectItem value="Vitalício">Vitalício</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <Label>Status Padrão</Label>
+                                                <Select
+                                                    value={importConfig.defaultStatus}
+                                                    onValueChange={(v) => setImportConfig(prev => ({ ...prev, defaultStatus: v }))}
+                                                >
+                                                    <SelectTrigger>
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="Ativo">Ativo</SelectItem>
+                                                        <SelectItem value="Inativo">Inativo</SelectItem>
+                                                        <SelectItem value="Pendente">Pendente</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <Label>Servidor</Label>
+                                                <Input
+                                                    placeholder="Ex: server1.exemplo.com"
+                                                    value={importConfig.defaultServer}
+                                                    onChange={(e) => setImportConfig(prev => ({ ...prev, defaultServer: e.target.value }))}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        )}
+
+                        {/* Members Table - Moved Inside automatic tab */}
+                        {members.length > 0 && (
+                            <Card>
+                                <CardHeader className="flex flex-row items-center justify-between">
+                                    <div>
+                                        <CardTitle className="flex items-center gap-2">
+                                            <Users className="w-5 h-5" />
+                                            Membros Encontrados
+                                            <Badge variant="secondary">{filteredMembers.length}</Badge>
+                                            {memberFilter !== 'all' && (
+                                                <Badge variant="outline" className="text-xs">
+                                                    Filtrado de {members.length}
+                                                </Badge>
+                                            )}
+                                        </CardTitle>
+                                        <CardDescription>
+                                            {selectedCount} de {filteredMembers.length} selecionados
+                                        </CardDescription>
+                                    </div>
+
+                                    <div className="flex gap-2 items-center">
+                                        <Select value={memberFilter} onValueChange={(v: typeof memberFilter) => setMemberFilter(v)}>
+                                            <SelectTrigger className="w-40">
+                                                <Filter className="w-4 h-4 mr-2" />
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="all">Todos</SelectItem>
+                                                <SelectItem value="with_username">Com Username</SelectItem>
+                                                <SelectItem value="without_username">Sem Username</SelectItem>
+                                                <SelectItem value="with_phone">Com Telefone</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+
+                                        <Button variant="outline" size="sm" onClick={() => toggleAll(true)}>
+                                            Selecionar Todos
+                                        </Button>
+                                        <Button variant="outline" size="sm" onClick={() => toggleAll(false)}>
+                                            Desmarcar Todos
+                                        </Button>
+                                        <Button variant="secondary" size="sm" onClick={handleExportCSV}>
+                                            <Download className="w-4 h-4 mr-1" />
+                                            Exportar CSV
+                                        </Button>
+                                        <Button variant="destructive" size="sm" onClick={handleClear}>
+                                            <Trash2 className="w-4 h-4" />
+                                        </Button>
+                                    </div>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="max-h-[400px] overflow-auto rounded-md border">
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead className="w-12">
+                                                        <Checkbox
+                                                            checked={selectedCount === filteredMembers.length}
+                                                            onCheckedChange={(checked) => toggleAll(!!checked)}
+                                                        />
+                                                    </TableHead>
+                                                    <TableHead>Username</TableHead>
+                                                    <TableHead>Nome</TableHead>
+                                                    <TableHead>Telefone</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {filteredMembers.map((member) => (
+                                                    <TableRow key={member.id} className={member.selected ? '' : 'opacity-50'}>
+                                                        <TableCell>
+                                                            <Checkbox
+                                                                checked={member.selected}
+                                                                onCheckedChange={() => toggleMember(member.id)}
+                                                            />
+                                                        </TableCell>
+                                                        <TableCell className="font-medium">
+                                                            {member.username ? `@${member.username}` : '-'}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {`${member.firstName} ${member.lastName}`.trim() || '-'}
+                                                        </TableCell>
+                                                        <TableCell>{member.phone || '-'}</TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </div>
+
+                                    {/* Import Button */}
+                                    <div className="mt-4 flex items-center justify-between">
+                                        <div className="text-sm text-muted-foreground">
+                                            {selectedCount} membro(s) será(ão) importado(s)
+                                        </div>
+                                        <Button
+                                            onClick={handleImport}
+                                            disabled={isLoading || selectedCount === 0}
+                                            className="bg-gradient-to-r from-blue-600 to-purple-600"
+                                        >
+                                            <UserPlus className="w-4 h-4 mr-2" />
+                                            {isLoading ? 'Importando...' : `Importar ${selectedCount} Cliente(s)`}
+                                        </Button>
+                                    </div>
+
+                                    {/* Import Results */}
+                                    {importResults && (
+                                        <div className="mt-4 p-4 rounded-lg bg-muted/50 space-y-2">
+                                            <h4 className="font-medium">Resultado da Importação</h4>
+                                            <div className="flex gap-4">
+                                                <div className="flex items-center gap-2 text-green-500">
+                                                    <CheckCircle className="w-4 h-4" />
+                                                    {importResults.success} sucesso
+                                                </div>
+                                                <div className="flex items-center gap-2 text-red-500">
+                                                    <XCircle className="w-4 h-4" />
+                                                    {importResults.failed} falha(s)
+                                                </div>
+                                            </div>
+                                            {importResults.errors.length > 0 && (
+                                                <div className="text-sm text-red-400 mt-2">
+                                                    <p className="font-medium">Erros:</p>
+                                                    <ul className="list-disc list-inside">
+                                                        {importResults.errors.slice(0, 5).map((err, i) => (
+                                                            <li key={i}>{err}</li>
+                                                        ))}
+                                                        {importResults.errors.length > 5 && (
+                                                            <li>... e mais {importResults.errors.length - 5} erros</li>
+                                                        )}
+                                                    </ul>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </CardContent>
+                            </Card>
+                        )}
+                    </div>
                 </TabsContent>
 
                 {/* Tab: Campanhas / Agendamento */}
@@ -6327,85 +6914,89 @@ Com o Broadcast, você pode alcançar todos os seus leads de uma só vez, com ap
                         </div>
                     )}
 
-                    {/* Modal: Job Details */}
-                    {showJobDetailsModal && selectedJob && (
-                        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-                            <Card className="w-full max-w-2xl mx-4 max-h-[80vh] overflow-y-auto">
-                                <CardHeader>
-                                    <div className="flex items-center justify-between">
-                                        <CardTitle className="flex items-center gap-2">
-                                            <Eye className="w-5 h-5" />
-                                            Detalhes do Job: {selectedJob.name}
-                                        </CardTitle>
-                                        <Button variant="ghost" size="icon" onClick={() => setShowJobDetailsModal(false)}>
-                                            <X className="w-4 h-4" />
+                    {/* Modal: Job Details (uses live data from fillJobs) */}
+                    {showJobDetailsModal && selectedJob && (() => {
+                        const liveJob = fillJobs.find(j => j.id === selectedJob.id) || selectedJob;
+                        const progress = liveJob.targetCount > 0 ? Math.round((liveJob.addedCount / liveJob.targetCount) * 100) : 0;
+                        return (
+                            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+                                <Card className="w-full max-w-2xl mx-4 max-h-[80vh] overflow-y-auto">
+                                    <CardHeader>
+                                        <div className="flex items-center justify-between">
+                                            <CardTitle className="flex items-center gap-2">
+                                                <Eye className="w-5 h-5" />
+                                                Detalhes do Job: {liveJob.name}
+                                            </CardTitle>
+                                            <Button variant="ghost" size="icon" onClick={() => setShowJobDetailsModal(false)}>
+                                                <X className="w-4 h-4" />
+                                            </Button>
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent className="space-y-4">
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <Label className="text-xs text-muted-foreground">Origem</Label>
+                                                <p className="font-medium">{getSourceGroupName(liveJob.sourceGroupId)}</p>
+                                            </div>
+                                            <div>
+                                                <Label className="text-xs text-muted-foreground">Destino</Label>
+                                                <p className="font-medium">{getDestGroupName(liveJob.destinationGroupId)}</p>
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-4 gap-4 text-center">
+                                            <div className="p-3 bg-muted/50 rounded-lg">
+                                                <div className="text-2xl font-bold text-blue-400">{liveJob.analyzedCount}</div>
+                                                <div className="text-xs text-muted-foreground">Analisados</div>
+                                            </div>
+                                            <div className="p-3 bg-muted/50 rounded-lg">
+                                                <div className="text-2xl font-bold text-green-400">{liveJob.addedCount}</div>
+                                                <div className="text-xs text-muted-foreground">Adicionados</div>
+                                            </div>
+                                            <div className="p-3 bg-muted/50 rounded-lg">
+                                                <div className="text-2xl font-bold text-red-400">{liveJob.failedCount}</div>
+                                                <div className="text-xs text-muted-foreground">Falhas</div>
+                                            </div>
+                                            <div className="p-3 bg-muted/50 rounded-lg">
+                                                <div className="text-2xl font-bold text-purple-400">{liveJob.targetCount}</div>
+                                                <div className="text-xs text-muted-foreground">Meta</div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <Label className="text-xs text-muted-foreground">Progresso</Label>
+                                            <div className="w-full bg-gray-700 rounded-full h-4 mt-1">
+                                                <div
+                                                    className="bg-gradient-to-r from-blue-500 to-green-500 h-4 rounded-full transition-all"
+                                                    style={{ width: `${progress}%` }}
+                                                />
+                                            </div>
+                                            <p className="text-right text-xs text-muted-foreground mt-1">
+                                                {progress}%
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <Label className="text-xs text-muted-foreground mb-2 block">Logs do Job</Label>
+                                            <div className="bg-gray-950 rounded-lg p-3 font-mono text-xs max-h-[200px] overflow-y-auto space-y-1">
+                                                {liveJob.logs.map((log, i) => (
+                                                    <div key={i} className="flex gap-2">
+                                                        <span className="text-gray-500">{new Date(log.time).toLocaleTimeString('pt-BR')}</span>
+                                                        <span className={
+                                                            log.type === 'success' ? 'text-green-400' :
+                                                                log.type === 'error' ? 'text-red-400' :
+                                                                    log.type === 'warning' ? 'text-yellow-400' :
+                                                                        'text-gray-400'
+                                                        }>{log.message}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                        <Button className="w-full" onClick={() => setShowJobDetailsModal(false)}>
+                                            Fechar
                                         </Button>
-                                    </div>
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <Label className="text-xs text-muted-foreground">Origem</Label>
-                                            <p className="font-medium">{getSourceGroupName(selectedJob.sourceGroupId)}</p>
-                                        </div>
-                                        <div>
-                                            <Label className="text-xs text-muted-foreground">Destino</Label>
-                                            <p className="font-medium">{getDestGroupName(selectedJob.destinationGroupId)}</p>
-                                        </div>
-                                    </div>
-                                    <div className="grid grid-cols-4 gap-4 text-center">
-                                        <div className="p-3 bg-muted/50 rounded-lg">
-                                            <div className="text-2xl font-bold text-blue-400">{selectedJob.analyzedCount}</div>
-                                            <div className="text-xs text-muted-foreground">Analisados</div>
-                                        </div>
-                                        <div className="p-3 bg-muted/50 rounded-lg">
-                                            <div className="text-2xl font-bold text-green-400">{selectedJob.addedCount}</div>
-                                            <div className="text-xs text-muted-foreground">Adicionados</div>
-                                        </div>
-                                        <div className="p-3 bg-muted/50 rounded-lg">
-                                            <div className="text-2xl font-bold text-red-400">{selectedJob.failedCount}</div>
-                                            <div className="text-xs text-muted-foreground">Falhas</div>
-                                        </div>
-                                        <div className="p-3 bg-muted/50 rounded-lg">
-                                            <div className="text-2xl font-bold text-purple-400">{selectedJob.targetCount}</div>
-                                            <div className="text-xs text-muted-foreground">Meta</div>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <Label className="text-xs text-muted-foreground">Progresso</Label>
-                                        <div className="w-full bg-gray-700 rounded-full h-4 mt-1">
-                                            <div
-                                                className="bg-gradient-to-r from-blue-500 to-green-500 h-4 rounded-full transition-all"
-                                                style={{ width: `${Math.round((selectedJob.addedCount / selectedJob.targetCount) * 100)}%` }}
-                                            />
-                                        </div>
-                                        <p className="text-right text-xs text-muted-foreground mt-1">
-                                            {Math.round((selectedJob.addedCount / selectedJob.targetCount) * 100)}%
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <Label className="text-xs text-muted-foreground mb-2 block">Logs do Job</Label>
-                                        <div className="bg-gray-950 rounded-lg p-3 font-mono text-xs max-h-[200px] overflow-y-auto space-y-1">
-                                            {selectedJob.logs.map((log, i) => (
-                                                <div key={i} className="flex gap-2">
-                                                    <span className="text-gray-500">{new Date(log.time).toLocaleTimeString('pt-BR')}</span>
-                                                    <span className={
-                                                        log.type === 'success' ? 'text-green-400' :
-                                                            log.type === 'error' ? 'text-red-400' :
-                                                                log.type === 'warning' ? 'text-yellow-400' :
-                                                                    'text-gray-400'
-                                                    }>{log.message}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                    <Button className="w-full" onClick={() => setShowJobDetailsModal(false)}>
-                                        Fechar
-                                    </Button>
-                                </CardContent>
-                            </Card>
-                        </div>
-                    )}
+                                    </CardContent>
+                                </Card>
+                            </div>
+                        );
+                    })()}
                 </TabsContent>
 
                 {/* Tab: Aquecer Contas (Group Heating) */}
@@ -6414,458 +7005,6 @@ Com o Broadcast, você pode alcançar todos os seus leads de uma só vez, com ap
                 </TabsContent>
             </Tabs>
 
-            {/* Saved Audiences Section */}
-            <Card className="border-dashed">
-                <CardHeader>
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <CardTitle className="flex items-center gap-2">
-                                <FolderOpen className="w-5 h-5" />
-                                Públicos Salvos
-                                {savedAudiences.length > 0 && (
-                                    <Badge variant="secondary">{savedAudiences.length}</Badge>
-                                )}
-                            </CardTitle>
-                            <CardDescription>
-                                Reutilize extrações salvas anteriormente
-                            </CardDescription>
-                        </div>
-                        {members.length > 0 && (
-                            <div className="flex gap-2">
-                                <Input
-                                    placeholder="Nome do público..."
-                                    value={audienceName}
-                                    onChange={(e) => setAudienceName(e.target.value)}
-                                    className="w-48"
-                                />
-                                <Button onClick={handleSaveAudience} variant="outline" className="gap-2">
-                                    <Save className="w-4 h-4" />
-                                    Salvar
-                                </Button>
-                            </div>
-                        )}
-                    </div>
-                </CardHeader>
-                {savedAudiences.length > 0 && (
-                    <CardContent>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {savedAudiences.map((audience) => (
-                                <div key={audience.id} className="border rounded-lg p-4 space-y-3 bg-muted/30">
-                                    <div className="flex items-center justify-between">
-                                        <h4 className="font-medium text-sm">{audience.name}</h4>
-                                        <Badge variant="outline">{audience.totalMembers}</Badge>
-                                    </div>
-                                    <div className="text-xs text-muted-foreground space-y-1">
-                                        <p>📅 {new Date(audience.createdAt).toLocaleDateString('pt-BR')}</p>
-                                        <p>📂 {audience.source}</p>
-                                        <p>✓ {audience.withUsername} com username | 📞 {audience.withPhone} com telefone</p>
-                                    </div>
-                                    <div className="flex gap-2">
-                                        <Button
-                                            size="sm"
-                                            variant="outline"
-                                            onClick={() => handleLoadAudience(audience)}
-                                            className="flex-1"
-                                        >
-                                            <Download className="w-3 h-3 mr-1" />
-                                            Carregar
-                                        </Button>
-                                        <Button
-                                            size="sm"
-                                            variant="ghost"
-                                            className="text-red-500"
-                                            onClick={() => handleDeleteAudience(audience.id)}
-                                        >
-                                            <Trash2 className="w-3 h-3" />
-                                        </Button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </CardContent>
-                )}
-            </Card>
-
-            {/* Phase 2: Bulk Send Section */}
-            {members.length > 0 && selectedCount > 0 && (
-                <Card className="border-blue-800/50 bg-blue-950/10">
-                    <CardHeader>
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <CardTitle className="flex items-center gap-2">
-                                    <Send className="w-5 h-5" />
-                                    Envio no Privado
-                                    <Badge className="bg-blue-600">{selectedCount} selecionados</Badge>
-                                </CardTitle>
-                                <CardDescription>
-                                    Envie mensagens privadas para os membros selecionados
-                                </CardDescription>
-                            </div>
-                            <Button
-                                variant={showBulkSend ? "secondary" : "default"}
-                                onClick={() => setShowBulkSend(!showBulkSend)}
-                            >
-                                {showBulkSend ? "Fechar" : "Configurar Envio"}
-                            </Button>
-                        </div>
-                    </CardHeader>
-
-                    {showBulkSend && (
-                        <CardContent className="space-y-6">
-                            {/* Message Variations */}
-                            <div className="space-y-3">
-                                <div className="flex items-center justify-between">
-                                    <Label className="text-base font-medium">Variações de Mensagem (Anti-Bloqueio)</Label>
-                                    <Button size="sm" variant="outline" onClick={addMessageVariation}>
-                                        + Adicionar Variação
-                                    </Button>
-                                </div>
-                                <p className="text-xs text-muted-foreground">
-                                    Variáveis disponíveis: {"{nome}"}, {"{sobrenome}"}, {"{username}"}, {"{id}"}
-                                </p>
-                                {bulkSendConfig.messages.map((msg, index) => (
-                                    <div key={index} className="flex gap-2">
-                                        <textarea
-                                            className="flex-1 min-h-[80px] rounded-md border border-input bg-background px-3 py-2 text-sm"
-                                            placeholder={`Mensagem ${index + 1}...`}
-                                            value={msg}
-                                            onChange={(e) => updateMessageVariation(index, e.target.value)}
-                                        />
-                                        {bulkSendConfig.messages.length > 1 && (
-                                            <Button
-                                                size="icon"
-                                                variant="ghost"
-                                                className="text-red-500"
-                                                onClick={() => removeMessageVariation(index)}
-                                            >
-                                                <Trash2 className="w-4 h-4" />
-                                            </Button>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* Send Configuration */}
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-4 border-t">
-                                <div className="space-y-2">
-                                    <Label>Intervalo Mín (seg)</Label>
-                                    <Input
-                                        type="number"
-                                        value={bulkSendConfig.intervalMin}
-                                        onChange={(e) => setBulkSendConfig(prev => ({ ...prev, intervalMin: parseInt(e.target.value) || 30 }))}
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Intervalo Máx (seg)</Label>
-                                    <Input
-                                        type="number"
-                                        value={bulkSendConfig.intervalMax}
-                                        onChange={(e) => setBulkSendConfig(prev => ({ ...prev, intervalMax: parseInt(e.target.value) || 60 }))}
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Limite Diário/Conta</Label>
-                                    <Input
-                                        type="number"
-                                        value={bulkSendConfig.dailyLimit}
-                                        onChange={(e) => setBulkSendConfig(prev => ({ ...prev, dailyLimit: parseInt(e.target.value) || 50 }))}
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Contas</Label>
-                                    <Select
-                                        value={bulkSendConfig.useAllAccounts ? "all" : "selected"}
-                                        onValueChange={(v) => setBulkSendConfig(prev => ({ ...prev, useAllAccounts: v === "all" }))}
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="all">Usar Todas ({sessions.filter(s => !s.is_restricted).length})</SelectItem>
-                                            <SelectItem value="selected">Apenas Selecionada</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            </div>
-
-                            {/* Send Progress */}
-                            {isSending && (
-                                <div className="bg-muted/30 rounded-lg p-4 space-y-3">
-                                    <div className="flex items-center justify-between">
-                                        <span className="font-medium">Enviando...</span>
-                                        <Button size="sm" variant="destructive" onClick={handleStopSending}>
-                                            Parar
-                                        </Button>
-                                    </div>
-                                    <div className="w-full bg-gray-700 rounded-full h-3">
-                                        <div
-                                            className="bg-blue-500 h-3 rounded-full transition-all duration-300"
-                                            style={{ width: `${(sendProgress.current / sendProgress.total) * 100}%` }}
-                                        />
-                                    </div>
-                                    <div className="flex justify-between text-sm text-muted-foreground">
-                                        <span>{sendProgress.current} / {sendProgress.total}</span>
-                                        <span className="text-green-400">✓ {sendProgress.success}</span>
-                                        <span className="text-red-400">✗ {sendProgress.failed}</span>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Send Logs */}
-                            {sendLogs.length > 0 && (
-                                <div className="max-h-[200px] overflow-auto bg-gray-900 rounded-lg p-3 font-mono text-xs">
-                                    {sendLogs.slice(-20).map((log, i) => (
-                                        <div key={i} className={`py-1 ${log.status === 'success' ? 'text-green-400' : 'text-red-400'}`}>
-                                            [{log.time}] {log.user}: {log.status === 'success' ? '✓ Enviado' : `✗ ${log.message}`}
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-
-                            {/* Send Button */}
-                            <div className="flex justify-end gap-3 pt-4 border-t">
-                                <Button variant="outline" onClick={() => setShowBulkSend(false)}>
-                                    Cancelar
-                                </Button>
-                                <Button
-                                    onClick={handleBulkSend}
-                                    disabled={isSending || selectedCount === 0}
-                                    className="gap-2"
-                                >
-                                    {isSending ? (
-                                        <>
-                                            <Loader2 className="w-4 h-4 animate-spin" />
-                                            Enviando...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Send className="w-4 h-4" />
-                                            Iniciar Envio ({selectedCount})
-                                        </>
-                                    )}
-                                </Button>
-                            </div>
-                        </CardContent>
-                    )}
-                </Card>
-            )}
-
-            {/* Import Config - Always visible when there are members */}
-            {members.length > 0 && (
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Configurações de Importação</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                        {/* Member Statistics */}
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <div className="bg-blue-950/30 border border-blue-800/50 rounded-lg p-4 text-center">
-                                <p className="text-2xl font-bold text-blue-400">{members.length}</p>
-                                <p className="text-xs text-muted-foreground">Total Extraídos</p>
-                            </div>
-                            <div className="bg-green-950/30 border border-green-800/50 rounded-lg p-4 text-center">
-                                <p className="text-2xl font-bold text-green-400">{members.filter(m => m.username).length}</p>
-                                <p className="text-xs text-muted-foreground">Com Username ✓</p>
-                            </div>
-                            <div className="bg-yellow-950/30 border border-yellow-800/50 rounded-lg p-4 text-center">
-                                <p className="text-2xl font-bold text-yellow-400">{members.filter(m => !m.username).length}</p>
-                                <p className="text-xs text-muted-foreground">Sem Username</p>
-                            </div>
-                            <div className="bg-purple-950/30 border border-purple-800/50 rounded-lg p-4 text-center">
-                                <p className="text-2xl font-bold text-purple-400">{members.filter(m => m.phone).length}</p>
-                                <p className="text-xs text-muted-foreground">Com Telefone</p>
-                            </div>
-                        </div>
-
-                        <div className="border-t pt-4">
-                            <h4 className="text-sm font-medium mb-4">Configurações Padrão</h4>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div className="space-y-2">
-                                    <Label>Plano Padrão</Label>
-                                    <Select
-                                        value={importConfig.defaultPlan}
-                                        onValueChange={(v) => setImportConfig(prev => ({ ...prev, defaultPlan: v }))}
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="Mensal">Mensal</SelectItem>
-                                            <SelectItem value="Trimestral">Trimestral</SelectItem>
-                                            <SelectItem value="Semestral">Semestral</SelectItem>
-                                            <SelectItem value="Anual">Anual</SelectItem>
-                                            <SelectItem value="Vitalício">Vitalício</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label>Status Padrão</Label>
-                                    <Select
-                                        value={importConfig.defaultStatus}
-                                        onValueChange={(v) => setImportConfig(prev => ({ ...prev, defaultStatus: v }))}
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="Ativo">Ativo</SelectItem>
-                                            <SelectItem value="Inativo">Inativo</SelectItem>
-                                            <SelectItem value="Pendente">Pendente</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label>Servidor</Label>
-                                    <Input
-                                        placeholder="Ex: server1.exemplo.com"
-                                        value={importConfig.defaultServer}
-                                        onChange={(e) => setImportConfig(prev => ({ ...prev, defaultServer: e.target.value }))}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-            )}
-
-            {/* Members Table - Always visible when there are members */}
-            {members.length > 0 && (
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between">
-                        <div>
-                            <CardTitle className="flex items-center gap-2">
-                                <Users className="w-5 h-5" />
-                                Membros Encontrados
-                                <Badge variant="secondary">{filteredMembers.length}</Badge>
-                                {memberFilter !== 'all' && (
-                                    <Badge variant="outline" className="text-xs">
-                                        Filtrado de {members.length}
-                                    </Badge>
-                                )}
-                            </CardTitle>
-                            <CardDescription>
-                                {selectedCount} de {filteredMembers.length} selecionados
-                            </CardDescription>
-                        </div>
-
-                        <div className="flex gap-2 items-center">
-                            {/* Filter Dropdown */}
-                            <Select value={memberFilter} onValueChange={(v: typeof memberFilter) => setMemberFilter(v)}>
-                                <SelectTrigger className="w-40">
-                                    <Filter className="w-4 h-4 mr-2" />
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">Todos</SelectItem>
-                                    <SelectItem value="with_username">Com Username</SelectItem>
-                                    <SelectItem value="without_username">Sem Username</SelectItem>
-                                    <SelectItem value="with_phone">Com Telefone</SelectItem>
-                                </SelectContent>
-                            </Select>
-
-                            <Button variant="outline" size="sm" onClick={() => toggleAll(true)}>
-                                Selecionar Todos
-                            </Button>
-                            <Button variant="outline" size="sm" onClick={() => toggleAll(false)}>
-                                Desmarcar Todos
-                            </Button>
-                            <Button variant="secondary" size="sm" onClick={handleExportCSV}>
-                                <Download className="w-4 h-4 mr-1" />
-                                Exportar CSV
-                            </Button>
-                            <Button variant="destructive" size="sm" onClick={handleClear}>
-                                <Trash2 className="w-4 h-4" />
-                            </Button>
-                        </div>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="max-h-[400px] overflow-auto rounded-md border">
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead className="w-12">
-                                            <Checkbox
-                                                checked={selectedCount === filteredMembers.length}
-                                                onCheckedChange={(checked) => toggleAll(!!checked)}
-                                            />
-                                        </TableHead>
-                                        <TableHead>Username</TableHead>
-                                        <TableHead>Nome</TableHead>
-                                        <TableHead>Telefone</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {filteredMembers.map((member) => (
-                                        <TableRow key={member.id} className={member.selected ? '' : 'opacity-50'}>
-                                            <TableCell>
-                                                <Checkbox
-                                                    checked={member.selected}
-                                                    onCheckedChange={() => toggleMember(member.id)}
-                                                />
-                                            </TableCell>
-                                            <TableCell className="font-medium">
-                                                {member.username ? `@${member.username}` : '-'}
-                                            </TableCell>
-                                            <TableCell>
-                                                {`${member.firstName} ${member.lastName}`.trim() || '-'}
-                                            </TableCell>
-                                            <TableCell>{member.phone || '-'}</TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </div>
-
-                        {/* Import Button */}
-                        <div className="mt-4 flex items-center justify-between">
-                            <div className="text-sm text-muted-foreground">
-                                {selectedCount} membro(s) será(ão) importado(s)
-                            </div>
-                            <Button
-                                onClick={handleImport}
-                                disabled={isLoading || selectedCount === 0}
-                                className="bg-gradient-to-r from-blue-600 to-purple-600"
-                            >
-                                <UserPlus className="w-4 h-4 mr-2" />
-                                {isLoading ? 'Importando...' : `Importar ${selectedCount} Cliente(s)`}
-                            </Button>
-                        </div>
-
-                        {/* Import Results */}
-                        {importResults && (
-                            <div className="mt-4 p-4 rounded-lg bg-muted/50 space-y-2">
-                                <h4 className="font-medium">Resultado da Importação</h4>
-                                <div className="flex gap-4">
-                                    <div className="flex items-center gap-2 text-green-500">
-                                        <CheckCircle className="w-4 h-4" />
-                                        {importResults.success} sucesso
-                                    </div>
-                                    <div className="flex items-center gap-2 text-red-500">
-                                        <XCircle className="w-4 h-4" />
-                                        {importResults.failed} falha(s)
-                                    </div>
-                                </div>
-                                {importResults.errors.length > 0 && (
-                                    <div className="text-sm text-red-400 mt-2">
-                                        <p className="font-medium">Erros:</p>
-                                        <ul className="list-disc list-inside">
-                                            {importResults.errors.slice(0, 5).map((err, i) => (
-                                                <li key={i}>{err}</li>
-                                            ))}
-                                            {importResults.errors.length > 5 && (
-                                                <li>... e mais {importResults.errors.length - 5} erros</li>
-                                            )}
-                                        </ul>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
-            )
-            }
-        </div >
+        </div>
     );
 }
