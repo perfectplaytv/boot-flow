@@ -127,6 +127,7 @@ interface ExtractMembersResponse {
         is_bot: boolean;
     }>;
     detail?: string;
+    message?: string;
 }
 
 // Phase 2: Send Private Response
@@ -2090,20 +2091,46 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
             return;
         }
 
+        if (!TELEGRAM_API_URL) {
+            toast.error("VITE_TELEGRAM_API_URL não configurado no .env");
+            return;
+        }
+
         setIsExtracting(true);
         setImportResults(null);
 
+        const apiUrl = `${TELEGRAM_API_URL}/extract-members`;
+        console.log('[Extração Manual] Enviando request:', { apiUrl, phone: activeSessionPhone, group_link: groupLink });
+
+        // Timeout de 60 segundos
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 60000);
+
         try {
-            const response = await fetch(`${TELEGRAM_API_URL}/extract-members`, {
+            const response = await fetch(apiUrl, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     group_link: groupLink,
                     phone: activeSessionPhone
                 }),
+                signal: controller.signal,
             });
 
-            const data = await response.json() as ExtractMembersResponse;
+            clearTimeout(timeoutId);
+
+            console.log('[Extração Manual] Response status:', response.status, response.statusText);
+
+            const rawText = await response.text();
+            console.log('[Extração Manual] Response body (primeiros 500 chars):', rawText.substring(0, 500));
+
+            let data: ExtractMembersResponse;
+            try {
+                data = JSON.parse(rawText) as ExtractMembersResponse;
+            } catch {
+                toast.error(`API retornou resposta inválida (status ${response.status}): ${rawText.substring(0, 100)}`);
+                return;
+            }
 
             if (response.ok && data.success && data.members) {
                 const parsed: TelegramMember[] = data.members.map((m) => ({
@@ -2118,10 +2145,20 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
                 setMembers(parsed);
                 toast.success(`${parsed.length} membros extraídos do grupo ${data.group || 'desconhecido'}!`);
             } else {
-                toast.error(data.detail || "Erro ao extrair membros");
+                const errorMsg = data.detail || data.message || `Erro HTTP ${response.status}`;
+                console.error('[Extração Manual] Erro da API:', errorMsg, data);
+                toast.error(`Erro: ${errorMsg}`);
             }
         } catch (error) {
-            toast.error("Erro de conexão. Verifique se o serviço está rodando.");
+            clearTimeout(timeoutId);
+            if (error instanceof DOMException && error.name === 'AbortError') {
+                toast.error("Timeout: A extração demorou mais de 60 segundos. Tente novamente.");
+                console.error('[Extração Manual] Timeout após 60s');
+            } else {
+                const errorMsg = error instanceof Error ? error.message : String(error);
+                toast.error(`Erro de conexão: ${errorMsg}`);
+                console.error('[Extração Manual] Erro:', errorMsg);
+            }
         } finally {
             setIsExtracting(false);
         }
