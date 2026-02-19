@@ -1,0 +1,25 @@
+{
+    "name": "whatsapp-links",
+    "version": "1.0.0",
+    "description": "Cloudflare Worker para links curtos de WhatsApp com mensagens personalizadas",
+    "main": "src/index.ts",
+    "scripts": {
+        "dev": "wrangler dev",
+        "deploy": "wrangler deploy",
+        "deploy:prod": "wrangler deploy --env production",
+        "tail": "wrangler tail"
+    },
+    "keywords": [
+        "cloudflare",
+        "worker",
+        "whatsapp",
+        "shortlinks"
+    ],
+    "author": "BootFlow",
+    "license": "MIT",
+    "devDependencies": {
+        "@cloudflare/workers-types": "^4.20240117.0",
+        "typescript": "^5.3.3",
+        "wrangler": "^3.22.0"
+    }
+}

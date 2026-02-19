@@ -1,0 +1,84 @@
+{
+  "generatedAt": "2025-11-12T00:00:00Z",
+  "stack": {
+    "runtime": "Node.js",
+    "framework": "React 18 + Vite 5",
+    "language": "TypeScript",
+    "styling": ["Tailwind CSS 3", "Shadcn UI (Radix Primitives)", "custom CSS"],
+    "stateManagement": ["React Context", "TanStack Query", "Local component state"],
+    "dataLayer": ["Supabase", "Drizzle ORM", "Netlify Neon"],
+    "routing": "React Router DOM v6",
+    "tooling": ["ESLint", "TypeScript", "Drizzle Kit", "Supabase CLI"],
+    "thirdParty": ["Lucide Icons", "Sonner Toasts", "Recharts", "Embla Carousel"]
+  },
+  "topLevelDirectories": {
+    "src": "Aplicação front-end React (componentes, páginas, hooks, lib, serviços)",
+    "db": "Configuração Drizzle ORM (schema e index)",
+    "migrations": "Scripts SQL históricos",
+    "supabase": "Configuração local Supabase (config.toml, migrations, seed)",
+    "public": "Assets públicos para Vite",
+    "docs": "Documentação variada (diversos manuais já existentes)",
+    "scripts": "Automação utilitária (ex: testes de RLS)",
+    "tests": "Scripts de teste customizados",
+    "sql_scripts": "Vários arquivos .sql na raiz para manutenção" 
+  },
+  "pages": {
+    "dashboards": ["AdminDashboard", "ClientDashboard", "ResellerDashboard", "AdminLayout"],
+    "admin": ["AdminUsers", "AdminResellers", "AdminWhatsApp", "AdminCobrancas", "AdminBranding", "AdminAnalytics", "AdminAI", "AdminIPTV", "AdminRadio", "AdminEcommerce", "AdminGames", "AdminGateways"],
+    "public": ["Landing", "Login", "Signup", "HelpCenter", "Integracoes", "Documentacao", "API", "Products", "Statistics", "Privacy", "Terms", "VoiceCampaigns", "Channels", "Payments", "Gamification", "Scheduling", "Export", "Profile"],
+    "auth": ["Cadastro", "RecuperarSenha", "ResetPassword", "AuthCallback"],
+    "empresa": ["Sobre", "Blog"],
+    "fallback": "NotFound"
+  },
+  "components": {
+    "ui": "Conjunto Shadcn adaptado sob src/components/ui",
+    "layouts": ["sidebars/AdminSidebar", "sidebars/ClientSidebar", "sidebars/ResellerSidebar"],
+    "forms": ["AddClienteForm", "LoginForm", "WhatsAppConfigForm"],
+    "modals": ["modals/AIModalManager", "modals/AvatarSelectionModal"],
+    "whatsapp": ["APIBrasilRealtimeSection", "WhatsAppConnection", "WhatsAppQRCode"]
+  },
+  "hooks": [
+    "useClientes",
+    "useRevendas",
+    "useCobrancas",
+    "useDashboardData",
+    "useRealtime",
+    "useUsers",
+    "use-mobile",
+    "use-toast"
+  ],
+  "contexts": [
+    "AuthContext",
+    "UserContext"
+  ],
+  "supabase": {
+    "client": "src/lib/supabase.ts",
+    "integration": "src/integrations/supabase",
+    "types": "src/types/supabase.types.ts",
+    "config": "supabase/config.toml",
+    "migrations": "supabase/migrations",
+    "seed": "supabase/seed.sql"
+  },
+  "drizzle": {
+    "config": "drizzle.config.ts",
+    "schema": "db/schema.ts",
+    "index": "db/index.ts"
+  },
+  "tooling": {
+    "lint": "eslint.config.js",
+    "build": "vite.config.ts",
+    "tailwind": "tailwind.config.ts",
+    "tsconfigs": ["tsconfig.json", "tsconfig.app.json", "tsconfig.node.json"],
+    "packageManager": "npm"
+  },
+  "auth": {
+    "providers": ["Email/password", "Supabase OAuth (Google)", "Local demo auth"],
+    "files": ["contexts/AuthContext.tsx", "contexts/UserContext.tsx", "pages/Login.tsx", "pages/Signup.tsx", "pages/AuthCallback.tsx"]
+  },
+  "notes": [
+    "Projeto utiliza arquitetura modular com páginas em src/pages e UI reutilizável em src/components/ui.",
+    "Integração forte com Supabase para autenticação, perfis e dados de clientes/revendas.",
+    "Drizzle ORM configurado mas parcialmente utilizado ao lado de chamadas Supabase diretas.",
+    "Diversos guias técnicos existentes na raiz documentando fluxo de correções e integrações." 
+  ]
+}

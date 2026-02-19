@@ -1,0 +1,132 @@
+import { sqliteTable, integer, text, real } from 'drizzle-orm/sqlite-core';
+import { sql } from 'drizzle-orm';
+
+// Tabela de Usuários (Clientes)
+export const users = sqliteTable('users', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    server: text('server'),
+    plan: text('plan').notNull(), // 'Mensal', 'Trimestral', etc.
+    name: text('name').notNull(),
+    email: text('email').notNull().unique(),
+    status: text('status').notNull().default('Ativo'), // 'Ativo', 'Inativo', etc.
+    expiration_date: text('expiration_date').notNull(),
+    devices: integer('devices').default(0),
+    credits: integer('credits').default(0),
+    password: text('password'),
+    bouquets: text('bouquets'),
+    real_name: text('real_name'),
+    whatsapp: text('whatsapp'),
+    telegram: text('telegram'),
+    observations: text('observations'),
+    notes: text('notes'),
+    m3u_url: text('m3u_url'),
+    renewal_date: text('renewal_date'),
+    phone: text('phone'),
+    owner_uid: text('owner_uid'), // ID do admin/revenda que criou
+    created_at: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+    updated_at: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
+});
+
+// Tabela de Revendedores
+export const resellers = sqliteTable('resellers', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    username: text('username').notNull().unique(),
+    email: text('email').notNull().unique(),
+    password: text('password'),
+    permission: text('permission').default('reseller'),
+    credits: integer('credits').default(10),
+    personal_name: text('personal_name'),
+    status: text('status').default('Ativo'),
+    force_password_change: integer('force_password_change', { mode: 'boolean' }).default(false),
+    servers: text('servers'),
+    master_reseller: text('master_reseller'),
+    disable_login_days: integer('disable_login_days').default(0),
+    monthly_reseller: integer('monthly_reseller', { mode: 'boolean' }).default(false),
+    telegram: text('telegram'),
+    whatsapp: text('whatsapp'),
+    observations: text('observations'),
+    owner_uid: text('owner_uid'),
+    // Campos do plano
+    plan_name: text('plan_name').default('Essencial'),
+    plan_price: text('plan_price').default('R$ 0'),
+    max_clients: integer('max_clients').default(5),
+    subscription_date: text('subscription_date'),
+    created_at: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+    updated_at: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
+});
+
+// Tabela de Cobranças
+export const cobrancas = sqliteTable('cobrancas', {
+    id: text('id').primaryKey(), // UUID gerado no app
+    cliente_id: text('cliente_id'), // Referência ao ID do cliente (pode ser string ou int convertido)
+    valor: real('valor').notNull(),
+    data_vencimento: text('data_vencimento').notNull(),
+    status: text('status').notNull().default('pendente'), // 'pendente', 'pago', etc.
+    descricao: text('descricao'),
+    owner_uid: text('owner_uid'),
+    created_at: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+    updated_at: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
+});
+
+// Tabela de Servidores
+export const servers = sqliteTable('servers', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    nome: text('nome').notNull(),
+    ip: text('ip').notNull(),
+    porta: integer('porta').notNull(),
+    tipo: text('tipo').notNull(),
+    status: text('status').notNull().default('offline'),
+    cpu: integer('cpu').default(0),
+    memoria: integer('memoria').default(0),
+    disco: integer('disco').default(0),
+    owner_uid: text('owner_uid'), // Dono do servidor
+    ultima_atualizacao: text('ultima_atualizacao').default(sql`CURRENT_TIMESTAMP`),
+    created_at: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+    updated_at: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
+});
+
+// Tabela de Aplicativos
+export const applications = sqliteTable('applications', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    nome: text('nome').notNull(),
+    versao: text('versao').notNull(),
+    servidor: text('servidor').notNull(),
+    tipo: text('tipo').notNull(),
+    status: text('status').notNull().default('inativo'),
+    usuarios: integer('usuarios').default(0),
+    owner_uid: text('owner_uid'), // Dono do aplicativo
+    ultima_atualizacao: text('ultima_atualizacao').default(sql`CURRENT_TIMESTAMP`),
+    created_at: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+    updated_at: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
+});
+
+// Tabela de Configurações
+export const app_config = sqliteTable('app_config', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    key: text('key').notNull().unique(),
+    value: text('value').notNull(),
+    description: text('description'),
+    created_at: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+    updated_at: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
+});
+
+// Tabela de Logs de Webhook
+export const webhook_logs = sqliteTable('webhook_logs', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    event_type: text('event_type').notNull(),
+    payment_id: text('payment_id'),
+    status: text('status'),
+    raw_data: text('raw_data'),
+    processed_at: text('processed_at').default(sql`CURRENT_TIMESTAMP`),
+});
+
+// Tabela de Templates do WhatsApp
+export const whatsapp_templates = sqliteTable('whatsapp_templates', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    title: text('title').notNull(),
+    tag: text('tag').notNull(),
+    content: text('content').notNull(),
+    status: text('status').default('Ativo'),
+    created_at: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+    updated_at: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
+});
