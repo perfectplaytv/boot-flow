@@ -1586,6 +1586,8 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
     const groupsRef = useRef(telegramGroups);
     const accountsRef = useRef(tgAccounts);
     const sessionsRef = useRef(sessions);
+    const extractionAttemptsRef = useRef<Record<number, number>>({});
+    const MAX_EXTRACTION_RETRIES = 5;
 
     useEffect(() => { fillJobsRef.current = fillJobs; }, [fillJobs]);
     useEffect(() => { groupsRef.current = telegramGroups; }, [telegramGroups]);
@@ -1604,9 +1606,7 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
     }, []);
 
     useEffect(() => {
-        // Track extraction attempts per job to avoid infinite retry spam
-        const extractionAttempts: Record<number, number> = {};
-        const MAX_EXTRACTION_RETRIES = 5;
+        const extractionAttempts = extractionAttemptsRef.current;
 
         const interval = setInterval(async () => {
             const currentJobs = fillJobsRef.current;
