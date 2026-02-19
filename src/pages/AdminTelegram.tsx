@@ -1585,10 +1585,12 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
     const fillJobsRef = useRef(fillJobs);
     const groupsRef = useRef(telegramGroups);
     const accountsRef = useRef(tgAccounts);
+    const sessionsRef = useRef(sessions);
 
     useEffect(() => { fillJobsRef.current = fillJobs; }, [fillJobs]);
     useEffect(() => { groupsRef.current = telegramGroups; }, [telegramGroups]);
     useEffect(() => { accountsRef.current = tgAccounts; }, [tgAccounts]);
+    useEffect(() => { sessionsRef.current = sessions; }, [sessions]);
 
     // Processamento de Jobs REAL (Conectado ao Backend)
     // Helper: update jobs state safely (uses functional update to avoid stale closures)
@@ -1663,7 +1665,38 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
                                 continue;
                             }
 
-                            addSystemLog('info', 'job', `Iniciando extração: ${sourceGroup.name}`, `Tentativa ${attempts + 1}/${MAX_EXTRACTION_RETRIES}`);
+                            // Busca sessão conectada que corresponda ao phone da conta
+                            const connectedSessions = sessionsRef.current;
+                            const cleanPhone = account.phone.replace(/[^0-9]/g, ''); // Remove +, espaços, etc
+                            const matchedSession = connectedSessions.find(s =>
+                                s.clean_phone === cleanPhone ||
+                                s.clean_phone === account.phone ||
+                                s.phone === account.phone ||
+                                s.phone === cleanPhone
+                            );
+
+                            // Se não encontrou sessão conectada, tenta usar qualquer sessão disponível
+                            const sessionPhone = matchedSession?.clean_phone || (connectedSessions.length > 0 ? connectedSessions[0].clean_phone : null);
+
+                            if (!sessionPhone) {
+                                const reason = 'Nenhuma sessão Telegram conectada. Conecte uma conta na aba BootGram primeiro.';
+                                addSystemLog('error', 'job', `Job ${job.name} pausado`, reason);
+                                toast.error(`Job "${job.name}": ${reason}`);
+                                updateJobsState(prev => prev.map(curr =>
+                                    curr.id === job.id ? {
+                                        ...curr,
+                                        status: 'pausado' as const,
+                                        logs: [...curr.logs, { time: new Date().toISOString(), type: 'error' as const, message: reason }]
+                                    } : curr
+                                ));
+                                continue;
+                            }
+
+                            if (!matchedSession) {
+                                addSystemLog('warning', 'job', `Conta ${account.phone} não tem sessão ativa, usando sessão ${sessionPhone}`);
+                            }
+
+                            addSystemLog('info', 'job', `Iniciando extração: ${sourceGroup.name}`, `Tentativa ${attempts + 1}/${MAX_EXTRACTION_RETRIES} | Sessão: ${sessionPhone}`);
 
                             // Verifica se TELEGRAM_API_URL está configurado
                             if (!TELEGRAM_API_URL) {
@@ -1683,12 +1716,12 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
                             // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             const groupLink = sourceGroup.link || (sourceGroup as any).username || `t.me/${sourceGroup.name}`;
 
-                            // Chama o Backend: /extract-members
+                            // Chama o Backend: /extract-members (usando phone da sessão conectada)
                             const response = await fetch(`${TELEGRAM_API_URL}/extract-members`, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({
-                                    phone: account.phone,
+                                    phone: sessionPhone,
                                     group_link: groupLink
                                 })
                             });
@@ -1805,15 +1838,37 @@ Se você está em busca de ${aiCopyConfig.keywords || 'resultados incríveis'}, 
                         continue;
                     }
 
+                    // Busca sessão conectada para o add-member também
+                    const addConnectedSessions = sessionsRef.current;
+                    const addCleanPhone = account.phone.replace(/[^0-9]/g, '');
+                    const addMatchedSession = addConnectedSessions.find(s =>
+                        s.clean_phone === addCleanPhone ||
+                        s.clean_phone === account.phone ||
+                        s.phone === account.phone
+                    );
+                    const addSessionPhone = addMatchedSession?.clean_phone || (addConnectedSessions.length > 0 ? addConnectedSessions[0].clean_phone : null);
+
+                    if (!addSessionPhone) {
+                        addSystemLog('error', 'job', `Job ${job.name} pausado`, 'Nenhuma sessão conectada para adicionar membros');
+                        updateJobsState(prev => prev.map(curr =>
+                            curr.id === job.id ? {
+                                ...curr,
+                                status: 'pausado' as const,
+                                logs: [...curr.logs, { time: new Date().toISOString(), type: 'error' as const, message: 'Nenhuma sessão conectada' }]
+                            } : curr
+                        ));
+                        continue;
+                    }
+
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const destLink = destGroup.link || (destGroup as any).username;
 
-                    // Chama Backend: /add-member
+                    // Chama Backend: /add-member (usando phone da sessão conectada)
                     const response = await fetch(`${TELEGRAM_API_URL}/add-member`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            phone: account.phone,
+                            phone: addSessionPhone,
                             group_link: destLink,
                             user_input: String(nextMember)
                         })
