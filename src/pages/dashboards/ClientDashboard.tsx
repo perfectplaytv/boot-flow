@@ -1647,19 +1647,22 @@ const ClientDashboard = () => {
               
               {/* --- BANNERS DE ALERTA PREMIUM --- */}
               <div className="space-y-3">
-                {/* Alerta 1: NPS */}
+                {/* Alerta 1: Cobranças */}
                 <div className="flex items-center justify-between bg-gradient-to-r from-purple-800/40 via-purple-700/30 to-purple-900/40 border border-purple-600/30 rounded-xl px-4 py-3 text-white backdrop-blur-md relative overflow-hidden group shadow-lg">
                   <div className="absolute inset-0 bg-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg bg-purple-600/30 flex items-center justify-center border border-purple-500/30">
-                      <Bell className="w-4 h-4 text-purple-400 animate-bounce" />
+                      <DollarSign className="w-4 h-4 text-purple-400 animate-pulse" />
                     </div>
                     <div>
-                      <span className="font-semibold text-xs text-purple-300 block tracking-wider uppercase">ATUALIZAÇÃO PLUGIN NPS</span>
-                      <span className="text-sm text-gray-200">Confira a última atualização do plugin NPS. Mais moderno e eficiente.</span>
+                      <span className="font-semibold text-xs text-purple-300 block tracking-wider uppercase">COBRANÇAS</span>
+                      <span className="text-sm text-gray-200">Gerenciador de todas as suas cobranças e faturamento</span>
                     </div>
                   </div>
-                  <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white h-7 w-7 p-0 rounded-full hover:bg-white/10">✕</Button>
+                  <div className="flex items-center gap-2">
+                    <Button variant="ghost" size="sm" onClick={() => setCurrentPage("billing")} className="bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 font-medium px-3 h-8 border border-purple-500/20">Gerenciar</Button>
+                    <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white h-7 w-7 p-0 rounded-full hover:bg-white/10">✕</Button>
+                  </div>
                 </div>
 
                 {/* Alerta 2: Integração Sigma/QPanel */}
