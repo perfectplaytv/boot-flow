@@ -196,8 +196,8 @@ export default function AdminUsers() {
   const sortedUsers = [...filteredUsers].sort((a, b) => {
     if (!sortField) return 0;
 
-    let aValue = a[sortField as keyof Cliente];
-    let bValue = b[sortField as keyof Cliente];
+    const aValue = a[sortField as keyof Cliente];
+    const bValue = b[sortField as keyof Cliente];
 
     // Tratar valores nulos/indefinidos colocando-os no fim em ambos os sentidos
     if ((aValue === undefined || aValue === null || aValue === "") && (bValue === undefined || bValue === null || bValue === "")) {
