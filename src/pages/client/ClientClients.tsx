@@ -60,6 +60,7 @@ import {
   CheckCircle,
   Copy,
   DollarSign,
+  ArrowUpDown,
 } from "lucide-react";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import {
@@ -155,6 +156,11 @@ export default function ClientClients() {
   const [addUserSuccess, setAddUserSuccess] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
+  
+  // Estados de ordenação
+  const [sortField, setSortField] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+
   const itemsPerPage = 10;
   const usersSafe = users || [];
   const filteredUsers = usersSafe.filter(
@@ -168,7 +174,65 @@ export default function ClientClients() {
       user.status?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const paginatedUsers = filteredUsers.slice(
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  };
+
+  const sortedUsers = [...filteredUsers].sort((a, b) => {
+    if (!sortField) return 0;
+
+    let aValue = a[sortField as keyof Cliente];
+    let bValue = b[sortField as keyof Cliente];
+
+    // Tratar valores nulos/indefinidos colocando-os no fim em ambos os sentidos
+    if ((aValue === undefined || aValue === null || aValue === "") && (bValue === undefined || bValue === null || bValue === "")) {
+      return 0;
+    }
+    if (aValue === undefined || aValue === null || aValue === "") {
+      return 1;
+    }
+    if (bValue === undefined || bValue === null || bValue === "") {
+      return -1;
+    }
+
+    // Tipo de comparação
+    if (sortField === "expiration_date") {
+      const aDate = new Date(aValue as string).getTime();
+      const bDate = new Date(bValue as string).getTime();
+      return sortDirection === "asc" ? aDate - bDate : bDate - aDate;
+    }
+
+    if (sortField === "devices") {
+      const aNum = Number(aValue) || 0;
+      const bNum = Number(bValue) || 0;
+      return sortDirection === "asc" ? aNum - bNum : bNum - aNum;
+    }
+
+    if (sortField === "price") {
+      const parsePrice = (val: string) => {
+        const cleaned = val.replace(/[^\d,.-]/g, "").replace(",", ".");
+        return parseFloat(cleaned) || 0;
+      };
+      const aPrice = typeof aValue === "string" ? parsePrice(aValue) : Number(aValue) || 0;
+      const bPrice = typeof bValue === "string" ? parsePrice(bValue) : Number(bValue) || 0;
+      return sortDirection === "asc" ? aPrice - bPrice : bPrice - aPrice;
+    }
+
+    // Comparação de string padrão
+    const aStr = String(aValue).toLowerCase();
+    const bStr = String(bValue).toLowerCase();
+
+    if (aStr < bStr) return sortDirection === "asc" ? -1 : 1;
+    if (aStr > bStr) return sortDirection === "asc" ? 1 : -1;
+    return 0;
+  });
+
+  const paginatedUsers = sortedUsers.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -1515,20 +1579,68 @@ export default function ClientClients() {
           <Table>
             <TableHeader>
               <TableRow className="text-gray-400">
-                <TableHead className="text-xs sm:text-sm">Nome</TableHead>
-                <TableHead className="text-xs sm:text-sm">Plano</TableHead>
-                <TableHead className="text-xs sm:text-sm">Status</TableHead>
-                <TableHead className="hidden md:table-cell text-xs sm:text-sm">
-                  Números de Dispositivos
+                <TableHead 
+                  className="text-xs sm:text-sm cursor-pointer select-none transition-colors hover:text-white"
+                  onClick={() => handleSort("name")}
+                >
+                  <div className="flex items-center gap-1.5">
+                    <span>Nome</span>
+                    <ArrowUpDown className={`w-3.5 h-3.5 transition-all ${sortField === "name" ? "text-purple-400 opacity-100 scale-110" : "text-gray-500 opacity-30 hover:opacity-100"}`} />
+                  </div>
                 </TableHead>
-                <TableHead className="hidden lg:table-cell text-xs sm:text-sm">
-                  Vencimento
+                <TableHead 
+                  className="text-xs sm:text-sm cursor-pointer select-none transition-colors hover:text-white"
+                  onClick={() => handleSort("plan")}
+                >
+                  <div className="flex items-center gap-1.5">
+                    <span>Plano</span>
+                    <ArrowUpDown className={`w-3.5 h-3.5 transition-all ${sortField === "plan" ? "text-purple-400 opacity-100 scale-110" : "text-gray-500 opacity-30 hover:opacity-100"}`} />
+                  </div>
                 </TableHead>
-                <TableHead className="hidden lg:table-cell text-xs sm:text-sm">
-                  Servidor
+                <TableHead 
+                  className="text-xs sm:text-sm cursor-pointer select-none transition-colors hover:text-white"
+                  onClick={() => handleSort("status")}
+                >
+                  <div className="flex items-center gap-1.5">
+                    <span>Status</span>
+                    <ArrowUpDown className={`w-3.5 h-3.5 transition-all ${sortField === "status" ? "text-purple-400 opacity-100 scale-110" : "text-gray-500 opacity-30 hover:opacity-100"}`} />
+                  </div>
                 </TableHead>
-                <TableHead className="hidden sm:table-cell text-xs sm:text-sm">
-                  Preço
+                <TableHead 
+                  className="hidden md:table-cell text-xs sm:text-sm cursor-pointer select-none transition-colors hover:text-white"
+                  onClick={() => handleSort("devices")}
+                >
+                  <div className="flex items-center gap-1.5">
+                    <span>Números de Dispositivos</span>
+                    <ArrowUpDown className={`w-3.5 h-3.5 transition-all ${sortField === "devices" ? "text-purple-400 opacity-100 scale-110" : "text-gray-500 opacity-30 hover:opacity-100"}`} />
+                  </div>
+                </TableHead>
+                <TableHead 
+                  className="hidden lg:table-cell text-xs sm:text-sm cursor-pointer select-none transition-colors hover:text-white"
+                  onClick={() => handleSort("expiration_date")}
+                >
+                  <div className="flex items-center gap-1.5">
+                    <span>Vencimento</span>
+                    <ArrowUpDown className={`w-3.5 h-3.5 transition-all ${sortField === "expiration_date" ? "text-purple-400 opacity-100 scale-110" : "text-gray-500 opacity-30 hover:opacity-100"}`} />
+                  </div>
+                </TableHead>
+                <TableHead 
+                  className="hidden lg:table-cell text-xs sm:text-sm cursor-pointer select-none transition-colors hover:text-white"
+                  onClick={() => handleSort("server")}
+                >
+                  <div className="flex items-center gap-1.5">
+                    <span>Servidor</span>
+                    <ArrowUpDown className={`w-3.5 h-3.5 transition-all ${sortField === "server" ? "text-purple-400 opacity-100 scale-110" : "text-gray-500 opacity-30 hover:opacity-100"}`} />
+                  </div>
+                </TableHead>
+                <TableHead 
+                  className="hidden sm:table-cell text-xs sm:text-sm cursor-pointer select-none transition-colors hover:text-white"
+                  onClick={() => handleSort("price")}
+                >
+                  <div className="flex items-center gap-1.5">
+                    <span>Preço</span>
+                    <ArrowUpDown className={`w-3.5 h-3.5 transition-all ${sortField === "price" ? "text-purple-400 opacity-100 scale-110" : "text-gray-500 opacity-30 hover:opacity-100"}`} />
+                  </div>
                 </TableHead>
                 <TableHead className="text-xs sm:text-sm">Ações</TableHead>
               </TableRow>

@@ -60,6 +60,7 @@ import {
   CheckCircle,
   Copy,
   DollarSign,
+  ArrowUpDown,
 } from "lucide-react";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import {
@@ -165,6 +166,11 @@ export default function AdminUsers() {
   const [selectedUserIds, setSelectedUserIds] = useState<Set<number>>(new Set());
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false);
+
+  // Estados de ordenação
+  const [sortField, setSortField] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+
   const itemsPerPage = 10;
   const usersSafe = users || [];
   const filteredUsers = usersSafe.filter(
@@ -178,7 +184,65 @@ export default function AdminUsers() {
       user.status?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const paginatedUsers = filteredUsers.slice(
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  };
+
+  const sortedUsers = [...filteredUsers].sort((a, b) => {
+    if (!sortField) return 0;
+
+    let aValue = a[sortField as keyof Cliente];
+    let bValue = b[sortField as keyof Cliente];
+
+    // Tratar valores nulos/indefinidos colocando-os no fim em ambos os sentidos
+    if ((aValue === undefined || aValue === null || aValue === "") && (bValue === undefined || bValue === null || bValue === "")) {
+      return 0;
+    }
+    if (aValue === undefined || aValue === null || aValue === "") {
+      return 1;
+    }
+    if (bValue === undefined || bValue === null || bValue === "") {
+      return -1;
+    }
+
+    // Tipo de comparação
+    if (sortField === "expiration_date") {
+      const aDate = new Date(aValue as string).getTime();
+      const bDate = new Date(bValue as string).getTime();
+      return sortDirection === "asc" ? aDate - bDate : bDate - aDate;
+    }
+
+    if (sortField === "devices") {
+      const aNum = Number(aValue) || 0;
+      const bNum = Number(bValue) || 0;
+      return sortDirection === "asc" ? aNum - bNum : bNum - aNum;
+    }
+
+    if (sortField === "price") {
+      const parsePrice = (val: string) => {
+        const cleaned = val.replace(/[^\d,.-]/g, "").replace(",", ".");
+        return parseFloat(cleaned) || 0;
+      };
+      const aPrice = typeof aValue === "string" ? parsePrice(aValue) : Number(aValue) || 0;
+      const bPrice = typeof bValue === "string" ? parsePrice(bValue) : Number(bValue) || 0;
+      return sortDirection === "asc" ? aPrice - bPrice : bPrice - aPrice;
+    }
+
+    // Comparação de string padrão
+    const aStr = String(aValue).toLowerCase();
+    const bStr = String(bValue).toLowerCase();
+
+    if (aStr < bStr) return sortDirection === "asc" ? -1 : 1;
+    if (aStr > bStr) return sortDirection === "asc" ? 1 : -1;
+    return 0;
+  });
+
+  const paginatedUsers = sortedUsers.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -1468,20 +1532,68 @@ export default function AdminUsers() {
                     className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-blue-500"
                   />
                 </TableHead>
-                <TableHead className="text-xs sm:text-sm">Nome</TableHead>
-                <TableHead className="text-xs sm:text-sm">Plano</TableHead>
-                <TableHead className="text-xs sm:text-sm">Status</TableHead>
-                <TableHead className="hidden md:table-cell text-xs sm:text-sm">
-                  Números de Dispositivos
+                <TableHead 
+                  className="text-xs sm:text-sm cursor-pointer select-none transition-colors hover:text-white"
+                  onClick={() => handleSort("name")}
+                >
+                  <div className="flex items-center gap-1.5">
+                    <span>Nome</span>
+                    <ArrowUpDown className={`w-3.5 h-3.5 transition-all ${sortField === "name" ? "text-purple-400 opacity-100 scale-110" : "text-gray-500 opacity-30 hover:opacity-100"}`} />
+                  </div>
                 </TableHead>
-                <TableHead className="hidden lg:table-cell text-xs sm:text-sm">
-                  Vencimento
+                <TableHead 
+                  className="text-xs sm:text-sm cursor-pointer select-none transition-colors hover:text-white"
+                  onClick={() => handleSort("plan")}
+                >
+                  <div className="flex items-center gap-1.5">
+                    <span>Plano</span>
+                    <ArrowUpDown className={`w-3.5 h-3.5 transition-all ${sortField === "plan" ? "text-purple-400 opacity-100 scale-110" : "text-gray-500 opacity-30 hover:opacity-100"}`} />
+                  </div>
                 </TableHead>
-                <TableHead className="hidden lg:table-cell text-xs sm:text-sm">
-                  Servidor
+                <TableHead 
+                  className="text-xs sm:text-sm cursor-pointer select-none transition-colors hover:text-white"
+                  onClick={() => handleSort("status")}
+                >
+                  <div className="flex items-center gap-1.5">
+                    <span>Status</span>
+                    <ArrowUpDown className={`w-3.5 h-3.5 transition-all ${sortField === "status" ? "text-purple-400 opacity-100 scale-110" : "text-gray-500 opacity-30 hover:opacity-100"}`} />
+                  </div>
                 </TableHead>
-                <TableHead className="hidden sm:table-cell text-xs sm:text-sm">
-                  Preço
+                <TableHead 
+                  className="hidden md:table-cell text-xs sm:text-sm cursor-pointer select-none transition-colors hover:text-white"
+                  onClick={() => handleSort("devices")}
+                >
+                  <div className="flex items-center gap-1.5">
+                    <span>Números de Dispositivos</span>
+                    <ArrowUpDown className={`w-3.5 h-3.5 transition-all ${sortField === "devices" ? "text-purple-400 opacity-100 scale-110" : "text-gray-500 opacity-30 hover:opacity-100"}`} />
+                  </div>
+                </TableHead>
+                <TableHead 
+                  className="hidden lg:table-cell text-xs sm:text-sm cursor-pointer select-none transition-colors hover:text-white"
+                  onClick={() => handleSort("expiration_date")}
+                >
+                  <div className="flex items-center gap-1.5">
+                    <span>Vencimento</span>
+                    <ArrowUpDown className={`w-3.5 h-3.5 transition-all ${sortField === "expiration_date" ? "text-purple-400 opacity-100 scale-110" : "text-gray-500 opacity-30 hover:opacity-100"}`} />
+                  </div>
+                </TableHead>
+                <TableHead 
+                  className="hidden lg:table-cell text-xs sm:text-sm cursor-pointer select-none transition-colors hover:text-white"
+                  onClick={() => handleSort("server")}
+                >
+                  <div className="flex items-center gap-1.5">
+                    <span>Servidor</span>
+                    <ArrowUpDown className={`w-3.5 h-3.5 transition-all ${sortField === "server" ? "text-purple-400 opacity-100 scale-110" : "text-gray-500 opacity-30 hover:opacity-100"}`} />
+                  </div>
+                </TableHead>
+                <TableHead 
+                  className="hidden sm:table-cell text-xs sm:text-sm cursor-pointer select-none transition-colors hover:text-white"
+                  onClick={() => handleSort("price")}
+                >
+                  <div className="flex items-center gap-1.5">
+                    <span>Preço</span>
+                    <ArrowUpDown className={`w-3.5 h-3.5 transition-all ${sortField === "price" ? "text-purple-400 opacity-100 scale-110" : "text-gray-500 opacity-30 hover:opacity-100"}`} />
+                  </div>
                 </TableHead>
                 <TableHead className="text-xs sm:text-sm">Ações</TableHead>
               </TableRow>
@@ -1516,14 +1628,14 @@ export default function AdminUsers() {
                   </TableCell>
                   <TableCell>
                     <Badge
-                      className={`text - xs ${user.status === "Ativo"
+                      className={`text-xs ${user.status === "Ativo"
                         ? "bg-green-700 text-green-200"
                         : user.status === "Inativo"
                           ? "bg-red-700 text-red-200"
                           : user.status === "Pendente"
                             ? "bg-yellow-700 text-yellow-200"
                             : "bg-gray-700 text-gray-300"
-                        } `}
+                        }`}
                     >
                       {user.status}
                     </Badge>
@@ -1540,7 +1652,7 @@ export default function AdminUsers() {
                     {user.server || "-"}
                   </TableCell>
                   <TableCell className="hidden sm:table-cell text-gray-300 text-xs sm:text-sm">
-                    {user.price ? `R$ ${user.price} ` : "-"}
+                    {user.price ? `R$ ${user.price}` : "-"}
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-1 sm:gap-2">
@@ -1568,7 +1680,7 @@ export default function AdminUsers() {
                         className={`${user.pago
                           ? "bg-green-600 text-white hover:bg-green-700 border-green-600"
                           : "border-green-600 text-green-400 hover:bg-green-600 hover:text-white bg-background"
-                          } h - 8 w - 8 sm: h - 9 sm: w - 9 p - 0 rounded - md`}
+                          } h-8 w-8 sm:h-9 sm:w-9 p-0 rounded-md`}
                         onClick={() => openPagoModal(user)}
                         title={user.pago ? "Marcar como Não Pago" : "Marcar como Pago"}
                       >
