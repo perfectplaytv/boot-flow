@@ -38,7 +38,8 @@ import {
   Bell,
   RefreshCw,
   AlertCircle,
-  Calendar
+  Calendar,
+  Shield
 } from "lucide-react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { ClientSidebar } from "@/components/sidebars/ClientSidebar";
@@ -1665,20 +1666,20 @@ const ClientDashboard = () => {
                   </div>
                 </div>
 
-                {/* Alerta 2: Integração Sigma/QPanel */}
+                {/* Alerta 2: Revendas & Planos */}
                 <div className="flex items-center justify-between bg-gradient-to-r from-teal-800/40 via-teal-700/30 to-teal-900/40 border border-teal-600/30 rounded-xl px-4 py-3 text-white backdrop-blur-md relative overflow-hidden group shadow-lg">
                   <div className="absolute inset-0 bg-teal-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg bg-teal-600/30 flex items-center justify-center border border-teal-500/30">
-                      <Star className="w-4 h-4 text-teal-400 fill-teal-400/20" />
+                      <Shield className="w-4 h-4 text-teal-400 fill-teal-400/20" />
                     </div>
                     <div>
-                      <span className="font-semibold text-xs text-teal-300 block tracking-wider uppercase">INTEGRAÇÃO COM SIGMA/QPANEL</span>
-                      <span className="text-sm text-gray-200">Você possui painel sigma/qpanel? Estamos lançando nossa nova integração. Participe do programa BFTA. Nos envie uma mensagem no WhatsApp.</span>
+                      <span className="font-semibold text-xs text-teal-300 block tracking-wider uppercase">REVENDAS & PLANOS</span>
+                      <span className="text-sm text-gray-200">Gerenciador completo de planos de revendedores e distribuição de créditos</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="sm" className="bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 font-medium px-3 h-8 border border-teal-500/20">Saiba Mais</Button>
+                    <Button variant="ghost" size="sm" onClick={() => setCurrentPage("resellers")} className="bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 font-medium px-3 h-8 border border-teal-500/20">Gerenciar</Button>
                     <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white h-7 w-7 p-0 rounded-full hover:bg-white/10">✕</Button>
                   </div>
                 </div>
