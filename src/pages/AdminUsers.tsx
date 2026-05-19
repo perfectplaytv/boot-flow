@@ -168,7 +168,7 @@ export default function AdminUsers() {
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false);
 
   // Estados de ordenação
-  const [sortField, setSortField] = useState<string | null>(null);
+  const [sortField, setSortField] = useState<string | null>("expiration_date");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
   const itemsPerPage = 10;
