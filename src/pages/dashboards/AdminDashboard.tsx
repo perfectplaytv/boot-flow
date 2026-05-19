@@ -274,6 +274,61 @@ const AdminDashboard = () => {
       }, 0);
   }, [clientesDoAdmin]);
 
+  const proximoVencimentoTexto = useMemo(() => {
+    if (!clientesDoAdmin || clientesDoAdmin.length === 0) {
+      return "Nenhum cliente cadastrado.";
+    }
+    const comVencimento = clientesDoAdmin
+      .filter(c => c.expiration_date)
+      .map(c => {
+        let dateObj: Date;
+        try {
+          const parts = String(c.expiration_date).split('T')[0].split('-');
+          if (parts.length === 3) {
+            const year = parseInt(parts[0]);
+            const month = parseInt(parts[1]) - 1;
+            const day = parseInt(parts[2]);
+            dateObj = new Date(year, month, day);
+          } else {
+            dateObj = new Date(c.expiration_date as string);
+          }
+        } catch (_) {
+          dateObj = new Date(0);
+        }
+        return { ...c, dateObj };
+      })
+      .filter(c => !isNaN(c.dateObj.getTime()) && c.dateObj.getTime() > 0)
+      .sort((a, b) => a.dateObj.getTime() - b.dateObj.getTime());
+
+    if (comVencimento.length === 0) {
+      return "Nenhum cliente com vencimento cadastrado.";
+    }
+
+    const proximo = comVencimento[0];
+    const nome = proximo.name || proximo.realName || proximo.real_name || "Cliente";
+    
+    const dia = String(proximo.dateObj.getDate()).padStart(2, '0');
+    const mes = String(proximo.dateObj.getMonth() + 1).padStart(2, '0');
+    const ano = proximo.dateObj.getFullYear();
+    const dataFormatada = `${dia}/${mes}/${ano}`;
+
+    const hoje = new Date();
+    hoje.setHours(0,0,0,0);
+    const dataVenc = new Date(proximo.dateObj);
+    dataVenc.setHours(0,0,0,0);
+    
+    const diffTime = dataVenc.getTime() - hoje.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 0) {
+      return `Vencimento de ${nome}: ${dataFormatada} (Vencido há ${Math.abs(diffDays)} dias)`;
+    } else if (diffDays === 0) {
+      return `Vencimento de ${nome}: ${dataFormatada} (Vence HOJE!)`;
+    } else {
+      return `Próximo vencimento (${nome}): ${dataFormatada} (em ${diffDays} dias)`;
+    }
+  }, [clientesDoAdmin]);
+
   const ticketMedio = useMemo(() => {
     const paidClients = clientesDoAdmin.filter(c => c.pago === 1 || c.pago === "1" || c.pago === true || c.pago === "true");
     if (paidClients.length === 0) return 0;
@@ -3026,15 +3081,15 @@ const AdminDashboard = () => {
                     </div>
                   </div>
 
-                  {/* Alerta 3: Assinatura */}
+                  {/* Alerta 3: Próximo Vencimento */}
                   <div className="flex items-center justify-between bg-gradient-to-r from-amber-600/30 via-orange-600/25 to-amber-700/30 border border-amber-500/20 rounded-xl px-4 py-3 text-white backdrop-blur-md shadow-lg">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg bg-amber-600/30 flex items-center justify-center border border-amber-500/20">
-                        <AlertCircle className="w-4 h-4 text-amber-400" />
+                        <AlertCircle className="w-4 h-4 text-amber-400 animate-pulse" />
                       </div>
-                      <span className="text-sm text-gray-200">Sua assinatura expira em 5 dias.</span>
+                      <span className="text-sm text-gray-200">{proximoVencimentoTexto}</span>
                     </div>
-                    <Button size="sm" className="bg-amber-500 hover:bg-amber-600 text-black font-semibold h-8 px-4 rounded-lg shadow-glow">Renovar</Button>
+                    <Button size="sm" onClick={() => setCurrentPage("users")} className="bg-amber-500 hover:bg-amber-600 text-black font-semibold h-8 px-4 rounded-lg shadow-glow">Gerenciar</Button>
                   </div>
                 </div>
 
