@@ -141,6 +141,78 @@ const AdminDashboard = () => {
   // Usando o hook personalizado para gerenciar os dados do dashboard
   const { stats, loading: loadingStats, error: statsError, refresh: refreshStats } = useDashboardData();
 
+
+
+  // Estados para o modal de cliente
+  const [newUser, setNewUser] = useState({
+    name: "",
+    email: "",
+    plan: "",
+    price: "",
+    status: "Ativo",
+    telegram: "",
+    observations: "",
+    expirationDate: "",
+    password: "",
+    bouquets: "",
+    realName: "",
+    whatsapp: "",
+    devices: 0,
+    credits: 0,
+    notes: "",
+    server: "",
+    m3u_url: "",
+  });
+
+  // Estados para o modal de revendedor
+  const [newReseller, setNewReseller] = useState({
+    username: "",
+    password: "",
+    force_password_change: false,
+    permission: "",
+    credits: 10,
+    servers: "",
+    master_reseller: "",
+    disable_login_days: 0,
+    monthly_reseller: false,
+    personal_name: "",
+    email: "",
+    telegram: "",
+    whatsapp: "",
+    observations: ""
+  });
+
+  const [isAddingReseller, setIsAddingReseller] = useState(false);
+
+  // Estados para a extração M3U
+  const [m3uUrl, setM3uUrl] = useState("");
+  const [isExtracting, setIsExtracting] = useState(false);
+  // Use unknown for extraction result, or define a type if known
+  const [extractionResult, setExtractionResult] = useState<unknown>(null);
+  const [extractionError, setExtractionError] = useState("");
+  const [isAddingUser, setIsAddingUser] = useState(false);
+
+  // Hooks para funções de atualização e dados
+  const { clientes: clientesFromHook, fetchClientes, addCliente: addClienteHook } = useClientes();
+  const { revendas: revendasFromHook, fetchRevendas, addRevenda: addRevendaHook } = useRevendas();
+
+  // Estados locais para os dados
+  // Tipos explícitos para clientes e revendas
+  interface LocalCliente {
+    id: string | number;
+    admin_id?: string | null;
+    [key: string]: unknown;
+  }
+  interface LocalRevenda {
+    id: string | number;
+    admin_id?: string | null;
+    [key: string]: unknown;
+  }
+  const [clientes, setClientes] = useState<LocalCliente[]>([]);
+  const [revendas, setRevendas] = useState<LocalRevenda[]>([]);
+  const [loadingClientes, setLoadingClientes] = useState(true);
+  const [loadingRevendas, setLoadingRevendas] = useState(true);
+
   // --- Cálculos Dinâmicos em Tempo Real com base no Banco de Dados ---
   const clientesDoAdmin = useMemo(() => {
     return clientes || [];
@@ -274,15 +346,15 @@ const AdminDashboard = () => {
     });
   }, [saldoEsteMes]);
 
+  const GeistWeekdaysAdmin = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
   const ultimos8DiasData = useMemo(() => {
     const data = [];
     const hoje = new Date();
-    const weekdayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
     
     for (let i = 7; i >= 0; i--) {
       const d = new Date();
       d.setDate(hoje.getDate() - i);
-      const dayName = weekdayNames[d.getDay()];
+      const dayName = GeistWeekdaysAdmin[d.getDay()];
       const dateStr = d.toISOString().split('T')[0];
       
       let dailyTotal = 0;
@@ -327,76 +399,6 @@ const AdminDashboard = () => {
     }));
     return activities;
   }, [clientesDoAdmin]);
-
-  // Estados para o modal de cliente
-  const [newUser, setNewUser] = useState({
-    name: "",
-    email: "",
-    plan: "",
-    price: "",
-    status: "Ativo",
-    telegram: "",
-    observations: "",
-    expirationDate: "",
-    password: "",
-    bouquets: "",
-    realName: "",
-    whatsapp: "",
-    devices: 0,
-    credits: 0,
-    notes: "",
-    server: "",
-    m3u_url: "",
-  });
-
-  // Estados para o modal de revendedor
-  const [newReseller, setNewReseller] = useState({
-    username: "",
-    password: "",
-    force_password_change: false,
-    permission: "",
-    credits: 10,
-    servers: "",
-    master_reseller: "",
-    disable_login_days: 0,
-    monthly_reseller: false,
-    personal_name: "",
-    email: "",
-    telegram: "",
-    whatsapp: "",
-    observations: ""
-  });
-
-  const [isAddingReseller, setIsAddingReseller] = useState(false);
-
-  // Estados para a extração M3U
-  const [m3uUrl, setM3uUrl] = useState("");
-  const [isExtracting, setIsExtracting] = useState(false);
-  // Use unknown for extraction result, or define a type if known
-  const [extractionResult, setExtractionResult] = useState<unknown>(null);
-  const [extractionError, setExtractionError] = useState("");
-  const [isAddingUser, setIsAddingUser] = useState(false);
-
-  // Hooks para funções de atualização e dados
-  const { clientes: clientesFromHook, fetchClientes, addCliente: addClienteHook } = useClientes();
-  const { revendas: revendasFromHook, fetchRevendas, addRevenda: addRevendaHook } = useRevendas();
-
-  // Estados locais para os dados
-  // Tipos explícitos para clientes e revendas
-  interface LocalCliente {
-    id: string | number;
-    admin_id?: string | null;
-    [key: string]: unknown;
-  }
-  interface LocalRevenda {
-    id: string | number;
-    admin_id?: string | null;
-    [key: string]: unknown;
-  }
-  const [clientes, setClientes] = useState<LocalCliente[]>([]);
-  const [revendas, setRevendas] = useState<LocalRevenda[]>([]);
-  const [loadingClientes, setLoadingClientes] = useState(true);
-  const [loadingRevendas, setLoadingRevendas] = useState(true);
 
   // Atualiza os estados locais quando os dados dos hooks mudam
   useEffect(() => {
