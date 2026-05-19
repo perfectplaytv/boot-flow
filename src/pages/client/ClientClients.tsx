@@ -500,13 +500,10 @@ export default function ClientClients() {
         console.error("❌ Erro ao definir flag localStorage:", error);
       }
 
-      // Aguardar um pouco para o fetchUsers ser executado
-      setTimeout(() => {
-        console.log("Lista de usuários após atualização:", users);
-        const updatedUser = users.find((u) => u.id === editingUser.id);
-        console.log("Usuário atualizado na lista:", updatedUser);
-        console.log("Campo real_name na lista:", updatedUser?.real_name);
-      }, 1000);
+      // Forçar atualização imediata da lista do banco
+      if (fetchClientes) {
+        await fetchClientes();
+      }
 
       setEditingUser(null);
       setIsEditDialogOpen(false);
