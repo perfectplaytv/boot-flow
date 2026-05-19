@@ -1642,125 +1642,360 @@ const ClientDashboard = () => {
         <main className="flex-1 p-6">
           {currentPage === "dashboard" && (
             <div className="max-w-7xl mx-auto space-y-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h1 className="text-2xl sm:text-3xl font-bold text-white">Dashboard Cliente</h1>
-                  <p className="text-gray-400 text-sm sm:text-base">Visão geral do sistema</p>
+              
+              {/* --- BANNERS DE ALERTA PREMIUM --- */}
+              <div className="space-y-3">
+                {/* Alerta 1: NPS */}
+                <div className="flex items-center justify-between bg-gradient-to-r from-purple-800/40 via-purple-700/30 to-purple-900/40 border border-purple-600/30 rounded-xl px-4 py-3 text-white backdrop-blur-md relative overflow-hidden group shadow-lg">
+                  <div className="absolute inset-0 bg-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-purple-600/30 flex items-center justify-center border border-purple-500/30">
+                      <Bell className="w-4 h-4 text-purple-400 animate-bounce" />
+                    </div>
+                    <div>
+                      <span className="font-semibold text-xs text-purple-300 block tracking-wider uppercase">ATUALIZAÇÃO PLUGIN NPS</span>
+                      <span className="text-sm text-gray-200">Confira a última atualização do plugin NPS. Mais moderno e eficiente.</span>
+                    </div>
+                  </div>
+                  <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white h-7 w-7 p-0 rounded-full hover:bg-white/10">✕</Button>
                 </div>
-                <div className="flex items-center gap-2">
-                  <ThemeToggle />
-                  <Button className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white">
-                    <MessageSquare className="w-4 h-4 mr-2" />
-                    Chat IA
-                  </Button>
+
+                {/* Alerta 2: Integração Sigma/QPanel */}
+                <div className="flex items-center justify-between bg-gradient-to-r from-teal-800/40 via-teal-700/30 to-teal-900/40 border border-teal-600/30 rounded-xl px-4 py-3 text-white backdrop-blur-md relative overflow-hidden group shadow-lg">
+                  <div className="absolute inset-0 bg-teal-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-teal-600/30 flex items-center justify-center border border-teal-500/30">
+                      <Star className="w-4 h-4 text-teal-400 fill-teal-400/20" />
+                    </div>
+                    <div>
+                      <span className="font-semibold text-xs text-teal-300 block tracking-wider uppercase">INTEGRAÇÃO COM SIGMA/QPANEL</span>
+                      <span className="text-sm text-gray-200">Você possui painel sigma/qpanel? Estamos lançando nossa nova integração. Participe do programa BFTA. Nos envie uma mensagem no WhatsApp.</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button variant="ghost" size="sm" className="bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 font-medium px-3 h-8 border border-teal-500/20">Saiba Mais</Button>
+                    <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white h-7 w-7 p-0 rounded-full hover:bg-white/10">✕</Button>
+                  </div>
+                </div>
+
+                {/* Alerta 3: Assinatura */}
+                <div className="flex items-center justify-between bg-gradient-to-r from-amber-600/30 via-orange-600/25 to-amber-700/30 border border-amber-500/20 rounded-xl px-4 py-3 text-white backdrop-blur-md shadow-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-amber-600/30 flex items-center justify-center border border-amber-500/20">
+                      <AlertCircle className="w-4 h-4 text-amber-400" />
+                    </div>
+                    <span className="text-sm text-gray-200">Sua assinatura expira em 5 dias.</span>
+                  </div>
+                  <Button size="sm" className="bg-amber-500 hover:bg-amber-600 text-black font-semibold h-8 px-4 rounded-lg shadow-glow">Renovar</Button>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <Card className="bg-[#1f2937] hover:shadow-glow transition-all duration-300">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium text-white">Horas IPTV</CardTitle>
-                    <Tv className="h-4 w-4 text-gray-400" />
+              {/* --- CARD DE BOAS-VINDAS PREMIUM --- */}
+              <div className="bg-gradient-to-br from-[#1c142b] via-[#151122] to-[#0d0914] border border-[#2d2242] rounded-2xl p-6 relative overflow-hidden group shadow-2xl">
+                <div className="absolute right-0 bottom-0 top-0 w-1/3 opacity-15 pointer-events-none bg-cover bg-right" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M80 30 A10 10 0 1 0 80 50 A10 10 0 1 0 80 30 Z' fill='%237e22ce'/%3E%3C/svg%3E")` }}></div>
+                <div className="absolute -top-12 -left-12 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl group-hover:bg-purple-500/15 transition-all duration-700"></div>
+                <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl group-hover:bg-blue-500/15 transition-all duration-700"></div>
+                
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 relative z-10">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-green-400 animate-ping"></div>
+                      <span className="text-xs text-purple-300 font-medium tracking-wider uppercase">Plataforma Ativa</span>
+                    </div>
+                    <h2 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
+                      Boa tarde, Thiago!
+                    </h2>
+                    <p className="text-gray-400 text-sm md:text-base">
+                      Aqui está o resumo geral do seu negócio em tempo real — {new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })}.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-3">
+                    <Button onClick={() => {
+                      setNewUser({
+                        name: "",
+                        email: "",
+                        plan: "",
+                        price: "",
+                        status: "Ativo",
+                        telegram: "",
+                        observations: "",
+                        expirationDate: "",
+                        password: "",
+                        bouquets: "",
+                        realName: "",
+                        whatsapp: "",
+                        devices: 0,
+                        credits: 0,
+                        notes: "",
+                        server: "",
+                        m3u_url: "",
+                      });
+                      setClientModal(true);
+                    }} className="bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl px-5 py-5 shadow-lg border border-purple-500/30 hover:scale-105 transition-all duration-300">
+                      <Plus className="w-4 h-4 mr-2" /> Adicionar cliente
+                    </Button>
+                    <Button onClick={() => setCurrentPage("clients")} variant="outline" className="bg-white/5 border-white/10 hover:bg-white/10 text-white font-semibold rounded-xl px-5 py-5 hover:scale-105 transition-all duration-300">
+                      <Users className="w-4 h-4 mr-2" /> Ver clientes
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              {/* --- 4 CARDS DE MÉTRICAS PRINCIPAIS --- */}
+              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* Card 1: Total Clientes */}
+                <Card className="bg-[#15131b]/60 border border-[#2b213a]/50 text-white shadow-glow relative overflow-hidden group hover:scale-[1.03] transition-all duration-300">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/5 rounded-full blur-2xl group-hover:bg-purple-500/10 transition-all duration-300"></div>
+                  <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                    <CardTitle className="text-xs sm:text-sm font-semibold tracking-wide text-gray-400 uppercase">Total de clientes</CardTitle>
+                    <div className="p-2 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-400">
+                      <Users className="w-4 h-4" />
+                    </div>
                   </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-white">{stats.iptvHours}h</div>
-                    <p className="text-xs text-gray-400">Este mês</p>
+                  <CardContent className="pt-2">
+                    <div className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">{totalClientesCount}</div>
+                    <div className="flex items-center gap-1 mt-1">
+                      <span className="text-xs text-purple-400 font-medium">Clientes cadastrados</span>
+                    </div>
                   </CardContent>
                 </Card>
 
-                <Card className="bg-[#1f2937] hover:shadow-glow transition-all duration-300">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium text-white">Horas Rádio</CardTitle>
-                    <Radio className="h-4 w-4 text-gray-400" />
+                {/* Card 2: Inadimplentes */}
+                <Card className="bg-[#191313]/60 border border-[#3a2121]/50 text-white shadow-glow relative overflow-hidden group hover:scale-[1.03] transition-all duration-300">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-red-500/5 rounded-full blur-2xl group-hover:bg-red-500/10 transition-all duration-300"></div>
+                  <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                    <CardTitle className="text-xs sm:text-sm font-semibold tracking-wide text-gray-400 uppercase">Inadimplentes</CardTitle>
+                    <div className="p-2 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400">
+                      <AlertCircle className="w-4 h-4" />
+                    </div>
                   </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-white">{stats.radioHours}h</div>
-                    <p className="text-xs text-gray-400">Este mês</p>
+                  <CardContent className="pt-2">
+                    <div className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">{inadimplentesCount}</div>
+                    <div className="flex items-center gap-1 mt-1">
+                      <span className="text-xs text-red-400 font-medium">Aguardando pagamento</span>
+                    </div>
                   </CardContent>
                 </Card>
 
-                <Card className="bg-[#1f2937] hover:shadow-glow transition-all duration-300">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium text-white">Conversas IA</CardTitle>
-                    <Brain className="h-4 w-4 text-gray-400" />
+                {/* Card 3: Ativos */}
+                <Card className="bg-[#131916]/60 border border-[#213a29]/50 text-white shadow-glow relative overflow-hidden group hover:scale-[1.03] transition-all duration-300">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-green-500/5 rounded-full blur-2xl group-hover:bg-green-500/10 transition-all duration-300"></div>
+                  <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                    <CardTitle className="text-xs sm:text-sm font-semibold tracking-wide text-gray-400 uppercase">Ativos</CardTitle>
+                    <div className="p-2 rounded-lg bg-green-500/10 border border-green-500/20 text-green-400">
+                      <Zap className="w-4 h-4" />
+                    </div>
                   </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-white">{stats.aiChats}</div>
-                    <p className="text-xs text-gray-400">Este mês</p>
+                  <CardContent className="pt-2">
+                    <div className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">{ativosCount}</div>
+                    <div className="flex items-center gap-1 mt-1">
+                      <span className="text-xs text-green-400 font-medium">Contas com acesso</span>
+                    </div>
                   </CardContent>
                 </Card>
 
-                <Card className="bg-[#1f2937] hover:shadow-glow transition-all duration-300">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium text-white">Pontos Game</CardTitle>
-                    <Gamepad2 className="h-4 w-4 text-gray-400" />
+                {/* Card 4: Expiram Hoje */}
+                <Card className="bg-[#181713]/60 border border-[#3a3021]/50 text-white shadow-glow relative overflow-hidden group hover:scale-[1.03] transition-all duration-300">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-yellow-500/5 rounded-full blur-2xl group-hover:bg-yellow-500/10 transition-all duration-300"></div>
+                  <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                    <CardTitle className="text-xs sm:text-sm font-semibold tracking-wide text-gray-400 uppercase">Expiram hoje</CardTitle>
+                    <div className="p-2 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-yellow-400">
+                      <Calendar className="w-4 h-4" />
+                    </div>
                   </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-white">{stats.gamePoints}</div>
-                    <p className="text-xs text-gray-400">Nível 5</p>
+                  <CardContent className="pt-2">
+                    <div className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">{expiramHojeCount}</div>
+                    <div className="flex items-center gap-1 mt-1">
+                      <span className="text-xs text-yellow-400 font-medium">Vencendo hoje</span>
+                    </div>
                   </CardContent>
                 </Card>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <Card className="bg-[#1f2937] cursor-pointer hover:shadow-glow transition-all duration-300">
-                  <CardHeader>
-                    <div className="flex items-center space-x-2">
-                      <Tv className="w-6 h-6 text-purple-500" />
-                      <CardTitle className="text-white">IPTV Player</CardTitle>
+              {/* --- BLOCO FINANCEIRO (SALDO E FECHAMENTO) --- */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Saldo Este Mês */}
+                <div className="bg-gradient-to-br from-[#1e133d] to-[#140e29] border border-[#3b2875]/40 rounded-2xl p-6 relative overflow-hidden group shadow-2xl flex flex-col justify-between min-h-[160px]">
+                  <div className="absolute -top-12 -left-12 w-32 h-32 bg-purple-500/15 rounded-full blur-2xl pointer-events-none"></div>
+                  <div className="absolute -bottom-12 -right-12 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl pointer-events-none"></div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-semibold text-purple-300 tracking-wide uppercase">Saldo este mês</span>
+                    <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-300 border border-purple-500/30">
+                      <DollarSign className="w-4 h-4" />
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-400 mb-4">
-                      Assista seus canais favoritos
-                    </p>
-                    <Button className="w-full bg-[#7e22ce] hover:bg-[#6d1bb7] text-white">
-                      <Play className="w-4 h-4 mr-2" />
-                      Abrir Player
-                    </Button>
-                  </CardContent>
-                </Card>
+                  </div>
+                  <div className="mt-4">
+                    <h3 className="text-3xl font-extrabold text-white tracking-tight">
+                      R$ {saldoEsteMes.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </h3>
+                    <p className="text-xs text-purple-400 mt-1">Seu caixa hoje Thiago</p>
+                  </div>
+                </div>
 
-                <Card className="bg-[#1f2937] cursor-pointer hover:shadow-glow transition-all duration-300">
-                  <CardHeader>
-                    <div className="flex items-center space-x-2">
-                      <Radio className="w-6 h-6 text-blue-500" />
-                      <CardTitle className="text-white">Rádio Web</CardTitle>
+                {/* Fechamento Mês Anterior */}
+                <div className="bg-gradient-to-br from-[#131f3d] to-[#0e1429] border border-[#284975]/40 rounded-2xl p-6 relative overflow-hidden group shadow-2xl flex flex-col justify-between min-h-[160px]">
+                  <div className="absolute -top-12 -left-12 w-32 h-32 bg-blue-500/15 rounded-full blur-2xl pointer-events-none"></div>
+                  <div className="absolute -bottom-12 -right-12 w-32 h-32 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none"></div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-semibold text-blue-300 tracking-wide uppercase">Fechamento, mês anterior</span>
+                    <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-300 border border-blue-500/30">
+                      <Clock className="w-4 h-4" />
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-400 mb-4">
-                      Ouça suas rádios favoritas
-                    </p>
-                    <Button className="w-full bg-[#7e22ce] hover:bg-[#6d1bb7] text-white">
-                      <Play className="w-4 h-4 mr-2" />
-                      Ouvir Agora
-                    </Button>
-                  </CardContent>
-                </Card>
+                  </div>
+                  <div className="mt-4">
+                    <h3 className="text-3xl font-extrabold text-white tracking-tight">
+                      R$ {(saldoEsteMes * 0.95).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </h3>
+                    <p className="text-xs text-blue-400 mt-1">Resultado do mês passado</p>
+                  </div>
+                </div>
 
-                <Card className="bg-[#1f2937] cursor-pointer hover:shadow-glow transition-all duration-300">
-                  <CardHeader>
-                    <div className="flex items-center space-x-2">
-                      <Gamepad2 className="w-6 h-6 text-orange-500" />
-                      <CardTitle className="text-white">Startup Game</CardTitle>
+                {/* Ticket Médio */}
+                <div className="bg-gradient-to-br from-[#122424] to-[#0d1616] border border-[#287569]/40 rounded-2xl p-6 relative overflow-hidden group shadow-2xl flex flex-col justify-between min-h-[160px]">
+                  <div className="absolute -top-12 -left-12 w-32 h-32 bg-teal-500/15 rounded-full blur-2xl pointer-events-none"></div>
+                  <div className="absolute -bottom-12 -right-12 w-32 h-32 bg-[#287569]/10 rounded-full blur-2xl pointer-events-none"></div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-semibold text-teal-300 tracking-wide uppercase">Ticket Médio <span className="text-[10px] text-gray-400 capitalize">(30 dias)</span></span>
+                    <div className="w-8 h-8 rounded-lg bg-teal-500/20 flex items-center justify-center text-teal-300 border border-teal-500/30">
+                      <TrendingUp className="w-4 h-4" />
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-400 mb-4">
-                      Construa seu império digital
-                    </p>
-                    <div className="flex items-center space-x-2 mb-4">
-                      <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                      <span className="text-sm text-white">Nível 5 - CEO</span>
-                    </div>
-                    <Button className="w-full bg-[#7e22ce] hover:bg-[#6d1bb7] text-white">
-                      <Play className="w-4 h-4 mr-2" />
-                      Jogar
-                    </Button>
-                  </CardContent>
-                </Card>
+                  </div>
+                  <div className="mt-4">
+                    <h3 className="text-3xl font-extrabold text-white tracking-tight">
+                      R$ {ticketMedio.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </h3>
+                    <p className="text-xs text-teal-400 mt-1">Por pagamento aprovado</p>
+                  </div>
+                </div>
               </div>
+
+              {/* --- SEÇÃO DE GRÁFICOS RECHARTS E ATIVIDADES --- */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                {/* 1. Receita por Dia */}
+                <Card className="bg-[#111115]/65 border border-white/5 shadow-2xl rounded-2xl">
+                  <CardHeader className="border-b border-white/5 pb-4">
+                    <CardTitle className="text-base font-bold text-white flex items-center gap-2">
+                      <TrendingUp className="w-4 h-4 text-purple-400" />
+                      RECEITA POR DIA — {new Date().toLocaleString('pt-BR', { month: 'long', year: 'numeric' }).toUpperCase()}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-6 h-[300px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={receitaPorDiaData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                        <defs>
+                          <linearGradient id="colorGanhos" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#7e22ce" stopOpacity={0.4}/>
+                            <stop offset="95%" stopColor="#7e22ce" stopOpacity={0}/>
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#222" vertical={false} />
+                        <XAxis dataKey="name" stroke="#555" fontSize={10} tickLine={false} />
+                        <YAxis stroke="#555" fontSize={10} tickLine={false} />
+                        <RechartsTooltip 
+                          contentStyle={{ backgroundColor: '#18181b', border: '1px solid #333', borderRadius: '8px' }}
+                          labelStyle={{ color: '#fff', fontWeight: 'bold' }}
+                          itemStyle={{ color: '#a855f7' }}
+                        />
+                        <Area type="monotone" dataKey="Ganhos" stroke="#7e22ce" strokeWidth={3} fillOpacity={1} fill="url(#colorGanhos)" />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+
+                {/* 2. Atividade Recente */}
+                <Card className="bg-[#111115]/65 border border-white/5 shadow-2xl rounded-2xl">
+                  <CardHeader className="border-b border-white/5 pb-4">
+                    <CardTitle className="text-base font-bold text-white flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-blue-400" />
+                      ATIVIDADE RECENTE DO NEGÓCIO
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-4">
+                    <div className="space-y-4">
+                      {recentUnifiedActivities.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+                          <AlertCircle className="w-10 h-10 mb-2 stroke-1" />
+                          <span>Nenhuma atividade recente encontrada</span>
+                        </div>
+                      ) : (
+                        recentUnifiedActivities.map((act, i) => (
+                          <div key={act.id} className="flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 transition-all duration-300">
+                            <div className="flex items-center gap-3">
+                              <div className="w-9 h-9 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center font-bold text-purple-300 text-sm">
+                                {act.user.substring(0, 2).toUpperCase()}
+                              </div>
+                              <div>
+                                <span className="font-semibold text-sm text-white block">{act.user}</span>
+                                <span className="text-xs text-gray-400">{act.action}</span>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <span className="text-xs text-gray-500 block">{act.time}</span>
+                              <Badge className={act.status === 'Ativo' ? 'bg-green-500/20 text-green-300 border border-green-500/30' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'}>
+                                {act.status}
+                              </Badge>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* 3. Gastos e Ganhos (Comparativo) */}
+                <Card className="bg-[#111115]/65 border border-white/5 shadow-2xl rounded-2xl">
+                  <CardHeader className="border-b border-white/5 pb-4">
+                    <CardTitle className="text-base font-bold text-white flex items-center gap-2">
+                      <BarChart3 className="w-4 h-4 text-emerald-400" />
+                      DESEMPENHO ANUAL (PROJEÇÃO VS CUSTOS)
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-6 h-[300px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={gastosEGanhosData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#222" vertical={false} />
+                        <XAxis dataKey="name" stroke="#555" fontSize={10} tickLine={false} />
+                        <YAxis stroke="#555" fontSize={10} tickLine={false} />
+                        <RechartsTooltip 
+                          contentStyle={{ backgroundColor: '#18181b', border: '1px solid #333', borderRadius: '8px' }}
+                          labelStyle={{ color: '#fff', fontWeight: 'bold' }}
+                        />
+                        <Legend verticalAlign="top" height={36} iconType="circle" />
+                        <Bar dataKey="Ganhos" fill="#7e22ce" radius={[4, 4, 0, 0]} />
+                        <Bar dataKey="Gastos" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+
+                {/* 4. Ganhos - Últimos 8 Dias */}
+                <Card className="bg-[#111115]/65 border border-white/5 shadow-2xl rounded-2xl">
+                  <CardHeader className="border-b border-white/5 pb-4">
+                    <CardTitle className="text-base font-bold text-white flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-amber-400" />
+                      GANHOS — ÚLTIMOS 8 DIAS
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-6 h-[300px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={ultimos8DiasData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#222" vertical={false} />
+                        <XAxis dataKey="name" stroke="#555" fontSize={10} tickLine={false} />
+                        <YAxis stroke="#555" fontSize={10} tickLine={false} />
+                        <RechartsTooltip 
+                          contentStyle={{ backgroundColor: '#18181b', border: '1px solid #333', borderRadius: '8px' }}
+                          labelStyle={{ color: '#fff', fontWeight: 'bold' }}
+                          itemStyle={{ color: '#10b981' }}
+                        />
+                        <Bar dataKey="Ganhos" fill="#10b981" radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+
+              </div>
+
             </div>
           )}
 
