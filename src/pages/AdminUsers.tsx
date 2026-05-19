@@ -317,6 +317,7 @@ export default function AdminUsers() {
         credits: newUser.credits || 0,
         notes: newUser.notes || "",
         server: newUser.server || "",
+        price: newUser.price || "",
       };
 
       console.log("📤 [DEBUG] Dados preparados para adicionar:", userData);

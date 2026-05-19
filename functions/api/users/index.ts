@@ -91,6 +91,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
             credits: typeof body.credits === 'number' ? body.credits : 0,
             notes: (body.notes as string) || null,
             server: (body.server as string) || null,
+            price: (body.price as string) || null,
+            pago: typeof body.pago === 'boolean' ? body.pago : false,
             owner_uid: ownerId, // Garante o isolamento
             renewal_date: (body.renewal_date as string) || null,
         };

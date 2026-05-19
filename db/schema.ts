@@ -22,6 +22,8 @@ export const users = sqliteTable('users', {
     m3u_url: text('m3u_url'),
     renewal_date: text('renewal_date'),
     phone: text('phone'),
+    price: text('price'),
+    pago: integer('pago', { mode: 'boolean' }).default(false),
     owner_uid: text('owner_uid'), // ID do admin/revenda que criou
     created_at: text('created_at').default(sql`CURRENT_TIMESTAMP`),
     updated_at: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
